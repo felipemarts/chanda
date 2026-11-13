@@ -7,7 +7,7 @@ func TestAliasNormalization_LowercaseNoAccentsNoPunctuation(t *testing.T) {
 		"José  O'Brien-Silva": "jose o brien silva",
 		"ACME, Inc.":          "acme inc",
 		"  São   Paulo ":      "sao paulo",
-		"Café":          "cafe", // decomposed accent
+		"Café":               "cafe", // decomposed accent
 		"Ünïcödé":             "unicode",
 		"...":                 "",
 	}
