@@ -1,0 +1,9 @@
+/chanda
+/bin/
+*.db
+*.db-wal
+*.db-shm
+/snapshots/
+/models/
+/eval/out/
+.DS_Store
