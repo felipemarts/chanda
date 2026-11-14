@@ -11,6 +11,7 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"time"
 
 	sdk "github.com/modelcontextprotocol/go-sdk/mcp"
 
@@ -30,9 +31,15 @@ type world struct {
 	app                *app.App
 	docs               string // the only folder MCP may ingest from
 	agent, tool, admin *sdk.ClientSession
+	clk                interface{ Advance(time.Duration) }
 }
 
 func newWorld(t *testing.T, mut func(*config.Config)) *world {
+	return newWorldWith(t, mut, app.Options{})
+}
+
+// newWorldWith is newWorld with App options (e.g. a scripted LLM for sleep).
+func newWorldWith(t *testing.T, mut func(*config.Config), o app.Options) *world {
 	t.Helper()
 	base := t.TempDir()
 	docs := filepath.Join(base, "docs")
@@ -46,12 +53,12 @@ func newWorld(t *testing.T, mut func(*config.Config)) *world {
 	if mut != nil {
 		mut(cfg)
 	}
-	e, _ := env.NewTestAt(t, filepath.Join(base, "chanda.db"), cfg)
-	a, err := app.New(e)
+	e, clk := env.NewTestAt(t, filepath.Join(base, "chanda.db"), cfg)
+	a, err := app.NewWith(e, o)
 	if err != nil {
 		t.Fatal(err)
 	}
-	w := &world{t: t, app: a, docs: docs}
+	w := &world{t: t, app: a, docs: docs, clk: clk}
 	channel := func(actor string, human bool, zone string, profiles ...string) *sdk.ClientSession {
 		c := *cfg
 		c.MCP.Actor, c.MCP.HumanActor, c.MCP.MaxZone, c.MCP.Profiles = actor, human, zone, profiles

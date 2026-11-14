@@ -5,9 +5,11 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"time"
 
 	sdk "github.com/modelcontextprotocol/go-sdk/mcp"
 
+	"github.com/felipemarts/chanda-mcp/internal/app"
 	"github.com/felipemarts/chanda-mcp/pkg/chanda"
 )
 
@@ -128,12 +130,12 @@ func TestPhase6Injection(t *testing.T) {
 // Phase 6, deletion suite: every forget request passes every probe, and
 // nothing derived is left.
 func TestPhase6Deletion(t *testing.T) {
-	w := newWorld(t, nil)
+	w := newWorldWith(t, nil, app.Options{LLM: scriptedLLM()})
 	w.writeDoc("salaries.md", "# Payroll\n\nOwner: Joana Prado\n\nThe payroll file lives in the vault room B12 under code ZEBRAFISH.\n")
 	var ing chanda.IngestOutput
 	w.ok(w.admin, chanda.ToolIngest, map[string]any{"path": w.docs}, &ing)
 	var r1, r2, r3, keep chanda.RememberOutput
-	w.ok(w.agent, chanda.ToolRemember, map[string]any{"content": "Marcelo's badge number is 77812 and his locker is 14."}, &r1)
+	w.ok(w.agent, chanda.ToolRemember, map[string]any{"content": "Marcelo's badge is 77812."}, &r1)
 	w.ok(w.agent, chanda.ToolRemember, map[string]any{"content": "The quarterly offsite moves to Gramado in October."}, &r2)
 	w.ok(w.tool, chanda.ToolRemember, map[string]any{"content": "Leaked memo mentions project NIGHTJAR budget cuts.",
 		"source": map[string]any{"kind": "web", "uri": "https://leaks.example/memo"}}, &r3)
@@ -144,6 +146,28 @@ func TestPhase6Deletion(t *testing.T) {
 	// Make the content travel into the learning layer too.
 	s := w.search(w.agent, "Marcelo badge locker", nil)
 	w.ok(w.agent, chanda.ToolOutcome, map[string]any{"retrieval_id": s.RetrievalID, "value": 1, "used_ids": []string{r1.ID}}, nil)
+	// ...and into sleep: phase 1 proposes gate questions from the facts,
+	// phase 2 extracts a fact from r1 (snapshot, report, outputs).
+	w.clk.Advance(time.Minute)
+	var sr chanda.SleepRunOutput
+	w.ok(w.admin, chanda.ToolSleepRun, map[string]any{}, &sr)
+	if sr.Status != "completed" || sr.Created != 1 {
+		t.Fatalf("sleep before forget: %+v\n%s", sr, sr.Report)
+	}
+	var badge chanda.TimelineOutput
+	w.ok(w.admin, chanda.ToolTimeline, map[string]any{"subject": "Marcelo", "predicate": "badge"}, &badge)
+	if len(badge.Entries) != 1 || badge.Entries[0].Value != "77812" {
+		t.Fatalf("sleep extraction %+v", badge.Entries)
+	}
+	db := w.app.Env().Store.DB()
+	var gq int
+	if err := db.QueryRow(`SELECT count(*) FROM gate_questions WHERE question LIKE '%Marcelo%'`).Scan(&gq); err != nil || gq == 0 {
+		t.Fatalf("no gate question proposed about Marcelo: %d %v", gq, err)
+	}
+	if _, err := db.Exec(`UPDATE sleep_runs SET report = report || ?`, "\n- probe ids: "+r1.ID+" "+badge.Entries[0].FactID); err != nil {
+		t.Fatal(err) // stands for a report that names the records (e.g. stale facts)
+	}
+	gone := []string{badge.Entries[0].FactID}
 
 	cases := []struct {
 		name   string
@@ -151,7 +175,7 @@ func TestPhase6Deletion(t *testing.T) {
 		probes []string // distinctive terms that must be gone
 		gone   []string // ids that must be gone
 	}{
-		{"record", map[string]any{"kind": "record", "value": r1.ID}, []string{"77812"}, []string{r1.ID}},
+		{"record", map[string]any{"kind": "record", "value": r1.ID}, []string{"77812"}, append([]string{r1.ID}, gone...)},
 		{"entity", map[string]any{"kind": "entity", "value": "Marcelo"}, []string{"locker"}, []string{fct.ID}},
 		{"document", map[string]any{"kind": "document", "value": ing.Documents[0].URI}, []string{"ZEBRAFISH", "Joana"}, nil},
 		{"source", map[string]any{"kind": "source", "value": "https://leaks.example/memo"}, []string{"NIGHTJAR"}, []string{r3.ID}},
@@ -184,6 +208,19 @@ func TestPhase6Deletion(t *testing.T) {
 				t.Fatalf("%s: %s still readable: %+v", c.name, id, env)
 			}
 		}
+	}
+	// Sleep runs keep no forgotten id; gate questions about forgotten facts are gone.
+	for _, c := range cases {
+		for _, id := range c.gone {
+			var n int
+			if err := db.QueryRow(`SELECT count(*) FROM sleep_runs WHERE instr(report, ?) > 0 OR instr(outputs, ?) > 0 OR instr(inputs, ?) > 0`,
+				id, id, id).Scan(&n); err != nil || n != 0 {
+				t.Fatalf("%s still named by %d sleep runs (%v)", id, n, err)
+			}
+		}
+	}
+	if err := db.QueryRow(`SELECT count(*) FROM gate_questions WHERE question LIKE '%Marcelo%'`).Scan(&gq); err != nil || gq != 0 {
+		t.Fatalf("%d gate questions about a forgotten entity survive (%v)", gq, err)
 	}
 	if s := w.search(w.agent, "feijoada", nil); len(s.Items) != 1 || s.Items[0].ID != keep.ID {
 		t.Fatalf("unrelated memory must survive: %+v", s.Items)
