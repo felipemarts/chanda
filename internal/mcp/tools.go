@@ -108,7 +108,8 @@ var specs = []ToolSpec{
 		Name: chanda.ToolRemember, Title: "Remember text", Profile: ProfileStandard,
 		Description: "Store a piece of free text in long-term memory: a decision, a preference, a lesson, a summary of what was " +
 			"done. Write self-contained text (who, what, when). Set source.kind to tool or web when the text came from a tool " +
-			"result or a web page, and user_statement only for the user's own words; the kind fixes how much the text is trusted. " +
+			"result or a web page, and user_statement only for the user's own words; the kind fixes how much the text is trusted, " +
+			"capped by this server's mcp.max_zone. " +
 			"Exact duplicates are detected and return the existing id (action duplicate)." + envelopeNote,
 	},
 	{
@@ -120,7 +121,8 @@ var specs = []ToolSpec{
 	},
 	{
 		Name: chanda.ToolIngest, Title: "Ingest documents", Profile: ProfileStandard,
-		Description: "Ingest a document or a whole folder from the server's filesystem into memory. Re-ingesting a changed " +
+		Description: "Ingest a document or a whole folder from the server's filesystem into memory. Only paths under the " +
+			"folders configured in write.ingest_roots are allowed (permission_denied otherwise). Re-ingesting a changed " +
 			"document keeps the unchanged chunks, retires the removed ones and marks facts derived from them as stale. " +
 			"data.documents reports what happened to each file." + envelopeNote,
 	},
