@@ -6,6 +6,10 @@
 /snapshots/
 /models/
 /eval/out/
+/eval/lme/data/
+/eval/lme/work/
+/eval/lme/out/
+/eval/lme/bin/
 .DS_Store
 /.claude/worktrees/
 .env

@@ -1,0 +1,66 @@
+[
+  {
+    "question_id": "q1",
+    "question_type": "single-session-user",
+    "question": "What degree did I graduate with?",
+    "question_date": "2023/05/30 (Tue) 23:40",
+    "answer": "Business Administration",
+    "answer_session_ids": ["answer_a1"],
+    "haystack_dates": ["2023/05/20 (Sat) 02:21", "2023/05/22 (Mon) 09:23", "2023/05/21 (Sun) 13:12"],
+    "haystack_session_ids": ["sharegpt_x1", "answer_a1", "ultrachat_y1"],
+    "haystack_sessions": [
+      [
+        {"role": "user", "content": "Can you recommend a good recipe for banana bread with walnuts?"},
+        {"role": "assistant", "content": "Sure. Mash three ripe bananas, mix with melted butter, sugar, an egg and flour, fold in chopped walnuts and bake for an hour."}
+      ],
+      [
+        {"role": "user", "content": "I graduated with a degree in Business Administration and now I want to plan my career in marketing.", "has_answer": true},
+        {"role": "assistant", "content": "A Business Administration degree is a solid base for marketing roles. Consider analytics certificates."}
+      ],
+      [
+        {"role": "user", "content": "What are the best hiking trails near Denver for beginners?"},
+        {"role": "assistant", "content": "Try the Red Rocks trail and the Chautauqua loop; both are short and well marked."}
+      ]
+    ]
+  },
+  {
+    "question_id": "q2",
+    "question_type": "single-session-assistant",
+    "question": "What trail did you suggest near Denver?",
+    "question_date": "2023/06/02 (Fri) 10:00",
+    "answer": 2,
+    "answer_session_ids": ["answer_b1"],
+    "haystack_dates": ["2023/05/20 (Sat) 02:21", "2023/05/25 (Thu) 08:00"],
+    "haystack_session_ids": ["sharegpt_x1", "answer_b1"],
+    "haystack_sessions": [
+      [
+        {"role": "user", "content": "Can you recommend a good recipe for banana bread with walnuts?"},
+        {"role": "assistant", "content": "Sure. Mash three ripe bananas, mix with melted butter, sugar, an egg and flour, fold in chopped walnuts and bake for an hour."}
+      ],
+      [
+        {"role": "user", "content": "Any easy hikes around Denver?"},
+        {"role": "assistant", "content": "I suggest the Chautauqua trail near Denver: short, scenic and easy.", "has_answer": true}
+      ]
+    ]
+  },
+  {
+    "question_id": "q3_abs",
+    "question_type": "multi-session",
+    "question": "How many cats did I adopt in total?",
+    "question_date": "2023/06/03 (Sat) 10:00",
+    "answer": "You did not mention adopting any cats.",
+    "answer_session_ids": ["answer_c1"],
+    "haystack_dates": ["2023/05/20 (Sat) 02:21", "2023/05/26 (Fri) 08:00"],
+    "haystack_session_ids": ["sharegpt_x1", "answer_c1"],
+    "haystack_sessions": [
+      [
+        {"role": "user", "content": "Can you recommend a good recipe for banana bread with walnuts?"},
+        {"role": "assistant", "content": "Sure. Mash three ripe bananas, mix with melted butter, sugar, an egg and flour, fold in chopped walnuts and bake for an hour."}
+      ],
+      [
+        {"role": "user", "content": "I adopted two dogs from the shelter last week.", "has_answer": true},
+        {"role": "assistant", "content": "Congratulations on adopting two dogs!"}
+      ]
+    ]
+  }
+]

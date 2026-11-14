@@ -43,3 +43,9 @@ python package truststore (eval/lme/py venv) | 0.10.5 | PyPI, hash-pinned in eva
 python package typing-extensions (eval/lme/py venv) | 4.16.0 | PyPI, hash-pinned in eval/lme/py/requirements.txt (uv pip compile --generate-hashes --exclude-newer 2026-11-01)
 python package typing-inspection (eval/lme/py venv) | 0.4.4 | PyPI, hash-pinned in eval/lme/py/requirements.txt (uv pip compile --generate-hashes --exclude-newer 2026-11-01)
 python package urllib3 (eval/lme/py venv) | 2.8.0 | PyPI, hash-pinned in eval/lme/py/requirements.txt (uv pip compile --generate-hashes --exclude-newer 2026-11-01)
+longmemeval-cleaned longmemeval_s_cleaned.json | revision 98d7416c24c778c2fee6e6f3006e7a073259d48f, sha256 d6f21ea9d60a0d56f34a05b609c79c88a451d2ae03597821ea3d5a9678c3a442, 277383467 bytes | https://huggingface.co/datasets/xiaowu0162/longmemeval-cleaned/resolve/98d7416c24c778c2fee6e6f3006e7a073259d48f/longmemeval_s_cleaned.json
+LongMemEval official code (metric definitions read) | commit 9e0b455f4ef0e2ab8f2e582289761153549043fc | https://github.com/xiaowu0162/LongMemEval
+Go toolchain for eval/lme | go1.27.0 darwin/arm64 | fetched by GOTOOLCHAIN=auto from eval/lme/go.mod (go 1.27.0)
+github.com/modelcontextprotocol/go-sdk (eval/lme MCP client) | v1.8.0 | eval/lme/go.sum (same as the main module)
+modernc.org/sqlite (eval/lme BM25 FTS5 and embedding cache) | v1.62.0 | eval/lme/go.sum (same as the main module)
+github.com/knights-analytics/hugot (eval/lme e5 embedder, through embedders/hugot) | v0.8.6 | eval/lme/go.sum (same as embedders/hugot)
