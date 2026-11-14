@@ -2,20 +2,43 @@ package cli
 
 import (
 	"context"
+	"fmt"
 	"io"
 
+	"github.com/felipemarts/chanda-mcp/internal/config"
+	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda-mcp/internal/embed"
 	"github.com/felipemarts/chanda-mcp/internal/eval"
+	"github.com/felipemarts/chanda-mcp/internal/eval/coresys"
 )
 
-// EvalCLI is the evaluation front end used by "chanda eval".
+// EvalCLI is the evaluation front end used by "chanda eval": the baselines
+// B0..B3 and the Chanda configurations C1..C5, compared with the configured
+// embedder (internal/embed: the hash embedder by default, hugot in
+// chanda-hugot), so B2 and every C system share one embedding model; and the
+// eight own suites, those needing a live core run by internal/eval/coresys.
 func EvalCLI(version string) eval.CLI {
-	c := eval.DefaultCLI()
-	c.Version = version
-	return c
+	fs := eval.BaselineFactories()
+	for n, f := range coresys.Factories() {
+		fs[n] = f
+	}
+	return eval.CLI{
+		Factories:   fs,
+		NewEmbedder: func(cfg *config.Config) (core.Embedder, error) { return embed.NewFromConfig(cfg.Embed) },
+		Suites: func(fe eval.FactoryEnv) *eval.Registry {
+			r := eval.NewRegistry()
+			if err := coresys.Register(r, fe); err != nil {
+				panic(err) // static suite names
+			}
+			return r
+		},
+		Version: version,
+	}
 }
 
 // RunEval is the default Eval hook: the evaluation harness (BASE.md
 // "Evaluation") with every compared configuration and suite.
-func RunEval(_ context.Context, args []string, stdout, _ io.Writer) int {
+func RunEval(_ context.Context, args []string, stdout, stderr io.Writer) int {
+	coresys.Logf = func(format string, a ...any) { fmt.Fprintf(stderr, "chanda eval: "+format+"\n", a...) }
 	return EvalCLI(Version).Main(args, stdout)
 }

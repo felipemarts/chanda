@@ -64,7 +64,7 @@ func factory(v Variant) eval.Factory {
 func (s *System) probeSleep(ctx context.Context) error {
 	_, err := s.app.SleepRun(op(ctx), chanda.SleepRunInput{Namespace: Namespace + "-probe", Phases: []int{1}})
 	if core.CodeOf(err) == core.CodeUnavailable {
-		return core.Errf(core.CodeUnavailable, "%s not run, sleep_run is unavailable in the core: %v", s.v.Name, err)
+		return core.Errf(core.CodeUnavailable, "%s not run, sleep_run is unavailable in the core (%s)", s.v.Name, eval.Reason(err))
 	}
 	return err
 }

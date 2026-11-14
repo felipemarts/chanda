@@ -2,7 +2,10 @@ package eval
 
 import (
 	"context"
+	"errors"
 	"time"
+
+	"github.com/felipemarts/chanda-mcp/internal/core"
 )
 
 // Query is one evaluation question as a system sees it: no answer key, no tags.
@@ -69,6 +72,19 @@ type Trainer interface {
 type UnavailableSystem struct {
 	Name   string `json:"name"`
 	Reason string `json:"reason"`
+}
+
+// Reason is the human-readable text of err without the leading error code
+// that core errors print ("unavailable: ..."), for the report.
+func Reason(err error) string {
+	var ce *core.Error
+	if errors.As(err, &ce) {
+		if ce.Err != nil {
+			return ce.Message + ": " + Reason(ce.Err)
+		}
+		return ce.Message
+	}
+	return err.Error()
 }
 
 // Sizer is optionally implemented by systems that can report their storage size.

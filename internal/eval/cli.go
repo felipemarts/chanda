@@ -130,8 +130,8 @@ func (c CLI) Main(args []string, stdout io.Writer) int {
 		}
 		s, err := f(ctx, FactoryEnv{Config: cfg, Embedder: emb})
 		if core.CodeOf(err) == core.CodeUnavailable {
-			unavailable = append(unavailable, UnavailableSystem{Name: n, Reason: err.Error()})
-			fmt.Fprintf(stdout, "  %-3s not available: %v\n", n, err)
+			unavailable = append(unavailable, UnavailableSystem{Name: n, Reason: Reason(err)})
+			fmt.Fprintf(stdout, "  %-3s not available: %s\n", n, Reason(err))
 			continue
 		}
 		if err != nil {

@@ -193,7 +193,7 @@ func runSuite(ctx context.Context, s Suite, in SuiteInput) SuiteResult {
 	}
 	m, err := s.Run(ctx, in)
 	if err != nil && core.CodeOf(err) == core.CodeUnavailable {
-		res.Status, res.Reason, res.Measured = "not_available", err.Error(), m
+		res.Status, res.Reason, res.Measured = "not_available", Reason(err), m
 		return res
 	}
 	if err != nil {

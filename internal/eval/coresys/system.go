@@ -108,9 +108,10 @@ type System struct {
 	e       *env.Env
 	fc      *clock.Fake
 	last    time.Time
-	byURI   map[string]string // document or source uri -> corpus item id
-	byEvent map[string]string // event id -> corpus item id (session turns, remembered statements)
-	note    string            // declared deviation from the variant
+	byURI   map[string]string   // document or source uri -> corpus item id
+	byEvent map[string]string   // event id -> corpus item id (session turns, remembered statements)
+	events  map[string][]string // corpus item id -> its session turn event ids, in order
+	note    string              // declared deviation from the variant
 	model   string
 }
 
@@ -155,7 +156,7 @@ func openAt(ctx context.Context, v Variant, cfg *config.Config, dir string) (*Sy
 		st.Close()
 		return nil, err
 	}
-	s := &System{v: v, cfg: cfg, dir: dir, app: a, e: e, fc: fc, byURI: map[string]string{}, byEvent: map[string]string{}}
+	s := &System{v: v, cfg: cfg, dir: dir, app: a, e: e, fc: fc, byURI: map[string]string{}, byEvent: map[string]string{}, events: map[string][]string{}}
 	stats, err := a.Stats(ctx, chanda.StatsInput{Namespace: Namespace})
 	if err != nil {
 		s.Close()
@@ -250,6 +251,7 @@ func (s *System) ingestSession(ctx context.Context, it eval.Item) error {
 	s.byURI[it.URI] = it.ID
 	for _, t := range out.Turns {
 		s.byEvent[t.ID] = it.ID
+		s.events[it.ID] = append(s.events[it.ID], t.ID)
 	}
 	for _, f := range it.Facts {
 		if s.v.Facts {
