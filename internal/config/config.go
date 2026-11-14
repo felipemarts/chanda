@@ -36,6 +36,7 @@ type WriteConfig struct {
 	InstructionPatterns []string          `yaml:"instruction_patterns"` // extra regexes for instruction_like
 	NearDupThreshold    float64           `yaml:"near_dup_threshold"`   // cosine, default 0.95
 	Extractors          []ExtractorConfig `yaml:"extractors"`           // deterministic fact extractors
+	IngestExtensions    []string          `yaml:"ingest_extensions"`    // file extensions ingested from a folder
 }
 
 // ExtractorConfig declares one deterministic fact extractor (write path, no LLM).
@@ -128,6 +129,7 @@ func Default() *Config {
 		IDSeed:    "chanda",
 		Write: WriteConfig{
 			MinChars: 3, MaxChars: 1 << 20, MaxChunkChars: 2000, NearDupThreshold: 0.95,
+			IngestExtensions: []string{".md", ".markdown", ".txt"},
 		},
 		Read: ReadConfig{
 			KeywordTopK: 50, VectorTopK: 50, RRFK: 60, RerankTopN: 30, RerankEnabled: false,
