@@ -61,6 +61,14 @@ type ReadConfig struct {
 	SearchDefaultLimit   int     `yaml:"search_default_limit"`   // 20 items
 	ContextDefaultTokens int     `yaml:"context_default_tokens"` // 800
 	ContextMaxTokens     int     `yaml:"context_max_tokens"`     // 1500
+	// Abstention evidence (decision 0020): a context item needs lexical or
+	// semantic evidence on top of the relevance threshold.
+	MinTermCoverage      float64 `yaml:"min_term_coverage"`       // matched query terms / min(terms, cap)
+	CoverageTermCap      int     `yaml:"coverage_term_cap"`       // long queries need at most this many matches
+	MinCosine            float64 `yaml:"min_cosine"`              // semantic evidence floor; calibrate per embedding model
+	MaxQueryTerms        int     `yaml:"max_query_terms"`         // terms kept from free text for MATCH
+	SearchMaxLimit       int     `yaml:"search_max_limit"`        // ceiling on search limit
+	ContextMinItemTokens int     `yaml:"context_min_item_tokens"` // smallest truncated item worth including
 }
 
 type EmbedConfig struct {
@@ -148,6 +156,8 @@ func Default() *Config {
 			KeywordTopK: 50, VectorTopK: 50, RRFK: 60, RerankTopN: 30, RerankEnabled: false,
 			RelevanceThreshold: 0.0, MaxPerDocument: 3, SearchDefaultLimit: 20,
 			ContextDefaultTokens: 800, ContextMaxTokens: 1500,
+			MinTermCoverage: 0.5, CoverageTermCap: 4, MinCosine: 0.5, MaxQueryTerms: 32,
+			SearchMaxLimit: 100, ContextMinItemTokens: 40,
 		},
 		Embed: EmbedConfig{Provider: "hash", ModelID: "hash-v1-256", Dim: 256, BatchSize: 32, PollIntervalMS: 1000},
 		Facts: FactsConfig{
