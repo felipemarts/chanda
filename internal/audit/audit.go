@@ -57,6 +57,14 @@ const (
 	ActMigrate         = "migrate"
 	ActRetrieve        = "retrieve" // a read logged in retrievals (internal/read)
 
+	// Sleep (internal/sleep) and the gate set.
+	ActMergePropose    = "merge_propose"    // entity merge proposal created (phase 1)
+	ActMergeVerdict    = "merge_verdict"    // merge proposal rejected by a phase-2 verdict
+	ActFactVerdict     = "fact_verdict"     // quarantined fact judged in phase 2
+	ActEventsProcessed = "events_processed" // events marked processed by a sleep step
+	ActGatePropose     = "gate_propose"     // gate question proposed by sleep (status proposed)
+	ActGateReview      = "gate_review"      // gate question approved or retired by a human
+
 	// Embedding index (actor "system:embed").
 	ActEmbedIndex     = "embed_index"
 	ActEmbedRemove    = "embed_remove"
@@ -69,7 +77,8 @@ const (
 func Actions() []string {
 	return []string{
 		ActDocumentVersion, ActDuplicate, ActEmbedBackfill, ActEmbedDropModel, ActEmbedIndex, ActEmbedRemove,
-		ActEntityCreate, ActEntityMerge, ActFactAdjust, ActFactConfirm, ActFactInsert, ActFlag, ActForget,
+		ActEntityCreate, ActEntityMerge, ActEventsProcessed, ActFactAdjust, ActFactConfirm, ActFactInsert,
+		ActFactVerdict, ActFlag, ActForget, ActGatePropose, ActGateReview, ActMergePropose, ActMergeVerdict,
 		ActMigrate, ActNearDup, ActOutcome, ActPageUpdate, ActPredicate, ActPromote, ActQuarantine,
 		ActRankAdjust, ActRankPromote, ActRankReset, ActRankToggle, ActRetire, ActRetrieve, ActSleepEnd,
 		ActSleepRevert, ActSleepStart, ActSourceCreate, ActStaleSource, ActSupersede, ActWrite,

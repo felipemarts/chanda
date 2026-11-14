@@ -30,12 +30,13 @@ import (
 // Actor recorded in the audit log for mutations made by sleep.
 const Actor = "sleep"
 
-// Audit actions specific to sleep (to be moved into internal/audit at integration).
+// Audit actions of sleep (registered in internal/audit).
 const (
-	ActMergePropose = "merge_propose" // entity merge proposal created (phase 1)
-	ActMergeVerdict = "merge_verdict" // proposal rejected by a phase-2 verdict
-	ActFactVerdict  = "fact_verdict"  // quarantined fact judged in phase 2
-	ActEventsMarked = "events_processed"
+	ActMergePropose = audit.ActMergePropose
+	ActMergeVerdict = audit.ActMergeVerdict
+	ActFactVerdict  = audit.ActFactVerdict
+	ActEventsMarked = audit.ActEventsProcessed
+	ActGatePropose  = audit.ActGatePropose
 )
 
 // event_processing steps written by sleep.
