@@ -32,42 +32,47 @@ type Calibration struct {
 	System          string  `json:"system"`
 	ModelID         string  `json:"model_id"`
 	Questions       int     `json:"questions"`         // training questions with gold
-	Reachable       int     `json:"reachable"`         // ... with a gold record among the judged candidates
-	Retention       float64 `json:"retention"`         // target share of Reachable that keeps a gold record
+	Retention       float64 `json:"retention"`         // share of the questions each floor must keep
+	CoverageSample  int     `json:"coverage_sample"`   // questions with a gold record among the judged candidates
+	CosineSample    int     `json:"cosine_sample"`     // ... among the vector hits
 	MinTermCoverage float64 `json:"min_term_coverage"` // chosen floor
-	MinCosine       float64 `json:"min_cosine"`        // chosen floor (> 1: the semantic side never suffices)
-	Kept            int     `json:"kept"`              // training questions that keep a gold record at the floors
+	MinCosine       float64 `json:"min_cosine"`        // chosen floor (> 1: no gold record was a vector hit)
+	Kept            int     `json:"kept"`              // questions that keep a gold record at both floors
 	NoisePassing    int     `json:"noise_passing"`     // non-gold candidates that pass at the floors
 	NoiseTotal      int     `json:"noise_total"`       // non-gold candidates judged
 }
 
 // CalibrateRetention is the share of the training questions whose gold
-// evidence was retrieved that must keep it through the cut: the BASE.md
-// abstention target (95%) read from the other side.
+// evidence must pass each floor: the BASE.md abstention target (95%) read
+// from the answerable side.
 const CalibrateRetention = 0.95
 
 // CalibrateEvidence chooses the evidence floors of the context cut
 // (read.min_term_coverage, read.min_cosine) for the system's embedding
 // model, from the training split only (ds.Training(), never the evaluated
 // questions). Every training question is answerable, so the procedure is
-// one-class: among the floor pairs that keep a gold record for at least
-// retention × the questions whose gold record was retrieved at all, it
-// picks the one that lets the fewest non-gold candidates through (the
-// candidates an unanswerable question would deliver); ties go to the
-// higher coverage floor, then the higher cosine floor. Candidate floors are
-// the coverage and cosine values observed on the training candidates, plus
-// one above every cosine (semantic evidence off).
+// one-class and per signal: for each training question it takes the best
+// coverage and the best cosine of its gold records among the candidates
+// the cut judged, and sets each floor at the largest value that the best
+// gold record of at least retention of those questions reaches (the 5th
+// percentile for 95%). Each signal thus admits what it typically gives
+// real evidence, on its own scale. A joint criterion (fewest non-gold
+// candidates at a joint retention) was rejected: the training split holds
+// only plainly worded questions, on which lexical coverage alone suffices,
+// so it would always switch the semantic signal off, a bias of the split
+// rather than a property of the model. The joint retention and the non-gold
+// candidates passing are reported for information.
 func CalibrateEvidence(ctx context.Context, p EvidenceProber, ds *Dataset, budget int, retention float64) (Calibration, error) {
 	type qc struct {
 		cands []EvidenceCandidate
 		gold  []bool
 	}
 	var qs []qc
-	covSet, cosSet := map[float64]bool{}, map[float64]bool{}
 	cal := Calibration{System: p.Name(), Retention: retention}
 	if d, ok := p.(Describer); ok {
 		cal.ModelID = d.Info().EmbeddingModel
 	}
+	var bestCov, bestCos []float64
 	for _, q := range ds.Training() {
 		if !q.Answerable() {
 			continue
@@ -85,87 +90,70 @@ func CalibrateEvidence(ctx context.Context, p EvidenceProber, ds *Dataset, budge
 			return cal, fmt.Errorf("evidence %s: %w", q.ID, err)
 		}
 		x := qc{cands: cs, gold: make([]bool, len(cs))}
+		cov, cos, hasGold, hasCos := 0.0, 0.0, false, false
 		for i, c := range cs {
 			for _, g := range q.Gold {
 				if Hits(c.Retrieved, g) {
 					x.gold[i] = true
 				}
 			}
-			covSet[c.Coverage] = true
-			if c.HasCosine {
-				cosSet[c.Cosine] = true
+			if !x.gold[i] {
+				cal.NoiseTotal++
+				continue
 			}
+			if !hasGold || c.Coverage > cov {
+				cov, hasGold = c.Coverage, true
+			}
+			if c.HasCosine && (!hasCos || c.Cosine > cos) {
+				cos, hasCos = c.Cosine, true
+			}
+		}
+		if hasGold {
+			bestCov = append(bestCov, cov)
+		}
+		if hasCos {
+			bestCos = append(bestCos, cos)
 		}
 		qs = append(qs, x)
 		cal.Questions++
 	}
-	floats := func(m map[float64]bool) []float64 {
-		out := make([]float64, 0, len(m)+1)
-		for v := range m {
-			out = append(out, v)
-		}
-		sort.Float64s(out)
-		return out
+	cal.CoverageSample, cal.CosineSample = len(bestCov), len(bestCos)
+	if len(bestCov) == 0 {
+		return cal, fmt.Errorf("calibration: no training question has a gold record among the judged candidates")
 	}
-	covs, coss := floats(covSet), floats(cosSet)
-	off := 1.0
-	if len(coss) > 0 {
-		off = math.Max(1, coss[len(coss)-1]) + 0.01
-	}
-	coss = append(coss, off)
-	if len(covs) == 0 {
-		covs = []float64{0}
-	}
-	covs = append(covs, 1.01)
-	pass := func(c EvidenceCandidate, a, b float64) bool {
-		return c.Coverage >= a || (c.HasCosine && c.Cosine >= b)
+	cal.MinTermCoverage = quantileFloor(bestCov, retention)
+	cal.MinCosine = 1.01 // no gold vector hit: the semantic side never suffices
+	if len(bestCos) > 0 {
+		cal.MinCosine = quantileFloor(bestCos, retention)
 	}
 	for _, x := range qs {
-		if slicesAny(x.gold) {
-			cal.Reachable++
-		}
-		for i := range x.cands {
-			if !x.gold[i] {
-				cal.NoiseTotal++
-			}
-		}
-	}
-	need := int(math.Ceil(retention * float64(cal.Reachable)))
-	best := false
-	for _, a := range covs {
-		for _, b := range coss {
-			kept, noise := 0, 0
-			for _, x := range qs {
-				hit := false
-				for i, c := range x.cands {
-					if !pass(c, a, b) {
-						continue
-					}
-					if x.gold[i] {
-						hit = true
-					} else {
-						noise++
-					}
-				}
-				if hit {
-					kept++
+		hit := false
+		for i, c := range x.cands {
+			if c.Coverage >= cal.MinTermCoverage || (c.HasCosine && c.Cosine >= cal.MinCosine) {
+				if x.gold[i] {
+					hit = true
+				} else {
+					cal.NoisePassing++
 				}
 			}
-			if kept < need {
-				continue
-			}
-			better := !best || noise < cal.NoisePassing ||
-				(noise == cal.NoisePassing && (a > cal.MinTermCoverage || (a == cal.MinTermCoverage && b > cal.MinCosine)))
-			if better {
-				best = true
-				cal.MinTermCoverage, cal.MinCosine, cal.Kept, cal.NoisePassing = a, b, kept, noise
-			}
 		}
-	}
-	if !best {
-		return cal, fmt.Errorf("calibration: no floor keeps %d of %d training questions", need, cal.Reachable)
+		if hit {
+			cal.Kept++
+		}
 	}
 	return cal, nil
+}
+
+// quantileFloor is the largest v in vs such that at least share of vs are
+// ≥ v.
+func quantileFloor(vs []float64, share float64) float64 {
+	s := append([]float64(nil), vs...)
+	sort.Float64s(s)
+	need := int(math.Ceil(share * float64(len(s))))
+	if need < 1 {
+		need = 1
+	}
+	return s[len(s)-need]
 }
 
 func slicesAny(bs []bool) bool {
@@ -179,9 +167,10 @@ func slicesAny(bs []bool) bool {
 
 // WriteCalibration prints c as the read configuration it recommends.
 func WriteCalibration(w io.Writer, c Calibration) {
-	fmt.Fprintf(w, "calibration on the training split (%d questions, %d with a gold record among the judged candidates), system %s, model %s:\n",
-		c.Questions, c.Reachable, c.System, c.ModelID)
-	fmt.Fprintf(w, "  kept a gold record: %d (target %.0f%% of %d)\n", c.Kept, 100*c.Retention, c.Reachable)
-	fmt.Fprintf(w, "  non-gold candidates passing: %d of %d\n", c.NoisePassing, c.NoiseTotal)
+	fmt.Fprintf(w, "calibration on the training split (%d questions), system %s, model %s, %.0f%% of the gold records per signal:\n",
+		c.Questions, c.System, c.ModelID, 100*c.Retention)
+	fmt.Fprintf(w, "  coverage floor from %d questions, cosine floor from %d (questions with a gold record among the judged candidates / vector hits)\n",
+		c.CoverageSample, c.CosineSample)
+	fmt.Fprintf(w, "  at both floors: %d questions keep a gold record; %d of %d non-gold candidates pass\n", c.Kept, c.NoisePassing, c.NoiseTotal)
 	fmt.Fprintf(w, "read:\n  evidence_floors:\n    %q: {min_term_coverage: %s, min_cosine: %s}\n", c.ModelID, fmtNum(c.MinTermCoverage), fmtNum(c.MinCosine))
 }

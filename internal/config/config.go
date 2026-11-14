@@ -224,7 +224,8 @@ func Default() *Config {
 			SearchMaxLimit: 100, ContextMinItemTokens: 40,
 			// Calibrated on the training split of synthetic-pt (decision 0121).
 			EvidenceFloors: map[string]EvidenceFloor{
-				"hash-v1-256": {MinTermCoverage: 0.5, MinCosine: 1.01},
+				"hash-v1-256": {MinTermCoverage: 0.5, MinCosine: 0.3076},
+				"e5-small":    {MinTermCoverage: 0.5, MinCosine: 0.8608},
 			},
 		},
 		Embed: EmbedConfig{Provider: "hash", ModelID: "hash-v1-256", Dim: 256, BatchSize: 32, PollIntervalMS: 1000},
