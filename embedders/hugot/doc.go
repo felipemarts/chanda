@@ -7,10 +7,3 @@
 // Model files are read from a local directory; nothing is downloaded at read
 // or write time (see Pull for the install step). Decisions 0033 to 0036.
 package hugot
-
-import (
-	_ "github.com/felipemarts/chanda-mcp/internal/core"
-	_ "github.com/felipemarts/chanda-mcp/pkg/chanda/embedreg"
-	_ "github.com/knights-analytics/hugot"
-	_ "golang.org/x/text/unicode/norm"
-)
