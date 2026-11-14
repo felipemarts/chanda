@@ -1,0 +1,341 @@
+{
+  "dataset": "xiaowu0162/longmemeval-cleaned",
+  "file": "longmemeval_s_cleaned.json",
+  "revision": "98d7416c24c778c2fee6e6f3006e7a073259d48f",
+  "sha256": "d6f21ea9d60a0d56f34a05b609c79c88a451d2ae03597821ea3d5a9678c3a442",
+  "seed": 42,
+  "n": 60,
+  "min_abstention": 6,
+  "algorithm": "Stratified draw without replacement, deterministic.\n1. Pool: every question of the dataset file, keyed by question_type and by\n   abstention (question_id ends with \"_abs\").\n2. Per-type quota: n * count(type) / total by largest remainder (Hamilton):\n   the floor of each exact share, then one seat at a time to the type whose\n   exact share exceeds its seats the most; ties to the type that sorts first.\n3. Abstention quota: max(min_abstention, round(n * abstention / total)),\n   spread the same way over the types that have abstention questions, in\n   proportion to their abstention counts and never above that type's quota\n   or its number of abstention questions; the rest of a type's quota comes\n   from its non-abstention questions.\n4. Draw: one math/rand/v2 PCG source seeded (seed, seed). Strata are visited\n   in sorted order (type, then non-abstention before abstention); each\n   stratum's question ids are sorted, shuffled with rand.Shuffle and the\n   first k kept.\n5. Order: the selected questions are shuffled once more with the same source;\n   that order is the order of the file (\"the first 10 questions of the\n   sample\" are the first 10 entries).\nThe draw reads only question ids and types, never answers or results.",
+  "generator": "eval/lme: lme sample -seed 42 -n 60 -min-abs 6 (go1.27.0)",
+  "population_by_type": {
+    "knowledge-update": 78,
+    "multi-session": 133,
+    "single-session-assistant": 56,
+    "single-session-preference": 30,
+    "single-session-user": 70,
+    "temporal-reasoning": 133
+  },
+  "population_abstention_by_type": {
+    "knowledge-update": 6,
+    "multi-session": 12,
+    "single-session-user": 6,
+    "temporal-reasoning": 6
+  },
+  "quota_by_type": {
+    "knowledge-update": 9,
+    "multi-session": 16,
+    "single-session-assistant": 7,
+    "single-session-preference": 4,
+    "single-session-user": 8,
+    "temporal-reasoning": 16
+  },
+  "quota_abstention_by_type": {
+    "knowledge-update": 1,
+    "multi-session": 3,
+    "single-session-user": 1,
+    "temporal-reasoning": 1
+  },
+  "questions": [
+    {
+      "question_id": "db467c8c",
+      "question_type": "knowledge-update",
+      "abstention": false
+    },
+    {
+      "question_id": "6456829e_abs",
+      "question_type": "multi-session",
+      "abstention": true
+    },
+    {
+      "question_id": "2c63a862",
+      "question_type": "temporal-reasoning",
+      "abstention": false
+    },
+    {
+      "question_id": "2ce6a0f2",
+      "question_type": "multi-session",
+      "abstention": false
+    },
+    {
+      "question_id": "0e5e2d1a",
+      "question_type": "single-session-assistant",
+      "abstention": false
+    },
+    {
+      "question_id": "gpt4_2312f94c",
+      "question_type": "temporal-reasoning",
+      "abstention": false
+    },
+    {
+      "question_id": "affe2881",
+      "question_type": "knowledge-update",
+      "abstention": false
+    },
+    {
+      "question_id": "bc8a6e93_abs",
+      "question_type": "single-session-user",
+      "abstention": true
+    },
+    {
+      "question_id": "gpt4_61e13b3c",
+      "question_type": "temporal-reasoning",
+      "abstention": false
+    },
+    {
+      "question_id": "gpt4_385a5000",
+      "question_type": "temporal-reasoning",
+      "abstention": false
+    },
+    {
+      "question_id": "2318644b",
+      "question_type": "multi-session",
+      "abstention": false
+    },
+    {
+      "question_id": "aae3761f",
+      "question_type": "multi-session",
+      "abstention": false
+    },
+    {
+      "question_id": "gpt4_59149c77",
+      "question_type": "temporal-reasoning",
+      "abstention": false
+    },
+    {
+      "question_id": "8cf4d046",
+      "question_type": "multi-session",
+      "abstention": false
+    },
+    {
+      "question_id": "77eafa52",
+      "question_type": "multi-session",
+      "abstention": false
+    },
+    {
+      "question_id": "a89d7624",
+      "question_type": "single-session-preference",
+      "abstention": false
+    },
+    {
+      "question_id": "gpt4_468eb063",
+      "question_type": "temporal-reasoning",
+      "abstention": false
+    },
+    {
+      "question_id": "0ddfec37_abs",
+      "question_type": "knowledge-update",
+      "abstention": true
+    },
+    {
+      "question_id": "gpt4_15e38248",
+      "question_type": "multi-session",
+      "abstention": false
+    },
+    {
+      "question_id": "25e5aa4f",
+      "question_type": "single-session-user",
+      "abstention": false
+    },
+    {
+      "question_id": "2311e44b_abs",
+      "question_type": "multi-session",
+      "abstention": true
+    },
+    {
+      "question_id": "72e3ee87",
+      "question_type": "knowledge-update",
+      "abstention": false
+    },
+    {
+      "question_id": "6222b6eb",
+      "question_type": "single-session-assistant",
+      "abstention": false
+    },
+    {
+      "question_id": "09ba9854_abs",
+      "question_type": "multi-session",
+      "abstention": true
+    },
+    {
+      "question_id": "gpt4_f420262d",
+      "question_type": "temporal-reasoning",
+      "abstention": false
+    },
+    {
+      "question_id": "5831f84d",
+      "question_type": "knowledge-update",
+      "abstention": false
+    },
+    {
+      "question_id": "gpt4_fe651585",
+      "question_type": "temporal-reasoning",
+      "abstention": false
+    },
+    {
+      "question_id": "65240037",
+      "question_type": "single-session-assistant",
+      "abstention": false
+    },
+    {
+      "question_id": "0e4e4c46",
+      "question_type": "knowledge-update",
+      "abstention": false
+    },
+    {
+      "question_id": "603deb26",
+      "question_type": "knowledge-update",
+      "abstention": false
+    },
+    {
+      "question_id": "36580ce8",
+      "question_type": "single-session-user",
+      "abstention": false
+    },
+    {
+      "question_id": "61f8c8f8",
+      "question_type": "multi-session",
+      "abstention": false
+    },
+    {
+      "question_id": "488d3006",
+      "question_type": "single-session-assistant",
+      "abstention": false
+    },
+    {
+      "question_id": "b86304ba",
+      "question_type": "single-session-user",
+      "abstention": false
+    },
+    {
+      "question_id": "54026fce",
+      "question_type": "single-session-preference",
+      "abstention": false
+    },
+    {
+      "question_id": "e3038f8c",
+      "question_type": "multi-session",
+      "abstention": false
+    },
+    {
+      "question_id": "91b15a6e",
+      "question_type": "multi-session",
+      "abstention": false
+    },
+    {
+      "question_id": "gpt4_18c2b244",
+      "question_type": "temporal-reasoning",
+      "abstention": false
+    },
+    {
+      "question_id": "gpt4_5dcc0aab",
+      "question_type": "temporal-reasoning",
+      "abstention": false
+    },
+    {
+      "question_id": "118b2229",
+      "question_type": "single-session-user",
+      "abstention": false
+    },
+    {
+      "question_id": "bc8a6e93",
+      "question_type": "single-session-user",
+      "abstention": false
+    },
+    {
+      "question_id": "ceb54acb",
+      "question_type": "single-session-assistant",
+      "abstention": false
+    },
+    {
+      "question_id": "c7cf7dfd",
+      "question_type": "single-session-assistant",
+      "abstention": false
+    },
+    {
+      "question_id": "3fdac837",
+      "question_type": "multi-session",
+      "abstention": false
+    },
+    {
+      "question_id": "gpt4_9a159967",
+      "question_type": "temporal-reasoning",
+      "abstention": false
+    },
+    {
+      "question_id": "c8090214_abs",
+      "question_type": "temporal-reasoning",
+      "abstention": true
+    },
+    {
+      "question_id": "88432d0a",
+      "question_type": "multi-session",
+      "abstention": false
+    },
+    {
+      "question_id": "gpt4_1e4a8aec",
+      "question_type": "temporal-reasoning",
+      "abstention": false
+    },
+    {
+      "question_id": "8b9d4367",
+      "question_type": "single-session-assistant",
+      "abstention": false
+    },
+    {
+      "question_id": "6456829e",
+      "question_type": "multi-session",
+      "abstention": false
+    },
+    {
+      "question_id": "195a1a1b",
+      "question_type": "single-session-preference",
+      "abstention": false
+    },
+    {
+      "question_id": "0f05491a",
+      "question_type": "knowledge-update",
+      "abstention": false
+    },
+    {
+      "question_id": "19b5f2b3",
+      "question_type": "single-session-user",
+      "abstention": false
+    },
+    {
+      "question_id": "1e043500",
+      "question_type": "single-session-user",
+      "abstention": false
+    },
+    {
+      "question_id": "ed4ddc30",
+      "question_type": "knowledge-update",
+      "abstention": false
+    },
+    {
+      "question_id": "08f4fc43",
+      "question_type": "temporal-reasoning",
+      "abstention": false
+    },
+    {
+      "question_id": "1d4e3b97",
+      "question_type": "single-session-preference",
+      "abstention": false
+    },
+    {
+      "question_id": "gpt4_2f56ae70",
+      "question_type": "temporal-reasoning",
+      "abstention": false
+    },
+    {
+      "question_id": "gpt4_731e37d7",
+      "question_type": "multi-session",
+      "abstention": false
+    },
+    {
+      "question_id": "370a8ff4",
+      "question_type": "temporal-reasoning",
+      "abstention": false
+    }
+  ]
+}
