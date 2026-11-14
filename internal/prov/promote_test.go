@@ -24,7 +24,7 @@ func TestPromoteOnlyByHuman(t *testing.T) {
 		{"non-human actor is denied", "fct_2", core.ZoneUser, false, core.CodePermissionDenied, false},
 		{"human raises a fact", "fct_2", core.ZoneUser, true, "", true},
 		{"human raises a page", "pg_1", core.ZoneUser, true, "", true},
-		{"never lowers", "pgi_2", core.ZoneExternal, true, core.CodeInvalidArgument, false},
+		{"never lowers", "pgi_2", core.ZoneExternal, true, core.CodeConflict, false},
 		{"same zone is a no-op", "fct_1", core.ZoneExternal, true, "", false},
 		{"events are raw and cannot be promoted", "evt_3", core.ZoneUser, true, core.CodeInvalidArgument, false},
 		{"unknown record", "fct_none", core.ZoneUser, true, core.CodeNotFound, false},

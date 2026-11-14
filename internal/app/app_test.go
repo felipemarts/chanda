@@ -295,6 +295,9 @@ func TestPromoteNeedsHumanAndAHigherZone(t *testing.T) {
 	if _, err := a.Promote(cli, chanda.PromoteInput{ID: f.ID, Zone: chanda.ZoneInternal}); core.CodeOf(err) != core.CodeConflict {
 		t.Fatalf("same zone: %v", err)
 	}
+	if _, err := a.Promote(cli, chanda.PromoteInput{ID: f.ID, Zone: chanda.ZoneExternal}); core.CodeOf(err) != core.CodeConflict {
+		t.Fatalf("lower zone: %v", err)
+	}
 	verifyOK(t, a)
 }
 

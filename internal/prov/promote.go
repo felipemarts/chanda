@@ -34,8 +34,8 @@ type PromoteResult struct {
 // Promote raises the zone of a derived record (fact, page or page item) to
 // zone. BASE.md "Trust zones": only promote, called by a human actor, raises a
 // record's zone, and the action is audited. A non-human caller gets
-// core.CodePermissionDenied; a lower zone gets core.CodeInvalidArgument
-// (promote never lowers); the same zone is a no-op. The raise is stored in
+// core.CodePermissionDenied; a lower zone gets core.CodeConflict (promote
+// never lowers; docs/errors.md); the same zone is a no-op. The raise is stored in
 // promotions so the integrity checker accepts it.
 func Promote(ctx context.Context, e *env.Env, ns, id string, zone core.Zone, actor string, human bool) (PromoteResult, error) {
 	if !human {
@@ -65,7 +65,7 @@ func Promote(ctx context.Context, e *env.Env, ns, id string, zone core.Zone, act
 		res.From = core.Zone(cur)
 		switch {
 		case zone.Rank() < res.From.Rank():
-			return core.Errf(core.CodeInvalidArgument, "promote never lowers a zone (%s -> %s)", res.From, zone)
+			return core.Errf(core.CodeConflict, "promote never lowers a zone (%s -> %s)", res.From, zone)
 		case zone == res.From:
 			return nil
 		}
