@@ -322,10 +322,10 @@ func (r *Reader) collapseDuplicates(ctx context.Context, eligible map[string]*re
 			if err != nil {
 				return nil, nil, core.Wrap(core.CodeInternal, err, "duplicate edges")
 			}
-			type edge struct{ dt, did, st, sid string }
-			var edges []edge
+			type dupEdge struct{ dt, did, st, sid string }
+			var edges []dupEdge
 			for rows.Next() {
-				var e edge
+				var e dupEdge
 				if err := rows.Scan(&e.dt, &e.did, &e.st, &e.sid); err != nil {
 					rows.Close()
 					return nil, nil, err
@@ -389,8 +389,8 @@ func (r *Reader) collapseDuplicates(ctx context.Context, eligible map[string]*re
 	return rep, extra, nil
 }
 
-// edge is one provenance edge.
-type edge struct {
+// Edge is one provenance edge (derived → source).
+type Edge struct {
 	DerivedType string `json:"derived_type"`
 	DerivedID   string `json:"derived_id"`
 	SourceType  string `json:"source_type"`
@@ -402,7 +402,7 @@ type edge struct {
 // following every relation except mentions, supersedes and duplicate_of
 // (those do not describe where the content came from). Pages also reach
 // their page items. Returns the origin event ids (sorted) and the edges.
-func (r *Reader) originEvents(ctx context.Context, ns string, typ core.RecordType, id string) ([]string, []edge, error) {
+func (r *Reader) originEvents(ctx context.Context, ns string, typ core.RecordType, id string) ([]string, []Edge, error) {
 	if typ == core.RecEvent {
 		return []string{id}, nil, nil
 	}
@@ -413,7 +413,7 @@ func (r *Reader) originEvents(ctx context.Context, ns string, typ core.RecordTyp
 	seen := map[node]bool{{typ, id}: true}
 	frontier := []node{{typ, id}}
 	evs := map[string]bool{}
-	var edges []edge
+	var edges []Edge
 	for depth := 0; len(frontier) > 0 && depth < 16 && len(seen) < 10000; depth++ {
 		var next []node
 		for _, n := range frontier {
@@ -424,9 +424,9 @@ func (r *Reader) originEvents(ctx context.Context, ns string, typ core.RecordTyp
 			if err != nil {
 				return nil, nil, core.Wrap(core.CodeInternal, err, "provenance")
 			}
-			var es []edge
+			var es []Edge
 			for rows.Next() {
-				var e edge
+				var e Edge
 				if err := rows.Scan(&e.DerivedType, &e.DerivedID, &e.SourceType, &e.SourceID, &e.Relation); err != nil {
 					rows.Close()
 					return nil, nil, err
@@ -444,7 +444,7 @@ func (r *Reader) originEvents(ctx context.Context, ns string, typ core.RecordTyp
 					return nil, nil, err
 				}
 				for _, it := range items {
-					es = append(es, edge{string(core.RecPage), n.id, string(core.RecPageItem), it, "item"})
+					es = append(es, Edge{string(core.RecPage), n.id, string(core.RecPageItem), it, "item"})
 				}
 			}
 			for _, e := range es {
