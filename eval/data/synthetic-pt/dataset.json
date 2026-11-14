@@ -1,0 +1,7 @@
+{
+  "name": "synthetic-pt",
+  "language": "pt-BR",
+  "description": "Synthetic company corpus (Aurora Serviços Digitais): directory, prices, branch addresses, procedures, sessions and external content, with versioned updates, paraphrases, contradicting statements, injected instructions and unanswerable questions.",
+  "generator": "go run ./eval/cmd/gensynth",
+  "seed": "chanda-synthetic-pt-v1"
+}
