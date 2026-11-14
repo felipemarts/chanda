@@ -66,6 +66,8 @@ func TestRuleFilter(t *testing.T) {
 		{"superseded dropped by default", "fct_superseded", search, dropStatus},
 		{"superseded returned with include_history in search", "fct_superseded", history, ""},
 		{"include_history ignored in context", "fct_superseded", ctxHistory, dropStatus},
+		{"explicit as_of selects the superseded fact valid then", "fct_superseded", filterOpts{ns: "ns", asOf: time.Date(2025, 6, 1, 0, 0, 0, 0, time.UTC), asOfExplicit: true, mode: ModeContext}, ""},
+		{"explicit as_of outside its window still drops it", "fct_superseded", filterOpts{ns: "ns", asOf: march, asOfExplicit: true, mode: ModeContext}, dropNotValid},
 		{"quarantined never", "fct_quarantined", history, dropStatus},
 		{"rejected never", "fct_rejected", history, dropStatus},
 		{"flagged status never", "fct_flagged", history, dropStatus},

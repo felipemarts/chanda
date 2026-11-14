@@ -174,6 +174,7 @@ type filterOpts struct {
 	types          map[core.RecordType]bool
 	zones          map[core.Zone]bool
 	includeHistory bool // search mode only
+	asOfExplicit   bool // the caller gave as_of (time travel)
 	mode           Mode
 }
 
@@ -198,9 +199,10 @@ const (
 
 // ruleFilter applies BASE.md read step 4 to one record and returns "" when
 // it stays, or the reason it is dropped:
-//   - facts: status active and valid at as_of; with include_history (search
-//     mode only) also superseded facts, without the validity window. Never
-//     quarantined, rejected, flagged or stale_source;
+//   - facts: status active and valid at as_of; with an explicit as_of, also
+//     superseded facts valid at that date (they held then); with
+//     include_history (search mode only) also superseded facts, without the
+//     validity window. Never quarantined, rejected, flagged or stale_source;
 //   - events: no retired_at;
 //   - pages: status active;
 //   - any record with a row in flags is dropped; type and zone filters apply;
@@ -234,7 +236,9 @@ func ruleFilter(rec *record, o filterOpts) string {
 			}
 			return ""
 		}
-		if st != core.FactActive {
+		// A superseded fact was the current one during its validity window:
+		// an explicit as_of inside that window selects it (decision 0021).
+		if st != core.FactActive && !(st == core.FactSuperseded && o.asOfExplicit) {
 			return dropStatus
 		}
 		if !validAt(rec.validFrom, rec.validTo, o.asOf) {

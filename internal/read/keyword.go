@@ -21,7 +21,7 @@ type hit struct {
 type keywordFilter struct {
 	types          map[core.RecordType]bool // empty = all
 	zones          []core.Zone              // empty = all
-	includeHistory bool
+	withSuperseded bool                     // include_history or an explicit as_of
 }
 
 // ftsSpec describes one FTS5 table and its base table.
@@ -33,9 +33,9 @@ type ftsSpec struct {
 	extra string // eligibility condition on the base table alias b
 }
 
-func ftsSpecs(includeHistory bool) []ftsSpec {
+func ftsSpecs(withSuperseded bool) []ftsSpec {
 	factStatus := `b.status = 'active'`
-	if includeHistory {
+	if withSuperseded {
 		factStatus = `b.status IN ('active','superseded')`
 	}
 	return []ftsSpec{
@@ -59,7 +59,7 @@ func (r *Reader) keywordSearch(ctx context.Context, ns string, terms []string, f
 	if k <= 0 {
 		return out, nil
 	}
-	for _, s := range ftsSpecs(f.includeHistory) {
+	for _, s := range ftsSpecs(f.withSuperseded) {
 		if len(f.types) > 0 && !f.types[s.typ] {
 			continue
 		}
