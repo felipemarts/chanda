@@ -88,6 +88,7 @@ func (c CLI) Main(args []string, stdout io.Writer) int {
 		defVersion = buildVersion()
 	}
 	version := fs.String("version", defVersion, "Chanda version recorded in the report")
+	calibrate := fs.String("calibrate", "", "instead of a report: calibrate the evidence floors of the context cut with this system (e.g. C3) on the training split, print them and exit")
 	if err := fs.Parse(args); err != nil {
 		return 2
 	}
@@ -126,6 +127,18 @@ func (c CLI) Main(args []string, stdout io.Writer) int {
 	}
 	fe := FactoryEnv{Config: cfg, Embedder: emb, Reranker: rr}
 	ctx := context.Background()
+	if *calibrate != "" {
+		f, ok := c.Factories[*calibrate]
+		if !ok {
+			return fail(2, fmt.Errorf("unknown system %q (known: %s)", *calibrate, strings.Join(names, ", ")))
+		}
+		cal, err := calibrateWith(ctx, f, fe, ds, *budget)
+		if err != nil {
+			return fail(1, err)
+		}
+		WriteCalibration(stdout, cal)
+		return 0
+	}
 	var syss []System
 	var unavailable []UnavailableSystem
 	defer func() {
@@ -198,4 +211,32 @@ func buildVersion() string {
 		rev += "-dirty"
 	}
 	return rev
+}
+
+// calibrateWith builds one system, ingests the corpus and calibrates the
+// evidence floors on the training split (CalibrateEvidence).
+func calibrateWith(ctx context.Context, f Factory, fe FactoryEnv, ds *Dataset, budget int) (Calibration, error) {
+	sys, err := f(ctx, fe)
+	if err != nil {
+		return Calibration{}, err
+	}
+	defer sys.Close()
+	p, ok := sys.(EvidenceProber)
+	if !ok {
+		return Calibration{}, fmt.Errorf("system %s does not report the evidence of its cut", sys.Name())
+	}
+	for _, it := range ds.Corpus {
+		if err := sys.Ingest(ctx, it); err != nil {
+			return Calibration{}, fmt.Errorf("ingest %s v%d: %w", it.ID, it.Version, err)
+		}
+	}
+	if fl, ok := sys.(Flusher); ok {
+		if err := fl.Flush(ctx); err != nil {
+			return Calibration{}, err
+		}
+	}
+	if budget <= 0 {
+		budget = fe.Config.Read.ContextDefaultTokens
+	}
+	return CalibrateEvidence(ctx, p, ds, budget, CalibrateRetention)
 }
