@@ -256,6 +256,8 @@ func defaults() *Config {
 			MinChars: 3, MaxChars: 1 << 20, MaxChunkChars: 2000, NearDupThreshold: DefaultNearDupThreshold,
 			IngestExtensions: []string{".md", ".markdown", ".txt"}, NearDupCandidates: 10,
 			Extractors: []ExtractorConfig{{Name: "header", Kind: "header"}},
+			// Calibrated on corpus pairs of synthetic-pt (decision 0125).
+			NearDupThresholds: map[string]float64{"hash-v1-256": 0.937, "e5-small": 0.9875},
 		},
 		Read: ReadConfig{
 			KeywordTopK: 50, VectorTopK: 50, RRFK: 60, RerankTopN: 30, RerankEnabled: false,
@@ -263,10 +265,10 @@ func defaults() *Config {
 			ContextDefaultTokens: 800, ContextMaxTokens: 1500,
 			MinTermCoverage: 0.5, CoverageTermCap: 4, MinCosine: 0.5, MaxQueryTerms: 32,
 			SearchMaxLimit: 100, ContextMinItemTokens: 40,
-			// Calibrated on the training split of synthetic-pt (decision 0121).
+			// Calibrated on the training split of synthetic-pt (decision 0124).
 			EvidenceFloors: map[string]EvidenceFloor{
-				"hash-v1-256": {MinTermCoverage: 0.5, MinCosine: 0.3076},
-				"e5-small":    {MinTermCoverage: 0.5, MinCosine: 0.8608},
+				"hash-v1-256": {MinTermCoverage: 0.25, MinCosine: 0.2359},
+				"e5-small":    {MinTermCoverage: 0.25, MinCosine: 0.8160564601421356},
 			},
 		},
 		Embed: EmbedConfig{Provider: "hash", ModelID: "hash-v1-256", Dim: 256, BatchSize: 32, PollIntervalMS: 1000},
@@ -279,6 +281,8 @@ func defaults() *Config {
 			IdleMinutes: 30, VolumeEvents: 200, IntervalHours: 24,
 			BudgetTokens: 200000, BudgetEvents: 500, GateTolerance: 2.0, LessonMinEvents: 3,
 			SnapshotDir: "snapshots", MergeSimilarity: 0.92,
+			// Vector side, calibrated on entity names (decision 0125); hash keeps 0.92.
+			MergeSimilarities: map[string]float64{"e5-small": 0.972},
 			CheckEveryMinutes: 5, BurstSeconds: 10, BatchEvents: 20, LessonSimilarity: 0.5,
 			LessonPoolEvents: 1000, MergeMaxEntities: 2000, GateProposals: 10, Scheduler: true, StaleRunMinutes: 60,
 		},

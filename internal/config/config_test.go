@@ -18,7 +18,7 @@ func TestDefaultsMatchSpec(t *testing.T) {
 		"3 per doc":           c.Read.MaxPerDocument == 3,
 		"search 20":           c.Read.SearchDefaultLimit == 20,
 		"context 800/1500":    c.Read.ContextDefaultTokens == 800 && c.Read.ContextMaxTokens == 1500,
-		"near dup 0.95":       c.Write.NearDupThreshold == 0.95,
+		"near dup 0.95":       config.DefaultNearDupThreshold == 0.95, // models without a calibration (decision 0125)
 		"sleep idle 30":       c.Sleep.IdleMinutes == 30,
 		"sleep volume 200":    c.Sleep.VolumeEvents == 200,
 		"sleep 24h":           c.Sleep.IntervalHours == 24,
