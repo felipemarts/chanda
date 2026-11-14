@@ -112,6 +112,10 @@ type forgetCase struct {
 	scope   chanda.ForgetScope
 	needles []string // terms that must be unfindable afterwards
 	gone    []string // record ids that must be not_found afterwards
+	// factsOnly limits the term probes to facts: an entity scope removes
+	// the facts about the entity and the events they came from or that
+	// mention it, not every paragraph under the same heading.
+	factsOnly bool
 }
 
 // DeletionSuite runs real forget requests of every scope kind against a core
@@ -173,7 +177,8 @@ func DeletionSuite(ctx context.Context, fe eval.FactoryEnv, in eval.SuiteInput) 
 				vals = append(vals, v)
 			}
 		}
-		cases = append(cases, forgetCase{scope: chanda.ForgetScope{Kind: chanda.ScopeEntity, Value: e.name}, needles: vals, gone: e.facts})
+		cases = append(cases, forgetCase{scope: chanda.ForgetScope{Kind: chanda.ScopeEntity, Value: e.name}, needles: vals,
+			gone: append(append([]string{}, e.facts...), e.origins...), factsOnly: true})
 	}
 	// record: one turn of three sessions (the turn holding a distinctive term).
 	for _, it := range sessions[:min(3, len(sessions))] {
@@ -255,6 +260,11 @@ func DeletionSuite(ctx context.Context, fe eval.FactoryEnv, in eval.SuiteInput) 
 		if !out.Verification.Passed {
 			coreFail++
 			ok = false
+			for _, p := range out.Verification.Probes {
+				if !p.Passed {
+					Logf("deletion: %s %s%s: forget probe %s failed (%s)", c.scope.Kind, c.scope.Value, c.scope.Query, p.Name, p.Detail)
+				}
+			}
 		}
 		if why, err := s.stillFindable(ctx, c); err != nil {
 			return nil, err
@@ -294,9 +304,10 @@ func (s *System) docURI(itemID string) string {
 }
 
 type entityProbe struct {
-	name   string
-	values []string
-	facts  []string
+	name    string
+	values  []string
+	facts   []string
+	origins []string // events the facts derive from
 }
 
 // entitiesWithValues returns n entities (by canonical name) that have active
@@ -325,7 +336,28 @@ func (s *System) entitiesWithValues(ctx context.Context, n int) ([]entityProbe, 
 		e.values = append(e.values, value)
 	}
 	rows.Close()
-	return out, rows.Err()
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	for i := range out {
+		for _, f := range out[i].facts {
+			r, err := s.e.Store.DB().QueryContext(ctx, `SELECT source_id FROM provenance WHERE derived_id = ? AND relation = 'derived_from'
+				AND source_type = 'event' ORDER BY source_id`, f)
+			if err != nil {
+				return nil, err
+			}
+			for r.Next() {
+				var id string
+				if err := r.Scan(&id); err != nil {
+					r.Close()
+					return nil, err
+				}
+				out[i].origins = append(out[i].origins, id)
+			}
+			r.Close()
+		}
+	}
+	return out, nil
 }
 
 // Logf receives diagnostic lines from the suites (misses, with ids and
@@ -347,9 +379,15 @@ func (s *System) stillFindable(ctx context.Context, c forgetCase) (string, error
 			return "", err
 		}
 		for _, it := range sr.Items {
+			if c.factsOnly && it.Type != chanda.RecFact {
+				continue
+			}
 			if containsTerms(it.Text, n) {
 				return fmt.Sprintf("search %q finds %s (%s, zone %s)", n, it.ID, it.Type, it.Zone), nil
 			}
+		}
+		if c.factsOnly {
+			continue
 		}
 		cx, err := s.app.Context(agent(ctx), chanda.ContextInput{Namespace: Namespace, Query: n})
 		if err != nil {

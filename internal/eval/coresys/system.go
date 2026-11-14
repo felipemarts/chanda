@@ -66,8 +66,10 @@ var Variants = []Variant{
 // for the same attributes as the English defaults (job title, phone,
 // address, price, owner, e-mail, ...). C3+ use it.
 var PortugueseSinglePredicates = []string{
-	"cargo", "ramal", "telefone", "endereco", "e_mail", "preco", "escritorio", "responsavel",
-	"gestor", "fornecedor", "centro_de_custo", "prazo", "status", "valor",
+	"cargo", "ramal", "telefone", "endereco", "bairro", "cep", "e_mail", "preco", "cobranca", "escritorio",
+	"especialidade", "responsavel", "gestor", "fornecedor", "centro_de_custo", "canal_de_contato", "prazo",
+	"limite", "antecedencia", "atendimento", "cotacoes", "troca", "tamanho_minimo", "diaria", "dias_remotos",
+	"auxilio", "reserva", "status", "valor",
 }
 
 // Options returns the app options of v (decision 0094): C1 has no facts,

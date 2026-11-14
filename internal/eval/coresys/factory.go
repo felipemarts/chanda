@@ -3,6 +3,7 @@ package coresys
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/felipemarts/chanda-mcp/internal/app"
 	"github.com/felipemarts/chanda-mcp/internal/core"
@@ -92,6 +93,11 @@ func (s *System) Train(ctx context.Context, train, gate []eval.Question) error {
 					return err
 				}
 				query.AsOf = t
+			}
+			// One task takes a while: space the tasks so outcomes stay under
+			// ranking.outcome_rate_per_minute, as real tasks would.
+			if r := s.cfg.Ranking.OutcomeRatePerMinute; r > 0 {
+				s.fc.Advance(time.Minute/time.Duration(r) + time.Second)
 			}
 			rid, rs, err := s.Context(ctx, query, s.cfg.Read.ContextDefaultTokens)
 			if err != nil {

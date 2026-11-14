@@ -40,10 +40,28 @@ func TestSyntheticIsValidAndCoversEveryCase(t *testing.T) {
 			tags[tag]++
 		}
 	}
-	for _, tag := range []string{TagAbstention, TagTemporal, TagUpdate, TagInjection, TagDedup, TagSession} {
-		if tags[tag] < 3 {
-			t.Errorf("tag %q has %d questions, want >= 3", tag, tags[tag])
+	for _, tag := range []string{TagAbstention, TagTemporal, TagUpdate, TagInjection, TagDedup, TagSession, TagParaphrase} {
+		if tags[tag] < 5 {
+			t.Errorf("tag %q has %d questions, want >= 5", tag, tags[tag])
 		}
+	}
+	if n := len(ds.Training()); n < 50 {
+		t.Errorf("%d training questions, want >= 50", n)
+	}
+	if n := len(ds.Gate()); n < 20 {
+		t.Errorf("%d gate questions, want >= 20", n)
+	}
+	// Abstention: enough unanswerable questions to measure precision and recall.
+	if tags[TagAbstention] < 30 {
+		t.Errorf("%d abstention questions, want >= 30", tags[TagAbstention])
+	}
+	// The raw history is far larger than the 800-token budget.
+	tokens := 0
+	for _, it := range ds.Corpus {
+		tokens += CountTokens(ItemText(it))
+	}
+	if tokens < 20*800 {
+		t.Errorf("corpus has %d tokens, want at least 20 budgets", tokens)
 	}
 	sources, versions := map[string]bool{}, 0
 	for _, it := range ds.Corpus {
@@ -57,6 +75,30 @@ func TestSyntheticIsValidAndCoversEveryCase(t *testing.T) {
 	}
 	if versions < 3 {
 		t.Errorf("max document version %d, want >= 3", versions)
+	}
+	// Temporal chains: subjects whose single-valued attribute takes three or
+	// more values across document versions and session statements.
+	chains := 0
+	for _, q := range ds.Questions {
+		if q.HasTag(TagUpdate) && len(q.MustNotContain) >= 2 && !q.HasTag(TagInjection) {
+			chains++
+		}
+	}
+	if chains < 8 {
+		t.Errorf("%d current-value questions with two or more superseded values, want >= 8", chains)
+	}
+	// Statements asserted in sessions and tool turns are present.
+	facts, tools := 0, 0
+	for _, it := range ds.Corpus {
+		facts += len(it.Facts)
+		for _, tu := range it.Turns {
+			if tu.Role == "tool" {
+				tools++
+			}
+		}
+	}
+	if facts < 10 || tools < 2 {
+		t.Errorf("%d asserted statements and %d tool turns", facts, tools)
 	}
 }
 
@@ -82,7 +124,7 @@ func TestCommittedSyntheticMatchesGenerator(t *testing.T) {
 		}
 		total += len(got)
 	}
-	if total > 1<<20 {
-		t.Errorf("committed set is %d bytes, keep it under 1 MiB", total)
+	if total > 3<<20 {
+		t.Errorf("committed set is %d bytes, keep it under 3 MiB", total)
 	}
 }

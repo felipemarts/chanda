@@ -1,7 +1,7 @@
 {
   "name": "synthetic-pt",
   "language": "pt-BR",
-  "description": "Synthetic company corpus (Aurora Serviços Digitais): directory, prices, branch addresses, procedures, sessions and external content, with versioned updates, paraphrases, contradicting statements, injected instructions and unanswerable questions.",
+  "description": "Synthetic company corpus (Aurora Serviços Digitais): directory, branch offices, prices, procedures, sessions and external content, with distractors, paraphrased questions, temporal chains across document versions and session statements, near-duplicates, contradicting updates, injected instructions, unanswerable questions and a training split.",
   "generator": "go run ./eval/cmd/gensynth",
-  "seed": "chanda-synthetic-pt-v1"
+  "seed": "chanda-synthetic-pt-v2"
 }
