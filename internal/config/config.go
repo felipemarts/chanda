@@ -250,9 +250,15 @@ func (c *Config) Validate() error {
 	return nil
 }
 
-// Hash is the configuration hash required in evaluation reports.
+// Hash is the configuration hash required in evaluation reports. It covers
+// what decides behaviour, not where files live or how the server listens:
+// db_path, sleep.snapshot_dir, write.ingest_roots and mcp.http_addr are left
+// out, so the same configuration hashes the same on every machine (and the
+// hash logged with each retrieval keeps the database byte-identical).
 func (c *Config) Hash() string {
-	b, _ := yaml.Marshal(c)
+	cp := *c
+	cp.DBPath, cp.Sleep.SnapshotDir, cp.Write.IngestRoots, cp.MCP.HTTPAddr = "", "", nil, ""
+	b, _ := yaml.Marshal(&cp)
 	h := sha256.Sum256(b)
 	return hex.EncodeToString(h[:8])
 }

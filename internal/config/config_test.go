@@ -71,3 +71,18 @@ func TestMaxZoneValidation(t *testing.T) {
 		t.Fatal("defaults: max_zone internal, no ingest roots")
 	}
 }
+
+func TestHashIgnoresFileLocations(t *testing.T) {
+	a, b := config.Default(), config.Default()
+	b.DBPath, b.Sleep.SnapshotDir, b.Write.IngestRoots, b.MCP.HTTPAddr = "/tmp/x/chanda.db", "/tmp/snap", []string{"/data"}, ":8080"
+	if a.Hash() != b.Hash() {
+		t.Fatal("file locations must not change the configuration hash")
+	}
+	b.Read.RRFK = 61
+	if a.Hash() == b.Hash() {
+		t.Fatal("a behavioural setting must change the hash")
+	}
+	if b.DBPath != "/tmp/x/chanda.db" {
+		t.Fatal("Hash must not modify the configuration")
+	}
+}
