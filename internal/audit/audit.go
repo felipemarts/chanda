@@ -50,6 +50,7 @@ const (
 	ActSleepStart      = "sleep_start"
 	ActSleepEnd        = "sleep_end"
 	ActSleepRevert     = "sleep_revert"
+	ActSleepRecover    = "sleep_recover" // a run left "running" (crash) marked failed
 	ActPageUpdate      = "page_update"
 	ActRankAdjust      = "rank_adjust"
 	ActRankPromote     = "rank_promote"
@@ -81,7 +82,7 @@ func Actions() []string {
 		ActEntityCreate, ActEntityMerge, ActEventsProcessed, ActFactAdjust, ActFactConfirm, ActFactInsert,
 		ActFactVerdict, ActFlag, ActForget, ActGatePropose, ActGateReview, ActMergePropose, ActMergeVerdict,
 		ActMigrate, ActNearDup, ActOutcome, ActPageUpdate, ActPredicate, ActPromote, ActQuarantine,
-		ActRankAdjust, ActRankPromote, ActRankReset, ActRankToggle, ActRetire, ActRetrieve, ActSleepEnd,
+		ActRankAdjust, ActRankPromote, ActRankReset, ActRankToggle, ActRetire, ActRetrieve, ActSleepEnd, ActSleepRecover,
 		ActSleepRevert, ActSleepStart, ActSourceCreate, ActStaleSource, ActSupersede, ActWrite,
 	}
 }

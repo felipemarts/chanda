@@ -188,6 +188,12 @@ func (a *App) Start(ctx context.Context) {
 	done := make(chan struct{})
 	a.done = done
 	scheduler := a.sleeper != nil && a.e.Cfg.Sleep.Scheduler
+	if a.sleeper != nil && !scheduler {
+		// The scheduler recovers stale runs itself when it starts.
+		if _, err := a.sleeper.RecoverStale(ctx); err != nil && a.opt.Logf != nil {
+			a.opt.Logf("sleep: recover stale runs: %v", err)
+		}
+	}
 	go func() {
 		defer close(done)
 		if scheduler {

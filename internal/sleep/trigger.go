@@ -97,19 +97,34 @@ func (s *Sleeper) Tick(ctx context.Context) ([]*Result, error) {
 // Start runs the scheduler loop until ctx is done, calling Tick every
 // sleep.check_every_minutes. The ticker only paces the checks; every
 // decision uses the configured Clock. Errors go to Deps.Logf.
+//
+// On entry it recovers runs a previous process left "running"
+// (RecoverStale). A run cancelled by ctx ends as failed, never "running".
 func (s *Sleeper) Start(ctx context.Context) error {
+	if ids, err := s.RecoverStale(ctx); err != nil && s.d.Logf != nil {
+		s.d.Logf("sleep scheduler: recover stale runs: %v", err)
+	} else if len(ids) > 0 && s.d.Logf != nil {
+		s.d.Logf("sleep scheduler: recovered %d stale run(s) as failed", len(ids))
+	}
 	every := time.Duration(s.env.Cfg.Sleep.CheckEveryMinutes) * time.Minute
 	if every <= 0 {
 		every = 5 * time.Minute
 	}
-	t := time.NewTicker(every)
-	defer t.Stop()
+	ticks := s.d.Ticks
+	if ticks == nil {
+		t := time.NewTicker(every)
+		defer t.Stop()
+		ticks = t.C
+	}
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
-		case <-t.C:
-			if _, err := s.Tick(ctx); err != nil && s.d.Logf != nil {
+		case _, ok := <-ticks:
+			if !ok {
+				return nil
+			}
+			if _, err := s.Tick(ctx); err != nil && s.d.Logf != nil && ctx.Err() == nil {
 				s.d.Logf("sleep scheduler: %v", err)
 			}
 		}

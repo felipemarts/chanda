@@ -149,6 +149,9 @@ type Deps struct {
 	Learning      Learning
 	// Logf receives scheduler errors (Start); nil discards them.
 	Logf func(format string, args ...any)
+	// Ticks, when set, paces the scheduler loop instead of a wall-clock
+	// ticker (tests drive Start with it and the fake Clock).
+	Ticks <-chan time.Time
 }
 
 // Sleeper runs sleep for every namespace of one database.
@@ -326,6 +329,11 @@ func (s *Sleeper) Run(ctx context.Context, in RunInput) (*Result, error) {
 		return nil, core.Errf(core.CodeConflict, "sleep: a run is already in progress")
 	}
 	defer s.running.Unlock()
+	// No run of this process is in progress (the lock is held): a row still
+	// "running" past the timeout belongs to a process that stopped.
+	if _, err := s.RecoverStale(ctx); err != nil {
+		return nil, err
+	}
 
 	st, err := s.state(ctx, ns)
 	if err != nil {
@@ -394,9 +402,20 @@ func (s *Sleeper) closing(ctx context.Context, r *run) error {
 	return nil
 }
 
+// finish records the outcome. It writes with a context that ignores the
+// caller's cancellation (App.Close cancels the scheduler and waits): a
+// cancelled run must end as failed, never stay "running".
 func (s *Sleeper) finish(ctx context.Context, r *run, runErr error) error {
+	cancelled, cause := ctx.Err() != nil, context.Cause(ctx)
+	ctx = context.WithoutCancel(ctx)
 	res := r.res
 	switch {
+	case cancelled:
+		res.Status = StatusFailed
+		res.notice("run cancelled before it finished (shutdown); what the gate had not committed was rolled back")
+		if runErr == nil {
+			runErr = core.Wrap(core.CodeUnavailable, cause, "sleep: run cancelled")
+		}
 	case runErr != nil:
 		res.Status = StatusFailed
 		res.notice("run failed: " + runErr.Error())
