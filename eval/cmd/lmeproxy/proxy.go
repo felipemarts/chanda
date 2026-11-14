@@ -3,12 +3,11 @@ package main
 import (
 	"bytes"
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"net"
 	"net/http"
 	"os"
@@ -44,6 +43,8 @@ type Config struct {
 	Now              func() time.Time
 	Client           *http.Client
 	MaxBodyBytes     int64
+	Store            *Store // optional: record successful upstream calls
+	Replay           bool   // answer from Store when the key is there (requires Store)
 }
 
 // Totals are running counters for one tag or for all calls.
@@ -59,10 +60,18 @@ type Totals struct {
 	ReasoningTokens  int64   `json:"reasoning_tokens"`
 	CostUSD          float64 `json:"cost_usd"`       // from upstream usage x price table
 	UnverifiedUSD    float64 `json:"unverified_usd"` // reservation kept when usage is unknown
+	// Replayed calls were answered from the store: they are not counted in
+	// calls, tokens or cost_usd above. SavedUSD is what they cost when recorded.
+	Replayed int64   `json:"replayed"`
+	SavedUSD float64 `json:"saved_usd"`
 }
 
 func (t *Totals) add(r *Record) {
 	switch r.Outcome {
+	case OutcomeReplayed:
+		t.Replayed++
+		t.SavedUSD += r.SavedUSD
+		return // nothing was billed
 	case OutcomeForwarded:
 		t.Calls++
 		if r.Status < 200 || r.Status > 299 {
@@ -97,6 +106,7 @@ const (
 	OutcomeForwarded = "forwarded"
 	OutcomeRefused   = "refused"
 	OutcomeRejected  = "rejected"
+	OutcomeReplayed  = "replayed" // answered from the store, nothing billed
 )
 
 // Record is one JSONL line.
@@ -119,7 +129,9 @@ type Record struct {
 	CostUSD          float64 `json:"cost_usd"`
 	UnverifiedUSD    float64 `json:"unverified_usd,omitempty"`
 	FinishReason     string  `json:"finish_reason,omitempty"`
-	RequestSHA256    string  `json:"request_sha256,omitempty"` // of the body sent upstream
+	RequestSHA256    string  `json:"request_sha256,omitempty"` // of the body sent upstream; the store key
+	SavedUSD         float64 `json:"saved_usd,omitempty"`      // replayed: cost of the call when recorded
+	Stored           bool    `json:"stored,omitempty"`         // forwarded: written to the store as a new entry
 	Error            string  `json:"error,omitempty"`
 }
 
@@ -157,6 +169,9 @@ func NewProxy(cfg Config) (*Proxy, error) {
 	}
 	if cfg.DefaultMaxTokens <= 0 {
 		cfg.DefaultMaxTokens = 4096
+	}
+	if cfg.Replay && cfg.Store == nil {
+		return nil, errors.New("replay requires a store")
 	}
 	cfg.Upstream = strings.TrimRight(cfg.Upstream, "/")
 	p := &Proxy{cfg: cfg}
@@ -427,8 +442,16 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		reject(http.StatusBadRequest, "bad_json", err.Error())
 		return
 	}
-	sum := sha256.Sum256(out)
-	rec.RequestSHA256 = hex.EncodeToString(sum[:])
+	rec.RequestSHA256 = StoreKey(out)
+
+	// Replay: a stored answer costs nothing, so it ignores the time window
+	// and the cap.
+	if p.cfg.Replay {
+		if p.replay(w, rec, model, out, start) {
+			return
+		}
+		w.Header().Set(ReplayHeader, "miss")
+	}
 
 	// Time window.
 	if msg := p.windowViolation(start); msg != "" {
@@ -495,6 +518,9 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			rec.ReasoningTokens = u.reasoning
 			rec.FinishReason = finish
 			rec.CostUSD = r.Cost(u.hit, u.miss, u.completion)
+			if status == http.StatusOK && p.cfg.Store != nil {
+				p.record(rec, out, respBody, header.Get("Content-Type"))
+			}
 		} else {
 			rec.Error = "usage missing from a 2xx response; reservation kept as unverified spend"
 			rec.UnverifiedUSD = estimate
@@ -509,6 +535,81 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("X-Lmeproxy-Cost-Usd", strconv.FormatFloat(rec.CostUSD+rec.UnverifiedUSD, 'f', 8, 64))
 	w.WriteHeader(status)
 	_, _ = w.Write(respBody)
+}
+
+// replay answers from the store when it holds the request's key. It
+// reports whether it wrote the response; on false the caller forwards.
+func (p *Proxy) replay(w http.ResponseWriter, rec *Record, model string, out []byte, start time.Time) bool {
+	e, err := p.cfg.Store.Get(rec.RequestSHA256)
+	if err != nil {
+		if !errors.Is(err, fs.ErrNotExist) {
+			fmt.Fprintf(os.Stderr, "lmeproxy: store: %v; forwarding instead\n", err)
+		}
+		return false
+	}
+	if e.Model != model || e.UpstreamPath != upstreamPath || !bytes.Equal(e.Request, out) {
+		fmt.Fprintf(os.Stderr, "lmeproxy: store entry %s does not match the request; forwarding instead\n", e.Key)
+		return false
+	}
+	rec.Outcome = OutcomeReplayed
+	rec.Status = http.StatusOK
+	rec.LatencyMS = p.cfg.Now().Sub(start).Milliseconds()
+	rec.PromptTokens = e.Usage.PromptTokens
+	rec.CacheHitTokens = e.Usage.CacheHitTokens
+	rec.CacheMissTokens = e.Usage.CacheMissTokens
+	rec.CompletionTokens = e.Usage.CompletionTokens
+	rec.ReasoningTokens = e.Usage.ReasoningTokens
+	rec.FinishReason = e.FinishReason
+	rec.SavedUSD = e.CostUSD
+	p.commit(rec, 0)
+	ct := e.ContentType
+	if ct == "" {
+		ct = "application/json"
+	}
+	w.Header().Set("Content-Type", ct)
+	w.Header().Set(ReplayHeader, "hit")
+	w.Header().Set("X-Lmeproxy-Cost-Usd", strconv.FormatFloat(0, 'f', 8, 64))
+	w.WriteHeader(http.StatusOK)
+	_, _ = io.WriteString(w, e.Response)
+	return true
+}
+
+// record writes a successful upstream call to the store, if it qualifies
+// (see storable). Store failures are reported and never fail the call.
+func (p *Proxy) record(rec *Record, out, respBody []byte, contentType string) {
+	respModel, fingerprint, ok := storable(respBody)
+	if !ok {
+		return
+	}
+	e := &StoreEntry{
+		Version:      storeVersion,
+		Key:          rec.RequestSHA256,
+		Model:        rec.Model,
+		UpstreamPath: upstreamPath,
+		FirstTag:     rec.Tag,
+		Time:         rec.Time,
+		PriceWindow:  rec.PriceWindow,
+		Usage: StoreUsage{
+			PromptTokens:     rec.PromptTokens,
+			CacheHitTokens:   rec.CacheHitTokens,
+			CacheMissTokens:  rec.CacheMissTokens,
+			CompletionTokens: rec.CompletionTokens,
+			ReasoningTokens:  rec.ReasoningTokens,
+		},
+		CostUSD:           rec.CostUSD,
+		FinishReason:      rec.FinishReason,
+		ResponseModel:     respModel,
+		SystemFingerprint: fingerprint,
+		ContentType:       contentType,
+		Request:           json.RawMessage(out),
+		Response:          string(respBody),
+	}
+	wrote, err := p.cfg.Store.Put(e)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "lmeproxy: store write failed: %v\n", err)
+		return
+	}
+	rec.Stored = wrote
 }
 
 func (p *Proxy) windowViolation(now time.Time) string {
@@ -527,7 +628,7 @@ func (p *Proxy) windowViolation(now time.Time) string {
 }
 
 func (p *Proxy) forward(ctx context.Context, body []byte) (int, []byte, http.Header, error) {
-	hr, err := http.NewRequestWithContext(ctx, http.MethodPost, p.cfg.Upstream+"/chat/completions", bytes.NewReader(body))
+	hr, err := http.NewRequestWithContext(ctx, http.MethodPost, p.cfg.Upstream+upstreamPath, bytes.NewReader(body))
 	if err != nil {
 		return 0, nil, nil, err
 	}

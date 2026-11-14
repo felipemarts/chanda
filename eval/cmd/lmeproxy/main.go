@@ -14,6 +14,12 @@
 //
 // Run exactly one instance per cost file: the cap is enforced in process,
 // and a lock file next to the cost file stops a second instance.
+//
+// With -store DIR, every successful upstream call is recorded in a
+// content-addressed store keyed by the sha256 of the forwarded body (the
+// request_sha256 of the log); with -replay as well, a request whose key is
+// in the store is answered locally at no cost. -store-stats prints a summary
+// of the store and exits.
 package main
 
 import (
@@ -58,8 +64,32 @@ func run(args []string) error {
 	peakGuard := fs.Duration("peak-guard", 15*time.Minute, "with -offpeak-only, also refuse calls when peak starts within this margin")
 	window := fs.String("window", "", "optional allowed UTC window HH:MM-HH:MM (may cross midnight); calls outside are refused")
 	timeout := fs.Duration("upstream-timeout", 15*time.Minute, "per-call upstream timeout")
+	storeDir := fs.String("store", "", "record/replay store directory, e.g. eval/lme/llmstore (empty: off); successful calls are recorded whenever it is set")
+	replay := fs.Bool("replay", false, "answer requests found in -store locally (cost 0, any hour, no cap reservation)")
+	storeStats := fs.Bool("store-stats", false, "print statistics of -store and exit (no proxy is started)")
 	if err := fs.Parse(args); err != nil {
 		return err
+	}
+	if (*replay || *storeStats) && *storeDir == "" {
+		return errors.New("-replay and -store-stats require -store")
+	}
+	if *storeStats {
+		if _, err := os.Stat(*storeDir); err != nil {
+			return err
+		}
+		st, err := (&Store{dir: *storeDir}).Stats()
+		if err != nil {
+			return err
+		}
+		st.WriteText(os.Stdout)
+		return nil
+	}
+	var store *Store
+	if *storeDir != "" {
+		var err error
+		if store, err = OpenStore(*storeDir); err != nil {
+			return err
+		}
 	}
 	if *capUSD <= 0 {
 		return errors.New("-cap-usd is required and must be > 0")
@@ -107,6 +137,8 @@ func run(args []string) error {
 		PeakGuard:        *peakGuard,
 		Window:           dw,
 		Client:           &http.Client{Timeout: *timeout},
+		Store:            store,
+		Replay:           *replay,
 	})
 	if err != nil {
 		return err
@@ -120,6 +152,9 @@ func run(args []string) error {
 	snap := p.Snapshot()
 	fmt.Fprintf(os.Stderr, "lmeproxy: listening on %s -> %s; cap %.2f USD, already spent %.6f; log %s; totals %s\n",
 		ln.Addr(), *upstream, *capUSD, snap.SpentUSD, *logPath, *costPath)
+	if store != nil {
+		fmt.Fprintf(os.Stderr, "lmeproxy: recording to %s; replay %v\n", *storeDir, *replay)
+	}
 	srv := &http.Server{Handler: p, ReadHeaderTimeout: 30 * time.Second}
 	errc := make(chan error, 1)
 	go func() { errc <- srv.Serve(ln) }()

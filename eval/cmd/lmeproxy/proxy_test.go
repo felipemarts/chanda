@@ -690,3 +690,370 @@ func TestChandaSleepClientThroughProxy(t *testing.T) {
 		t.Errorf("E-sleep totals %+v", c.ByTag["E-sleep"])
 	}
 }
+
+// --- record/replay store ---
+
+func newStoreHarness(t *testing.T, replay bool, mod func(*Config)) (*harness, string) {
+	t.Helper()
+	dir := filepath.Join(t.TempDir(), "llmstore")
+	st, err := OpenStore(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	h := newHarness(t, func(c *Config) {
+		c.Store = st
+		c.Replay = replay
+		if mod != nil {
+			mod(c)
+		}
+	})
+	return h, dir
+}
+
+func (h *harness) postRaw(t *testing.T, path, tag, body string) (int, []byte, http.Header) {
+	t.Helper()
+	req, _ := http.NewRequest(http.MethodPost, h.srv.URL+path, strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer client-junk")
+	if tag != "" {
+		req.Header.Set(TagHeader, tag)
+	}
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer res.Body.Close()
+	b, _ := io.ReadAll(res.Body)
+	return res.StatusCode, b, res.Header
+}
+
+// storeFiles lists the entry files and leftover temp files of a store.
+func storeFiles(t *testing.T, dir string) (entries, temps []string) {
+	t.Helper()
+	err := filepath.WalkDir(dir, func(p string, d os.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return err
+		}
+		if strings.HasPrefix(d.Name(), ".") {
+			temps = append(temps, p)
+		} else {
+			entries = append(entries, p)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return entries, temps
+}
+
+// withModel adds the response model and system_fingerprint to a usageJSON body.
+func withModel(s string) string {
+	return strings.Replace(s, `"object":"chat.completion",`, `"object":"chat.completion","model":"deepseek-v4-flash","system_fingerprint":"fp_test",`, 1)
+}
+
+func TestStoreRecordAndReplay(t *testing.T) {
+	h, dir := newStoreHarness(t, true, nil)
+	// Leading blank lines and HTML-ish characters must survive verbatim.
+	upBody := "\n\n" + withModel(usageJSON("stored <answer> & more", 1000, 600, 200, "stop"))
+	h.up.respond = func(map[string]any) (int, string) { return 200, upBody }
+
+	status, first, hdr := h.postRaw(t, "/v1/chat/completions", "A-reader", simpleBody)
+	if status != 200 || string(first) != upBody {
+		t.Fatalf("first call: %d %q", status, first)
+	}
+	if hdr.Get(ReplayHeader) != "miss" {
+		t.Errorf("first call replay header %q, want miss", hdr.Get(ReplayHeader))
+	}
+	entries, temps := storeFiles(t, dir)
+	if len(entries) != 1 || len(temps) != 0 {
+		t.Fatalf("store files %v temps %v", entries, temps)
+	}
+	rec := readLog(t, h.conf.LogPath)[0]
+	if !rec.Stored {
+		t.Error("forwarded record should say stored")
+	}
+	key := rec.RequestSHA256
+	if want := filepath.Join(dir, key[:2], key+".json.gz"); entries[0] != want {
+		t.Errorf("entry path %s, want %s", entries[0], want)
+	}
+	e, err := (&Store{dir: dir}).Get(key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sent, _ := json.Marshal(h.up.bodies[0])
+	var fwd map[string]any
+	_ = json.Unmarshal(e.Request, &fwd)
+	resent, _ := json.Marshal(fwd)
+	if string(sent) != string(resent) || fwd["temperature"] != float64(0) {
+		t.Errorf("stored request %s, upstream saw %s", e.Request, sent)
+	}
+	if e.Version != storeVersion || e.Key != key || e.Model != "deepseek-flash" || e.UpstreamPath != "/chat/completions" ||
+		e.FirstTag != "A-reader" || e.Time != rec.Time || e.PriceWindow != "offpeak" || e.FinishReason != "stop" ||
+		e.ResponseModel != "deepseek-v4-flash" || e.SystemFingerprint != "fp_test" || e.ContentType != "application/json" {
+		t.Errorf("entry fields: %+v", e)
+	}
+	if e.Usage != (StoreUsage{PromptTokens: 1000, CacheHitTokens: 600, CacheMissTokens: 400, CompletionTokens: 200}) || !near(e.CostUSD, perCall) {
+		t.Errorf("entry usage %+v cost %v", e.Usage, e.CostUSD)
+	}
+	if e.Response != upBody {
+		t.Errorf("stored response not verbatim: %q", e.Response)
+	}
+
+	// Same body under another tag, with a temperature the proxy overrides
+	// anyway: same forwarded body, so a hit. No upstream call.
+	other := strings.Replace(simpleBody, `"temperature":0.7`, `"temperature":1.3`, 1)
+	status, second, hdr := h.postRaw(t, "/tag/B-reader/v1/chat/completions", "", other)
+	if status != 200 || string(second) != string(first) {
+		t.Fatalf("replay: %d %q, want byte-identical %q", status, second, first)
+	}
+	if hdr.Get(ReplayHeader) != "hit" || hdr.Get("Content-Type") != "application/json" || hdr.Get("X-Lmeproxy-Cost-Usd") != "0.00000000" {
+		t.Errorf("replay headers %v", hdr)
+	}
+	if h.up.calls.Load() != 1 {
+		t.Errorf("upstream calls %d, want 1", h.up.calls.Load())
+	}
+	recs := readLog(t, h.conf.LogPath)
+	r := recs[1]
+	if r.Outcome != OutcomeReplayed || r.Tag != "B-reader" || r.Status != 200 || r.CostUSD != 0 || r.EstimateUSD != 0 ||
+		!near(r.SavedUSD, perCall) || r.PromptTokens != 1000 || r.CompletionTokens != 200 || r.RequestSHA256 != key || r.FinishReason != "stop" {
+		t.Errorf("replay record %+v", r)
+	}
+
+	// A different body is a miss and goes upstream.
+	status, _, hdr = h.postRaw(t, "/v1/chat/completions", "A-reader", capBody)
+	if status != 200 || hdr.Get(ReplayHeader) != "miss" || h.up.calls.Load() != 2 {
+		t.Errorf("miss: %d %q upstream %d", status, hdr.Get(ReplayHeader), h.up.calls.Load())
+	}
+	if entries, _ := storeFiles(t, dir); len(entries) != 2 {
+		t.Errorf("store entries %d, want 2", len(entries))
+	}
+
+	c := readCost(t, h.conf.CostPath)
+	if c.Total.Calls != 2 || c.Total.Replayed != 1 || !near(c.Total.SavedUSD, perCall) || !near(c.Total.CostUSD, 2*perCall) ||
+		!near(c.SpentUSD, 2*perCall) || c.Total.PromptTokens != 2000 {
+		t.Errorf("total %+v spent %v", c.Total, c.SpentUSD)
+	}
+	if b := c.ByTag["B-reader"]; b == nil || b.Calls != 0 || b.Replayed != 1 || !near(b.SavedUSD, perCall) || b.CostUSD != 0 || b.PromptTokens != 0 {
+		t.Errorf("B-reader totals %+v", b)
+	}
+	if a := c.ByTag["A-reader"]; a == nil || a.Calls != 2 || a.Replayed != 0 || a.SavedUSD != 0 {
+		t.Errorf("A-reader totals %+v", a)
+	}
+}
+
+func TestStoreRecordsWithoutReplay(t *testing.T) {
+	h, dir := newStoreHarness(t, false, nil)
+	for _, tag := range []string{"first", "second"} {
+		status, _, hdr := h.postRaw(t, "/v1/chat/completions", tag, simpleBody)
+		if status != 200 || hdr.Get(ReplayHeader) != "" {
+			t.Fatalf("%s: %d replay header %q", tag, status, hdr.Get(ReplayHeader))
+		}
+	}
+	if h.up.calls.Load() != 2 {
+		t.Errorf("without -replay every call goes upstream: %d", h.up.calls.Load())
+	}
+	entries, _ := storeFiles(t, dir)
+	if len(entries) != 1 {
+		t.Fatalf("entries %v", entries)
+	}
+	recs := readLog(t, h.conf.LogPath)
+	if !recs[0].Stored || recs[1].Stored {
+		t.Errorf("stored flags %v %v, want true false", recs[0].Stored, recs[1].Stored)
+	}
+	e, err := (&Store{dir: dir}).Get(recs[0].RequestSHA256)
+	if err != nil || e.FirstTag != "first" {
+		t.Errorf("first tag kept: %v %+v", err, e)
+	}
+	if _, err := NewProxy(Config{Prices: testPrices(t), CapUSD: 1, Thinking: "disabled", Replay: true,
+		LogPath: filepath.Join(t.TempDir(), "l"), CostPath: filepath.Join(t.TempDir(), "c")}); err == nil {
+		t.Error("replay without a store accepted")
+	}
+}
+
+func TestStoreSkipsUnstorable(t *testing.T) {
+	h, dir := newStoreHarness(t, true, nil)
+	cases := []struct {
+		name   string
+		status int
+		body   string
+	}{
+		{"server error", 500, `{"error":{"message":"boom"}}`},
+		{"rate limited", 429, `{"error":{"message":"slow down"}}`},
+		{"blank content", 200, usageJSON("  \n ", 100, 0, 1, "stop")},
+		{"empty content", 200, usageJSON("", 100, 0, 1, "stop")},
+		{"null content", 200, strings.Replace(usageJSON("x", 100, 0, 1, "stop"), `"content":"x"`, `"content":null`, 1)},
+		{"content filter", 200, usageJSON("partial", 100, 0, 1, "content_filter")},
+		{"refusal", 200, strings.Replace(usageJSON("x", 100, 0, 1, "stop"), `"content":"x"`, `"content":"x","refusal":"I can't help with that"`, 1)},
+		{"no usage", 200, `{"choices":[{"index":0,"message":{"role":"assistant","content":"x"},"finish_reason":"stop"}]}`},
+		{"no choices", 200, `{"choices":[],"usage":{"prompt_tokens":1,"completion_tokens":1}}`},
+	}
+	for i, c := range cases {
+		h.up.respond = func(map[string]any) (int, string) { return c.status, c.body }
+		body := `{"model":"deepseek-flash","messages":[{"role":"user","content":"case ` + itoa(i) + `"}]}`
+		for round := 0; round < 2; round++ { // the second round must not hit
+			status, _, hdr := h.postRaw(t, "/v1/chat/completions", "t", body)
+			if status != c.status || hdr.Get(ReplayHeader) != "miss" {
+				t.Errorf("%s round %d: %d %q", c.name, round, status, hdr.Get(ReplayHeader))
+			}
+		}
+	}
+	if want := int64(2 * len(cases)); h.up.calls.Load() != want {
+		t.Errorf("upstream calls %d, want %d", h.up.calls.Load(), want)
+	}
+	// Calls refused by the window or the cap never reach upstream and are
+	// not stored either.
+	h2, dir2 := newStoreHarness(t, false, func(c *Config) { c.OffPeakOnly = true; c.CapUSD = 0.0001 })
+	h2.setNow(peakTime)
+	if status, _, _ := h2.postRaw(t, "/v1/chat/completions", "t", simpleBody); status != 403 {
+		t.Errorf("peak: %d", status)
+	}
+	h2.setNow(offPeakTime)
+	if status, _, _ := h2.postRaw(t, "/v1/chat/completions", "t", simpleBody); status != 402 {
+		t.Errorf("cap: %d", status)
+	}
+	for _, d := range []string{dir, dir2} {
+		if entries, temps := storeFiles(t, d); len(entries)+len(temps) != 0 {
+			t.Errorf("store %s not empty: %v %v", d, entries, temps)
+		}
+	}
+	for _, r := range readLog(t, h.conf.LogPath) {
+		if r.Stored {
+			t.Errorf("record marked stored: %+v", r)
+		}
+	}
+}
+
+func TestReplayIgnoresCapAndPeak(t *testing.T) {
+	// Record off-peak with an ample cap.
+	h, dir := newStoreHarness(t, false, nil)
+	if status, _, _ := h.postRaw(t, "/v1/chat/completions", "rec", simpleBody); status != 200 {
+		t.Fatal(status)
+	}
+	// Another run: cap already reached, -offpeak-only, at peak.
+	cost := filepath.Join(t.TempDir(), "cost.json")
+	prev := CostFile{CapUSD: 1, Total: Totals{Calls: 3, CostUSD: 1}, ByTag: map[string]*Totals{"old": {Calls: 3, CostUSD: 1}}}
+	b, _ := json.Marshal(prev)
+	if err := os.WriteFile(cost, b, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	st, _ := OpenStore(dir)
+	h2 := newHarness(t, func(c *Config) {
+		c.Store, c.Replay, c.CostPath, c.CapUSD, c.OffPeakOnly, c.PeakGuard = st, true, cost, 1, true, 15*time.Minute
+	})
+	h2.setNow(peakTime)
+	for i := 0; i < 5; i++ {
+		status, _, hdr := h2.postRaw(t, "/v1/chat/completions", "replay", simpleBody)
+		if status != 200 || hdr.Get(ReplayHeader) != "hit" {
+			t.Fatalf("replay at peak with the cap reached: %d %q", status, hdr.Get(ReplayHeader))
+		}
+	}
+	// A miss is still refused (peak first, then the cap off-peak).
+	if status, _, _ := h2.postRaw(t, "/v1/chat/completions", "replay", capBody); status != 403 {
+		t.Errorf("miss at peak: %d", status)
+	}
+	h2.setNow(offPeakTime)
+	if status, _, _ := h2.postRaw(t, "/v1/chat/completions", "replay", capBody); status != 402 {
+		t.Errorf("miss with the cap reached: %d", status)
+	}
+	if h2.up.calls.Load() != 0 {
+		t.Errorf("upstream calls %d", h2.up.calls.Load())
+	}
+	h2.p.mu.Lock()
+	reserved := h2.p.reserved
+	h2.p.mu.Unlock()
+	c := readCost(t, cost)
+	if reserved != 0 || !near(c.SpentUSD, 1) || c.Total.Replayed != 5 || !near(c.Total.SavedUSD, 5*perCall) || c.Total.Refused != 2 || c.Total.Calls != 3 {
+		t.Errorf("reserved %v cost %+v spent %v", reserved, c.Total, c.SpentUSD)
+	}
+}
+
+func TestStoreConcurrentIdentical(t *testing.T) {
+	h, dir := newStoreHarness(t, true, nil)
+	h.up.delay = 30 * time.Millisecond
+	const n = 24
+	var wg sync.WaitGroup
+	bodies := make([][]byte, n)
+	for i := 0; i < n; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			status, b, _ := h.postRaw(t, "/v1/chat/completions", "c"+itoa(i), simpleBody)
+			if status != 200 {
+				t.Errorf("status %d", status)
+			}
+			bodies[i] = b
+		}(i)
+	}
+	wg.Wait()
+	entries, temps := storeFiles(t, dir)
+	if len(entries) != 1 || len(temps) != 0 {
+		t.Fatalf("entries %v temps %v", entries, temps)
+	}
+	stored := 0
+	for _, r := range readLog(t, h.conf.LogPath) {
+		if r.Stored {
+			stored++
+		}
+	}
+	if stored != 1 {
+		t.Errorf("%d records claim the new entry, want 1", stored)
+	}
+	key := readLog(t, h.conf.LogPath)[0].RequestSHA256
+	e, err := (&Store{dir: dir}).Get(key)
+	if err != nil || !strings.HasPrefix(e.FirstTag, "c") {
+		t.Fatalf("entry: %v %+v", err, e)
+	}
+	before := h.up.calls.Load()
+	status, b, hdr := h.postRaw(t, "/v1/chat/completions", "after", simpleBody)
+	if status != 200 || hdr.Get(ReplayHeader) != "hit" || string(b) != string(bodies[0]) || h.up.calls.Load() != before {
+		t.Errorf("replay after concurrent recording: %d %q", status, hdr.Get(ReplayHeader))
+	}
+}
+
+func TestStoreCorruptEntryIsAMiss(t *testing.T) {
+	h, dir := newStoreHarness(t, true, nil)
+	if status, _, _ := h.postRaw(t, "/v1/chat/completions", "t", simpleBody); status != 200 {
+		t.Fatal(status)
+	}
+	entries, _ := storeFiles(t, dir)
+	if err := os.WriteFile(entries[0], []byte("not gzip"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	status, _, hdr := h.postRaw(t, "/v1/chat/completions", "t", simpleBody)
+	if status != 200 || hdr.Get(ReplayHeader) != "miss" || h.up.calls.Load() != 2 {
+		t.Fatalf("corrupt entry: %d %q upstream %d", status, hdr.Get(ReplayHeader), h.up.calls.Load())
+	}
+	// The forwarded call rewrote the entry, so the next one hits.
+	if _, _, hdr := h.postRaw(t, "/v1/chat/completions", "t", simpleBody); hdr.Get(ReplayHeader) != "hit" {
+		t.Errorf("entry not repaired: %q", hdr.Get(ReplayHeader))
+	}
+}
+
+func TestStoreStats(t *testing.T) {
+	h, dir := newStoreHarness(t, false, nil)
+	h.postRaw(t, "/v1/chat/completions", "A-reader", simpleBody)
+	h.postRaw(t, "/v1/chat/completions", "D-judge", capBody)
+	h.postRaw(t, "/v1/chat/completions", "D-judge", capBody) // already stored
+	st, err := (&Store{dir: dir}).Stats()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if st.Entries != 2 || st.Bytes <= 0 || st.Unreadable != 0 || !near(st.CostUSD, 2*perCall) {
+		t.Errorf("stats %+v", st)
+	}
+	if st.ByModel["deepseek-flash"].Entries != 2 || st.ByFirstTag["A-reader"].Entries != 1 || st.ByFirstTag["D-judge"].Entries != 1 {
+		t.Errorf("groups %+v %+v", st.ByModel, st.ByFirstTag)
+	}
+	var buf bytes.Buffer
+	st.WriteText(&buf)
+	if !strings.Contains(buf.String(), "2 entries") || !strings.Contains(buf.String(), "D-judge") {
+		t.Errorf("text:\n%s", buf.String())
+	}
+	if err := run([]string{"-store", dir, "-store-stats"}); err != nil {
+		t.Errorf("-store-stats: %v", err)
+	}
+	if err := run([]string{"-replay"}); err == nil {
+		t.Error("-replay without -store accepted")
+	}
+}
