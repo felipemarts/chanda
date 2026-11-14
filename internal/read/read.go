@@ -39,6 +39,13 @@ type Learned interface {
 	Score(ctx context.Context, ns string, c Candidate) (float64, bool)
 }
 
+// LearnedBatch is optionally implemented by a Learned: the shadow scores of
+// a whole candidate list in one call (one model lookup and one utility
+// query instead of one per candidate). ok is false when there is no model.
+type LearnedBatch interface {
+	ScoreAll(ctx context.Context, ns string, cs []Candidate) (scores map[string]float64, ok bool)
+}
+
 // Deps are the optional collaborators of the read path. All may be nil.
 type Deps struct {
 	Embedder    core.Embedder    // query embedding; RoleEmbedder.EmbedQuery used when available

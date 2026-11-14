@@ -504,7 +504,7 @@ func (r *Reader) uris(ctx context.Context, table, ns string, ids []string) ([]st
 	for _, id := range ids {
 		args = append(args, id)
 	}
-	return r.queryStrings(ctx, `SELECT DISTINCT uri FROM `+table+` WHERE namespace = ? AND id IN (`+placeholders(len(ids))+`) ORDER BY uri`, args...)
+	return r.queryStrings(ctx, `SELECT DISTINCT uri FROM `+table+` WHERE +namespace = ? AND id IN (`+placeholders(len(ids))+`) ORDER BY uri`, args...)
 }
 
 // contextOrder: current facts, then consolidated pages, then raw excerpts;

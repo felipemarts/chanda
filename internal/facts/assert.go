@@ -143,7 +143,7 @@ func loadOrigins(ctx context.Context, tx *sql.Tx, ns string, ids []string) (orig
 		args = append(args, id)
 	}
 	rows, err := tx.QueryContext(ctx, `SELECT id, trust_zone, recorded_at, COALESCE(doc_id,''), retired_at IS NOT NULL
-		FROM events WHERE namespace = ? AND id IN (?`+strings.Repeat(",?", len(o.ids)-1)+`) ORDER BY id`, args...)
+		FROM events WHERE +namespace = ? AND id IN (?`+strings.Repeat(",?", len(o.ids)-1)+`) ORDER BY id`, args...)
 	if err != nil {
 		return o, err
 	}

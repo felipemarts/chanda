@@ -226,6 +226,25 @@ func (r *Reader) shadow(ctx context.Context, ns string, cs []*cand) {
 	if r.deps.Learned == nil || r.scoreOnly {
 		return
 	}
+	if lb, ok := r.deps.Learned.(LearnedBatch); ok {
+		if len(cs) == 0 {
+			return
+		}
+		in := make([]Candidate, len(cs))
+		for i, c := range cs {
+			in[i] = c.candidate()
+		}
+		vs, ok := lb.ScoreAll(ctx, ns, in)
+		if !ok {
+			return
+		}
+		for _, c := range cs {
+			if v, ok := vs[c.id()]; ok && !math.IsNaN(v) {
+				c.learned, c.hasLearned = v, true
+			}
+		}
+		return
+	}
 	for _, c := range cs {
 		if v, ok := r.deps.Learned.Score(ctx, ns, c.candidate()); ok && !math.IsNaN(v) {
 			c.learned, c.hasLearned = v, true

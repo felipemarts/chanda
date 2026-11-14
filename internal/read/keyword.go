@@ -2,9 +2,11 @@ package read
 
 import (
 	"context"
+	"sort"
 	"strings"
 
 	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda-mcp/internal/store"
 )
 
 // hit is one entry of a retrieval list (keyword or vector).
@@ -63,42 +65,183 @@ func (r *Reader) keywordSearch(ctx context.Context, ns string, terms []string, f
 		if len(f.types) > 0 && !f.types[s.typ] {
 			continue
 		}
-		q := `SELECT ` + s.fts + `.record_id, -` + s.bm25 + ` FROM ` + s.fts +
-			` JOIN ` + s.base + ` b ON b.id = ` + s.fts + `.record_id` +
-			` WHERE ` + s.fts + ` MATCH ? AND ` + s.fts + `.namespace = ? AND b.namespace = ? AND ` + s.extra +
-			` AND NOT EXISTS (SELECT 1 FROM flags fl WHERE fl.record_id = b.id)`
-		args := []any{expr, ns, ns}
+		cond := s.extra + ` AND NOT EXISTS (SELECT 1 FROM flags fl WHERE fl.record_id = b.id)`
+		var args []any
 		if len(f.zones) > 0 {
-			q += ` AND b.trust_zone IN (` + placeholders(len(f.zones)) + `)`
+			cond += ` AND b.trust_zone IN (` + placeholders(len(f.zones)) + `)`
 			for _, z := range f.zones {
 				args = append(args, string(z))
 			}
 		}
-		q += ` ORDER BY ` + s.bm25 + `, ` + s.fts + `.record_id LIMIT ?`
-		args = append(args, k)
-		rows, err := r.db().QueryContext(ctx, q, args...)
+		list, err := ftsTop(ctx, r.db(), s.fts, s.base, s.bm25, expr, ns, k, cond, args)
 		if err != nil {
 			return nil, core.Wrap(core.CodeInternal, err, "keyword search "+string(s.typ))
 		}
-		var list []hit
+		for i := range list {
+			list[i].typ = s.typ
+		}
+		out[s.typ] = list
+	}
+	return out, nil
+}
+
+// TopEventMatches returns the ids of the best k events of namespace ns for
+// the FTS5 expression expr by BM25 (ties by id) among the events row b that
+// pass cond (SQL over alias b, with args). The near-duplicate guard of the
+// write path uses it inside the write transaction (q).
+func TopEventMatches(ctx context.Context, q store.Queryer, ns, expr string, k int, cond string, args ...any) ([]string, error) {
+	if cond == "" {
+		cond = "1=1"
+	}
+	hs, err := ftsTop(ctx, q, "events_fts", "events", "bm25(events_fts)", expr, ns, k, cond, args)
+	if err != nil {
+		return nil, err
+	}
+	ids := make([]string, len(hs))
+	for i, h := range hs {
+		ids[i] = h.id
+	}
+	return ids, nil
+}
+
+// ftsTop returns the k best rows of the FTS5 table fts for expr whose base
+// row b (table base, b.id = record_id) is in namespace ns and passes cond,
+// best first: bm25 ascending, ties by record id; score = -bm25.
+//
+// It equals
+//
+//	SELECT record_id, -bm25 FROM fts JOIN base b ... WHERE fts MATCH expr
+//	  AND namespace AND cond ORDER BY bm25, record_id LIMIT k
+//
+// but runs in two phases (decision 0100): the FTS index alone ranks the
+// matches by rowid and bm25 (no content row is read), then only the best n
+// rowids are resolved to records and filtered. n starts at 1.5k+16 and grows
+// until the k-th eligible row ranks strictly before the n-th match (so no
+// tie or filtered row beyond n could change the answer) or the matches run
+// out. A common query term matching most of the corpus no longer costs a
+// content and base row read per match.
+func ftsTop(ctx context.Context, db store.Queryer, fts, base, bm25, expr, ns string, k int, cond string, condArgs []any) ([]hit, error) {
+	type match struct {
+		rowid int64
+		bm    float64
+		id    string
+	}
+	n := k + k/2 + 16 // a little room for rows the filter drops; grows ×4 when short
+	for {
+		rows, err := db.QueryContext(ctx, `SELECT rowid, `+bm25+` FROM `+fts+` WHERE `+fts+` MATCH ? ORDER BY `+bm25+` LIMIT ?`, expr, n)
+		if err != nil {
+			return nil, err
+		}
+		var ms []match
 		for rows.Next() {
-			var h hit
-			if err := rows.Scan(&h.id, &h.score); err != nil {
+			var m match
+			if err := rows.Scan(&m.rowid, &m.bm); err != nil {
 				rows.Close()
 				return nil, err
 			}
-			h.typ = s.typ
-			h.rank = len(list) + 1
-			list = append(list, h)
+			ms = append(ms, m)
 		}
 		err = rows.Err()
 		rows.Close()
 		if err != nil {
 			return nil, err
 		}
-		out[s.typ] = list
+		full := len(ms) == n
+		// Resolve rowids to record ids of this namespace.
+		byRow := map[int64]string{}
+		for start := 0; start < len(ms); start += inBatch {
+			batch := ms[start:min(start+inBatch, len(ms))]
+			args := make([]any, 0, len(batch)+1)
+			for _, m := range batch {
+				args = append(args, m.rowid)
+			}
+			args = append(args, ns)
+			rows, err := db.QueryContext(ctx, `SELECT rowid, record_id FROM `+fts+` WHERE rowid IN (`+placeholders(len(batch))+`)
+				AND namespace = ? ORDER BY rowid`, args...)
+			if err != nil {
+				return nil, err
+			}
+			for rows.Next() {
+				var rid int64
+				var id string
+				if err := rows.Scan(&rid, &id); err != nil {
+					rows.Close()
+					return nil, err
+				}
+				byRow[rid] = id
+			}
+			err = rows.Err()
+			rows.Close()
+			if err != nil {
+				return nil, err
+			}
+		}
+		var ids []string
+		for i := range ms {
+			ms[i].id = byRow[ms[i].rowid]
+			if ms[i].id != "" {
+				ids = append(ids, ms[i].id)
+			}
+		}
+		// Eligibility on the base rows.
+		ok := map[string]bool{}
+		ids = uniqSorted(ids)
+		for start := 0; start < len(ids); start += inBatch {
+			batch := ids[start:min(start+inBatch, len(ids))]
+			args := []any{ns}
+			for _, id := range batch {
+				args = append(args, id)
+			}
+			args = append(args, condArgs...)
+			got, err := queryStringsOn(ctx, db, `SELECT b.id FROM `+base+` b WHERE +b.namespace = ? AND b.id IN (`+
+				placeholders(len(batch))+`) AND (`+cond+`) ORDER BY b.id`, args...)
+			if err != nil {
+				return nil, err
+			}
+			for _, id := range got {
+				ok[id] = true
+			}
+		}
+		var el []match
+		for _, m := range ms {
+			if ok[m.id] {
+				el = append(el, m)
+			}
+		}
+		sort.SliceStable(el, func(i, j int) bool {
+			if el[i].bm != el[j].bm {
+				return el[i].bm < el[j].bm
+			}
+			return el[i].id < el[j].id
+		})
+		if !full || (len(el) >= k && el[k-1].bm < ms[len(ms)-1].bm) {
+			el = el[:min(k, len(el))]
+			out := make([]hit, len(el))
+			for i, m := range el {
+				out[i] = hit{id: m.id, score: -m.bm, rank: i + 1}
+			}
+			return out, nil
+		}
+		n *= 4
 	}
-	return out, nil
+}
+
+// queryStringsOn runs a one-column query on q and collects the result.
+func queryStringsOn(ctx context.Context, q store.Queryer, query string, args ...any) ([]string, error) {
+	rows, err := q.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []string
+	for rows.Next() {
+		var s string
+		if err := rows.Scan(&s); err != nil {
+			return nil, err
+		}
+		out = append(out, s)
+	}
+	return out, rows.Err()
 }
 
 func placeholders(n int) string {

@@ -112,7 +112,7 @@ func (r *Reader) loadRecords(ctx context.Context, ns string, byType map[core.Rec
 			case core.RecPage:
 				q = `SELECT id, namespace, kind, title, body, status, trust_zone, updated_at FROM pages`
 			}
-			q += ` WHERE namespace = ? AND id IN (` + placeholders(len(batch)) + `) ORDER BY id`
+			q += ` WHERE +namespace = ? AND id IN (` + placeholders(len(batch)) + `) ORDER BY id`
 			rows, err := db.QueryContext(ctx, q, args...)
 			if err != nil {
 				return nil, core.Wrap(core.CodeInternal, err, "load "+string(typ))
@@ -182,7 +182,7 @@ func (r *Reader) resolveSubjects(ctx context.Context, ns string, recs map[string
 				args = append(args, id)
 			}
 			rows, err := r.db().QueryContext(ctx, `SELECT id, merged_into FROM entities
-				WHERE namespace = ? AND merged_into IS NOT NULL AND id IN (`+placeholders(len(batch))+`) ORDER BY id`, args...)
+				WHERE +namespace = ? AND merged_into IS NOT NULL AND id IN (`+placeholders(len(batch))+`) ORDER BY id`, args...)
 			if err != nil {
 				return core.Wrap(core.CodeInternal, err, "entity merges")
 			}
@@ -469,17 +469,21 @@ func (r *Reader) collapseDuplicates(ctx context.Context, eligible map[string]*re
 		var next []string
 		for start := 0; start < len(frontier); start += inBatch {
 			batch := frontier[start:min(start+inBatch, len(frontier))]
-			args := []any{o.ns, core.RelDuplicateOf}
+			args := []any{o.ns}
 			for _, id := range batch {
 				args = append(args, id)
 			}
+			args = append(args, o.ns)
 			for _, id := range batch {
 				args = append(args, id)
 			}
 			ph := placeholders(len(batch))
+			// relation is a literal so the partial indexes of migration 0100 apply.
 			rows, err := r.db().QueryContext(ctx, `SELECT derived_type, derived_id, source_type, source_id FROM provenance
-				WHERE namespace = ? AND relation = ? AND (derived_id IN (`+ph+`) OR source_id IN (`+ph+`))
-				ORDER BY derived_type, derived_id, source_type, source_id`, args...)
+				WHERE namespace = ? AND relation = '`+core.RelDuplicateOf+`' AND derived_id IN (`+ph+`)
+				UNION SELECT derived_type, derived_id, source_type, source_id FROM provenance
+				WHERE namespace = ? AND relation = '`+core.RelDuplicateOf+`' AND source_id IN (`+ph+`)
+				ORDER BY 1, 2, 3, 4`, args...)
 			if err != nil {
 				return nil, nil, core.Wrap(core.CodeInternal, err, "duplicate edges")
 			}

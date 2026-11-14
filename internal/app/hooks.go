@@ -95,27 +95,19 @@ func (a *App) markNearDuplicate(ctx context.Context, tx *sql.Tx, ev write.Event)
 	if n <= 0 || expr == "" {
 		return nil
 	}
-	rows, err := tx.QueryContext(ctx, `SELECT e.id, e.content FROM events_fts f JOIN events e ON e.id = f.record_id
-		WHERE events_fts MATCH ? AND f.namespace = ? AND e.namespace = ? AND e.id <> ? AND e.retired_at IS NULL
-		  AND e.trust_zone = ?
-		ORDER BY bm25(events_fts), e.id LIMIT ?`, expr, ev.Namespace, ev.Namespace, ev.ID, string(ev.TrustZone), n)
+	ids, err := read.TopEventMatches(ctx, tx, ev.Namespace, expr, n,
+		`b.id <> ? AND b.retired_at IS NULL AND b.trust_zone = ?`, ev.ID, string(ev.TrustZone))
 	if err != nil {
-		return err
-	}
-	var ids, texts []string
-	for rows.Next() {
-		var id, text string
-		if err := rows.Scan(&id, &text); err != nil {
-			rows.Close()
-			return err
-		}
-		ids, texts = append(ids, id), append(texts, text)
-	}
-	if err := rows.Close(); err != nil {
 		return err
 	}
 	if len(ids) == 0 {
 		return nil
+	}
+	texts := make([]string, len(ids))
+	for i, id := range ids {
+		if err := tx.QueryRowContext(ctx, `SELECT content FROM events WHERE id = ?`, id).Scan(&texts[i]); err != nil {
+			return err
+		}
 	}
 	vecs, err := a.emb.Embed(ctx, append([]string{ev.Content}, texts...))
 	if err != nil {
@@ -244,6 +236,15 @@ func (l learnedAdapter) Score(ctx context.Context, ns string, c read.Candidate) 
 		return 0, false
 	}
 	return v, ok
+}
+
+// ScoreAll scores the whole list with one model lookup (read.LearnedBatch).
+func (l learnedAdapter) ScoreAll(ctx context.Context, ns string, cs []read.Candidate) (map[string]float64, bool) {
+	m, err := l.l.ScoreAll(ctx, ns, rankCandidates(cs))
+	if err != nil || m == nil {
+		return nil, false
+	}
+	return m, true
 }
 
 // termAdapter is read step 7's learned term: the promoted model's score
