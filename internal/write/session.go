@@ -22,6 +22,10 @@ type Turn struct {
 	Role     string // user | assistant | system | tool
 	Content  string
 	ToolName string // for tool turns; names the external tool source
+	// TS is when the turn happened (core.ParseTime formats: RFC 3339 or
+	// YYYY-MM-DD). It becomes the event's valid_from, the date given in the
+	// call (BASE.md); recorded_at stays the write time. Empty: no valid_from.
+	TS string
 }
 
 // SessionResult reports one Result per input turn, in input order.
@@ -43,7 +47,9 @@ type SessionResult struct {
 // logged for this session at the same index with the same content is a
 // duplicate (re-logging a session is idempotent); the same text at another
 // index is a new turn. Turns refused by admission are reported with
-// ActionRejected and do not fail the call.
+// ActionRejected and do not fail the call. A turn whose TS does not parse
+// fails the whole call with invalid_argument, before anything is written.
+// A duplicate turn keeps its first event, whatever TS the new call gives.
 func (w *Writer) LogSession(ctx context.Context, ns, sessionID string, turns []Turn, actor string) (SessionResult, error) {
 	return w.LogSessionWith(ctx, SessionInput{Namespace: ns, SessionID: sessionID, Turns: turns, Actor: actor})
 }
@@ -72,6 +78,7 @@ func (w *Writer) LogSessionWith(ctx context.Context, in SessionInput) (SessionRe
 		kind    core.SourceKind
 		uri     string
 		evKind  core.EventKind
+		ts      string // valid_from, core.TimeLayout; "" when the turn has no TS
 		adm     Admitted
 		rejectR string
 	}
@@ -90,6 +97,11 @@ func (w *Writer) LogSessionWith(ctx context.Context, in SessionInput) (SessionRe
 		default:
 			return res, core.Errf(core.CodeInvalidArgument, "turn %d: unknown role %q", i, t.Role)
 		}
+		ts, err := optTime(t.TS)
+		if err != nil {
+			return res, core.Errf(core.CodeInvalidArgument, "turn %d: invalid ts %q", i, t.TS)
+		}
+		p.ts = ts
 		adm, err := w.adm.Admit(t.Content, ZoneFor(p.kind, in.MaxZone))
 		if err != nil {
 			p.rejectR = RejectReason(err)
@@ -132,7 +144,7 @@ func (w *Writer) LogSessionWith(ctx context.Context, in SessionInput) (SessionRe
 			}
 			ev := Event{
 				Namespace: ns, SourceID: src.id, Kind: p.evKind, Content: p.adm.Content, ContentHash: p.adm.Hash,
-				TrustZone: zone, Actor: actor, RecordedAt: now, Ordinal: intp(i),
+				TrustZone: zone, Actor: actor, RecordedAt: now, ValidFrom: p.ts, Ordinal: intp(i),
 				SessionID: sessionID, Flags: p.adm.Flags,
 			}
 			aid, err := w.createEvent(ctx, tx, &ev, p.adm.InstructionRules, nil)

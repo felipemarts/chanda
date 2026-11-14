@@ -74,7 +74,7 @@ type Event struct {
 	TrustZone   core.Zone
 	Actor       string
 	RecordedAt  string
-	ValidFrom   string
+	ValidFrom   string // date given in the call: remember's valid_from, a turn's ts, the document date of a new chunk
 	DocID       string
 	DocVersion  *int
 	Ordinal     *int

@@ -160,7 +160,7 @@ func (w *Writer) IngestDocument(ctx context.Context, in IngestInput) (IngestResu
 				}
 				ev := Event{
 					Namespace: ns, SourceID: src.id, Kind: core.EventChunk, Content: scr.Content, ContentHash: scr.Hash,
-					TrustZone: zone, Actor: in.Actor, RecordedAt: now, DocID: doc.id, DocVersion: intp(version),
+					TrustZone: zone, Actor: in.Actor, RecordedAt: now, ValidFrom: docDate, DocID: doc.id, DocVersion: intp(version),
 					Ordinal: intp(ord), HeadingPath: c.HeadingPath, Flags: scr.Flags,
 				}
 				if _, err := w.createEvent(ctx, tx, &ev, scr.InstructionRules, nil); err != nil {
