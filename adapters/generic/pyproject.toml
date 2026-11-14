@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chanda-adapter"
+version = "0.1.0"
+description = "Generic adapter that delivers Chanda memory to any agent: pre-context, memory tools, session log and outcome."
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.11"
+# Tested with mcp 2.3.0, the version Hermes Agent v0.23.1 pins.
+dependencies = ["mcp>=2.3.0,<3"]
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[tool.setuptools]
+packages = ["chanda_adapter"]
