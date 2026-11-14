@@ -26,6 +26,14 @@ type Config struct {
 	LLM     LLMConfig     `yaml:"llm"`
 	MCP     MCPConfig     `yaml:"mcp"`
 	Forget  ForgetConfig  `yaml:"forget"`
+	Store   StoreConfig   `yaml:"store"`
+}
+
+// StoreConfig tunes the SQLite connection (decision 0100). Neither value
+// changes the file's content, only how much of it is kept in memory.
+type StoreConfig struct {
+	CacheMB int `yaml:"cache_mb"` // page cache of the connection (PRAGMA cache_size); 0 keeps SQLite's 2 MB
+	MmapMB  int `yaml:"mmap_mb"`  // memory-mapped reads (PRAGMA mmap_size); 0 = off
 }
 
 type WriteConfig struct {
@@ -208,6 +216,7 @@ func Default() *Config {
 		},
 		LLM:    LLMConfig{TimeoutSeconds: 120, ResponseFormat: "auto", MaxTokens: 2048},
 		MCP:    MCPConfig{Profiles: []string{"read", "standard"}, Actor: "agent", MaxZone: "internal", HTTPTokenEnv: "CHANDA_MCP_TOKEN"},
+		Store:  StoreConfig{CacheMB: 256, MmapMB: 0},
 		Forget: ForgetConfig{TombstoneKeepsHash: false, ProbeTerms: 3, ProbeNeedles: 4, ProbeNeedleBytes: 16, ProbeVectorK: 50},
 	}
 }
@@ -260,13 +269,14 @@ func (c *Config) Validate() error {
 
 // Hash is the configuration hash required in evaluation reports. It covers
 // what decides behaviour, not where files live or how the server listens:
-// db_path, sleep.snapshot_dir, write.ingest_roots, mcp.http_addr and
-// mcp.http_token_env are left out, so the same configuration hashes the same on every machine (and the
-// hash logged with each retrieval keeps the database byte-identical).
+// db_path, sleep.snapshot_dir, write.ingest_roots, mcp.http_addr,
+// mcp.http_token_env and store (memory tuning) are left out, so the same
+// configuration hashes the same on every machine (and the hash logged with
+// each retrieval keeps the database byte-identical).
 func (c *Config) Hash() string {
 	cp := *c
 	cp.DBPath, cp.Sleep.SnapshotDir, cp.Write.IngestRoots, cp.MCP.HTTPAddr = "", "", nil, ""
-	cp.MCP.HTTPTokenEnv = ""
+	cp.MCP.HTTPTokenEnv, cp.Store = "", StoreConfig{}
 	b, _ := yaml.Marshal(&cp)
 	h := sha256.Sum256(b)
 	return hex.EncodeToString(h[:8])

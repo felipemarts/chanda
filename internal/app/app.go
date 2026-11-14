@@ -124,6 +124,9 @@ func New(e *env.Env) (*App, error) { return NewWith(e, Options{}) }
 // ownership of the store.
 func NewWith(e *env.Env, o Options) (*App, error) {
 	cfg := e.Cfg
+	if err := tuneStore(e); err != nil {
+		return nil, err
+	}
 	if err := facts.ValidateExtractors(cfg.Write.Extractors); err != nil {
 		return nil, core.Wrap(core.CodeInvalidArgument, err, "write.extractors")
 	}
