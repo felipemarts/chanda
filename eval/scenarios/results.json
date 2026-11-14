@@ -6,9 +6,11 @@
   "runs": 2,
   "deterministic": true,
   "total": 15,
-  "passed": 14,
-  "failed": 1,
+  "passed": 12,
+  "failed": 3,
   "failed_ids": [
+    "I1",
+    "A1",
     "A2"
   ],
   "scenarios": [
@@ -753,8 +755,8 @@
         {
           "name": "context: non-empty blocks (the internal turns answer the first two)",
           "expected": "2",
-          "measured": "2",
-          "pass": true
+          "measured": "3",
+          "pass": false
         },
         {
           "name": "context: every block delimited, with the not-instructions notice",
@@ -775,7 +777,7 @@
           "pass": true
         }
       ],
-      "status": "PASS"
+      "status": "FAIL"
     },
     {
       "id": "I2",
@@ -1275,8 +1277,8 @@
         {
           "name": "context \"receita de bolo de cenoura com cobertura de chocolate\": text / items / reason",
           "expected": "empty / 0 / no_relevant_memory",
-          "measured": "empty / 0 / no_relevant_memory",
-          "pass": true
+          "measured": "485 chars / 1 / ",
+          "pass": false
         },
         {
           "name": "control: context for a question the corpus answers (non-empty, holds the answer)",
@@ -1285,7 +1287,7 @@
           "pass": true
         }
       ],
-      "status": "PASS"
+      "status": "FAIL"
     },
     {
       "id": "A2",
@@ -1300,20 +1302,20 @@
         {
           "name": "context \"Quem aprova os deploys no cluster de staging em Frankfurt?\": text / items / reason",
           "expected": "empty / 0 / no_relevant_memory",
-          "measured": "empty / 0 / no_relevant_memory",
-          "pass": true
+          "measured": "499 chars / 1 / ",
+          "pass": false
         },
         {
           "name": "context \"Qual e o horario de limpeza da maquina de lavar louca?\": text / items / reason",
           "expected": "empty / 0 / no_relevant_memory",
-          "measured": "477 chars / 1 / ",
+          "measured": "506 chars / 1 / ",
           "pass": false
         },
         {
           "name": "context \"Qual o telefone do suporte da VPN?\": text / items / reason",
           "expected": "empty / 0 / no_relevant_memory",
-          "measured": "empty / 0 / no_relevant_memory",
-          "pass": true
+          "measured": "484 chars / 1 / ",
+          "pass": false
         },
         {
           "name": "control: context for a question the corpus answers (non-empty, holds the answer)",

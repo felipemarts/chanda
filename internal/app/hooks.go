@@ -116,7 +116,7 @@ func (a *App) markNearDuplicate(ctx context.Context, tx *sql.Tx, ev write.Event)
 	best, bestCos := -1, 0.0
 	for i := range ids {
 		cos := dot(vecs[0], vecs[i+1])
-		if ok, _ := dedup.IsNearDuplicate(ev.Content, texts[i], cos, a.e.Cfg.Write.NearDupThreshold); !ok {
+		if ok, _ := dedup.IsNearDuplicate(ev.Content, texts[i], cos, a.e.Cfg.Write.NearDup(a.emb.ModelID())); !ok {
 			continue
 		}
 		if best < 0 || cos > bestCos || (cos == bestCos && ids[i] < ids[best]) {

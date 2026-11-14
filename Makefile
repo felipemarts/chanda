@@ -8,6 +8,7 @@
 #   make hugot     bin/chanda-hugot (separate module, Go 1.27, GOEXPERIMENT=simd)
 #   make e2e       adapters end-to-end test (needs Python with mcp installed)
 #   make perf      100k-record latency measurement (BASE.md performance targets)
+#   make scenarios phase 5 deterministic scenarios; fails on any FAIL (make test only fails on a change)
 #   make release   static binaries for linux/darwin/windows (amd64, arm64) + SHA256SUMS in dist/
 
 VERSION   ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
@@ -16,7 +17,7 @@ EVAL_ARGS ?=
 
 export CGO_ENABLED = 0
 
-.PHONY: all build test lint eval dataset hugot e2e perf release clean
+.PHONY: all build test lint eval dataset hugot e2e perf release scenarios clean
 
 all: lint test build
 
@@ -39,6 +40,9 @@ dataset:
 
 hugot:
 	cd embedders/hugot && GOEXPERIMENT=simd go build -ldflags "$(LDFLAGS)" -o ../../bin/chanda-hugot ./cmd/chanda-hugot
+
+scenarios:
+	go test -count=1 -run TestScenarios -v ./eval/scenarios/ -args -strict
 
 perf:
 	CHANDA_PERF=1 go test -count=1 -run TestPerformanceAt100k -v ./internal/app/
