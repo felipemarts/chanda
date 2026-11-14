@@ -38,10 +38,10 @@ const (
 	ReasonSameContent    = "same_content"
 )
 
-// Audit actions added by this package (the shared ones live in internal/audit).
+// Audit actions used by this package (registered in internal/audit).
 const (
-	ActSourceCreate    = "source_create"
-	ActDocumentVersion = "document_version"
+	ActSourceCreate    = audit.ActSourceCreate
+	ActDocumentVersion = audit.ActDocumentVersion
 )
 
 // EventHook lets later write steps (entity resolution, fact reconciliation,

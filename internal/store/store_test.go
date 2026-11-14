@@ -2,6 +2,7 @@ package store_test
 
 import (
 	"context"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -100,6 +101,30 @@ func TestAuditLogAppendOnly(t *testing.T) {
 	for _, q := range []string{`UPDATE audit_log SET actor='b'`, `DELETE FROM audit_log`} {
 		if _, err := s.DB().Exec(q); !store.IsImmutableViolation(err) {
 			t.Errorf("%s: expected immutable violation, got %v", q, err)
+		}
+	}
+}
+
+func TestOpenPathWithURISpecialChars(t *testing.T) {
+	dir := t.TempDir()
+	ctx := context.Background()
+	a, err := store.Open(ctx, filepath.Join(dir, "a#00", "x?y.db"))
+	if err == nil {
+		t.Fatal("expected error: parent dir does not exist")
+	}
+	_ = a
+	for _, name := range []string{"one#1.db", "one#2.db", "q?a.db", "sp ace%.db"} {
+		p := filepath.Join(dir, name)
+		s, err := store.Open(ctx, p)
+		if err != nil {
+			t.Fatalf("%s: %v", name, err)
+		}
+		if _, err := s.DB().Exec(`INSERT INTO meta(key,value) VALUES('name',?)`, name); err != nil {
+			t.Fatalf("%s: %v", name, err)
+		}
+		s.Close()
+		if _, err := os.Stat(p); err != nil {
+			t.Fatalf("%s: database not at the given path: %v", name, err)
 		}
 	}
 }

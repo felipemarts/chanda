@@ -14,6 +14,7 @@ import (
 	"embed"
 	"fmt"
 	"io/fs"
+	"net/url"
 	"sort"
 	"strconv"
 	"strings"
@@ -36,7 +37,9 @@ type Store struct {
 func Open(ctx context.Context, path string) (*Store, error) {
 	dsn := path
 	if path != ":memory:" {
-		dsn = "file:" + path
+		// Escape the path: an unescaped '#' or '?' would be read as a URI
+		// fragment or query and silently point at a different file.
+		dsn = "file:" + (&url.URL{Path: path}).EscapedPath()
 	}
 	db, err := sql.Open("sqlite", dsn)
 	if err != nil {
