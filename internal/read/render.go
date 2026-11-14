@@ -26,7 +26,10 @@ var tagRe = regexp.MustCompile(`(?i)<(\s*/?\s*chanda-context)`)
 // sanitize escapes block delimiters inside content.
 func sanitize(s string) string { return tagRe.ReplaceAllString(s, "&lt;$1") }
 
-// label is the bracketed header line of an item.
+// label is the bracketed header line of an item. Facts carry their
+// validity; raw excerpts their date (valid_from, "date:") or, without one,
+// when Chanda recorded them ("recorded:"); pages when they were last updated
+// ("updated:").
 func label(it Item) string {
 	var b strings.Builder
 	b.WriteString("[")
@@ -48,6 +51,14 @@ func label(it Item) string {
 			b.WriteString(" to " + it.ValidTo)
 		}
 	}
+	switch {
+	case it.Type == core.RecEvent && it.ValidFrom != "":
+		b.WriteString(" | date: " + shortTime(it.ValidFrom))
+	case it.Type == core.RecEvent && it.RecordedAt != "":
+		b.WriteString(" | recorded: " + shortTime(it.RecordedAt))
+	case it.Type == core.RecPage && it.RecordedAt != "":
+		b.WriteString(" | updated: " + shortTime(it.RecordedAt))
+	}
 	if it.Type == core.RecPage && it.Kind != "" {
 		b.WriteString(" | " + it.Kind)
 	}
@@ -61,6 +72,20 @@ func label(it Item) string {
 	}
 	b.WriteString("]\n")
 	return b.String()
+}
+
+// shortTime is the compact UTC form of a stored time in the block: the bare
+// date at midnight (a date-only input), else date and minutes. It costs
+// budget tokens, so seconds and fractions are left out (decision 0135).
+func shortTime(s string) string {
+	t, err := core.ParseTime(s)
+	if err != nil {
+		return sanitize(s)
+	}
+	if t.Hour() == 0 && t.Minute() == 0 && t.Second() == 0 && t.Nanosecond() == 0 {
+		return t.Format("2006-01-02")
+	}
+	return t.Format("2006-01-02 15:04")
 }
 
 // renderItem renders one item block (label line, then content, then a blank line).

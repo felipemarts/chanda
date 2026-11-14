@@ -65,19 +65,20 @@ func TestContextDropsExcerptsStatingStaleValues(t *testing.T) {
 		name, query string
 		asOf        time.Time
 		want, not   []string
+		after       []string // dated after as_of: neither mode delivers them (decision 0135)
 	}{
 		{"names the subject, superseded value", "Plano Profissional preço usuário", time.Time{},
-			[]string{"evt_oct", "evt_prefix"}, []string{"evt_jul"}},
+			[]string{"evt_oct", "evt_prefix"}, []string{"evt_jul"}, nil},
 		{"value current for another subject stays", "Plano Básico preço usuário", time.Time{},
-			[]string{"evt_basic"}, nil},
+			[]string{"evt_basic"}, nil, nil},
 		{"attribute label with a stale value", "preço plano mais vendido usuário", time.Time{},
-			nil, []string{"evt_label"}},
+			nil, []string{"evt_label"}, nil},
 		{"turn of the session that asserted the old value", "limpeza Café Serra Azul", time.Time{},
-			nil, []string{"evt_old_turn"}},
+			nil, []string{"evt_old_turn"}, nil},
 		{"explicit as_of keeps the value that held then", "Plano Profissional preço usuário", time.Date(2026, 8, 15, 0, 0, 0, 0, time.UTC),
-			[]string{"evt_jul"}, []string{"evt_oct"}},
+			[]string{"evt_jul"}, []string{"evt_oct"}, []string{"evt_oct"}},
 		{"explicit as_of inside the session value", "limpeza Café Serra Azul", time.Date(2026, 3, 1, 0, 0, 0, 0, time.UTC),
-			[]string{"evt_old_turn"}, nil},
+			[]string{"evt_old_turn"}, nil, nil},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -101,8 +102,13 @@ func TestContextDropsExcerptsStatingStaleValues(t *testing.T) {
 				t.Fatal(err)
 			}
 			for _, id := range tc.not {
-				if !slices.Contains(ids(s.Items), id) {
+				if !slices.Contains(ids(s.Items), id) && !slices.Contains(tc.after, id) {
 					t.Errorf("search keeps every live event, %s missing: %v", id, ids(s.Items))
+				}
+			}
+			for _, id := range tc.after {
+				if slices.Contains(ids(s.Items), id) {
+					t.Errorf("search delivered %s, dated after as_of: %v", id, ids(s.Items))
 				}
 			}
 		})

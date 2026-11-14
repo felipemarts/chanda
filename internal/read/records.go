@@ -26,7 +26,7 @@ type record struct {
 	sourceID, docID, retiredAt, sessionID string
 	headingPath                           string // document chunks: "H1 > H2"
 	docVersion, ordinal                   sql.NullInt64
-	// facts
+	// facts; validFrom also for events (the date given when written, "" if none)
 	subject, predicate, validFrom, validTo string
 	// any type: has a row in the flags table
 	flagged bool
@@ -113,7 +113,7 @@ func (r *Reader) loadRecords(ctx context.Context, ns string, byType map[core.Rec
 			switch typ {
 			case core.RecEvent:
 				q = `SELECT id, namespace, kind, content, trust_zone, flags, source_id, COALESCE(doc_id,''), doc_version, ordinal,
-					COALESCE(retired_at,''), COALESCE(session_id,''), recorded_at, COALESCE(heading_path,'') FROM events`
+					COALESCE(retired_at,''), COALESCE(session_id,''), recorded_at, COALESCE(heading_path,''), COALESCE(valid_from,'') FROM events`
 			case core.RecFact:
 				q = `SELECT id, namespace, subject, predicate, text, status, trust_zone, valid_from, COALESCE(valid_to,''), recorded_at FROM facts`
 			case core.RecPage:
@@ -130,7 +130,7 @@ func (r *Reader) loadRecords(ctx context.Context, ns string, byType map[core.Rec
 				switch typ {
 				case core.RecEvent:
 					err = rows.Scan(&rec.id, &rec.ns, &rec.kind, &rec.text, &zone, &flags, &rec.sourceID, &rec.docID,
-						&rec.docVersion, &rec.ordinal, &rec.retiredAt, &rec.sessionID, &rec.ts, &rec.headingPath)
+						&rec.docVersion, &rec.ordinal, &rec.retiredAt, &rec.sessionID, &rec.ts, &rec.headingPath, &rec.validFrom)
 				case core.RecFact:
 					err = rows.Scan(&rec.id, &rec.ns, &rec.subject, &rec.predicate, &rec.text, &rec.status, &zone,
 						&rec.validFrom, &rec.validTo, &rec.ts)
@@ -309,6 +309,7 @@ const (
 	dropOutdated    = "outdated_excerpt" // context: a fact this event stated was replaced or judged wrong
 	dropStatus      = "status"
 	dropNotValid    = "not_valid_at_as_of"
+	dropAfterAsOf   = "after_as_of" // an event dated after an explicit as_of (decision 0135)
 	dropInstruction = "instruction_like"
 	dropDuplicate   = "duplicate_of"
 	dropCut         = "below_relevance"
@@ -328,7 +329,8 @@ const (
 //     assert_fact call (the fact itself is the readable record, so a
 //     superseded value never comes back through its raw event); in context
 //     mode, not an event that stated a fact later replaced or judged wrong
-//     (decision 0093: its excerpt would deliver the old value);
+//     (decision 0093: its excerpt would deliver the old value); with an
+//     explicit as_of, not an event dated after it (decision 0135);
 //   - pages: status active;
 //   - any record with a row in flags is dropped; type and zone filters apply;
 //   - context mode never includes instruction_like events.
@@ -352,6 +354,9 @@ func ruleFilter(rec *record, o filterOpts) string {
 		}
 		if rec.kind == string(core.EventFact) {
 			return dropAssertion
+		}
+		if o.asOfExplicit && eventAfter(rec, o.asOf) {
+			return dropAfterAsOf
 		}
 		if o.mode == ModeContext && rec.hasFlag(core.FlagInstructionLike) {
 			return dropInstruction
@@ -387,6 +392,19 @@ func ruleFilter(rec *record, o filterOpts) string {
 		return dropType
 	}
 	return ""
+}
+
+// eventAfter reports whether an event is dated after asOf: its valid_from
+// (the date given when it was written) when set, else its recorded_at. It
+// did not exist yet "on that date". A date-only valid_from is stored as
+// 00:00 UTC of its day.
+func eventAfter(rec *record, asOf time.Time) bool {
+	d := rec.validFrom
+	if d == "" {
+		d = rec.ts
+	}
+	t, err := core.ParseTime(d)
+	return err == nil && t.After(asOf)
 }
 
 // validAt reports valid_from <= asOf < valid_to (a null valid_to is open).

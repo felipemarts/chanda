@@ -439,7 +439,7 @@ func (r *Reader) buildItem(ctx context.Context, ns string, c *cand) (Item, strin
 	it := Item{ID: rec.id, Type: rec.typ, Text: rec.text, Zone: rec.zone, Scores: c.scores(), namespace: rec.ns}
 	switch rec.typ {
 	case core.RecEvent:
-		it.Kind, it.RecordedAt = rec.kind, rec.ts
+		it.Kind, it.ValidFrom, it.RecordedAt = rec.kind, rec.validFrom, rec.ts
 	case core.RecFact:
 		it.Status, it.Subject, it.Predicate, it.ValidFrom, it.ValidTo, it.RecordedAt =
 			rec.status, rec.subject, rec.predicate, rec.validFrom, rec.validTo, rec.ts
