@@ -260,7 +260,7 @@ const (
 	dropZone        = "zone"
 	dropFlagged     = "flagged"
 	dropRetired     = "retired"
-	dropAssertion   = "fact_assertion" // the raw event behind assert_fact; its fact is the readable record
+	dropAssertion   = "fact_assertion"   // the raw event behind assert_fact; its fact is the readable record
 	dropOutdated    = "outdated_excerpt" // context: a fact this event stated was replaced or judged wrong
 	dropStatus      = "status"
 	dropNotValid    = "not_valid_at_as_of"
