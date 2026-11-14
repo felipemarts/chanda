@@ -39,7 +39,7 @@ func ftsSpecs(withSuperseded bool) []ftsSpec {
 		factStatus = `b.status IN ('active','superseded')`
 	}
 	return []ftsSpec{
-		{core.RecEvent, "events_fts", "events", "bm25(events_fts)", "b.retired_at IS NULL"},
+		{core.RecEvent, "events_fts", "events", "bm25(events_fts)", "b.retired_at IS NULL AND b.kind <> 'fact_assertion'"},
 		{core.RecFact, "facts_fts", "facts", "bm25(facts_fts)", factStatus},
 		// Page titles weigh twice the body.
 		{core.RecPage, "pages_fts", "pages", "bm25(pages_fts, 2.0, 1.0)", "b.status = 'active'"},

@@ -122,8 +122,13 @@ func (r *Reader) logRetrieval(ctx context.Context, q request, res *result, all [
 			res.reason, core.FormatTime(now)); err != nil {
 			return core.Wrap(core.CodeInternal, err, "log retrieval")
 		}
-		_, err := r.e.Audit.Append(ctx, tx, audit.Entry{
-			Namespace: q.ns, Actor: r.e.Cfg.MCP.Actor, Action: ActRetrieve, Target: res.retrievalID,
+		actor := q.actor
+		if actor == "" {
+			actor = r.e.Cfg.MCP.Actor
+		}
+		var err error
+		res.auditID, err = r.e.Audit.Append(ctx, tx, audit.Entry{
+			Namespace: q.ns, Actor: actor, Action: ActRetrieve, Target: res.retrievalID,
 			Details: map[string]any{"mode": string(q.mode), "candidates": len(logged), "delivered": len(delivered), "reason": res.reason},
 		})
 		return err

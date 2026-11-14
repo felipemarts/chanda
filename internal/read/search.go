@@ -19,7 +19,8 @@ type SearchInput struct {
 	Limit          int               // 0 = read.search_default_limit; capped at read.search_max_limit
 	IncludeHistory bool              // also superseded facts
 	SessionID      string
-	Gate           bool // query made for the gate set: logged with params {"gate": true}
+	Gate           bool   // query made for the gate set: logged with params {"gate": true}
+	Actor          string // recorded in the audit entry of the retrieval; empty: mcp.actor
 }
 
 // SearchResult is a ranked list. instruction_like items are returned with
@@ -29,6 +30,7 @@ type SearchResult struct {
 	Items       []Item   `json:"items"`
 	Reason      string   `json:"reason,omitempty"`
 	Notices     []string `json:"notices,omitempty"`
+	AuditID     int64    `json:"audit_id,omitempty"` // audit entry of the logged retrieval
 }
 
 // ContextInput asks for the pre-context (BASE.md mode "context").
@@ -38,7 +40,8 @@ type ContextInput struct {
 	BudgetTokens int       // 0 = read.context_default_tokens; capped at read.context_max_tokens
 	AsOf         time.Time // zero = now
 	SessionID    string
-	Gate         bool // query made for the gate set: logged with params {"gate": true}
+	Gate         bool   // query made for the gate set: logged with params {"gate": true}
+	Actor        string // recorded in the audit entry of the retrieval; empty: mcp.actor
 }
 
 // ContextResult is the rendered pre-context. Text is empty when nothing is
@@ -51,6 +54,7 @@ type ContextResult struct {
 	Reason      string   `json:"reason,omitempty"`
 	TokensUsed  int      `json:"tokens_used"`
 	Notices     []string `json:"notices,omitempty"`
+	AuditID     int64    `json:"audit_id,omitempty"` // audit entry of the logged retrieval
 }
 
 // Search runs the read path in search mode: no relevance cut, item limit,
@@ -68,12 +72,12 @@ func (r *Reader) Search(ctx context.Context, in SearchInput) (SearchResult, erro
 	}
 	out, err := r.run(ctx, request{
 		mode: ModeSearch, ns: in.Namespace, text: in.Query, types: in.Types, zones: in.Zones,
-		asOf: in.AsOf, limit: limit, includeHistory: in.IncludeHistory, sessionID: in.SessionID, gate: in.Gate,
+		asOf: in.AsOf, limit: limit, includeHistory: in.IncludeHistory, sessionID: in.SessionID, gate: in.Gate, actor: in.Actor,
 	})
 	if err != nil {
 		return SearchResult{}, err
 	}
-	return SearchResult{RetrievalID: out.retrievalID, Items: out.items, Reason: out.reason, Notices: out.notices}, nil
+	return SearchResult{RetrievalID: out.retrievalID, Items: out.items, Reason: out.reason, Notices: out.notices, AuditID: out.auditID}, nil
 }
 
 // Context runs the read path in context mode: relevance cut, token budget,
@@ -92,12 +96,13 @@ func (r *Reader) Context(ctx context.Context, in ContextInput) (ContextResult, e
 	}
 	out, err := r.run(ctx, request{
 		mode: ModeContext, ns: in.Namespace, text: in.Query, asOf: in.AsOf, budget: budget, sessionID: in.SessionID, gate: in.Gate,
+		actor: in.Actor,
 	})
 	if err != nil {
 		return ContextResult{}, err
 	}
 	return ContextResult{RetrievalID: out.retrievalID, Text: out.text, Items: out.items, Reason: out.reason,
-		TokensUsed: out.tokens, Notices: out.notices}, nil
+		TokensUsed: out.tokens, Notices: out.notices, AuditID: out.auditID}, nil
 }
 
 type request struct {
@@ -110,6 +115,7 @@ type request struct {
 	includeHistory bool
 	sessionID      string
 	gate           bool
+	actor          string
 }
 
 type result struct {
@@ -119,6 +125,7 @@ type result struct {
 	notices     []string
 	text        string
 	tokens      int
+	auditID     int64
 }
 
 // run is the whole read path (BASE.md read steps 1 to 11).

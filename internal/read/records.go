@@ -188,6 +188,7 @@ const (
 	dropZone        = "zone"
 	dropFlagged     = "flagged"
 	dropRetired     = "retired"
+	dropAssertion   = "fact_assertion" // the raw event behind assert_fact; its fact is the readable record
 	dropStatus      = "status"
 	dropNotValid    = "not_valid_at_as_of"
 	dropInstruction = "instruction_like"
@@ -205,7 +206,9 @@ const (
 //     superseded facts valid at that date (they held then); with
 //     include_history (search mode only) also superseded facts, without the
 //     validity window. Never quarantined, rejected, flagged or stale_source;
-//   - events: no retired_at;
+//   - events: no retired_at, and not the fact_assertion event behind an
+//     assert_fact call (the fact itself is the readable record, so a
+//     superseded value never comes back through its raw event);
 //   - pages: status active;
 //   - any record with a row in flags is dropped; type and zone filters apply;
 //   - context mode never includes instruction_like events.
@@ -226,6 +229,9 @@ func ruleFilter(rec *record, o filterOpts) string {
 	case core.RecEvent:
 		if rec.retiredAt != "" {
 			return dropRetired
+		}
+		if rec.kind == string(core.EventFact) {
+			return dropAssertion
 		}
 		if o.mode == ModeContext && rec.hasFlag(core.FlagInstructionLike) {
 			return dropInstruction
