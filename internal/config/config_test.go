@@ -51,3 +51,23 @@ func TestLoadOverridesAndRejectsUnknown(t *testing.T) {
 		t.Fatal("missing file must give defaults")
 	}
 }
+
+func TestMaxZoneValidation(t *testing.T) {
+	for _, tc := range []struct {
+		zone  string
+		human bool
+		ok    bool
+	}{
+		{"internal", false, true}, {"external", false, true}, {"user", false, false},
+		{"user", true, true}, {"", false, false}, {"root", true, false},
+	} {
+		c := config.Default()
+		c.MCP.MaxZone, c.MCP.HumanActor = tc.zone, tc.human
+		if err := c.Validate(); (err == nil) != tc.ok {
+			t.Errorf("max_zone %q human %v: err %v, want ok=%v", tc.zone, tc.human, err, tc.ok)
+		}
+	}
+	if config.Default().MCP.MaxZone != "internal" || len(config.Default().Write.IngestRoots) != 0 {
+		t.Fatal("defaults: max_zone internal, no ingest roots")
+	}
+}

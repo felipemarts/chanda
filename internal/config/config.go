@@ -37,6 +37,13 @@ type WriteConfig struct {
 	NearDupThreshold    float64           `yaml:"near_dup_threshold"`   // cosine, default 0.95
 	Extractors          []ExtractorConfig `yaml:"extractors"`           // deterministic fact extractors
 	IngestExtensions    []string          `yaml:"ingest_extensions"`    // file extensions ingested from a folder
+	// IngestRoots are the folders the ingest tool may read when called over
+	// MCP (symlinks resolved; empty = the MCP ingest tool refuses every
+	// path). The CLI, a person at a terminal, may ingest anywhere.
+	IngestRoots []string `yaml:"ingest_roots"`
+	// NearDupCandidates is how many events (FTS5 BM25 top-N of the new
+	// event's text) the near-duplicate guard compares a new event with.
+	NearDupCandidates int `yaml:"near_dup_candidates"`
 }
 
 // ExtractorConfig declares one deterministic fact extractor (write path, no LLM).
@@ -141,6 +148,10 @@ type MCPConfig struct {
 	HTTPAddr   string   `yaml:"http_addr"`
 	Actor      string   `yaml:"actor"`       // identity recorded in the audit log for this client
 	HumanActor bool     `yaml:"human_actor"` // promote is allowed only when true
+	// MaxZone is the highest trust zone a write through this channel may get
+	// (decision 0090): zone = MinZone(ZoneForSource(kind), max_zone).
+	// "user" is allowed only with human_actor.
+	MaxZone string `yaml:"max_zone"`
 }
 
 type ForgetConfig struct {
@@ -159,7 +170,7 @@ func Default() *Config {
 		IDSeed:    "chanda",
 		Write: WriteConfig{
 			MinChars: 3, MaxChars: 1 << 20, MaxChunkChars: 2000, NearDupThreshold: 0.95,
-			IngestExtensions: []string{".md", ".markdown", ".txt"},
+			IngestExtensions: []string{".md", ".markdown", ".txt"}, NearDupCandidates: 10,
 		},
 		Read: ReadConfig{
 			KeywordTopK: 50, VectorTopK: 50, RRFK: 60, RerankTopN: 30, RerankEnabled: false,
@@ -188,7 +199,7 @@ func Default() *Config {
 			HiddenUnits: 8, MinTrainExamples: 50, HoldoutFraction: 0.2, ModelSeed: "chanda-rank",
 		},
 		LLM:    LLMConfig{TimeoutSeconds: 120, ResponseFormat: "auto", MaxTokens: 2048},
-		MCP:    MCPConfig{Profiles: []string{"read", "standard"}, Actor: "agent"},
+		MCP:    MCPConfig{Profiles: []string{"read", "standard"}, Actor: "agent", MaxZone: "internal"},
 		Forget: ForgetConfig{TombstoneKeepsHash: false, ProbeTerms: 3, ProbeNeedles: 4, ProbeNeedleBytes: 16, ProbeVectorK: 50},
 	}
 }
@@ -223,6 +234,18 @@ func (c *Config) Validate() error {
 	}
 	if c.Write.NearDupThreshold <= 0 || c.Write.NearDupThreshold > 1 {
 		return fmt.Errorf("write.near_dup_threshold must be in (0,1]")
+	}
+	if c.Write.NearDupCandidates < 0 {
+		return fmt.Errorf("write.near_dup_candidates must be >= 0")
+	}
+	switch c.MCP.MaxZone {
+	case "external", "internal":
+	case "user":
+		if !c.MCP.HumanActor {
+			return fmt.Errorf("mcp.max_zone: user requires mcp.human_actor: true")
+		}
+	default:
+		return fmt.Errorf("mcp.max_zone must be external, internal or user, not %q", c.MCP.MaxZone)
 	}
 	return nil
 }
