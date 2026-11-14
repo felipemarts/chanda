@@ -17,6 +17,9 @@ bin/chanda version
 
 Without `make`: `CGO_ENABLED=0 go build -o bin/chanda ./cmd/chanda`.
 
+`make release` cross-compiles static binaries for Linux, macOS and Windows
+(amd64 and arm64) into `dist/`, with a `SHA256SUMS` file.
+
 ### With the multilingual embedder (hugot)
 
 The default embedder (`hash`) is deterministic and built in, but captures
