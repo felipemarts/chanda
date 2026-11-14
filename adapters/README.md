@@ -26,24 +26,22 @@ CHANDA_E2E_PYTHON=.venv/bin/python sh adapters/e2e_test.sh
 HERMES_SRC=/path/to/hermes-agent .venv/bin/python -m pytest adapters/tests/test_hermes_provider.py   # + real MemoryProvider ABC
 ```
 
-## What the end-to-end test checks, and what needs the wired core
+## What the end-to-end test checks
 
-`e2e_test.sh` builds `chanda`, tries to ingest a small document, and picks the
-mode from the answer: `wired` when ingest succeeds, `unwired` when it answers
-`unavailable` (the state of `chanda serve` until integration wires the core).
+`e2e_test.sh` builds `chanda`, ingests a small document, and picks the mode
+from the answer: `wired` when ingest succeeds (every build since the core was
+wired), `unwired` when it answers `unavailable` (a shell without the core).
 
-| Check | Unwired core (today) | Wired core |
+| Check | Wired core | Unwired core |
 | --- | --- | --- |
 | `context` is the first call, before the agent's first turn (client transcript) | checked | checked |
 | The server runs the read and standard profiles only (its startup log) | checked | checked |
-| The server's stderr shows `context` before the first turn and the call order context, search, get, log_session | checked (the server logs every failed call) | not available: successful calls are not logged; the client transcript is used |
-| `context` answers `unavailable`; the agent runs with the bare request; no outcome is sent | checked | n/a |
-| The block is injected at the start of the first prompt and carries the seeded fact | **needs the wired core** | checked |
-| `log_session` then `outcome` succeed, in order | **needs the wired core** | checked |
-| Go example: same moments | checked (unavailable path) | **needs the wired core** for injection and outcome |
+| The block is injected at the start of the first prompt (BASE.md phase 5), as one delimited `<chanda-context>` block followed by the request, and carries the seeded fact | checked | n/a |
+| `log_session` then `outcome` succeed, in order | checked | n/a |
+| Go example: `context` first, block injected, `log_session` then `outcome` | checked | unavailable path |
+| The server's stderr shows the call order context, search, get, log_session | n/a (successful calls are not logged) | checked |
 
-The positive paths (injection, used ids, outcome per retrieval, Hermes outcome
-values, session switches) are covered today by the unit tests against the
-stub server, including one run where the stub is spawned over stdio as a
-stand-in `chanda` binary. Integration should re-run `sh adapters/e2e_test.sh`
-once the core is wired: it switches to the wired checks by itself.
+Last run against the wired core (`sh adapters/e2e_test.sh`, Python 3.11 with
+`mcp==2.3.0`): every check passed. The unit tests against the stub server
+cover the paths the e2e does not (used ids, Hermes outcome values, session
+switches).
