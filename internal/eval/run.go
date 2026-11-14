@@ -229,7 +229,8 @@ func datasetTags(ds *Dataset) []string {
 
 func ms(d time.Duration) float64 { return float64(d.Microseconds()) / 1000 }
 
-// Write stores the report as <dir>/<name>.md and <dir>/<name>.json.
+// Write stores the report as <dir>/<name>.md, <dir>/<name>.json and the
+// per-question detail as <dir>/<name>.questions.jsonl.
 func (r *Report) Write(dir, name string) error {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return err
@@ -238,8 +239,14 @@ func (r *Report) Write(dir, name string) error {
 	if err != nil {
 		return err
 	}
-	if err := os.WriteFile(filepath.Join(dir, name+".json"), js, 0o644); err != nil {
+	qs, err := r.QuestionsJSONL()
+	if err != nil {
 		return err
 	}
-	return os.WriteFile(filepath.Join(dir, name+".md"), []byte(r.Markdown()), 0o644)
+	for f, b := range map[string][]byte{".json": js, ".questions.jsonl": qs, ".md": []byte(r.Markdown())} {
+		if err := os.WriteFile(filepath.Join(dir, name+f), b, 0o644); err != nil {
+			return err
+		}
+	}
+	return nil
 }

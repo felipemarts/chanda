@@ -137,7 +137,7 @@ func (c CLI) Main(args []string, stdout io.Writer) int {
 	if err != nil {
 		return fail(1, err)
 	}
-	fmt.Fprintf(stdout, "wrote %s/%s.md and .json: %d systems, %d questions, budget %d tokens\n",
+	fmt.Fprintf(stdout, "wrote %s/%s.{md,json,questions.jsonl}: %d systems, %d questions, budget %d tokens\n",
 		*out, *name, len(rep.Systems), rep.Dataset.Questions, rep.BudgetTokens)
 	for _, s := range rep.Systems {
 		m := s.Overall.rounded()

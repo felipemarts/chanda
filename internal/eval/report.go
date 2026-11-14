@@ -67,7 +67,7 @@ type SystemResult struct {
 	SizeBytes *int64             `json:"size_bytes"`
 	Overall   Metrics            `json:"overall"`
 	ByTag     map[string]Metrics `json:"by_tag"`
-	Questions []QuestionResult   `json:"questions"`
+	Questions []QuestionResult   `json:"-"` // written to <name>.questions.jsonl
 }
 
 // Latency holds one system's timings, in milliseconds.
@@ -245,12 +245,6 @@ func (r *Report) JSON() ([]byte, error) {
 			by[k] = m.rounded()
 		}
 		s.ByTag = by
-		qs := make([]QuestionResult, len(s.Questions))
-		for j, q := range s.Questions {
-			q.RecallAt5, q.RecallAt10, q.MRR, q.NDCGAt10, q.DocRecallAt10 = round4(q.RecallAt5), round4(q.RecallAt10), round4(q.MRR), round4(q.NDCGAt10), round4(q.DocRecallAt10)
-			qs[j] = q
-		}
-		s.Questions = qs
 		c.Systems[i] = s
 	}
 	var b bytes.Buffer
@@ -259,6 +253,37 @@ func (r *Report) JSON() ([]byte, error) {
 	enc.SetIndent("", "  ")
 	if err := enc.Encode(c); err != nil {
 		return nil, err
+	}
+	return b.Bytes(), nil
+}
+
+// QuestionsJSONL encodes the per-question judgements compactly, one line per
+// system and question (deterministic, diff-friendly): the first 5 delivered
+// ids, the delivered count, the rank of each gold unit (0 = missed; every
+// retrieval metric derives from it), tokens and the content checks.
+func (r *Report) QuestionsJSONL() ([]byte, error) {
+	type line struct {
+		System    string   `json:"sys"`
+		ID        string   `json:"q"`
+		Top       []string `json:"top5"`
+		N         int      `json:"n"`
+		GoldRanks []int    `json:"gold_ranks,omitempty"`
+		Tokens    int      `json:"tokens"`
+		Answer    bool     `json:"answer,omitempty"`
+		Forbidden bool     `json:"forbidden,omitempty"`
+		Over      int      `json:"budget_violations,omitempty"`
+	}
+	var b bytes.Buffer
+	enc := json.NewEncoder(&b)
+	enc.SetEscapeHTML(false)
+	for _, s := range r.Systems {
+		for _, q := range s.Questions {
+			l := line{System: s.Name, ID: q.QuestionID, Top: q.Delivered[:min(5, len(q.Delivered))], N: q.DeliveredCount,
+				GoldRanks: q.GoldRanks, Tokens: q.Tokens, Answer: q.AnswerHit, Forbidden: q.Forbidden, Over: q.BudgetViolations}
+			if err := enc.Encode(l); err != nil {
+				return nil, err
+			}
+		}
 	}
 	return b.Bytes(), nil
 }

@@ -54,6 +54,11 @@ func withoutLatency(t *testing.T, r *Report) ([]byte, string) {
 	}
 	delete(m, "latency")
 	out, _ := json.Marshal(m)
+	qs, err := r.QuestionsJSONL()
+	if err != nil {
+		t.Fatal(err)
+	}
+	out = append(out, qs...)
 	md, _, _ := strings.Cut(r.Markdown(), LatencyHeading)
 	return out, md
 }
@@ -152,8 +157,10 @@ func TestMainWritesReport(t *testing.T) {
 	if !strings.Contains(string(md), "| Date | 2026-11-13 |") || !strings.Contains(string(md), "v-test") {
 		t.Fatal("date or version flag ignored")
 	}
-	if _, err := os.Stat(filepath.Join(dir, "r.json")); err != nil {
-		t.Fatal(err)
+	for _, f := range []string{"r.json", "r.questions.jsonl"} {
+		if _, err := os.Stat(filepath.Join(dir, f)); err != nil {
+			t.Fatal(err)
+		}
 	}
 	for _, args := range [][]string{{"-systems", "B9"}, {"-date", "13/11/2026"}, {"-nope"}} {
 		out.Reset()

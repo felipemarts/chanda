@@ -14,7 +14,8 @@ type QuestionResult struct {
 	QuestionID       string   `json:"id"`
 	Tags             []string `json:"tags,omitempty"`
 	Answerable       bool     `json:"answerable"`
-	Delivered        []string `json:"delivered"`  // ids in rank order, after budget enforcement
+	Delivered        []string `json:"delivered"` // ids in rank order, after budget enforcement
+	DeliveredCount   int      `json:"delivered_count"`
 	GoldRanks        []int    `json:"gold_ranks"` // per relevance unit: 1-based rank of its first hit, 0 = missed
 	Tokens           int      `json:"tokens"`
 	RecallAt5        float64  `json:"recall_at_5"`
@@ -81,6 +82,7 @@ func Judge(q Question, rs []Retrieved) QuestionResult {
 		res.Tokens += r.Tokens
 		res.Delivered = append(res.Delivered, r.ID)
 	}
+	res.DeliveredCount = len(rs)
 	all := ctx.String()
 	for _, a := range q.Answers {
 		res.AnswerHit = res.AnswerHit || strings.Contains(all, Normalize(a))
