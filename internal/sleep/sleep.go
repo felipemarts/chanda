@@ -220,6 +220,10 @@ type run struct {
 	budget  Budget
 	partial bool // a ceiling was reached or the provider failed: the rest waits for the next run
 	stopLLM bool
+
+	eventsUsed    int // events sent to the LLM (extraction batches and lesson groups)
+	budgetNoticed bool
+	snapshotAbs   string // filesystem path of this run's snapshot
 }
 
 func (r *run) tokensLeft() int { return r.budget.Tokens - r.res.Cost.Tokens() }
