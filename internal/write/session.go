@@ -45,6 +45,21 @@ type SessionResult struct {
 // index is a new turn. Turns refused by admission are reported with
 // ActionRejected and do not fail the call.
 func (w *Writer) LogSession(ctx context.Context, ns, sessionID string, turns []Turn, actor string) (SessionResult, error) {
+	return w.LogSessionWith(ctx, SessionInput{Namespace: ns, SessionID: sessionID, Turns: turns, Actor: actor})
+}
+
+// SessionInput is LogSession with every option.
+type SessionInput struct {
+	Namespace string
+	SessionID string
+	Turns     []Turn
+	Actor     string
+	MaxZone   core.Zone // channel ceiling (decision 0090); empty: none
+}
+
+// LogSessionWith is LogSession; each turn's zone is also capped by MaxZone.
+func (w *Writer) LogSessionWith(ctx context.Context, in SessionInput) (SessionResult, error) {
+	ns, sessionID, turns, actor := in.Namespace, in.SessionID, in.Turns, in.Actor
 	res := SessionResult{SessionID: sessionID}
 	ns = w.namespace(ns)
 	if err := checkActor(actor); err != nil {
@@ -75,7 +90,7 @@ func (w *Writer) LogSession(ctx context.Context, ns, sessionID string, turns []T
 		default:
 			return res, core.Errf(core.CodeInvalidArgument, "turn %d: unknown role %q", i, t.Role)
 		}
-		adm, err := w.adm.Admit(t.Content, core.ZoneForSource(p.kind))
+		adm, err := w.adm.Admit(t.Content, ZoneFor(p.kind, in.MaxZone))
 		if err != nil {
 			p.rejectR = RejectReason(err)
 			continue
@@ -93,15 +108,16 @@ func (w *Writer) LogSession(ctx context.Context, ns, sessionID string, turns []T
 				res.Rejected++
 				continue
 			}
-			src, err := w.source(ctx, tx, ns, p.kind, p.uri, actor, now)
+			zone := ZoneFor(p.kind, in.MaxZone)
+			src, err := w.source(ctx, tx, ns, p.kind, p.uri, actor, now, zone)
 			if err != nil {
 				return err
 			}
 			var dup string
 			err = tx.QueryRowContext(ctx,
 				`SELECT id FROM events WHERE namespace = ? AND source_id = ? AND content_hash = ? AND session_id = ?
-				   AND ordinal = ? AND retired_at IS NULL ORDER BY id LIMIT 1`,
-				ns, src.id, p.adm.Hash, sessionID, i).Scan(&dup)
+				   AND ordinal = ? AND trust_zone = ? AND retired_at IS NULL ORDER BY id LIMIT 1`,
+				ns, src.id, p.adm.Hash, sessionID, i, string(zone)).Scan(&dup)
 			if err != nil && !errors.Is(err, sql.ErrNoRows) {
 				return err
 			}
@@ -116,10 +132,10 @@ func (w *Writer) LogSession(ctx context.Context, ns, sessionID string, turns []T
 			}
 			ev := Event{
 				Namespace: ns, SourceID: src.id, Kind: p.evKind, Content: p.adm.Content, ContentHash: p.adm.Hash,
-				TrustZone: core.ZoneForSource(p.kind), Actor: actor, RecordedAt: now, Ordinal: intp(i),
+				TrustZone: zone, Actor: actor, RecordedAt: now, Ordinal: intp(i),
 				SessionID: sessionID, Flags: p.adm.Flags,
 			}
-			aid, err := w.createEvent(ctx, tx, &ev, p.adm.InstructionRules)
+			aid, err := w.createEvent(ctx, tx, &ev, p.adm.InstructionRules, nil)
 			if err != nil {
 				return err
 			}

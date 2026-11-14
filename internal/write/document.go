@@ -21,6 +21,7 @@ type IngestInput struct {
 	SourceKind core.SourceKind // empty: document (internal); web for fetched pages (external)
 	Actor      string          // required
 	DocDate    string          // optional; overrides the front matter "date:"
+	MaxZone    core.Zone       // channel ceiling (decision 0090); empty: none
 }
 
 // IngestResult reports what one document ingest did. Id lists are in
@@ -85,7 +86,7 @@ func (w *Writer) IngestDocument(ctx context.Context, in IngestInput) (IngestResu
 	if docDate == "" {
 		docDate = fmDate
 	}
-	zone := core.ZoneForSource(kind)
+	zone := ZoneFor(kind, in.MaxZone)
 	fullHash := normalize.Hash(w.adm.MaskSecrets(text))
 	maskedBody := w.adm.MaskSecrets(body)
 	docMasked := maskedBody != body
@@ -93,7 +94,7 @@ func (w *Writer) IngestDocument(ctx context.Context, in IngestInput) (IngestResu
 
 	err = w.e.Store.Tx(ctx, func(tx *sql.Tx) error {
 		now := w.now()
-		src, err := w.source(ctx, tx, ns, kind, sourceURI, in.Actor, now)
+		src, err := w.source(ctx, tx, ns, kind, sourceURI, in.Actor, now, zone)
 		if err != nil {
 			return err
 		}
@@ -162,7 +163,7 @@ func (w *Writer) IngestDocument(ctx context.Context, in IngestInput) (IngestResu
 					TrustZone: zone, Actor: in.Actor, RecordedAt: now, DocID: doc.id, DocVersion: intp(version),
 					Ordinal: intp(ord), HeadingPath: c.HeadingPath, Flags: scr.Flags,
 				}
-				if _, err := w.createEvent(ctx, tx, &ev, scr.InstructionRules); err != nil {
+				if _, err := w.createEvent(ctx, tx, &ev, scr.InstructionRules, nil); err != nil {
 					return err
 				}
 				eventID = ev.ID

@@ -32,6 +32,22 @@ type PathResult struct {
 // admission is reported and the walk continues; any other error stops it and
 // returns the results so far.
 func (w *Writer) IngestPath(ctx context.Context, ns, path, sourceURI, actor string) (PathResult, error) {
+	return w.IngestPathWith(ctx, PathInput{Namespace: ns, Path: path, SourceURI: sourceURI, Actor: actor})
+}
+
+// PathInput is IngestPath with every option.
+type PathInput struct {
+	Namespace  string
+	Path       string
+	SourceURI  string
+	SourceKind core.SourceKind // empty: document (internal); web for fetched pages (external)
+	Actor      string
+	MaxZone    core.Zone // channel ceiling (decision 0090); empty: none
+}
+
+// IngestPathWith is IngestPath with a source kind and a zone ceiling.
+func (w *Writer) IngestPathWith(ctx context.Context, in PathInput) (PathResult, error) {
+	path, sourceURI, actor := in.Path, in.SourceURI, in.Actor
 	if err := checkActor(actor); err != nil {
 		return PathResult{}, err
 	}
@@ -46,7 +62,7 @@ func (w *Writer) IngestPath(ctx context.Context, ns, path, sourceURI, actor stri
 		return res, err
 	}
 	for _, f := range files {
-		r, err := w.ingestFile(ctx, ns, f.abs, sourceURI+"/"+f.rel, sourceURI, actor)
+		r, err := w.ingestFile(ctx, in, f.abs, sourceURI+"/"+f.rel, sourceURI)
 		if err != nil && core.CodeOf(err) != core.CodeRejected {
 			return res, err
 		}
@@ -112,7 +128,7 @@ func (w *Writer) listFiles(root string) ([]fileEntry, error) {
 	return out, nil
 }
 
-func (w *Writer) ingestFile(ctx context.Context, ns, abs, uri, sourceURI, actor string) (IngestResult, error) {
+func (w *Writer) ingestFile(ctx context.Context, in PathInput, abs, uri, sourceURI string) (IngestResult, error) {
 	// A file larger than 4 bytes per allowed rune cannot pass the size rule: skip reading it.
 	if max := w.e.Cfg.Write.MaxChars; max > 0 {
 		if fi, err := os.Stat(abs); err == nil && fi.Size() > 4*int64(max) {
@@ -123,5 +139,6 @@ func (w *Writer) ingestFile(ctx context.Context, ns, abs, uri, sourceURI, actor 
 	if err != nil {
 		return IngestResult{URI: uri}, core.Wrap(core.CodeInvalidArgument, err, "read "+uri)
 	}
-	return w.IngestDocument(ctx, IngestInput{Namespace: ns, URI: uri, Content: string(b), SourceURI: sourceURI, Actor: actor})
+	return w.IngestDocument(ctx, IngestInput{Namespace: in.Namespace, URI: uri, Content: string(b), SourceURI: sourceURI,
+		SourceKind: in.SourceKind, Actor: in.Actor, MaxZone: in.MaxZone})
 }

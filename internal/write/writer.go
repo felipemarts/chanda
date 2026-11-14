@@ -112,6 +112,12 @@ func New(e *env.Env, hooks ...EventHook) (*Writer, error) {
 // Admitter exposes the configured admission rules (e.g. for previews).
 func (w *Writer) Admitter() *Admitter { return w.adm }
 
+// OnEventFunc runs inside a write transaction once the written event exists:
+// created is true for a new event (it runs before the Writer's hooks) and
+// false when the write found an exact duplicate (ev is the existing event;
+// no hook runs then). An error rolls back the whole write.
+type OnEventFunc func(ctx context.Context, tx *sql.Tx, ev Event, created bool) error
+
 // RememberInput is free text written through the remember tool.
 type RememberInput struct {
 	Namespace  string          // empty: cfg.Namespace
@@ -121,6 +127,24 @@ type RememberInput struct {
 	Actor      string          // who writes (required)
 	ValidFrom  string          // optional date given in the call (core.ParseTime formats)
 	SessionID  string          // optional
+	// EventKind overrides the event kind derived from SourceKind; only
+	// statement, tool_result, web and fact_assertion are accepted.
+	EventKind core.EventKind
+	// MaxZone is the ceiling of the calling channel (decision 0090); empty
+	// means no ceiling. The zone is ZoneFor(SourceKind, MaxZone).
+	MaxZone core.Zone
+	// OnEvent, when set, runs inside the transaction (see OnEventFunc).
+	OnEvent OnEventFunc
+}
+
+// ZoneFor binds the zone of a write (step 2): the zone of the input channel
+// kind, capped by the channel ceiling max (decision 0090). An empty max
+// means no ceiling; an unknown max gives external, the safe default.
+func ZoneFor(kind core.SourceKind, max core.Zone) core.Zone {
+	if max == "" {
+		return core.ZoneForSource(kind)
+	}
+	return core.MinZone(core.ZoneForSource(kind), max)
 }
 
 // Remember writes one free-text event (write steps 1–5, 7, 11).
@@ -136,11 +160,20 @@ func (w *Writer) Remember(ctx context.Context, in RememberInput) (Result, error)
 	if err != nil {
 		return Result{}, err
 	}
+	evKind := eventKindFor(in.SourceKind)
+	if in.EventKind != "" {
+		switch in.EventKind {
+		case core.EventStatement, core.EventToolResult, core.EventWeb, core.EventFact:
+			evKind = in.EventKind
+		default:
+			return Result{}, core.Errf(core.CodeInvalidArgument, "event kind %q cannot be written by remember", in.EventKind)
+		}
+	}
 	uri := in.Source
 	if uri == "" {
 		uri = string(in.SourceKind) + ":" + in.Actor
 	}
-	zone := core.ZoneForSource(in.SourceKind) // step 2: from the channel, never the content
+	zone := ZoneFor(in.SourceKind, in.MaxZone) // step 2: from the channel, never the content
 	adm, err := w.adm.Admit(in.Content, zone)
 	if err != nil {
 		return Result{Action: ActionRejected, Reason: RejectReason(err)}, err
@@ -149,23 +182,34 @@ func (w *Writer) Remember(ctx context.Context, in RememberInput) (Result, error)
 	var res Result
 	err = w.e.Store.Tx(ctx, func(tx *sql.Tx) error {
 		now := w.now()
-		src, err := w.source(ctx, tx, ns, in.SourceKind, uri, in.Actor, now)
+		src, err := w.source(ctx, tx, ns, in.SourceKind, uri, in.Actor, now, zone)
 		if err != nil {
 			return err
 		}
-		if id, err := w.findDuplicate(ctx, tx, ns, src.id, adm.Hash); err != nil {
+		if id, err := w.findDuplicate(ctx, tx, ns, src.id, adm.Hash, zone); err != nil {
 			return err
 		} else if id != "" {
 			aid, err := w.auditDuplicate(ctx, tx, ns, in.Actor, id, src.id)
 			res = Result{ID: id, Action: ActionDuplicate, Reason: ReasonExactDuplicate, Flags: adm.Flags, AuditID: aid}
-			return err
+			if err != nil || in.OnEvent == nil {
+				return err
+			}
+			ev, err := LoadEvent(ctx, tx, id)
+			if err != nil {
+				return err
+			}
+			return in.OnEvent(ctx, tx, ev, false)
 		}
 		ev := Event{
-			Namespace: ns, SourceID: src.id, Kind: eventKindFor(in.SourceKind),
+			Namespace: ns, SourceID: src.id, Kind: evKind,
 			Content: adm.Content, ContentHash: adm.Hash, TrustZone: zone, Actor: in.Actor,
 			RecordedAt: now, ValidFrom: validFrom, SessionID: in.SessionID, Flags: adm.Flags,
 		}
-		aid, err := w.createEvent(ctx, tx, &ev, adm.InstructionRules)
+		var first EventHookFunc
+		if in.OnEvent != nil {
+			first = func(ctx context.Context, tx *sql.Tx, ev Event) error { return in.OnEvent(ctx, tx, ev, true) }
+		}
+		aid, err := w.createEvent(ctx, tx, &ev, adm.InstructionRules, first)
 		res = Result{ID: ev.ID, Action: ActionCreated, Reason: ReasonNewEvent, Flags: adm.Flags, AuditID: aid}
 		return err
 	})
@@ -183,9 +227,10 @@ type source struct {
 	zone core.Zone
 }
 
-// source upserts the source (namespace, kind, uri) and returns it. Its zone is
-// bound from the kind (step 2).
-func (w *Writer) source(ctx context.Context, tx *sql.Tx, ns string, kind core.SourceKind, uri, actor, now string) (source, error) {
+// source upserts the source (namespace, kind, uri) and returns it. A new
+// source records zone, the zone bound for the write that created it (step 2,
+// capped by the channel ceiling); events carry their own authoritative zone.
+func (w *Writer) source(ctx context.Context, tx *sql.Tx, ns string, kind core.SourceKind, uri, actor, now string, zone core.Zone) (source, error) {
 	var s source
 	err := tx.QueryRowContext(ctx,
 		`SELECT id, trust_zone FROM sources WHERE namespace = ? AND kind = ? AND uri = ?`, ns, string(kind), uri).
@@ -196,7 +241,7 @@ func (w *Writer) source(ctx context.Context, tx *sql.Tx, ns string, kind core.So
 	if !errors.Is(err, sql.ErrNoRows) {
 		return s, err
 	}
-	s = source{id: w.e.IDs.For(core.RecSource), zone: core.ZoneForSource(kind)}
+	s = source{id: w.e.IDs.For(core.RecSource), zone: zone}
 	if _, err := tx.ExecContext(ctx,
 		`INSERT INTO sources(id, namespace, kind, uri, trust_zone, created_at) VALUES (?,?,?,?,?,?)`,
 		s.id, ns, string(kind), uri, string(s.zone), now); err != nil {
@@ -213,12 +258,14 @@ func (w *Writer) source(ctx context.Context, tx *sql.Tx, ns string, kind core.So
 }
 
 // findDuplicate returns the id of a live event of the same source with the
-// same content hash (step 4), or "".
-func (w *Writer) findDuplicate(ctx context.Context, tx *sql.Tx, ns, sourceID, hash string) (string, error) {
+// same content hash and zone (step 4), or "". The zone is compared because
+// channels with different ceilings may write to the same source: a capped
+// copy is a new event, never an alias of a higher-zone one.
+func (w *Writer) findDuplicate(ctx context.Context, tx *sql.Tx, ns, sourceID, hash string, zone core.Zone) (string, error) {
 	var id string
 	err := tx.QueryRowContext(ctx,
-		`SELECT id FROM events WHERE namespace = ? AND source_id = ? AND content_hash = ? AND retired_at IS NULL
-		 ORDER BY id LIMIT 1`, ns, sourceID, hash).Scan(&id)
+		`SELECT id FROM events WHERE namespace = ? AND source_id = ? AND content_hash = ? AND trust_zone = ?
+		   AND retired_at IS NULL ORDER BY id LIMIT 1`, ns, sourceID, hash, string(zone)).Scan(&id)
 	if errors.Is(err, sql.ErrNoRows) {
 		return "", nil
 	}
@@ -248,8 +295,9 @@ type writeAudit struct {
 }
 
 // createEvent assigns an id, inserts the raw event (step 5), enqueues it for
-// embedding (step 7; FTS is trigger-maintained), audits it and runs the hooks.
-func (w *Writer) createEvent(ctx context.Context, tx *sql.Tx, ev *Event, rules []string) (int64, error) {
+// embedding (step 7; FTS is trigger-maintained), audits it, runs first (the
+// call's own step, when not nil) and then the hooks.
+func (w *Writer) createEvent(ctx context.Context, tx *sql.Tx, ev *Event, rules []string, first EventHookFunc) (int64, error) {
 	ev.ID = w.e.IDs.For(core.RecEvent)
 	if _, err := tx.ExecContext(ctx,
 		`INSERT INTO events(id, namespace, source_id, kind, content, content_hash, trust_zone, actor, recorded_at,
@@ -276,6 +324,11 @@ func (w *Writer) createEvent(ctx context.Context, tx *sql.Tx, ev *Event, rules [
 	})
 	if err != nil {
 		return 0, err
+	}
+	if first != nil {
+		if err := first(ctx, tx, *ev); err != nil {
+			return 0, err
+		}
 	}
 	for _, h := range w.hooks {
 		if err := h.AfterEvent(ctx, tx, *ev); err != nil {
