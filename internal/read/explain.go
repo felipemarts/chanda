@@ -18,6 +18,7 @@ type Explanation struct {
 	Reason      string           `json:"reason,omitempty"`
 	RecordID    string           `json:"record_id"`
 	Found       bool             `json:"found"`               // the record was a candidate
+	Rank        int              `json:"rank,omitempty"`      // 1-based position among scored candidates by final score
 	Candidate   *LoggedCandidate `json:"candidate,omitempty"` // stages, features, delivered or drop reason
 	Delivered   []string         `json:"delivered"`
 }
@@ -50,6 +51,9 @@ func (r *Reader) Explain(ctx context.Context, ns, retrievalID, recordID string) 
 	for i := range lcs {
 		if lcs[i].ID == recordID {
 			ex.Found, ex.Candidate = true, &lcs[i]
+			if lcs[i].Final != nil {
+				ex.Rank = i + 1 // scored candidates are logged first, by final score
+			}
 			break
 		}
 	}
