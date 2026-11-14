@@ -256,6 +256,17 @@ func (s *shard) scanRange(ctx context.Context, q []float32, k int, mask *[256]bo
 	return top
 }
 
+// Warm loads the vectors of (namespace, modelID) into memory now, so the
+// first Search does not pay the cold load (about 0.5-1.2 s at 100k vectors;
+// decision 0030). Call it at startup for the default namespace.
+func (x *ExactIndex) Warm(ctx context.Context, namespace, modelID string) error {
+	_, release, err := x.acquire(ctx, namespace, modelID)
+	if err == nil {
+		release()
+	}
+	return err
+}
+
 // acquire returns the current shard with the read lock held.
 func (x *ExactIndex) acquire(ctx context.Context, ns, model string) (*shard, func(), error) {
 	key := shardKey{ns, model}

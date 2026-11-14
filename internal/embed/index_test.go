@@ -71,9 +71,14 @@ func TestIndexCoherenceAfterUpsertAndRemove(t *testing.T) {
 	q := axis(8, 0)
 	mustUpsert(t, x, "ns", core.RecEvent, "evt_1", testModel, axis(8, 0))
 	mustUpsert(t, x, "ns", core.RecFact, "fct_1", testModel, axis(8, 1))
-	mustSearch(t, x, "ns", testModel, q, 5) // loads the cache
+	if err := x.Warm(ctx, "ns", testModel); err != nil { // loads the cache
+		t.Fatal(err)
+	}
 	key := shardKey{"ns", testModel}
 	cached := x.shards[key]
+	if cached == nil || len(cached.ids) != 2 {
+		t.Fatal("Warm did not load the shard")
+	}
 
 	steps := []struct {
 		name string
