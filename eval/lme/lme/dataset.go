@@ -95,6 +95,21 @@ func RFC3339(s string) (string, error) {
 	return t.Format(time.RFC3339), nil
 }
 
+// AsOfDay returns the calendar day of a dataset date (YYYY-MM-DD), the
+// reference date the harness gives Chanda as as_of. Chanda reads a date-only
+// as_of as the end of that day (decision 0135). The day, not the minute: in
+// LongMemEval_S 41 of 470 scored questions have an evidence session timed
+// after the question on the same day (never on a later day), so a
+// minute-exact reference would hide evidence the benchmark expects to be
+// available (eval/deviations.md entry 7).
+func AsOfDay(s string) (string, error) {
+	t, err := ParseDate(s)
+	if err != nil {
+		return "", err
+	}
+	return t.Format("2006-01-02"), nil
+}
+
 // Each streams the questions of a dataset file (a JSON array) to fn, in file
 // order, without holding the whole file in memory. fn may keep q.
 func Each(path string, fn func(q *Question) error) error {

@@ -139,7 +139,7 @@ func contextChanda(ctx context.Context, o *RunOptions, emb *Cached, q *Question,
 			return err
 		}
 	}
-	asOf, err := RFC3339(q.QuestionDate)
+	asOf, err := AsOfDay(q.QuestionDate)
 	if err != nil {
 		return err
 	}

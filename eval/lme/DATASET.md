@@ -19,8 +19,10 @@ and that matter for the battery:
    sessions, always on the same day (at most 0.99 days later): the dataset
    gives the question a time of day earlier than some of its own sessions.
    A system that filters events strictly by `as_of` would lose those
-   evidence sessions. Chanda today does not filter events by date (only
-   facts), so this has no effect on the current runs.
+   evidence sessions. Since decision 0135 Chanda drops events dated after
+   `as_of`, so the harness passes the question's calendar day (Chanda reads
+   a date-only `as_of` as the end of that day); no evidence session falls on
+   a later day (eval/deviations.md entry 7).
 3. **Abstention questions have evidence ids.** All 30 abstention questions
    carry `answer_session_ids` (sessions about a related but different fact).
    The official retrieval evaluation skips them anyway (below).

@@ -54,7 +54,10 @@ conditions or results had to be re-run. Entries are added in the order found.
   says `valid_from` uses the date given in the call first. Chanda therefore
   knew no session dates, and temporal and knowledge-update questions could not
   test what they are meant to test.
-- **What changed:** see the fix commit (pending).
+- **What changed:** commits b7a4f9e..8b1e8d0 (decision 0135): a turn's `ts`
+  becomes its event's `valid_from` (an unparsable `ts` is rejected); facts
+  without a date take their origin events' `valid_from`; with an explicit
+  `as_of`, `context` and `search` drop events dated after it.
 - **Re-run:** the smoke run; no full phase 1 or LLM condition had run.
 
 ## 5. The context block shows no date for raw excerpts
@@ -66,7 +69,8 @@ conditions or results had to be re-run. Entries are added in the order found.
   defect of the pre-context (an agent cannot use "what held on that date"
   without dates), not tuned on LongMemEval questions, and it is disclosed here
   because it was found through the battery.
-- **What changed:** see the fix commit (pending).
+- **What changed:** 9450ca5 (decision 0135): excerpts show `date:` (their
+  `valid_from`) or `recorded:`, pages `updated:`; about 6 tokens per item.
 - **Re-run:** as above.
 
 ## 6. Context ceiling raised to the battery budget
@@ -75,6 +79,21 @@ conditions or results had to be re-run. Entries are added in the order found.
   2,000 tokens for every condition. The harness sets
   `read.context_max_tokens: 2000` in the configuration of conditions D and E.
   No code change.
+
+## 7. The harness passes the question's day, not its minute, as `as_of`
+
+- **Found by:** the smoke run after fix 4 (hash, 20 questions, no LLM):
+  Chanda's recall@10 fell from 95.6 to 83.8, all of it on temporal-reasoning
+  questions. LongMemEval_S times 75 evidence sessions (41 of the 470 scored
+  questions) later than their question on the same day; with a minute-exact
+  `as_of` those sessions "did not exist yet". No evidence session falls on a
+  later day.
+- **What changed:** `eval/lme` passes the question's calendar day
+  (`YYYY-MM-DD`), read by Chanda as the end of that day. No Chanda code
+  changed. This choice was made after seeing the smoke drop; it is the
+  reading that keeps the benchmark's own evidence available while still
+  using the question date as the reference, as the owner asked.
+- **Re-run:** the smoke run.
 
 ## Known limitations found during setup (not fixed)
 
