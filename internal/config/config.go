@@ -128,6 +128,10 @@ type MCPConfig struct {
 
 type ForgetConfig struct {
 	TombstoneKeepsHash bool `yaml:"tombstone_keeps_hash"`
+	ProbeTerms         int  `yaml:"probe_terms"`        // rarest tokens per removed event searched after deletion (3)
+	ProbeNeedles       int  `yaml:"probe_needles"`      // byte strings per removed text scanned in the file (4)
+	ProbeNeedleBytes   int  `yaml:"probe_needle_bytes"` // length of each byte string, at least 12 (16)
+	ProbeVectorK       int  `yaml:"probe_vector_k"`     // neighbours checked per saved vector (50)
 }
 
 // Default returns the configuration with every default from BASE.md.
@@ -164,7 +168,7 @@ func Default() *Config {
 		},
 		LLM:    LLMConfig{TimeoutSeconds: 120},
 		MCP:    MCPConfig{Profiles: []string{"read", "standard"}, Actor: "agent"},
-		Forget: ForgetConfig{TombstoneKeepsHash: false},
+		Forget: ForgetConfig{TombstoneKeepsHash: false, ProbeTerms: 3, ProbeNeedles: 4, ProbeNeedleBytes: 16, ProbeVectorK: 50},
 	}
 }
 
