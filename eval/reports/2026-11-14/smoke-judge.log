@@ -1,0 +1,38 @@
+10 answers, 10 to judge; tag A-judge
+wrote /Users/felipemarts/Documents/devel/chanda-mcp/eval/reports/2026-11-14/raw/A.jsonl; failures 0
+10 answers, 10 to judge; tag B-judge
+wrote /Users/felipemarts/Documents/devel/chanda-mcp/eval/reports/2026-11-14/raw/B.jsonl; failures 0
+Traceback (most recent call last):
+  File "/Users/felipemarts/Documents/devel/chanda-mcp/eval/lme/py/judge.py", line 92, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/Users/felipemarts/Documents/devel/chanda-mcp/eval/lme/py/judge.py", line 38, in main
+    answers = common.read_jsonl(src)
+              ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/felipemarts/Documents/devel/chanda-mcp/eval/lme/py/common.py", line 33, in read_jsonl
+    with open(path, encoding="utf-8") as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/felipemarts/Documents/devel/chanda-mcp/eval/reports/2026-11-14/raw/C.answers.jsonl'
+10 answers, 10 to judge; tag D-judge
+wrote /Users/felipemarts/Documents/devel/chanda-mcp/eval/reports/2026-11-14/raw/D.jsonl; failures 0
+Traceback (most recent call last):
+  File "/Users/felipemarts/Documents/devel/chanda-mcp/eval/lme/py/judge.py", line 92, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/Users/felipemarts/Documents/devel/chanda-mcp/eval/lme/py/judge.py", line 38, in main
+    answers = common.read_jsonl(src)
+              ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/felipemarts/Documents/devel/chanda-mcp/eval/lme/py/common.py", line 33, in read_jsonl
+    with open(path, encoding="utf-8") as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/felipemarts/Documents/devel/chanda-mcp/eval/reports/2026-11-14/raw/E.answers.jsonl'
+10 answers, 0 to judge; tag A-judge
+wrote /Users/felipemarts/Documents/devel/chanda-mcp/eval/reports/2026-11-14/raw/A.jsonl; failures 0
+10 answers, 0 to judge; tag B-judge
+wrote /Users/felipemarts/Documents/devel/chanda-mcp/eval/reports/2026-11-14/raw/B.jsonl; failures 0
+10 answers, 10 to judge; tag C-judge
+wrote /Users/felipemarts/Documents/devel/chanda-mcp/eval/reports/2026-11-14/raw/C.jsonl; failures 0
+10 answers, 0 to judge; tag D-judge
+wrote /Users/felipemarts/Documents/devel/chanda-mcp/eval/reports/2026-11-14/raw/D.jsonl; failures 0
+10 answers, 10 to judge; tag E-judge
+wrote /Users/felipemarts/Documents/devel/chanda-mcp/eval/reports/2026-11-14/raw/E.jsonl; failures 0

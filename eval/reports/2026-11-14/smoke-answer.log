@@ -1,0 +1,31 @@
+10 questions, 0 already answered, 10 to do; tag A-reader
+wrote /Users/felipemarts/Documents/devel/chanda-mcp/eval/reports/2026-11-14/raw/A.answers.jsonl; failures 0
+10 questions, 0 already answered, 10 to do; tag B-reader
+wrote /Users/felipemarts/Documents/devel/chanda-mcp/eval/reports/2026-11-14/raw/B.answers.jsonl; failures 0
+/Users/felipemarts/Documents/devel/chanda-mcp/eval/lme/py/work/ctx/C.jsonl has no context for 0e5e2d1a; refusing to answer a partial set
+10 questions, 0 already answered, 10 to do; tag D-reader
+wrote /Users/felipemarts/Documents/devel/chanda-mcp/eval/reports/2026-11-14/raw/D.answers.jsonl; failures 0
+Traceback (most recent call last):
+  File "/Users/felipemarts/Documents/devel/chanda-mcp/eval/lme/py/answer.py", line 170, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/Users/felipemarts/Documents/devel/chanda-mcp/eval/lme/py/answer.py", line 116, in main
+    jobs = build_jobs(args)
+           ^^^^^^^^^^^^^^^^
+  File "/Users/felipemarts/Documents/devel/chanda-mcp/eval/lme/py/answer.py", line 46, in build_jobs
+    for r in common.read_jsonl(args.contexts):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/felipemarts/Documents/devel/chanda-mcp/eval/lme/py/common.py", line 33, in read_jsonl
+    with open(path, encoding="utf-8") as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/felipemarts/Documents/devel/chanda-mcp/eval/lme/py/work/ctx/E.jsonl'
+10 questions, 10 already answered, 0 to do; tag A-reader
+wrote /Users/felipemarts/Documents/devel/chanda-mcp/eval/reports/2026-11-14/raw/A.answers.jsonl; failures 0
+10 questions, 10 already answered, 0 to do; tag B-reader
+wrote /Users/felipemarts/Documents/devel/chanda-mcp/eval/reports/2026-11-14/raw/B.answers.jsonl; failures 0
+10 questions, 0 already answered, 10 to do; tag C-reader
+wrote /Users/felipemarts/Documents/devel/chanda-mcp/eval/reports/2026-11-14/raw/C.answers.jsonl; failures 0
+10 questions, 10 already answered, 0 to do; tag D-reader
+wrote /Users/felipemarts/Documents/devel/chanda-mcp/eval/reports/2026-11-14/raw/D.answers.jsonl; failures 0
+10 questions, 0 already answered, 10 to do; tag E-reader
+wrote /Users/felipemarts/Documents/devel/chanda-mcp/eval/reports/2026-11-14/raw/E.answers.jsonl; failures 0

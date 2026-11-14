@@ -98,3 +98,19 @@ recoverable.** Their results are kept, though:
 A record/replay store in lmeproxy is being added, so later runs reuse
 identical calls at no cost. At temperature 0 an identical forwarded request
 is answered from the store.
+
+## Phase 4: full run, 60 questions (done)
+
+- The proxy was restarted with `-store eval/lme/llmstore`, recording only, no
+  replay. The 50 questions after the smoke run's 10 then ran:
+  - Mem0 in three shards, 13:01 to 15:40;
+  - B and D contexts;
+  - readers and judges for A to D;
+  - E last (15:41 to 16:35), after a check that the remaining budget covered
+    it twice over.
+- The first launch of the runner failed at once on a script error (`lme
+  contexts` refuses `-sample` together with `-ids`). It was relaunched
+  without restarting the Mem0 shards, which were already running.
+- Seven DeepSeek calls ended with "connection reset by peer". The clients
+  retried them, and every Mem0 question reports 0 extraction errors.
+- Total spend: US$4.278, in 4,951 calls. Results are in `REPORT.md`.

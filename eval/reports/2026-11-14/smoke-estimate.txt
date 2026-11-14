@@ -1,0 +1,13 @@
+A-judge      off-peak $0.002  peak $0.004
+A-reader     off-peak $0.003  peak $0.007
+B-judge      off-peak $0.003  peak $0.005
+B-reader     off-peak $0.023  peak $0.047
+C-ingest     off-peak $2.592  peak $5.183
+C-judge      off-peak $0.002  peak $0.005
+C-reader     off-peak $0.026  peak $0.051
+D-judge      off-peak $0.002  peak $0.005
+D-reader     off-peak $0.024  peak $0.047
+E-judge      off-peak $0.003  peak $0.005
+E-reader     off-peak $0.026  peak $0.052
+E-sleep      off-peak $1.696  peak $3.393
+billed so far $0.7337; projected 60 q: off-peak $4.40, peak $8.80; remaining if smoke reused $3.67 (cap $8.00)

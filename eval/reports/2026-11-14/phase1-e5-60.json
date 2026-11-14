@@ -1,0 +1,584 @@
+{
+  "meta": {
+    "bm25_unit": "session",
+    "budget_tokens": 2000,
+    "chanda_search_as_of": "filters.as_of = question day (YYYY-MM-DD, end of day; events dated after it are dropped, decision 0135)",
+    "chanda_search_limit": 100,
+    "conditions": [
+      "bm25",
+      "rag",
+      "chanda"
+    ],
+    "dataset": "xiaowu0162/longmemeval-cleaned@98d7416c24c778c2fee6e6f3006e7a073259d48f/longmemeval_s_cleaned.json",
+    "date": "2026-11-14T08:00:08Z",
+    "embed_dim": 384,
+    "embed_model": "e5-small@hugot0.8.6+simd",
+    "embedder": "e5",
+    "go": "go1.27.0-X:simd",
+    "goos_goarch": "darwin/arm64",
+    "harness_cache_hits": 24905,
+    "harness_cache_misses": 13919,
+    "questions": 60,
+    "rag_chunk_chars": 1000,
+    "rag_top_k": 50,
+    "selection": "sample ../sample.json",
+    "token_estimator": "ceil(runes/4)",
+    "wall_seconds": 1776.020174917,
+    "workers": 3
+  },
+  "conditions": {
+    "bm25": {
+      "groups": {
+        "abstention": {
+          "n": 6,
+          "recall": {},
+          "mrr": 0,
+          "n_official": 0,
+          "recall_any": {},
+          "recall_all": {},
+          "ndcg_any": {}
+        },
+        "all": {
+          "n": 54,
+          "recall": {
+            "@10": 0.9623456790123456,
+            "@5": 0.9370370370370369
+          },
+          "mrr": 0.9104938271604939,
+          "n_official": 47,
+          "recall_any": {
+            "@10": 1,
+            "@5": 1
+          },
+          "recall_all": {
+            "@10": 0.9148936170212766,
+            "@5": 0.8297872340425532
+          },
+          "ndcg_any": {
+            "@10": 0.8816677544772225,
+            "@5": 0.8712106681598727
+          }
+        },
+        "knowledge-update": {
+          "n": 8,
+          "recall": {
+            "@10": 1,
+            "@5": 1
+          },
+          "mrr": 1,
+          "n_official": 8,
+          "recall_any": {
+            "@10": 1,
+            "@5": 1
+          },
+          "recall_all": {
+            "@10": 1,
+            "@5": 1
+          },
+          "ndcg_any": {
+            "@10": 1,
+            "@5": 1
+          }
+        },
+        "multi-session": {
+          "n": 13,
+          "recall": {
+            "@10": 0.8846153846153846,
+            "@5": 0.8205128205128205
+          },
+          "mrr": 0.8653846153846154,
+          "n_official": 13,
+          "recall_any": {
+            "@10": 1,
+            "@5": 1
+          },
+          "recall_all": {
+            "@10": 0.7692307692307693,
+            "@5": 0.5384615384615384
+          },
+          "ndcg_any": {
+            "@10": 0.7669639882867991,
+            "@5": 0.7379591089045656
+          }
+        },
+        "single-session-assistant": {
+          "n": 7,
+          "recall": {
+            "@10": 1,
+            "@5": 1
+          },
+          "mrr": 1,
+          "n_official": 0,
+          "recall_any": {},
+          "recall_all": {},
+          "ndcg_any": {}
+        },
+        "single-session-preference": {
+          "n": 4,
+          "recall": {
+            "@10": 1,
+            "@5": 1
+          },
+          "mrr": 0.75,
+          "n_official": 4,
+          "recall_any": {
+            "@10": 1,
+            "@5": 1
+          },
+          "recall_all": {
+            "@10": 1,
+            "@5": 1
+          },
+          "ndcg_any": {
+            "@10": 1,
+            "@5": 1
+          }
+        },
+        "single-session-user": {
+          "n": 7,
+          "recall": {
+            "@10": 1,
+            "@5": 1
+          },
+          "mrr": 1,
+          "n_official": 7,
+          "recall_any": {
+            "@10": 1,
+            "@5": 1
+          },
+          "recall_all": {
+            "@10": 1,
+            "@5": 1
+          },
+          "ndcg_any": {
+            "@10": 1,
+            "@5": 1
+          }
+        },
+        "temporal-reasoning": {
+          "n": 15,
+          "recall": {
+            "@10": 0.9644444444444444,
+            "@5": 0.9288888888888889
+          },
+          "mrr": 0.861111111111111,
+          "n_official": 15,
+          "recall_any": {
+            "@10": 1,
+            "@5": 1
+          },
+          "recall_all": {
+            "@10": 0.9333333333333333,
+            "@5": 0.8666666666666667
+          },
+          "ndcg_any": {
+            "@10": 0.8311901741800717,
+            "@5": 0.8235621991836446
+          }
+        }
+      },
+      "retrieval_ms": {
+        "min": 0.125,
+        "mean": 0.29245,
+        "median": 0.254,
+        "p95": 0.589,
+        "max": 0.811,
+        "sum": 17.547
+      },
+      "ingest_ms": {
+        "min": 7.308,
+        "mean": 13.346966666666667,
+        "median": 10.476,
+        "p95": 32.424,
+        "max": 37.976,
+        "sum": 800.818
+      },
+      "sessions_ranked": {
+        "min": 3,
+        "mean": 32.86666666666667,
+        "median": 35,
+        "p95": 46,
+        "max": 46,
+        "sum": 1972
+      },
+      "errors": 0
+    },
+    "chanda": {
+      "groups": {
+        "abstention": {
+          "n": 6,
+          "recall": {},
+          "mrr": 0,
+          "n_official": 0,
+          "recall_any": {},
+          "recall_all": {},
+          "ndcg_any": {}
+        },
+        "all": {
+          "n": 54,
+          "recall": {
+            "@10": 0.9799382716049382,
+            "@5": 0.9632716049382716
+          },
+          "mrr": 0.9413580246913581,
+          "n_official": 47,
+          "recall_any": {
+            "@10": 1,
+            "@5": 1
+          },
+          "recall_all": {
+            "@10": 0.9361702127659575,
+            "@5": 0.8936170212765957
+          },
+          "ndcg_any": {
+            "@10": 0.9455132852484697,
+            "@5": 0.9363482796043402
+          }
+        },
+        "knowledge-update": {
+          "n": 8,
+          "recall": {
+            "@10": 1,
+            "@5": 1
+          },
+          "mrr": 1,
+          "n_official": 8,
+          "recall_any": {
+            "@10": 1,
+            "@5": 1
+          },
+          "recall_all": {
+            "@10": 1,
+            "@5": 1
+          },
+          "ndcg_any": {
+            "@10": 1,
+            "@5": 1
+          }
+        },
+        "multi-session": {
+          "n": 13,
+          "recall": {
+            "@10": 0.9423076923076923,
+            "@5": 0.9038461538461539
+          },
+          "mrr": 0.9230769230769231,
+          "n_official": 13,
+          "recall_any": {
+            "@10": 1,
+            "@5": 1
+          },
+          "recall_all": {
+            "@10": 0.8461538461538461,
+            "@5": 0.7692307692307693
+          },
+          "ndcg_any": {
+            "@10": 0.8842201550927142,
+            "@5": 0.865964088811421
+          }
+        },
+        "single-session-assistant": {
+          "n": 7,
+          "recall": {
+            "@10": 1,
+            "@5": 1
+          },
+          "mrr": 1,
+          "n_official": 0,
+          "recall_any": {},
+          "recall_all": {},
+          "ndcg_any": {}
+        },
+        "single-session-preference": {
+          "n": 4,
+          "recall": {
+            "@10": 1,
+            "@5": 1
+          },
+          "mrr": 0.7083333333333334,
+          "n_official": 4,
+          "recall_any": {
+            "@10": 1,
+            "@5": 1
+          },
+          "recall_all": {
+            "@10": 1,
+            "@5": 1
+          },
+          "ndcg_any": {
+            "@10": 0.9077324383928643,
+            "@5": 0.9077324383928643
+          }
+        },
+        "single-session-user": {
+          "n": 7,
+          "recall": {
+            "@10": 1,
+            "@5": 1
+          },
+          "mrr": 0.9285714285714286,
+          "n_official": 7,
+          "recall_any": {
+            "@10": 1,
+            "@5": 1
+          },
+          "recall_all": {
+            "@10": 1,
+            "@5": 1
+          },
+          "ndcg_any": {
+            "@10": 1,
+            "@5": 1
+          }
+        },
+        "temporal-reasoning": {
+          "n": 15,
+          "recall": {
+            "@10": 0.9777777777777777,
+            "@5": 0.951111111111111
+          },
+          "mrr": 0.9666666666666667,
+          "n_official": 15,
+          "recall_any": {
+            "@10": 1,
+            "@5": 1
+          },
+          "recall_all": {
+            "@10": 0.9333333333333333,
+            "@5": 0.8666666666666667
+          },
+          "ndcg_any": {
+            "@10": 0.9542221757934224,
+            "@5": 0.9413270822189378
+          }
+        }
+      },
+      "retrieval_ms": {
+        "min": 24.146,
+        "mean": 36.2348,
+        "median": 33.794,
+        "p95": 54.303,
+        "max": 67.014,
+        "sum": 2174.088
+      },
+      "ingest_ms": {
+        "min": 2573.384,
+        "mean": 70154.40026666666,
+        "median": 3826.966,
+        "p95": 196582.182,
+        "max": 237392.739,
+        "sum": 4209264.016
+      },
+      "db_bytes": {
+        "min": 3395584,
+        "mean": 3632332.8,
+        "median": 3629056,
+        "p95": 3784704,
+        "max": 3817472,
+        "sum": 217939968
+      },
+      "disk_bytes": {
+        "min": 3395584,
+        "mean": 3632332.8,
+        "median": 3629056,
+        "p95": 3784704,
+        "max": 3817472,
+        "sum": 217939968
+      },
+      "sessions_ranked": {
+        "min": 13,
+        "mean": 26.516666666666666,
+        "median": 27,
+        "p95": 34,
+        "max": 35,
+        "sum": 1591
+      },
+      "errors": 0
+    },
+    "rag": {
+      "groups": {
+        "abstention": {
+          "n": 6,
+          "recall": {},
+          "mrr": 0,
+          "n_official": 0,
+          "recall_any": {},
+          "recall_all": {},
+          "ndcg_any": {}
+        },
+        "all": {
+          "n": 54,
+          "recall": {
+            "@10": 0.9907407407407407,
+            "@5": 0.9861111111111112
+          },
+          "mrr": 0.938888888888889,
+          "n_official": 47,
+          "recall_any": {
+            "@10": 1,
+            "@5": 1
+          },
+          "recall_all": {
+            "@10": 0.9787234042553191,
+            "@5": 0.9574468085106383
+          },
+          "ndcg_any": {
+            "@10": 0.9282121308671057,
+            "@5": 0.9255832278127224
+          }
+        },
+        "knowledge-update": {
+          "n": 8,
+          "recall": {
+            "@10": 1,
+            "@5": 1
+          },
+          "mrr": 1,
+          "n_official": 8,
+          "recall_any": {
+            "@10": 1,
+            "@5": 1
+          },
+          "recall_all": {
+            "@10": 1,
+            "@5": 1
+          },
+          "ndcg_any": {
+            "@10": 1,
+            "@5": 1
+          }
+        },
+        "multi-session": {
+          "n": 13,
+          "recall": {
+            "@10": 0.9615384615384616,
+            "@5": 0.9423076923076923
+          },
+          "mrr": 0.9230769230769231,
+          "n_official": 13,
+          "recall_any": {
+            "@10": 1,
+            "@5": 1
+          },
+          "recall_all": {
+            "@10": 0.9230769230769231,
+            "@5": 0.8461538461538461
+          },
+          "ndcg_any": {
+            "@10": 0.9092211999425246,
+            "@5": 0.8997167042843687
+          }
+        },
+        "single-session-assistant": {
+          "n": 7,
+          "recall": {
+            "@10": 1,
+            "@5": 1
+          },
+          "mrr": 1,
+          "n_official": 0,
+          "recall_any": {},
+          "recall_all": {},
+          "ndcg_any": {}
+        },
+        "single-session-preference": {
+          "n": 4,
+          "recall": {
+            "@10": 1,
+            "@5": 1
+          },
+          "mrr": 0.6125,
+          "n_official": 4,
+          "recall_any": {
+            "@10": 1,
+            "@5": 1
+          },
+          "recall_all": {
+            "@10": 1,
+            "@5": 1
+          },
+          "ndcg_any": {
+            "@10": 0.7326691395183482,
+            "@5": 0.7326691395183482
+          }
+        },
+        "single-session-user": {
+          "n": 7,
+          "recall": {
+            "@10": 1,
+            "@5": 1
+          },
+          "mrr": 1,
+          "n_official": 7,
+          "recall_any": {
+            "@10": 1,
+            "@5": 1
+          },
+          "recall_all": {
+            "@10": 1,
+            "@5": 1
+          },
+          "ndcg_any": {
+            "@10": 1,
+            "@5": 1
+          }
+        },
+        "temporal-reasoning": {
+          "n": 15,
+          "recall": {
+            "@10": 1,
+            "@5": 1
+          },
+          "mrr": 0.95,
+          "n_official": 15,
+          "recall_any": {
+            "@10": 1,
+            "@5": 1
+          },
+          "recall_all": {
+            "@10": 1,
+            "@5": 1
+          },
+          "ndcg_any": {
+            "@10": 0.9250278662285175,
+            "@5": 0.9250278662285175
+          }
+        }
+      },
+      "retrieval_ms": {
+        "min": 1.295,
+        "mean": 352.50800000000004,
+        "median": 4.515,
+        "p95": 184.577,
+        "max": 16765.81,
+        "sum": 21150.480000000003
+      },
+      "ingest_ms": {
+        "min": 412.254,
+        "mean": 17849.259066666666,
+        "median": 1502.683,
+        "p95": 47560.253,
+        "max": 74624.028,
+        "sum": 1070955.544
+      },
+      "sessions_ranked": {
+        "min": 40,
+        "mean": 47.333333333333336,
+        "median": 47,
+        "p95": 53,
+        "max": 55,
+        "sum": 2840
+      },
+      "budget_recall": 0.9814814814814815,
+      "context_tokens": {
+        "min": 1938,
+        "mean": 1980.9666666666667,
+        "median": 1980,
+        "p95": 1999,
+        "max": 2000,
+        "sum": 118858
+      },
+      "errors": 0
+    }
+  }
+}

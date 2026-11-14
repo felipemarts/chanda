@@ -1,0 +1,494 @@
+{
+  "estimator": "context tokens = ceil(chars/4)",
+  "conditions": {
+    "A": {
+      "total": {
+        "n": 10,
+        "correct": 2,
+        "accuracy": 0.2,
+        "wilson95": [
+          0.05668215145437519,
+          0.5098375284633583
+        ]
+      },
+      "by_type": {
+        "knowledge-update": {
+          "n": 2,
+          "correct": 0,
+          "accuracy": 0.0,
+          "wilson95": [
+            0.0,
+            0.6576197724933469
+          ]
+        },
+        "multi-session": {
+          "n": 2,
+          "correct": 1,
+          "accuracy": 0.5,
+          "wilson95": [
+            0.09453120573423074,
+            0.9054687942657693
+          ]
+        },
+        "single-session-assistant": {
+          "n": 1,
+          "correct": 0,
+          "accuracy": 0.0,
+          "wilson95": [
+            0.0,
+            0.7934506856227626
+          ]
+        },
+        "single-session-user": {
+          "n": 1,
+          "correct": 1,
+          "accuracy": 1.0,
+          "wilson95": [
+            0.20654931437723745,
+            1.0
+          ]
+        },
+        "temporal-reasoning": {
+          "n": 4,
+          "correct": 0,
+          "accuracy": 0.0,
+          "wilson95": [
+            0.0,
+            0.4898908364545973
+          ]
+        },
+        "abstention": {
+          "n": 2,
+          "correct": 2,
+          "accuracy": 1.0,
+          "wilson95": [
+            0.34238022750665303,
+            1.0
+          ]
+        }
+      },
+      "context_tokens": {
+        "mean": 0.0,
+        "max": 0
+      },
+      "retrieval_latency_ms": {
+        "p50": null,
+        "p95": null
+      },
+      "ingest_seconds": {
+        "p50": null,
+        "p95": null,
+        "total": null
+      },
+      "tokens": {
+        "reader": {
+          "prompt": 1034,
+          "cache_hit": 0,
+          "completion": 711
+        },
+        "judge": {
+          "prompt": 2241,
+          "cache_hit": 128,
+          "completion": 10
+        }
+      },
+      "cost_usd_by_tag": {
+        "A-judge": 0.00032333400000000005,
+        "A-reader": 0.0005817
+      },
+      "cost_usd": 0.0009050340000000001
+    },
+    "B": {
+      "total": {
+        "n": 10,
+        "correct": 10,
+        "accuracy": 1.0,
+        "wilson95": [
+          0.7224672001371107,
+          1.0
+        ]
+      },
+      "by_type": {
+        "knowledge-update": {
+          "n": 2,
+          "correct": 2,
+          "accuracy": 1.0,
+          "wilson95": [
+            0.34238022750665303,
+            1.0
+          ]
+        },
+        "multi-session": {
+          "n": 2,
+          "correct": 2,
+          "accuracy": 1.0,
+          "wilson95": [
+            0.34238022750665303,
+            1.0
+          ]
+        },
+        "single-session-assistant": {
+          "n": 1,
+          "correct": 1,
+          "accuracy": 1.0,
+          "wilson95": [
+            0.20654931437723745,
+            1.0
+          ]
+        },
+        "single-session-user": {
+          "n": 1,
+          "correct": 1,
+          "accuracy": 1.0,
+          "wilson95": [
+            0.20654931437723745,
+            1.0
+          ]
+        },
+        "temporal-reasoning": {
+          "n": 4,
+          "correct": 4,
+          "accuracy": 1.0,
+          "wilson95": [
+            0.5101091635454027,
+            1.0
+          ]
+        },
+        "abstention": {
+          "n": 2,
+          "correct": 2,
+          "accuracy": 1.0,
+          "wilson95": [
+            0.34238022750665303,
+            1.0
+          ]
+        }
+      },
+      "context_tokens": {
+        "mean": 1984.1,
+        "max": 2000
+      },
+      "retrieval_latency_ms": {
+        "p50": 5.553,
+        "p95": 10.64
+      },
+      "ingest_seconds": {
+        "p50": 1.844737,
+        "p95": 5.196784,
+        "total": 23.181168
+      },
+      "tokens": {
+        "reader": {
+          "prompt": 18366,
+          "cache_hit": 0,
+          "completion": 1928
+        },
+        "judge": {
+          "prompt": 3458,
+          "cache_hit": 512,
+          "completion": 10
+        }
+      },
+      "cost_usd_by_tag": {
+        "B-judge": 0.000449436,
+        "B-reader": 0.0039117
+      },
+      "cost_usd": 0.004361136
+    },
+    "C": {
+      "total": {
+        "n": 10,
+        "correct": 10,
+        "accuracy": 1.0,
+        "wilson95": [
+          0.7224672001371107,
+          1.0
+        ]
+      },
+      "by_type": {
+        "knowledge-update": {
+          "n": 2,
+          "correct": 2,
+          "accuracy": 1.0,
+          "wilson95": [
+            0.34238022750665303,
+            1.0
+          ]
+        },
+        "multi-session": {
+          "n": 2,
+          "correct": 2,
+          "accuracy": 1.0,
+          "wilson95": [
+            0.34238022750665303,
+            1.0
+          ]
+        },
+        "single-session-assistant": {
+          "n": 1,
+          "correct": 1,
+          "accuracy": 1.0,
+          "wilson95": [
+            0.20654931437723745,
+            1.0
+          ]
+        },
+        "single-session-user": {
+          "n": 1,
+          "correct": 1,
+          "accuracy": 1.0,
+          "wilson95": [
+            0.20654931437723745,
+            1.0
+          ]
+        },
+        "temporal-reasoning": {
+          "n": 4,
+          "correct": 4,
+          "accuracy": 1.0,
+          "wilson95": [
+            0.5101091635454027,
+            1.0
+          ]
+        },
+        "abstention": {
+          "n": 2,
+          "correct": 2,
+          "accuracy": 1.0,
+          "wilson95": [
+            0.34238022750665303,
+            1.0
+          ]
+        }
+      },
+      "context_tokens": {
+        "mean": 1990.8,
+        "max": 2000
+      },
+      "retrieval_latency_ms": {
+        "p50": 31.94,
+        "p95": 56.4
+      },
+      "ingest_seconds": {
+        "p50": 235.069,
+        "p95": 441.195,
+        "total": 2866.496
+      },
+      "tokens": {
+        "reader": {
+          "prompt": 22465,
+          "cache_hit": 0,
+          "completion": 1483
+        },
+        "judge": {
+          "prompt": 3013,
+          "cache_hit": 512,
+          "completion": 10
+        }
+      },
+      "cost_usd_by_tag": {
+        "C-ingest": 0.4319194799999997,
+        "C-judge": 0.00038268600000000003,
+        "C-reader": 0.004259549999999999
+      },
+      "cost_usd": 0.4365617159999997
+    },
+    "D": {
+      "total": {
+        "n": 10,
+        "correct": 8,
+        "accuracy": 0.8,
+        "wilson95": [
+          0.49016247153664183,
+          0.9433178485456247
+        ]
+      },
+      "by_type": {
+        "knowledge-update": {
+          "n": 2,
+          "correct": 2,
+          "accuracy": 1.0,
+          "wilson95": [
+            0.34238022750665303,
+            1.0
+          ]
+        },
+        "multi-session": {
+          "n": 2,
+          "correct": 1,
+          "accuracy": 0.5,
+          "wilson95": [
+            0.09453120573423074,
+            0.9054687942657693
+          ]
+        },
+        "single-session-assistant": {
+          "n": 1,
+          "correct": 1,
+          "accuracy": 1.0,
+          "wilson95": [
+            0.20654931437723745,
+            1.0
+          ]
+        },
+        "single-session-user": {
+          "n": 1,
+          "correct": 1,
+          "accuracy": 1.0,
+          "wilson95": [
+            0.20654931437723745,
+            1.0
+          ]
+        },
+        "temporal-reasoning": {
+          "n": 4,
+          "correct": 3,
+          "accuracy": 0.75,
+          "wilson95": [
+            0.30064184258240184,
+            0.9544127391902995
+          ]
+        },
+        "abstention": {
+          "n": 2,
+          "correct": 2,
+          "accuracy": 1.0,
+          "wilson95": [
+            0.34238022750665303,
+            1.0
+          ]
+        }
+      },
+      "context_tokens": {
+        "mean": 1995.1,
+        "max": 1998
+      },
+      "retrieval_latency_ms": {
+        "p50": 44.466,
+        "p95": 167.243
+      },
+      "ingest_seconds": {
+        "p50": 7.638443167,
+        "p95": 9.36588175,
+        "total": 77.043359334
+      },
+      "tokens": {
+        "reader": {
+          "prompt": 20099,
+          "cache_hit": 0,
+          "completion": 1569
+        },
+        "judge": {
+          "prompt": 3099,
+          "cache_hit": 512,
+          "completion": 10
+        }
+      },
+      "cost_usd_by_tag": {
+        "D-judge": 0.000395586,
+        "D-reader": 0.003956249999999999
+      },
+      "cost_usd": 0.004351835999999999
+    },
+    "E": {
+      "total": {
+        "n": 10,
+        "correct": 8,
+        "accuracy": 0.8,
+        "wilson95": [
+          0.49016247153664183,
+          0.9433178485456247
+        ]
+      },
+      "by_type": {
+        "knowledge-update": {
+          "n": 2,
+          "correct": 2,
+          "accuracy": 1.0,
+          "wilson95": [
+            0.34238022750665303,
+            1.0
+          ]
+        },
+        "multi-session": {
+          "n": 2,
+          "correct": 1,
+          "accuracy": 0.5,
+          "wilson95": [
+            0.09453120573423074,
+            0.9054687942657693
+          ]
+        },
+        "single-session-assistant": {
+          "n": 1,
+          "correct": 1,
+          "accuracy": 1.0,
+          "wilson95": [
+            0.20654931437723745,
+            1.0
+          ]
+        },
+        "single-session-user": {
+          "n": 1,
+          "correct": 1,
+          "accuracy": 1.0,
+          "wilson95": [
+            0.20654931437723745,
+            1.0
+          ]
+        },
+        "temporal-reasoning": {
+          "n": 4,
+          "correct": 3,
+          "accuracy": 0.75,
+          "wilson95": [
+            0.30064184258240184,
+            0.9544127391902995
+          ]
+        },
+        "abstention": {
+          "n": 2,
+          "correct": 2,
+          "accuracy": 1.0,
+          "wilson95": [
+            0.34238022750665303,
+            1.0
+          ]
+        }
+      },
+      "context_tokens": {
+        "mean": 1995.9,
+        "max": 1997
+      },
+      "retrieval_latency_ms": {
+        "p50": 76.267,
+        "p95": 118.42
+      },
+      "ingest_seconds": {
+        "p50": 7.844264709,
+        "p95": 19.604698208,
+        "total": 95.507465208
+      },
+      "tokens": {
+        "reader": {
+          "prompt": 20899,
+          "cache_hit": 0,
+          "completion": 1956
+        },
+        "judge": {
+          "prompt": 3486,
+          "cache_hit": 512,
+          "completion": 10
+        }
+      },
+      "cost_usd_by_tag": {
+        "E-judge": 0.000453636,
+        "E-reader": 0.00430845,
+        "E-sleep": 0.2827393979999998
+      },
+      "cost_usd": 0.2875014839999998
+    }
+  },
+  "cost_total_usd": 0.7336812059999991,
+  "cap_usd": 8
+}
