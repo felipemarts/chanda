@@ -4,9 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"sort"
 	"strings"
 
 	_ "modernc.org/sqlite" // FTS5-enabled pure-Go SQLite for the BM25 baseline
+
+	"github.com/felipemarts/chanda-mcp/internal/core"
 )
 
 // ---------------------------------------------------------------------------
@@ -133,3 +136,141 @@ func (b *BM25) SizeBytes(ctx context.Context) (int64, error) {
 }
 
 func (b *BM25) Close() error { return b.db.Close() }
+
+// ---------------------------------------------------------------------------
+// B2: plain RAG.
+
+// PlainRAG is B2: the same raw chunks as B1, embedded with the injected
+// Embedder, ranked by exact cosine similarity (ties by ingestion order).
+type PlainRAG struct {
+	emb  core.Embedder
+	log  rawLog
+	vecs [][]float32
+	topK int
+}
+
+// NewPlainRAG returns B2 over emb. topK caps the candidates before the
+// budget fill (BASE.md read step 3 uses 50).
+func NewPlainRAG(emb core.Embedder, topK, maxChunkChars int) *PlainRAG {
+	return &PlainRAG{emb: emb, log: newRawLog(maxChunkChars), topK: topK}
+}
+
+func (p *PlainRAG) Name() string { return "B2" }
+
+func (p *PlainRAG) Info() SystemInfo {
+	return SystemInfo{Description: "Plain RAG: raw chunks of every item and version, exact cosine top-k.", EmbeddingModel: p.emb.ModelID()}
+}
+
+func (p *PlainRAG) Ingest(ctx context.Context, it Item) error {
+	fresh := p.log.add(it)
+	if len(fresh) == 0 {
+		return nil
+	}
+	texts := make([]string, len(fresh))
+	for i, c := range fresh {
+		texts[i] = c.Text
+	}
+	vs, err := p.emb.Embed(ctx, texts)
+	if err != nil {
+		return err
+	}
+	if len(vs) != len(texts) {
+		return core.Errf(core.CodeInternal, "embedder returned %d vectors for %d texts", len(vs), len(texts))
+	}
+	p.vecs = append(p.vecs, vs...)
+	return nil
+}
+
+func (p *PlainRAG) Retrieve(ctx context.Context, q Query, budget int) ([]Retrieved, error) {
+	var qv [][]float32
+	var err error
+	if re, ok := p.emb.(core.RoleEmbedder); ok {
+		qv, err = re.EmbedQuery(ctx, []string{q.Text})
+	} else {
+		qv, err = p.emb.Embed(ctx, []string{q.Text})
+	}
+	if err != nil {
+		return nil, err
+	}
+	idx := make([]int, len(p.vecs))
+	scores := make([]float64, len(p.vecs))
+	for i, v := range p.vecs {
+		idx[i], scores[i] = i, dot(qv[0], v)
+	}
+	sort.SliceStable(idx, func(a, b int) bool { return scores[idx[a]] > scores[idx[b]] })
+	idx = idx[:min(p.topK, len(idx))]
+	ranked := make([]Chunk, len(idx))
+	rs := make([]float64, len(idx))
+	for i, j := range idx {
+		ranked[i], rs[i] = p.log.chunks[j], scores[j]
+	}
+	return fill(ranked, rs, budget), nil
+}
+
+func (p *PlainRAG) SizeBytes(context.Context) (int64, error) {
+	var n int64
+	for i, c := range p.log.chunks {
+		n += int64(len(c.Text)) + int64(4*len(p.vecs[i]))
+	}
+	return n, nil
+}
+
+func (p *PlainRAG) Close() error { return nil }
+
+// ---------------------------------------------------------------------------
+// B3: full context.
+
+// FullContext is B3: the whole raw history in ingestion order when it fits
+// in the budget. When it does not fit, it degrades to the most recent chunks
+// that fit (recency truncation) and counts the query as truncated.
+type FullContext struct {
+	log       rawLog
+	queries   int
+	truncated int
+}
+
+// NewFullContext returns B3.
+func NewFullContext(maxChunkChars int) *FullContext {
+	return &FullContext{log: newRawLog(maxChunkChars)}
+}
+
+func (f *FullContext) Name() string { return "B3" }
+
+func (f *FullContext) Info() SystemInfo {
+	total := 0
+	for _, c := range f.log.chunks {
+		total += CountTokens(c.Text)
+	}
+	return SystemInfo{EmbeddingModel: "n/a", Description: fmt.Sprintf(
+		"Full context: all %d raw chunks (%d tokens) when they fit the budget, else the most recent chunks that fit; truncated in %d of %d queries.",
+		len(f.log.chunks), total, f.truncated, f.queries)}
+}
+
+func (f *FullContext) Ingest(_ context.Context, it Item) error {
+	f.log.add(it)
+	return nil
+}
+
+func (f *FullContext) Retrieve(_ context.Context, _ Query, budget int) ([]Retrieved, error) {
+	f.queries++
+	var keep []Chunk
+	used := 0
+	for i := len(f.log.chunks) - 1; i >= 0; i-- {
+		c := f.log.chunks[i]
+		n := CountTokens(c.Text)
+		if used+n > budget {
+			continue
+		}
+		used += n
+		keep = append(keep, c)
+	}
+	if len(keep) < len(f.log.chunks) {
+		f.truncated++
+	}
+	for i, j := 0, len(keep)-1; i < j; i, j = i+1, j-1 {
+		keep[i], keep[j] = keep[j], keep[i]
+	}
+	return fill(keep, nil, budget), nil
+}
+
+func (f *FullContext) Close() error { return nil }
