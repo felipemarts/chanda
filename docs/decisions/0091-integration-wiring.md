@@ -53,6 +53,11 @@ value would not.
 fact is the readable record, and the raw event would bring a superseded
 value back. `get` still shows them.
 
+Known gap: a free-text event (a `remember` statement or a document chunk
+still live) whose extracted fact was later superseded can still be
+delivered by `context` as a raw excerpt with the old value. Only
+`fact_assertion` events and retired chunks are excluded today.
+
 ## Channels: zone ceiling, actor, ingest roots
 
 `chanda.Actor` gained `Remote` and `MaxZone`. The MCP server sets
@@ -87,7 +92,8 @@ returned. `search` ignores `filters.source_uri` (notice).
   false` (docs/errors.md). `root_events` counts removed events. The
   `ExactIndex` cache never serves removed vectors (generation counter;
   tested).
-- `promote`: to the current zone answers `conflict`.
+- `promote`: to the current or a lower zone answers `conflict` (docs/errors.md;
+  prov used `invalid_argument` for a lower zone).
 - `verify`: the audit chain (global) and `prov.Check` of the namespace;
   violation kinds are listed in notices, record ids in `orphans`.
 - `flush`: drains the queue in the caller's goroutine (`RunOnce` until
@@ -96,3 +102,6 @@ returned. `search` ignores `filters.source_uri` (notice).
 - `log_session`: `Turn.name` names the tool of a tool turn; `Turn.ts` is
   not stored (the raw log is dated by the clock).
 - `timeline` gained `as_of`: only the facts that held at that date.
+- `config.Hash` (logged with every retrieval) leaves out `db_path`,
+  `sleep.snapshot_dir`, `write.ingest_roots` and `mcp.http_addr`, so equal
+  runs in different directories give byte-identical databases.
