@@ -29,6 +29,33 @@ type record struct {
 	subject, predicate, validFrom, validTo string
 	// any type: has a row in the flags table
 	flagged bool
+	// events: the facts extracted from or confirmed by this event
+	derived []derivedFact
+}
+
+// derivedFact is the state of a fact an event stated (derived_from or
+// confirmed_by edge), as the context filter needs it.
+type derivedFact struct {
+	status, validFrom, validTo string
+	replacedLater              bool // superseded by a fact recorded after it (not a history insert)
+}
+
+// outdatedAt reports whether the value this fact holds was replaced or
+// judged wrong as seen at as_of: rejected or flagged, or superseded by a
+// later-recorded fact, unless an explicit as_of falls inside its validity
+// (it held then). A history insert (a value recorded as already past) is
+// not outdated: the event stated it as history.
+func (d derivedFact) outdatedAt(o filterOpts) bool {
+	switch core.FactStatus(d.status) {
+	case core.FactRejected, core.FactFlagged:
+		return true
+	case core.FactSuperseded:
+		if !d.replacedLater {
+			return false
+		}
+		return !(o.asOfExplicit && validAt(d.validFrom, d.validTo, o.asOf))
+	}
+	return false
 }
 
 // searchText is the text matched for evidence and sent to the reranker.
@@ -120,7 +147,52 @@ func (r *Reader) loadRecords(ctx context.Context, ns string, byType map[core.Rec
 	if err := r.markFlagged(ctx, ns, out); err != nil {
 		return nil, err
 	}
+	if err := r.loadDerived(ctx, ns, out); err != nil {
+		return nil, err
+	}
 	return out, nil
+}
+
+// loadDerived fills rec.derived for the events of recs.
+func (r *Reader) loadDerived(ctx context.Context, ns string, recs map[string]*record) error {
+	var evs []string
+	for id, rec := range recs {
+		if rec.typ == core.RecEvent {
+			evs = append(evs, id)
+		}
+	}
+	sort.Strings(evs)
+	for start := 0; start < len(evs); start += inBatch {
+		batch := evs[start:min(start+inBatch, len(evs))]
+		args := []any{ns}
+		for _, id := range batch {
+			args = append(args, id)
+		}
+		rows, err := r.db().QueryContext(ctx, `SELECT p.source_id, f.status, f.valid_from, COALESCE(f.valid_to,''),
+			COALESCE(s.recorded_at > f.recorded_at, 0)
+			FROM provenance p JOIN facts f ON f.id = p.derived_id LEFT JOIN facts s ON s.id = f.superseded_by
+			WHERE p.namespace = ? AND p.derived_type = 'fact' AND p.source_type = 'event'
+			  AND p.relation IN ('derived_from','confirmed_by') AND p.source_id IN (`+placeholders(len(batch))+`)
+			ORDER BY p.source_id, f.id`, args...)
+		if err != nil {
+			return core.Wrap(core.CodeInternal, err, "derived facts")
+		}
+		for rows.Next() {
+			var id string
+			var d derivedFact
+			if err := rows.Scan(&id, &d.status, &d.validFrom, &d.validTo, &d.replacedLater); err != nil {
+				rows.Close()
+				return err
+			}
+			recs[id].derived = append(recs[id].derived, d)
+		}
+		err = rows.Err()
+		rows.Close()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // markFlagged sets rec.flagged for records with a row in the flags table
@@ -189,6 +261,7 @@ const (
 	dropFlagged     = "flagged"
 	dropRetired     = "retired"
 	dropAssertion   = "fact_assertion" // the raw event behind assert_fact; its fact is the readable record
+	dropOutdated    = "outdated_excerpt" // context: a fact this event stated was replaced or judged wrong
 	dropStatus      = "status"
 	dropNotValid    = "not_valid_at_as_of"
 	dropInstruction = "instruction_like"
@@ -208,7 +281,9 @@ const (
 //     validity window. Never quarantined, rejected, flagged or stale_source;
 //   - events: no retired_at, and not the fact_assertion event behind an
 //     assert_fact call (the fact itself is the readable record, so a
-//     superseded value never comes back through its raw event);
+//     superseded value never comes back through its raw event); in context
+//     mode, not an event that stated a fact later replaced or judged wrong
+//     (decision 0093: its excerpt would deliver the old value);
 //   - pages: status active;
 //   - any record with a row in flags is dropped; type and zone filters apply;
 //   - context mode never includes instruction_like events.
@@ -235,6 +310,13 @@ func ruleFilter(rec *record, o filterOpts) string {
 		}
 		if o.mode == ModeContext && rec.hasFlag(core.FlagInstructionLike) {
 			return dropInstruction
+		}
+		if o.mode == ModeContext {
+			for _, d := range rec.derived {
+				if d.outdatedAt(o) {
+					return dropOutdated
+				}
+			}
 		}
 	case core.RecFact:
 		st := core.FactStatus(rec.status)
