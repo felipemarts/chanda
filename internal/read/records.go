@@ -37,8 +37,8 @@ type record struct {
 // derivedFact is the state of a fact an event stated (derived_from or
 // confirmed_by edge), as the context filter needs it.
 type derivedFact struct {
-	status, validFrom, validTo string
-	replacedLater              bool // superseded by a fact recorded after it (not a history insert)
+	subject, status, validFrom, validTo string
+	replacedLater                       bool // superseded by a fact recorded after it (not a history insert)
 }
 
 // outdatedAt reports whether the value this fact holds was replaced or
@@ -213,7 +213,7 @@ func (r *Reader) loadDerived(ctx context.Context, ns string, recs map[string]*re
 		for _, id := range batch {
 			args = append(args, id)
 		}
-		rows, err := r.db().QueryContext(ctx, `SELECT p.source_id, f.status, f.valid_from, COALESCE(f.valid_to,''),
+		rows, err := r.db().QueryContext(ctx, `SELECT p.source_id, f.subject, f.status, f.valid_from, COALESCE(f.valid_to,''),
 			COALESCE(s.recorded_at > f.recorded_at, 0)
 			FROM provenance p JOIN facts f ON f.id = p.derived_id LEFT JOIN facts s ON s.id = f.superseded_by
 			WHERE p.namespace = ? AND p.derived_type = 'fact' AND p.source_type = 'event'
@@ -225,7 +225,7 @@ func (r *Reader) loadDerived(ctx context.Context, ns string, recs map[string]*re
 		for rows.Next() {
 			var id string
 			var d derivedFact
-			if err := rows.Scan(&id, &d.status, &d.validFrom, &d.validTo, &d.replacedLater); err != nil {
+			if err := rows.Scan(&id, &d.subject, &d.status, &d.validFrom, &d.validTo, &d.replacedLater); err != nil {
 				rows.Close()
 				return err
 			}

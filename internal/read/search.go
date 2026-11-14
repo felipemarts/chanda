@@ -274,6 +274,9 @@ func (r *Reader) run(ctx context.Context, q request) (*result, error) {
 	// 5. Fuse. 6. Rerank. 7. Utility (and the shadow learned score).
 	fuse(alive, r.e.Cfg.Read.RRFK, lists)
 	r.computeEvidence(alive, terms)
+	if err := r.markEntityMatch(ctx, q.ns, q.text, alive); err != nil {
+		return nil, err
+	}
 	reranked, err := r.rerankStep(ctx, q.text, alive)
 	if err != nil {
 		res.notices = append(res.notices, "rerank_unavailable")

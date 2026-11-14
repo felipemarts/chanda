@@ -13,6 +13,7 @@ package read
 import (
 	"context"
 
+	"github.com/felipemarts/chanda-mcp/internal/config"
 	"github.com/felipemarts/chanda-mcp/internal/core"
 	"github.com/felipemarts/chanda-mcp/internal/env"
 	"github.com/felipemarts/chanda-mcp/internal/store"
@@ -61,6 +62,7 @@ type Reader struct {
 	e       *env.Env
 	deps    Deps
 	cfgHash string
+	floors  config.EvidenceFloor // evidence floors of the embedding model (decision 0121)
 
 	// Read-only scoring (Score): queries go to q when set, nothing is
 	// logged and λ may be fixed by the caller.
@@ -79,7 +81,11 @@ func (r *Reader) db() store.Queryer {
 
 // New returns a Reader over e with the given optional dependencies.
 func New(e *env.Env, deps Deps) *Reader {
-	return &Reader{e: e, deps: deps, cfgHash: e.Cfg.Hash()}
+	model := ""
+	if deps.Embedder != nil {
+		model = deps.Embedder.ModelID()
+	}
+	return &Reader{e: e, deps: deps, cfgHash: e.Cfg.Hash(), floors: e.Cfg.Read.Floors(model)}
 }
 
 // Mode is the read mode (BASE.md "Differences between the modes").
@@ -120,7 +126,11 @@ type Candidate struct {
 	Type       core.RecordType `json:"type"`
 	Zone       core.Zone       `json:"zone"`
 	AgeSeconds float64         `json:"age_seconds"`
-	Scores     Scores          `json:"scores"`
+	// EntityMatch: the query names an entity the record is about (an alias
+	// of a fact's subject, of the subject of a fact an event states, or
+	// named in the record's text).
+	EntityMatch bool   `json:"entity_match,omitempty"`
+	Scores      Scores `json:"scores"`
 }
 
 // Origin points an item back to the raw log.

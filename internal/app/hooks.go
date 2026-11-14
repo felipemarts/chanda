@@ -213,9 +213,11 @@ func rankCandidate(c read.Candidate) rank.Candidate {
 		return *p
 	}
 	s := c.Scores
+	em := c.EntityMatch
 	return rank.Candidate{
 		ID: c.ID, Type: c.Type, Zone: c.Zone, AgeSeconds: c.AgeSeconds,
 		BM25: val(s.BM25), Cosine: val(s.Cosine), Rerank: val(s.Rerank), RRF: val(s.RRF), Utility: val(s.Utility),
+		EntityMatch: &em,
 	}
 }
 

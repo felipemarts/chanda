@@ -25,6 +25,7 @@ type cand struct {
 	hasTerm              bool
 	final                float64
 	ageSec               float64
+	entityMatch          bool   // the query names an entity the record is about
 	dropped              string // "" while alive; a drop* reason otherwise
 	scored               bool   // reached fusion
 }
@@ -82,7 +83,8 @@ func fuse(cs []*cand, k int, lists int) {
 // computeEvidence sets the lexical coverage and the evidence of each
 // candidate (decision 0020). evidence = max(coverage, cosine clamped to
 // [0,1]); a candidate has enough evidence for the context cut when
-// coverage ≥ MinTermCoverage or cosine ≥ MinCosine.
+// coverage or cosine reaches the embedding model's floor (read.Floors,
+// decision 0121).
 func (r *Reader) computeEvidence(cs []*cand, terms []string) {
 	for _, c := range cs {
 		c.coverage = coverage(terms, c.rec.searchText(), r.e.Cfg.Read.CoverageTermCap)
@@ -95,7 +97,7 @@ func (r *Reader) computeEvidence(cs []*cand, terms []string) {
 }
 
 func (r *Reader) hasEvidence(c *cand) bool {
-	return c.coverage >= r.e.Cfg.Read.MinTermCoverage || (c.hasCos && c.cosine >= r.e.Cfg.Read.MinCosine)
+	return c.coverage >= r.floors.MinTermCoverage || (c.hasCos && c.cosine >= r.floors.MinCosine)
 }
 
 func sigmoid(x float64) float64 { return 1 / (1 + math.Exp(-x)) }
@@ -253,7 +255,7 @@ func (r *Reader) shadow(ctx context.Context, ns string, cs []*cand) {
 }
 
 func (c *cand) candidate() Candidate {
-	return Candidate{ID: c.id(), Type: c.rec.typ, Zone: c.rec.zone, AgeSeconds: c.ageSec, Scores: c.scores()}
+	return Candidate{ID: c.id(), Type: c.rec.typ, Zone: c.rec.zone, AgeSeconds: c.ageSec, EntityMatch: c.entityMatch, Scores: c.scores()}
 }
 
 func ptr(v float64) *float64 { return &v }

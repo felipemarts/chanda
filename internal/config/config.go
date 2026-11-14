@@ -8,6 +8,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"os"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -84,6 +85,33 @@ type ReadConfig struct {
 	MaxQueryTerms        int     `yaml:"max_query_terms"`         // terms kept from free text for MATCH
 	SearchMaxLimit       int     `yaml:"search_max_limit"`        // ceiling on search limit
 	ContextMinItemTokens int     `yaml:"context_min_item_tokens"` // smallest truncated item worth including
+	// EvidenceFloors overrides MinTermCoverage and MinCosine per embedding
+	// model (decision 0121), keyed by model id or by its family, the part
+	// before "@" ("e5-small" for "e5-small@hugot0.8.6+simd"). Calibrated on
+	// the training split with "chanda eval -calibrate C3".
+	EvidenceFloors map[string]EvidenceFloor `yaml:"evidence_floors"`
+}
+
+// EvidenceFloor is the evidence a context item needs for one embedding
+// model: lexical coverage or cosine at or above its floor (decision 0020).
+type EvidenceFloor struct {
+	MinTermCoverage float64 `yaml:"min_term_coverage"`
+	MinCosine       float64 `yaml:"min_cosine"` // above 1: cosine alone never suffices
+}
+
+// Floors returns the evidence floors for an embedding model: the entry of
+// EvidenceFloors for the model id, else for its family (before "@"), else
+// MinTermCoverage and MinCosine.
+func (r ReadConfig) Floors(modelID string) EvidenceFloor {
+	if f, ok := r.EvidenceFloors[modelID]; ok && modelID != "" {
+		return f
+	}
+	if i := strings.IndexByte(modelID, '@'); i > 0 {
+		if f, ok := r.EvidenceFloors[modelID[:i]]; ok {
+			return f
+		}
+	}
+	return EvidenceFloor{MinTermCoverage: r.MinTermCoverage, MinCosine: r.MinCosine}
 }
 
 type EmbedConfig struct {
@@ -194,6 +222,10 @@ func Default() *Config {
 			ContextDefaultTokens: 800, ContextMaxTokens: 1500,
 			MinTermCoverage: 0.5, CoverageTermCap: 4, MinCosine: 0.5, MaxQueryTerms: 32,
 			SearchMaxLimit: 100, ContextMinItemTokens: 40,
+			// Calibrated on the training split of synthetic-pt (decision 0121).
+			EvidenceFloors: map[string]EvidenceFloor{
+				"hash-v1-256": {MinTermCoverage: 0.5, MinCosine: 1.01},
+			},
 		},
 		Embed: EmbedConfig{Provider: "hash", ModelID: "hash-v1-256", Dim: 256, BatchSize: 32, PollIntervalMS: 1000},
 		Facts: FactsConfig{

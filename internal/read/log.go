@@ -58,6 +58,10 @@ func loggedCandidate(c *cand, position int) LoggedCandidate {
 		}
 		lc.Utility = ptr(u)
 		lc.Features["coverage"], lc.Features["evidence"], lc.Features["relevance"] = c.coverage, c.evidence, c.relevance
+		lc.Features["entity_match"] = 0
+		if c.entityMatch {
+			lc.Features["entity_match"] = 1
+		}
 		if c.hasTerm {
 			lc.Features["term"] = c.term
 		}
