@@ -108,7 +108,13 @@ def main() -> int:
         prompt = seen.get("prompt") or ""
         check("pre-context injected at the start of the first prompt",
               report.injected and prompt.endswith(ns.request) and not prompt.startswith(ns.request), repr(prompt[:200]))
-        check("pre-context carries the seeded fact", ns.expect in prompt.split(ns.request)[0], repr(prompt[:400]))
+        # The block may quote the request itself (the Go example logged the
+        # same request as a session turn just before): look inside the block.
+        end = prompt.find("</chanda-context>")
+        block = prompt[:end] if prompt.startswith("<chanda-context") and end > 0 else ""
+        check("pre-context is one delimited block, then the request",
+              bool(block) and prompt[end + len("</chanda-context>"):].strip().endswith(ns.request), repr(prompt[:200]))
+        check("pre-context carries the seeded fact", ns.expect in block, repr(block[:600]))
         check("log_session and outcome follow, in order",
               calls[:1] == ["context"] and "log_session" in calls and "outcome" in calls
               and calls.index("log_session") < calls.index("outcome"), str(calls))
