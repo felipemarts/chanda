@@ -94,3 +94,39 @@ func TestRerankerRecycleIsBitIdentical(t *testing.T) {
 		}
 	}
 }
+
+// The reload is triggered by a caller's context, which ends with the call;
+// the new session must keep working afterwards (regression: the session
+// inherited the caller's context and every later call failed with
+// "context canceled").
+func TestRecycleSurvivesTheCallersContext(t *testing.T) {
+	dir := modelDir(t, "intfloat_multilingual-e5-small")
+	// 3: after a reload (warm-up + the triggering call) the next call runs on
+	// the session the reload created, before any further reload.
+	withRecycleEvery(t, 3)
+	e, err := Open(context.Background(), dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer e.Close()
+	for i := 0; i < 6; i++ {
+		ctx, cancel := context.WithCancel(context.Background())
+		if _, err := e.Embed(ctx, []string{fmt.Sprintf("texto %d", i)}); err != nil {
+			t.Fatalf("call %d: %v", i, err)
+		}
+		cancel()
+	}
+	rdir := modelDir(t, "cross-encoder_mmarco-mMiniLMv2-L12-H384-v1")
+	r, err := OpenReranker(context.Background(), rdir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer r.Close()
+	for i := 0; i < 6; i++ {
+		ctx, cancel := context.WithCancel(context.Background())
+		if _, err := r.Score(ctx, "voo", []string{fmt.Sprintf("o voo %d", i)}); err != nil {
+			t.Fatalf("rerank call %d: %v", i, err)
+		}
+		cancel()
+	}
+}

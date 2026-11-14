@@ -85,7 +85,10 @@ func (r *Reranker) recycle(ctx context.Context) error {
 	r.session, r.pipe = nil, nil
 	releaseMemory()
 	if err == nil {
-		err = r.load(ctx)
+		// The session outlives this call: hugot derives the session's
+		// context from the one given here, so it must not be cancelled
+		// when the call that triggered the reload ends.
+		err = r.load(context.WithoutCancel(ctx))
 	}
 	if err != nil {
 		if r.session != nil {

@@ -85,7 +85,10 @@ func (e *Embedder) recycle(ctx context.Context) error {
 	e.session, e.pipe = nil, nil
 	releaseMemory()
 	if err == nil {
-		err = e.load(ctx)
+		// The session outlives this call: hugot derives the session's
+		// context from the one given here, so it must not be cancelled
+		// when the call that triggered the reload ends.
+		err = e.load(context.WithoutCancel(ctx))
 	}
 	if err != nil {
 		if e.session != nil {
