@@ -1,0 +1,564 @@
+package hub
+
+import (
+	"context"
+	"fmt"
+	"iter"
+	"net/http"
+	"os"
+	"path"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
+
+	"github.com/gomlx/compute/support/humanize"
+	"github.com/gomlx/go-huggingface/internal/files"
+	"github.com/pkg/errors"
+)
+
+// IterFileNames iterate over the file names stored in the repo.
+// It doesn't trigger the downloading of the repo, only of the repo info.
+func (r *Repo) IterFileNames() iter.Seq2[string, error] {
+	// Download info and files.
+	err := r.DownloadInfo(false)
+	if err != nil {
+		// Error downloading: yield error only.
+		return func(yield func(string, error) bool) {
+			yield("", err)
+		}
+	}
+	return func(yield func(string, error) bool) {
+		for _, si := range r.info.Siblings {
+			fileName := si.Name
+			if path.IsAbs(fileName) || strings.Contains(fileName, "..") {
+				yield("", errors.Errorf("model %q contains illegal file name %q -- it cannot be an absolute path, nor contain \"..\"",
+					r.ID, fileName))
+				return
+			}
+			if !yield(fileName, nil) {
+				return
+			}
+		}
+	}
+}
+
+// IterFileInfos iterate over the FileInfo of the files stored in the repo.
+// It doesn't trigger the downloading of the repo, only of the repo info.
+func (r *Repo) IterFileInfos() iter.Seq2[*FileInfo, error] {
+	// Download info and files.
+	err := r.DownloadInfo(false)
+	if err != nil {
+		// Error downloading: yield error only.
+		return func(yield func(*FileInfo, error) bool) {
+			yield(nil, err)
+		}
+	}
+	return func(yield func(*FileInfo, error) bool) {
+		for _, fi := range r.info.Siblings {
+			if !yield(fi, nil) {
+				return
+			}
+		}
+	}
+}
+
+// HasFile returns whether the repo has given fileName.
+// Notice fileName is relative to the repository, not in local disk.
+//
+// If the Repo hasn't downloaded its info yet, it attempts to download it here.
+// If it fails, it simply return false.
+// Call Repo.DownloadInfo to handle errors downloading the info.
+func (r *Repo) HasFile(fileName string) bool {
+	if r.DownloadInfo(false) != nil {
+		return false
+	}
+	for _, si := range r.info.Siblings {
+		if si.Name == fileName {
+			return true
+		}
+	}
+	return false
+}
+
+// cleanRelativeFilePath sanitizes a file path by removing empty segments
+// and parent directory references ("..") for security reasons.
+func cleanRelativeFilePath(repoFileName string) string {
+	// Convert to forward slashes and clean the path
+	normalized := filepath.ToSlash(repoFileName)
+
+	// Remove leading slash if present
+	normalized = strings.TrimPrefix(normalized, "/")
+
+	// Split into path components
+	parts := strings.Split(normalized, "/")
+
+	// Process parts to handle ".." components
+	var stack []string
+	for _, part := range parts {
+		if part == "" || part == "." {
+			continue
+		}
+		if part == ".." {
+			if len(stack) > 0 {
+				// Remove last element if we have something to pop
+				stack = stack[:len(stack)-1]
+			}
+			continue
+		}
+		stack = append(stack, part)
+	}
+
+	if len(stack) == 0 {
+		return "."
+	}
+
+	// Join with platform-specific separator
+	return filepath.FromSlash(strings.Join(stack, "/"))
+}
+
+// FetchFiles ensures that the specified repository files are downloaded and cached locally.
+//
+// In remote mode, it downloads any missing files in parallel into the local HuggingFace cache structure.
+// In local (NewLocal) or embedded (NewEmbed) mode, no network access is made and no files are written to disk;
+// it simply verifies that the requested files exist in the repository.
+func (r *Repo) FetchFiles(repoFiles ...string) error {
+	return r.FetchFilesCtx(context.Background(), repoFiles...)
+}
+
+// FetchFilesCtx is like FetchFiles but accepts a context for cancellation support.
+func (r *Repo) FetchFilesCtx(ctx context.Context, repoFiles ...string) error {
+	if len(repoFiles) == 0 {
+		return nil
+	}
+	if r.IsEmbed() {
+		// In embedded mode, verify files exist in fsys without extracting them to disk.
+		return r.verifyEmbedFilesExist(repoFiles...)
+	}
+	_, err := r.DownloadFilesCtx(ctx, repoFiles...)
+	return err
+}
+
+// FetchFile ensures that a single repository file is downloaded and cached locally.
+func (r *Repo) FetchFile(file string) error {
+	return r.FetchFileCtx(context.Background(), file)
+}
+
+// FetchFileCtx is like FetchFile but accepts a context for cancellation support.
+func (r *Repo) FetchFileCtx(ctx context.Context, file string) error {
+	return r.FetchFilesCtx(ctx, file)
+}
+
+// DownloadFiles downloads the repository files (the names returned by repo.IterFileNames), and returns the path to the
+// downloaded files in the cache structure.
+//
+// RECOMMENDATION:
+// If your goal is to read file contents or stream data, prefer using Repo.Open or Repo.ReadFile instead of DownloadFiles.
+// Repo.Open and Repo.ReadFile work directly in-memory for embedded repositories (hub.NewEmbed) without extracting files
+// to temporary disk directories. To pre-download files without obtaining OS disk path strings, use Repo.FetchFiles.
+func (r *Repo) DownloadFiles(repoFiles ...string) (downloadedPaths []string, err error) {
+	return r.DownloadFilesCtx(context.Background(), repoFiles...)
+}
+
+// fileSizeFromInfo returns the size in bytes recorded in RepoInfo.Siblings for fileName, or 0 if unknown.
+func (r *Repo) fileSizeFromInfo(fileName string) uint64 {
+	if r.info == nil {
+		return 0
+	}
+	for _, si := range r.info.Siblings {
+		if si.Name == fileName {
+			if si.Size > 0 {
+				return uint64(si.Size)
+			}
+			if si.LFS != nil && si.LFS.Size > 0 {
+				return uint64(si.LFS.Size)
+			}
+			return 0
+		}
+	}
+	return 0
+}
+
+// DownloadFilesCtx is like DownloadFiles but accepts a context for cancellation support.
+func (r *Repo) DownloadFilesCtx(ctx context.Context, repoFiles ...string) (downloadedPaths []string, err error) {
+	if len(repoFiles) == 0 {
+		return nil, nil
+	}
+
+	if r.IsLocal() {
+		return r.localFiles(repoFiles...)
+	}
+	if r.IsEmbed() {
+		return r.extractEmbedFiles(repoFiles...)
+	}
+
+	// Create download manager, if one hasn't been created yet.
+	downloadManager := r.GetDownloadManager()
+
+	// Get/create repoCacheDir.
+	var repoCacheDir string
+	repoCacheDir, err = r.repoCacheDir()
+	if err != nil {
+		return nil, err
+	}
+
+	// Get snapshot dir:
+	snapshotDir, err := r.repoSnapshotsDir()
+	if err != nil {
+		return nil, err
+	}
+
+	// Create context to stop any downloading of files if any error occur.
+	// The deferred cancel both cleans up the context, and also stops any pending/ongoing
+	// transfer that may be happening if an error occurs and the function exits.
+	ctx, cancelFn := context.WithCancel(ctx)
+	defer cancelFn()
+
+	downloadedPaths = make([]string, len(repoFiles))
+
+	type pendingFile struct {
+		repoFileName string
+		fileURL      string
+		snapshotPath string
+		blobPath     string
+		size         uint64
+	}
+	var missing []pendingFile
+	for idxFile, repoFileName := range repoFiles {
+		fileURL, err := r.FileURL(repoFileName)
+		if err != nil {
+			return nil, err
+		}
+
+		// Join the path parts of fileName using the current OS separator.
+		relativeFilePath := cleanRelativeFilePath(repoFileName)
+		if relativeFilePath == "." {
+			return nil, errors.Errorf("invalid file name %q", repoFileName)
+		}
+		snapshotPath := path.Join(snapshotDir, relativeFilePath)
+		downloadedPaths[idxFile] = snapshotPath // This is the file pointer we are returning.
+		if files.Exists(snapshotPath) {
+			// File already downloaded, skip.
+			continue
+		}
+		missing = append(missing, pendingFile{
+			repoFileName: repoFileName,
+			fileURL:      fileURL,
+			snapshotPath: snapshotPath,
+		})
+	}
+	if len(missing) == 0 {
+		return downloadedPaths, nil
+	}
+
+	// Information about download progress, and firstError to report back if needed.
+	var downloadingMu sync.Mutex
+	var firstError error
+
+	// Report error for a download, and interrupt everyone.
+	reportErrorFn := func(err error) {
+		downloadingMu.Lock()
+		if firstError == nil {
+			firstError = err
+		}
+		cancelFn()
+		downloadingMu.Unlock()
+	}
+
+	// Phase 1: Resolve headers in parallel so we can validate ETag/redirects, check blob cache hits,
+	// and compute the exact number of files and total bytes to download before printing progress.
+	var headWG sync.WaitGroup
+	for i := range missing {
+		i := i
+		headWG.Go(func() {
+			pf := &missing[i]
+			header, contentLength, err := downloadManager.FetchHeader(ctx, pf.fileURL)
+			if err != nil {
+				reportErrorFn(err)
+				return
+			}
+			metadata := extractFileMetadata(header, pf.fileURL, contentLength)
+			etag := metadata.ETag
+			if etag == "" {
+				reportErrorFn(errors.Errorf("resource %q for %q doesn't have an ETag, not able to ensure reproduceability",
+					pf.repoFileName, r.ID))
+				return
+			}
+			if metadata.Location != pf.fileURL {
+				// In the case of a redirect, remove authorization header when downloading blob
+				reportErrorFn(errors.Errorf("resource %q for %q has a redirect from %q to %q: this can be unsafe if we send our authorization token to the new URL",
+					pf.repoFileName, r.ID, pf.fileURL, metadata.Location))
+				return
+			}
+			pf.blobPath = path.Join(repoCacheDir, "blobs", etag)
+			if metadata.Size > 0 {
+				pf.size = uint64(metadata.Size)
+			} else {
+				pf.size = r.fileSizeFromInfo(pf.repoFileName)
+			}
+		})
+	}
+	headWG.Wait()
+	if firstError != nil {
+		return nil, firstError
+	}
+
+	linkSnapshotFn := func(snapshotPath, blobPath, repoFileName string) error {
+		dir, _ := path.Split(snapshotPath)
+		if err := os.MkdirAll(dir, DefaultDirCreationPerm); err != nil {
+			return errors.Wrapf(err, "while creating directory to download %q", snapshotPath)
+		}
+		if err := createSymLink(snapshotPath, blobPath); err != nil {
+			return errors.WithMessagef(err, "while downloading %q from repository %q", repoFileName, r.ID)
+		}
+		return nil
+	}
+
+	type snapshotTarget struct {
+		snapshotPath string
+		repoFileName string
+	}
+	type blobDownloadTask struct {
+		fileURL  string
+		blobPath string
+		size     uint64
+		targets  []snapshotTarget
+	}
+
+	var toDownload []blobDownloadTask
+	blobToTaskIdx := make(map[string]int)
+	var totalBytesToDownload uint64
+
+	for _, pf := range missing {
+		if files.Exists(pf.blobPath) {
+			if err := linkSnapshotFn(pf.snapshotPath, pf.blobPath, pf.repoFileName); err != nil {
+				return nil, err
+			}
+			continue
+		}
+		if taskIdx, ok := blobToTaskIdx[pf.blobPath]; ok {
+			toDownload[taskIdx].targets = append(toDownload[taskIdx].targets, snapshotTarget{
+				snapshotPath: pf.snapshotPath,
+				repoFileName: pf.repoFileName,
+			})
+			continue
+		}
+		blobToTaskIdx[pf.blobPath] = len(toDownload)
+		toDownload = append(toDownload, blobDownloadTask{
+			fileURL:  pf.fileURL,
+			blobPath: pf.blobPath,
+			size:     pf.size,
+			targets: []snapshotTarget{{
+				snapshotPath: pf.snapshotPath,
+				repoFileName: pf.repoFileName,
+			}},
+		})
+		totalBytesToDownload += pf.size
+	}
+
+	if len(toDownload) == 0 {
+		return downloadedPaths, nil
+	}
+
+	// Phase 2: Download missing blobs in parallel and report progress.
+	requireDownload := len(toDownload)
+	perFileDownloaded := make([]uint64, requireDownload)
+	perFileSizeRecorded := make([]bool, requireDownload)
+	for i, task := range toDownload {
+		if task.size > 0 {
+			perFileSizeRecorded[i] = true
+		}
+	}
+	var allFilesDownloaded uint64
+	var numDownloadedFiles int
+	busyLoop := `-\|/`
+	busyLoopPos := 0
+	var lastLineLen int
+	lastPrintTime := time.Now()
+	showProgress := r.ProgressBar()
+	progressOut := r.progressOut()
+
+	// Print downloading progress. Must be called with downloadingMu held (or single-threaded before/after wg).
+	ratePrintFn := func() {
+		currentFile := min(numDownloadedFiles+1, requireDownload)
+		var sizeStr string
+		if totalBytesToDownload > 0 {
+			displayTotal := max(totalBytesToDownload, allFilesDownloaded)
+			sizeStr = fmt.Sprintf("%s / %s", humanize.Bytes(allFilesDownloaded), humanize.Bytes(displayTotal))
+		} else {
+			sizeStr = humanize.Bytes(allFilesDownloaded)
+		}
+		var line string
+		if firstError == nil {
+			line = fmt.Sprintf("- Downloading file %d/%d %c (%s)",
+				currentFile, requireDownload, busyLoop[busyLoopPos], sizeStr)
+		} else {
+			line = fmt.Sprintf("- Downloading file %d/%d (%s): error - %v",
+				currentFile, requireDownload, sizeStr, firstError)
+		}
+		padded := line
+		if len(padded) < lastLineLen {
+			padded += strings.Repeat(" ", lastLineLen-len(padded))
+		}
+		lastLineLen = len(line)
+		fmt.Fprintf(progressOut, "\r%s", padded)
+		busyLoopPos = (busyLoopPos + 1) % len(busyLoop)
+		lastPrintTime = time.Now()
+	}
+
+	if showProgress {
+		fmt.Fprintf(progressOut, "\n%s:\n", r.repoLabel())
+		ratePrintFn()
+	}
+
+	var wg sync.WaitGroup
+	for idxTask, task := range toDownload {
+		idxTask, task := idxTask, task
+		wg.Go(func() {
+			err := downloadManager.LockedDownload(ctx, task.fileURL, task.blobPath, false, func(downloadedBytes, totalBytes int64) {
+				downloadingMu.Lock()
+				defer downloadingMu.Unlock()
+				if !perFileSizeRecorded[idxTask] && totalBytes > 0 {
+					totalBytesToDownload += uint64(totalBytes)
+					perFileSizeRecorded[idxTask] = true
+				}
+				lastReportedBytes := perFileDownloaded[idxTask]
+				if uint64(downloadedBytes) > lastReportedBytes {
+					allFilesDownloaded += uint64(downloadedBytes) - lastReportedBytes
+					perFileDownloaded[idxTask] = uint64(downloadedBytes)
+				}
+				if showProgress && time.Since(lastPrintTime) >= 500*time.Millisecond {
+					ratePrintFn()
+				}
+			})
+			if err != nil {
+				reportErrorFn(err)
+				return
+			}
+
+			for _, target := range task.targets {
+				if err := linkSnapshotFn(target.snapshotPath, task.blobPath, target.repoFileName); err != nil {
+					reportErrorFn(err)
+					return
+				}
+			}
+
+			downloadingMu.Lock()
+			numDownloadedFiles++
+			if showProgress && numDownloadedFiles < requireDownload {
+				ratePrintFn()
+			}
+			downloadingMu.Unlock()
+		})
+	}
+	wg.Wait()
+
+	if showProgress {
+		if firstError != nil {
+			ratePrintFn()
+			fmt.Fprintln(progressOut)
+		} else {
+			filesWord := "files"
+			if requireDownload == 1 {
+				filesWord = "file"
+			}
+			finalBytes := allFilesDownloaded
+			if finalBytes == 0 && totalBytesToDownload > 0 {
+				finalBytes = totalBytesToDownload
+			}
+			line := fmt.Sprintf("- Downloaded %d/%d %s (%s)",
+				numDownloadedFiles, requireDownload, filesWord, humanize.Bytes(finalBytes))
+			padded := line
+			if len(padded) < lastLineLen {
+				padded += strings.Repeat(" ", lastLineLen-len(padded))
+			}
+			fmt.Fprintf(progressOut, "\r%s\n", padded)
+		}
+	}
+	if firstError != nil {
+		return nil, firstError
+	}
+	return downloadedPaths, nil
+}
+
+// DownloadFile is a shortcut to DownloadFiles with only one file.
+func (r *Repo) DownloadFile(file string) (downloadedPath string, err error) {
+	return r.DownloadFileCtx(context.Background(), file)
+}
+
+// DownloadFileCtx is like DownloadFile but accepts a context for cancellation support.
+func (r *Repo) DownloadFileCtx(ctx context.Context, file string) (downloadedPath string, err error) {
+	res, err := r.DownloadFilesCtx(ctx, file)
+	if err != nil {
+		return "", err
+	}
+	return res[0], nil
+}
+
+// fileMetadata used by HuggingFace Hub.
+type fileMetadata struct {
+	CommitHash, ETag, Location string
+	Size                       int64
+}
+
+func extractFileMetadata(header http.Header, url string, contentLength int64) (metadata fileMetadata) {
+	metadata.CommitHash = header.Get(HeaderXRepoCommit)
+	metadata.ETag = header.Get(HeaderXLinkedETag)
+	if metadata.ETag == "" {
+		metadata.ETag = header.Get("ETag")
+	}
+	metadata.ETag = removeQuotes(metadata.ETag)
+	metadata.Location = header.Get("Location")
+	if metadata.Location == "" {
+		metadata.Location = url
+	}
+
+	if sizeStr := header.Get(HeaderXLinkedSize); sizeStr != "" {
+		var err error
+		metadata.Size, err = strconv.ParseInt(sizeStr, 10, 64)
+		if err != nil {
+			metadata.Size = 0
+		}
+	}
+	if metadata.Size == 0 && contentLength > 0 {
+		metadata.Size = contentLength
+	}
+	return
+}
+
+func removeQuotes(str string) string {
+	return strings.TrimRight(strings.TrimLeft(str, "\""), "\"")
+}
+
+// createSymlink creates a symbolic link named dst pointing to src, using a relative path if possible.
+// It removes previous link/file if it already exists.
+//
+// We use relative paths because:
+// * It's what `huggingface_hub` library does, and we want to keep things compatible.
+// * If the cache folder is moved or backed up, links won't break.
+// * Relative paths seem better handled on Windows -- although Windows is not yet fully supported for this package.
+//
+// Example layout:
+//
+//	└── [ 128]  snapshots
+//	  ├── [ 128]  2439f60ef33a0d46d85da5001d52aeda5b00ce9f
+//	  │   ├── [  52]  README.md -> ../../../blobs/d7edf6bd2a681fb0175f7735299831ee1b22b812
+//	  │   └── [  76]  pytorch_model.bin -> ../../../blobs/403450e234d65943a7dcf7e05a771ce3c92faa84dd07db4ac20f592037a1e4bd
+func createSymLink(dst, src string) error {
+	relLink, err := filepath.Rel(path.Dir(dst), src)
+	if err != nil {
+		relLink = src // Take the absolute path instead.
+	}
+
+	// Remove link/file if it already exists.
+	err = os.Remove(dst)
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		return errors.Wrapf(err, "failed to remove dst=%q before linking it to %q", dst, relLink)
+	}
+
+	if err = os.Symlink(relLink, dst); err != nil {
+		return errors.Wrapf(err, "while symlink'ing %q to %q using %q", src, dst, relLink)
+	}
+	return nil
+}

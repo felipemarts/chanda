@@ -1,0 +1,303 @@
+package hub
+
+import (
+	"fmt"
+	"io"
+	"io/fs"
+	"log"
+	"os"
+	"path"
+	"strings"
+
+	"github.com/gomlx/go-huggingface/internal/downloader"
+	"github.com/gomlx/go-huggingface/internal/files"
+	"github.com/pkg/errors"
+)
+
+// Repo from which one wants to download files. Create it with New.
+type Repo struct {
+	// ID of the Repo may include owner/model. E.g.: google/gemma-2-2b-it
+	ID string
+
+	// Hugginface endpint to use, defaults to "https://huggingface.co".
+	hfEndpoint string
+
+	// repoType of the repository, usually RepoTypeModel.
+	repoType RepoType
+
+	// revision to download, usually set to "main", but it can use a commit-hash version.
+	revision string
+
+	// authToken is the HuggingFace authentication token to be used when downloading the files.
+	authToken string
+
+	// Verbosity: 0 for quiet operation; 1 for information about progress; 2 and higher for debugging.
+	Verbosity int
+
+	// MaxParallelDownload indicates how many files to download at the same time. Default is 20.
+	// If set to <= 0 it will download all files in parallel.
+	// Set to 1 to make downloads sequential.
+	MaxParallelDownload int
+
+	// cacheDir is where to store the downloaded files.
+	cacheDir string
+
+	// localDir, if not empty, puts the Repo in local-directory mode: no network access is made,
+	// files are read directly from this directory instead of the HuggingFace cache. See NewLocal.
+	localDir string
+
+	// embedFS, if not nil, puts the Repo in embedded-filesystem mode: no network access is made,
+	// files are read from this fs.FS (e.g. //go:embed). See NewEmbed.
+	embedFS     fs.FS
+	embedSubDir string
+
+	// Info about the Repo in HuggingFace, including the list of files.
+	// It is only available after DownloadInfo is called.
+	info *RepoInfo
+
+	// extraBlobsInfo triggers adding the parameter "?blobs=true" to the request for info, which
+	// exposes the underlying Git and LFS metadata for the repository's files use by HuggingFace Hub.
+	extraBlobsInfo bool
+
+	downloadManager *downloader.Manager
+
+	useProgressBar bool
+	progressWriter io.Writer
+}
+
+// New creates a reference to a HuggingFace model given its id.
+//
+// It uses the default cache directory in ${XDG_CACHE_HOME} (if set) or `~/.cache`, in a format that is
+// shared with huggingface-hub for python library. The cache is share across various programs, including Python
+// programs.
+// Use Repo.WithCacheDir to change it, or NewWithDir to use a plain directory structure, that is not shared across programs.
+//
+// If the model is already in cache, no network communication is issued. But if one wants to force a check
+// for an update, one can follow the creation of the Repo with a call to DownloadInfo(true) to poll for changes:
+// if the revision has been updated, the cache is busted if there is a new release, and model files are
+// re-downloaded as requested.
+//
+// The id typically include owner/model. E.g.: "google/gemma-2-2b-it"
+//
+// It defaults to being a RepoTypeModel repository. But you can change it with Repo.WithType.
+//
+// If authentication is needed, it defaults to the HF_TOKEN environment variable (if set),
+// or you can configure it explicitly with Repo.WithAuth.
+func New(id string) *Repo {
+	hfEndpoint := os.Getenv("HF_ENDPOINT")
+	if hfEndpoint == "" {
+		hfEndpoint = "https://huggingface.co"
+	} else {
+		hfEndpoint = strings.TrimSuffix(hfEndpoint, "/")
+	}
+	return &Repo{
+		ID:                  id,
+		repoType:            RepoTypeModel,
+		revision:            "main",
+		hfEndpoint:          hfEndpoint,
+		authToken:           os.Getenv("HF_TOKEN"),
+		cacheDir:            DefaultCacheDir(),
+		Verbosity:           1,
+		MaxParallelDownload: 20, // At most 20 parallel downloads.
+		extraBlobsInfo:      true,
+		useProgressBar:      true,
+	}
+}
+
+// WithAuth sets the authentication token to use during downloads.
+//
+// Setting it to empty ("") is the same as resetting and not using authentication.
+func (r *Repo) WithAuth(authToken string) *Repo {
+	r.authToken = authToken
+	return r
+}
+
+// WithType sets the repository type to use during downloads.
+func (r *Repo) WithType(repoType RepoType) *Repo {
+	r.repoType = repoType
+	return r
+}
+
+// WithEndpoint sets the HuggingFace endpoint to use.
+// Default is "https://huggingface.co" or, if set, the environment variable HF_ENDPOINT.
+func (r *Repo) WithEndpoint(endpoint string) *Repo {
+	r.hfEndpoint = endpoint
+	return r
+}
+
+// WithExtraBlobsInfo sets whether to retrieve the underlying Git and LFS metadata for the repository's files.
+// This includes file sizes.
+//
+// Default true. Set this to false to save some bandwidth if only donwloading the info.
+func (r *Repo) WithExtraBlobsInfo(extraBlobsInfo bool) *Repo {
+	r.extraBlobsInfo = extraBlobsInfo
+	return r
+}
+
+// WithRevision sets the revision to use for this Repo, defaults to "main", but can be set to a commit-hash value.
+func (r *Repo) WithRevision(revision string) *Repo {
+	r.revision = revision
+	return r
+}
+
+// WithCacheDir sets the cacheDir to the given directory.
+//
+// The default is given by DefaultCacheDir: `${XDG_CACHE_HOME}/huggingface/hub` if set, or `~/.cache/huggingface/hub` otherwise.
+func (r *Repo) WithCacheDir(cacheDir string) *Repo {
+	newCacheDir, err := files.ReplaceTildeInDir(cacheDir)
+	if err == nil {
+		r.cacheDir = path.Clean(newCacheDir)
+	} else {
+		log.Printf("Failed to resolve directory for %q: %+v", cacheDir, err)
+	}
+	return r
+}
+
+// WithDownloadManager sets the downloader.Manager to use for download.
+// This is not needed, one will be created automatically if one is not set.
+// This is useful when downloading multiple Repos simultaneously, to coordinate limits by sharing the download manager.
+func (r *Repo) WithDownloadManager(manager *downloader.Manager) *Repo {
+	r.downloadManager = manager
+	return r
+}
+
+// WithProgressBar configures the usage of progress bar during download. Defaults to true.
+func (r *Repo) WithProgressBar(useProgressBar bool) *Repo {
+	r.useProgressBar = useProgressBar
+	return r
+}
+
+// ProgressBar returns whether download progress output is enabled
+// (requires both Verbosity > 0 and WithProgressBar(true)).
+func (r *Repo) ProgressBar() bool {
+	return r.Verbosity > 0 && r.useProgressBar
+}
+
+// progressOut returns the writer to use for progress output (defaults to os.Stdout).
+func (r *Repo) progressOut() io.Writer {
+	if r.progressWriter != nil {
+		return r.progressWriter
+	}
+	return os.Stdout
+}
+
+// repoLabel returns a human-readable header label for this repository (e.g. `Hugging Face repo "google/gemma-2-2b"`).
+func (r *Repo) repoLabel() string {
+	switch r.repoType {
+	case RepoTypeDataset:
+		return fmt.Sprintf("Hugging Face dataset %q", r.ID)
+	case RepoTypeSpace:
+		return fmt.Sprintf("Hugging Face space %q", r.ID)
+	default:
+		return fmt.Sprintf("Hugging Face repo %q", r.ID)
+	}
+}
+
+// flatFolderName returns a serialized version of a hf.co repo name and type, safe for disk storage
+// as a single non-nested folder.
+//
+// Based on github.com/huggingface/huggingface_hub repo_folder_name.
+func (r *Repo) flatFolderName() string {
+	parts := []string{string(r.repoType)}
+	parts = append(parts, strings.Split(r.ID, "/")...)
+	return strings.Join(parts, RepoIdSeparator)
+}
+
+// repoCacheDir joins cacheDir and flatFolderName to return the cache subdirectory for the repository.
+// It also creates the directory, and returns an error if creation failed.
+//
+// In local-directory mode (see NewLocal), it instead returns the local directory, and doesn't create anything.
+func (r *Repo) repoCacheDir() (string, error) {
+	if r.IsLocal() {
+		return r.localDir, nil
+	}
+	dir := path.Join(r.cacheDir, r.flatFolderName())
+	err := os.MkdirAll(dir, DefaultDirCreationPerm)
+	if err != nil {
+		return "", errors.Wrapf(err, "while creating cache directory %q", dir)
+	}
+	return dir, nil
+}
+
+// CacheDir returns the cache subdirectory for the repository.
+// It creates the directory if it doesn't exist.
+//
+// In local-directory mode (see NewLocal), it returns the local directory instead.
+func (r *Repo) CacheDir() (string, error) {
+	return r.repoCacheDir()
+}
+
+// FileURL returns the URL from which to download the file from HuggingFace.
+//
+// Usually, not used directly (use DownloadFile instead), but in case someone needs for debugging.
+//
+// It returns an error if the Repo is in local-directory mode (see NewLocal), since there is no remote URL.
+func (r *Repo) FileURL(fileName string) (string, error) {
+	if r.IsLocal() {
+		return "", errors.Errorf("repository %q is in local-directory mode (dir %q): it has no remote URL", r.ID, r.localDir)
+	}
+	commitHash, err := r.readCommitHashForRevision()
+	if err != nil {
+		return "", err
+	}
+	if r.repoType == RepoTypeModel {
+		return fmt.Sprintf("%s/%s/resolve/%s/%s", r.hfEndpoint, r.ID, commitHash, fileName), nil
+	} else {
+		return fmt.Sprintf("%s/%s/%s/resolve/%s/%s", r.hfEndpoint, r.repoType, r.ID, commitHash, fileName), nil
+	}
+}
+
+// isCommitHash returns whether revision is a 40-character hexadecimal git commit hash.
+func isCommitHash(revision string) bool {
+	if len(revision) != 40 {
+		return false
+	}
+	for _, c := range revision {
+		if !((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')) {
+			return false
+		}
+	}
+	return true
+}
+
+// readCommitHashForRevision finds the commit-hash for the revision, it should already be written to disk.
+// The revision can be itself a commit-hash, in which case it is returned directly.
+//
+// repoCacheDir is returned by Repo.repoCacheDir().
+func (r *Repo) readCommitHashForRevision() (string, error) {
+	if isCommitHash(r.revision) {
+		return r.revision, nil
+	}
+	err := r.DownloadInfo(false)
+	if err != nil {
+		return "", err
+	}
+	return r.info.CommitHash, nil
+}
+
+// repoSnapshotsDir returns the snapshots directory for this repo at its revision.
+//
+// It is not used, and returns an error, in local-directory mode (see NewLocal).
+func (r *Repo) repoSnapshotsDir() (string, error) {
+	if r.IsLocal() {
+		return "", errors.Errorf("repository %q is in local-directory mode (dir %q): it has no snapshots directory", r.ID, r.localDir)
+	}
+	cacheDir, err := r.repoCacheDir()
+	if err != nil {
+		return "", err
+	}
+	commitHash, err := r.readCommitHashForRevision()
+	if err != nil {
+		return "", err
+	}
+	snapshotsDir := path.Join(cacheDir, "snapshots", commitHash)
+	if err = os.MkdirAll(snapshotsDir, DefaultDirCreationPerm); err != nil {
+		return "", errors.Wrapf(err, "while creating snapshots directory %q", snapshotsDir)
+	}
+	return snapshotsDir, nil
+}
+
+// String implements fmt.Stringer.
+func (r *Repo) String() string {
+	return r.ID
+}

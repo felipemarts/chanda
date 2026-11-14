@@ -1,0 +1,274 @@
+// Package downloader implements download in parallel of various URLs, with various progress report callback.
+//
+// It is used by the `hub` package, but it's also left public, in case it becomes useful for others.
+package downloader
+
+import (
+	"context"
+	"encoding/json"
+	"io"
+	"net/http"
+	"os"
+	"path"
+	"strings"
+
+	"github.com/pkg/errors"
+
+	"github.com/gomlx/go-huggingface/internal/files"
+)
+
+// Part is the file extension used for temporary files during download.
+const Part = "part"
+
+// ProgressCallback is called as download progresses.
+//   - totalBytes may be set to 0 if total size is not yet known.
+type ProgressCallback func(downloadedBytes, totalBytes int64)
+
+// Manager handles downloads, reporting back progress and errors.
+type Manager struct {
+	semaphore            *FIFOSemaphore
+	authToken, userAgent string
+}
+
+// New creates a Manager that download files in parallel -- by default mostly 20 in parallel.
+func New() *Manager {
+	return &Manager{semaphore: NewFIFOSemaphore(20)}
+}
+
+// MaxParallel indicates how many files to download at the same time. Default is 20.
+// If set to <= 0 it will download all files in parallel.
+// Set to 1 to make downloads sequential.
+func (m *Manager) MaxParallel(n int) *Manager {
+	m.semaphore.Resize(n)
+	return m
+}
+
+// WithAuthToken sets the authentication token to use in the requests.
+// It is passed in the header "Authorization" and prefixed with "Bearer ".
+//
+// Setting it to empty ("") is the same as resetting and not using authentication.
+func (m *Manager) WithAuthToken(authToken string) *Manager {
+	m.authToken = authToken
+	return m
+}
+
+// WithUserAgent sets the user agent to user.
+func (m *Manager) WithUserAgent(userAgent string) *Manager {
+	m.userAgent = userAgent
+	return m
+}
+
+var CancellationError = errors.New("download cancelled")
+
+// setRequestHeader with configured fields.
+func (m *Manager) setRequestHeader(req *http.Request) {
+	if m.authToken != "" {
+		req.Header.Set("Authorization", "Bearer "+m.authToken)
+	}
+	if m.userAgent != "" {
+		req.Header.Set("user-agent", m.userAgent)
+	}
+}
+
+// Download downloads the given url to be downloaded to the given filePath.
+// This may lock if it reached the maximum number of parallel downloads.
+// Consider calling this on its own go-routine.
+//
+// Progress of download is reported back to the given callback, if not nil.
+//
+// The context ctx can be used to interrupt the downloading.
+//
+// Note: this download files with a ".part" suffix (Part) first, and moves the file to filePath only after
+// the download has completed successfully. This way, if the download is interrupted, the
+// final file will not be present, and a re-run will download the file from scratch.
+func (m *Manager) Download(ctx context.Context, url string, filePath string, callback ProgressCallback) error {
+	if err := m.semaphore.Acquire(ctx); err != nil {
+		if errors.Is(err, context.Canceled) {
+			return CancellationError
+		}
+		return err
+	}
+	defer m.semaphore.Release()
+
+	client := &http.Client{
+		CheckRedirect: func(r *http.Request, via []*http.Request) error {
+			r.URL.Opaque = r.URL.Path
+			return nil
+		},
+	}
+
+	var err error
+	filePath, err = files.ReplaceTildeInDir(filePath)
+	if err != nil {
+		return errors.Wrapf(err, "Failed to resolve user name in tilde (~) expansion: %q", filePath)
+	}
+	if err = os.MkdirAll(path.Dir(filePath), 0777); err != nil {
+		return errors.Wrapf(err, "Failed to create the directory for the path: %q", path.Dir(filePath))
+	}
+	filePathPart := filePath + "." + Part
+	var file *os.File
+	file, err = os.Create(filePathPart)
+	if err != nil {
+		return errors.Wrapf(err, "failed creating file %q", filePathPart)
+	}
+	var downloadSuccess bool
+	defer func() {
+		if file != nil {
+			_ = file.Close()
+		}
+		if !downloadSuccess {
+			_ = os.Remove(filePathPart)
+		}
+	}()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return errors.Wrapf(err, "failed creating request for %q", url)
+	}
+	m.setRequestHeader(req)
+	var resp *http.Response
+	resp, err = client.Do(req)
+	if err != nil {
+		return errors.Wrapf(err, "failed downloading %q", url)
+	}
+	if resp.StatusCode != http.StatusOK {
+		defer resp.Body.Close()
+		bodyBytes, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
+		var detail string
+		var jsonErr struct {
+			Error string `json:"error"`
+		}
+		if err := json.Unmarshal(bodyBytes, &jsonErr); err == nil && jsonErr.Error != "" {
+			detail = jsonErr.Error
+		} else if bodyStr := strings.TrimSpace(string(bodyBytes)); bodyStr != "" {
+			detail = bodyStr
+		} else if errMsg := resp.Header.Get("X-Error-Message"); errMsg != "" {
+			detail = errMsg
+		} else {
+			detail = resp.Status
+		}
+		if resp.StatusCode == http.StatusUnauthorized {
+			return errors.Errorf("bad status code %d (%s): Hugging Face API suggests either an invalid username/password or a non-existent/private repository -- check that the model name is correct, or HF_TOKEN",
+				resp.StatusCode, detail)
+		}
+		return errors.Errorf("bad status code %d: %s", resp.StatusCode, detail)
+	}
+
+	contentLength := resp.ContentLength
+	if callback != nil {
+		callback(0, contentLength)
+	}
+	const maxBufferSize = 1 * 1024 * 1024
+	var buf [maxBufferSize]byte
+	downloadedBytes := int64(0)
+	for {
+		if ctx.Err() != nil {
+			return CancellationError
+		}
+		n, readErr := resp.Body.Read(buf[:])
+		if n > 0 {
+			wn, writeErr := file.Write(buf[:n])
+			if writeErr != nil && writeErr != io.EOF {
+				return errors.Wrapf(writeErr, "failed writing %q to %q", url, filePathPart)
+			}
+			if wn != n {
+				return errors.Wrapf(io.ErrShortWrite, "failed writing %q to %q: not enough bytes written (wanted %d, wrote only %d)",
+					url, filePathPart, n, wn)
+			}
+			downloadedBytes += int64(wn)
+			if callback != nil {
+				callback(downloadedBytes, contentLength)
+			}
+		}
+		if readErr != nil && readErr != io.EOF {
+			if ctx.Err() != nil {
+				return CancellationError
+			}
+			if errors.Is(readErr, io.ErrUnexpectedEOF) && contentLength >= 0 {
+				return errors.Errorf("download of %q incomplete: downloaded %d bytes, but Content-Length is %d bytes (unexpected EOF)",
+					url, downloadedBytes, contentLength)
+			}
+			return errors.Wrapf(readErr, "failed downloading %q", url)
+		}
+		if readErr == io.EOF {
+			break
+		}
+	}
+	err = file.Close()
+	file = nil
+	if err != nil {
+		return errors.Wrapf(err, "failed closing file %q", filePathPart)
+	}
+	if err = resp.Body.Close(); err != nil {
+		return errors.Wrapf(err, "failed closing connection to %q", url)
+	}
+	if contentLength >= 0 && downloadedBytes != contentLength {
+		return errors.Errorf("download of %q incomplete: downloaded %d bytes, but Content-Length is %d bytes",
+			url, downloadedBytes, contentLength)
+	}
+	if err = os.Rename(filePathPart, filePath); err != nil {
+		return errors.Wrapf(err, "failed moving %q to %q", filePathPart, filePath)
+	}
+	downloadSuccess = true
+	return nil
+}
+
+// FetchHeader fetches the header of a URL (using HTTP method "HEAD").
+//
+// Notice it may lock on the maximum number of parallel requests, so consider calling this on a separate goroutine.
+//
+// The context ctx can be used to interrupt the downloading.
+func (m *Manager) FetchHeader(ctx context.Context, url string) (header http.Header, contentLength int64, err error) {
+	if err = m.semaphore.Acquire(ctx); err != nil {
+		if errors.Is(err, context.Canceled) {
+			err = CancellationError
+		}
+		return
+	}
+	defer m.semaphore.Release()
+
+	client := &http.Client{
+		CheckRedirect: func(r *http.Request, via []*http.Request) error {
+			r.URL.Opaque = r.URL.Path
+			return nil
+		},
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodHead, url, nil)
+	if err != nil {
+		err = errors.Wrapf(err, "failed creating request for %q", url)
+		return
+	}
+	m.setRequestHeader(req)
+	req.Header.Set("Accept-Encoding", "identity")
+
+	// Make the request and download the tokenizer.
+	resp, err := client.Do(req)
+	if err != nil {
+		err = errors.Wrap(err, "failed request for metadata: ")
+		return
+	}
+
+	// TODO: handle redirects.
+	defer func() { _ = resp.Body.Close() }()
+	_, err = io.ReadAll(resp.Body)
+	if err != nil {
+		err = errors.Wrapf(err, "failed reading response (%d) for metadata: ", resp.StatusCode)
+		return
+	}
+
+	// Check status code.
+	if resp.StatusCode != 200 {
+		if resp.StatusCode == http.StatusUnauthorized {
+			err = errors.Errorf("request for metadata from %q failed with %q: Hugging Face API suggests either an invalid username/password or a non-existent/private repository -- check that the model name is correct, or HF_TOKEN",
+				url, resp.Status)
+			return
+		}
+		err = errors.Errorf("request for metadata from %q failed with the following message: %q",
+			url, resp.Status)
+		return
+	}
+	header = resp.Header
+	contentLength = resp.ContentLength
+	err = nil
+	return
+}
