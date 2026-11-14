@@ -10,3 +10,7 @@
 /.claude/worktrees/
 .env
 /dist/
+/eval/lme/py/.local/
+/eval/lme/py/work/
+/eval/lme/py/**/__pycache__/
+/eval/lme/py/.pytest_cache/

@@ -1,0 +1,14 @@
+{
+  "source": "https://api-docs.deepseek.com/quick_start/pricing (read 2026-11-14); USD per 1M tokens; peak = 01:00-04:00 and 06:00-10:00 UTC Mon-Fri (Chinese public holidays are off-peak upstream but treated as peak here)",
+  "currency": "USD",
+  "peak_windows_utc": [
+    {"days": "Mon-Fri", "start": "01:00", "end": "04:00"},
+    {"days": "Mon-Fri", "start": "06:00", "end": "10:00"}
+  ],
+  "models": {
+    "deepseek-flash": {
+      "peak":    {"input_cache_hit": 0.006, "input_cache_miss": 0.30, "output": 1.20},
+      "offpeak": {"input_cache_hit": 0.003, "input_cache_miss": 0.15, "output": 0.60}
+    }
+  }
+}
