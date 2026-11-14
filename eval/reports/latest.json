@@ -2,7 +2,7 @@
   "schema": "chanda-eval-report/v1",
   "name": "latest",
   "date": "2026-11-13",
-  "chanda_version": "f457d4f",
+  "chanda_version": "fa870da",
   "config_hash": "0c1fd0d77f19b463",
   "embedding_model_id": "hash-v1-256",
   "reader_model": "n/a (retrieval-only; no LLM reader or judge)",
@@ -1247,26 +1247,26 @@
     {
       "name": "C5",
       "info": {
-        "description": "C4 + learned ranking from a simulated task sequence. Runs WITHOUT the reranker (none configured), so it is C1 + the stages above. No LLM provider is configured: sleep runs phase 1 (maintenance) only. Learning: the gate split is approved as the gate set, then 3 passes over the training split (outcome +1 with the delivered records that hit a gold span as used_ids, -1 with none), then a sleep run trains and may promote a ranker. Sleep run: phases [1], status completed. Sleep run: phases [1], status completed. After 297 tasks (270 positive) and 33 gate questions, no ranker model was promoted (lambda 0; Ranker: trained mdl_01M5GF72NP440B6W0ZPN8PAY06, evaluated mdl_01M5GF72NP440B6W0ZPN8PAY06, passed false, promoted false, baseline 93.94, learned 93.94, lambda 0.00 (gate_failed)): ranking equals C4.",
+        "description": "C4 + learned ranking from a simulated task sequence. Runs WITHOUT the reranker (none configured), so it is C1 + the stages above. No LLM provider is configured: sleep runs phase 1 (maintenance) only. Learning: the gate split is approved as the gate set, then 3 passes over the training split (outcome +1 with the delivered records that hit a gold span as used_ids, -1 with none), then a sleep run trains and may promote a ranker. Sleep run: phases [1], status completed. Sleep run: phases [1], status completed. After 297 tasks (270 positive) and 33 gate questions: active model mdl_01M5GF72NP440B6W0ZPN8PAY06, lambda 0.05 (Ranker: trained mdl_01M5GF72NP440B6W0ZPN8PAY06, evaluated mdl_01M5GF72NP440B6W0ZPN8PAY06, passed true, promoted true, baseline 70.05, learned 71.36, lambda 0.05).",
         "embedding_model": "hash-v1-256",
         "config_hash": "0b215b1f1b76e500"
       },
-      "size_bytes": 28282880,
+      "size_bytes": 28880896,
       "overall": {
         "questions": 305,
         "answerable": 270,
-        "recall_at_5": 0.5963,
-        "recall_at_10": 0.6074,
-        "mrr": 0.5081,
-        "ndcg_at_10": 0.5329,
-        "doc_recall_at_10": 0.7074,
-        "answer_in_context": 0.637,
-        "forbidden_rate": 0.3559,
+        "recall_at_5": 0.5852,
+        "recall_at_10": 0.6,
+        "mrr": 0.5178,
+        "ndcg_at_10": 0.5381,
+        "doc_recall_at_10": 0.7111,
+        "answer_in_context": 0.6333,
+        "forbidden_rate": 0.3475,
         "abstention_precision": 0.1622,
         "abstention_recall": 0.3429,
         "empty_rate": 0.2426,
-        "tokens_mean": 95.3541,
-        "tokens_p50": 70,
+        "tokens_mean": 95.8721,
+        "tokens_p50": 72,
         "tokens_p95": 272,
         "budget_violations": 0
       },
@@ -1284,7 +1284,7 @@
           "abstention_precision": 1,
           "abstention_recall": 0.3429,
           "empty_rate": 0.3429,
-          "tokens_mean": 52.2286,
+          "tokens_mean": 52.9714,
           "tokens_p50": 42,
           "tokens_p95": 164,
           "budget_violations": 0
@@ -1294,8 +1294,8 @@
           "answerable": 23,
           "recall_at_5": 0.6087,
           "recall_at_10": 0.6087,
-          "mrr": 0.4783,
-          "ndcg_at_10": 0.5124,
+          "mrr": 0.5652,
+          "ndcg_at_10": 0.5766,
           "doc_recall_at_10": 0.7391,
           "answer_in_context": 0.6087,
           "forbidden_rate": 0.4545,
@@ -1346,19 +1346,19 @@
         "plain": {
           "questions": 86,
           "answerable": 86,
-          "recall_at_5": 0.7791,
-          "recall_at_10": 0.814,
-          "mrr": 0.5932,
-          "ndcg_at_10": 0.6476,
-          "doc_recall_at_10": 0.9419,
-          "answer_in_context": 0.8372,
+          "recall_at_5": 0.7442,
+          "recall_at_10": 0.7907,
+          "mrr": 0.5947,
+          "ndcg_at_10": 0.6423,
+          "doc_recall_at_10": 0.9535,
+          "answer_in_context": 0.8256,
           "forbidden_rate": null,
           "abstention_precision": 0,
           "abstention_recall": null,
           "empty_rate": 0.0233,
-          "tokens_mean": 99.6395,
-          "tokens_p50": 78,
-          "tokens_p95": 217,
+          "tokens_mean": 101.0581,
+          "tokens_p50": 87,
+          "tokens_p95": 222,
           "budget_violations": 0
         },
         "session": {
@@ -1384,15 +1384,15 @@
           "answerable": 53,
           "recall_at_5": 0.7358,
           "recall_at_10": 0.7358,
-          "mrr": 0.6887,
-          "ndcg_at_10": 0.701,
+          "mrr": 0.6981,
+          "ndcg_at_10": 0.708,
           "doc_recall_at_10": 0.9057,
           "answer_in_context": 0.8113,
-          "forbidden_rate": 0.5283,
+          "forbidden_rate": 0.5094,
           "abstention_precision": 0,
           "abstention_recall": null,
           "empty_rate": 0.0377,
-          "tokens_mean": 151.1887,
+          "tokens_mean": 151.0755,
           "tokens_p50": 159,
           "tokens_p95": 279,
           "budget_violations": 0
@@ -1402,15 +1402,15 @@
           "answerable": 64,
           "recall_at_5": 0.625,
           "recall_at_10": 0.625,
-          "mrr": 0.5417,
-          "ndcg_at_10": 0.5632,
+          "mrr": 0.5729,
+          "ndcg_at_10": 0.5863,
           "doc_recall_at_10": 0.7344,
           "answer_in_context": 0.6563,
           "forbidden_rate": 0.2034,
           "abstention_precision": 0,
           "abstention_recall": null,
           "empty_rate": 0.1719,
-          "tokens_mean": 112.9375,
+          "tokens_mean": 113.1875,
           "tokens_p50": 96,
           "tokens_p95": 286,
           "budget_violations": 0
@@ -1740,10 +1740,10 @@
       "measured": {
         "current_answer_rate": 0.7117117117117117,
         "questions": 111,
-        "stale_answer_rate": 0.35135135135135137,
-        "stale_answers": 39
+        "stale_answer_rate": 0.34234234234234234,
+        "stale_answers": 38
       },
-      "reason": "stale_answer_rate = 0.3514, want <= 0.01"
+      "reason": "stale_answer_rate = 0.3423, want <= 0.01"
     },
     {
       "suite": "abstention",
@@ -1779,13 +1779,12 @@
           }
         ]
       },
-      "status": "fail",
+      "status": "pass",
       "measured": {
-        "core_probe_failures": 1,
-        "failed_entity": 1,
-        "forget_pass_rate": 0.9285714285714286,
+        "core_probe_failures": 0,
+        "forget_pass_rate": 1,
         "independent_probe_failures": 0,
-        "passed": 13,
+        "passed": 14,
         "requests": 14,
         "requests_date_range": 1,
         "requests_document": 3,
@@ -1793,8 +1792,7 @@
         "requests_record": 1,
         "requests_search": 5,
         "requests_source": 2
-      },
-      "reason": "forget_pass_rate = 0.9286, want >= 1"
+      }
     },
     {
       "suite": "injection",
@@ -1892,15 +1890,15 @@
       },
       "status": "fail",
       "measured": {
-        "gain_c5_over_c4": 0,
+        "gain_c5_over_c4": 0.0051682607596016394,
         "gate_c4": 60.32786885245902,
-        "gate_c5": 60.32786885245902,
-        "gate_regression": 0,
+        "gate_c5": 60,
+        "gate_regression": 0.3278688524590194,
         "ndcg10_c4": 0.5329334190697317,
-        "ndcg10_c5": 0.5329334190697317,
+        "ndcg10_c5": 0.5381016798293333,
         "train_questions": 99
       },
-      "reason": "gain_c5_over_c4 = 0, want > 0"
+      "reason": "gate_regression = 0.3279, want <= 0"
     },
     {
       "suite": "determinism",
@@ -1975,7 +1973,7 @@
       "system": "C5",
       "scope": "all",
       "metric": "recall@10",
-      "value": 0.6074,
+      "value": 0.6,
       "best": 0.6185,
       "best_by": "B1"
     },
@@ -2031,7 +2029,7 @@
       "system": "C5",
       "scope": "all",
       "metric": "answer_in_context",
-      "value": 0.637,
+      "value": 0.6333,
       "best": 0.7222,
       "best_by": "B1"
     },
@@ -2087,7 +2085,7 @@
       "system": "C5",
       "scope": "all",
       "metric": "forbidden_rate",
-      "value": 0.3559,
+      "value": 0.3475,
       "best": 0,
       "best_by": "B0"
     },
@@ -2703,7 +2701,7 @@
       "system": "C5",
       "scope": "plain",
       "metric": "recall@10",
-      "value": 0.814,
+      "value": 0.7907,
       "best": 0.8953,
       "best_by": "B1"
     },
@@ -2759,7 +2757,7 @@
       "system": "C5",
       "scope": "plain",
       "metric": "answer_in_context",
-      "value": 0.8372,
+      "value": 0.8256,
       "best": 0.9535,
       "best_by": "B1"
     },
@@ -3047,7 +3045,7 @@
       "system": "C5",
       "scope": "temporal",
       "metric": "forbidden_rate",
-      "value": 0.5283,
+      "value": 0.5094,
       "best": 0,
       "best_by": "B0"
     },
@@ -3206,7 +3204,7 @@
     {
       "system": "B0",
       "ingest_items": 197,
-      "ingest_total_ms": 0.024,
+      "ingest_total_ms": 0.032,
       "ingest_p50_ms": 0,
       "ingest_p95_ms": 0.001,
       "flush_ms": 0,
@@ -3218,86 +3216,86 @@
     {
       "system": "B1",
       "ingest_items": 197,
-      "ingest_total_ms": 15.429,
-      "ingest_p50_ms": 0.054,
-      "ingest_p95_ms": 0.223,
+      "ingest_total_ms": 21.857,
+      "ingest_p50_ms": 0.078,
+      "ingest_p95_ms": 0.317,
       "flush_ms": 0,
       "train_ms": 0,
-      "retrieve_mean_ms": 0.372,
-      "retrieve_p50_ms": 0.318,
-      "retrieve_p95_ms": 0.678
+      "retrieve_mean_ms": 0.602,
+      "retrieve_p50_ms": 0.512,
+      "retrieve_p95_ms": 1.048
     },
     {
       "system": "B2",
       "ingest_items": 197,
-      "ingest_total_ms": 38.411,
-      "ingest_p50_ms": 0.148,
-      "ingest_p95_ms": 0.614,
+      "ingest_total_ms": 60.814,
+      "ingest_p50_ms": 0.236,
+      "ingest_p95_ms": 0.98,
       "flush_ms": 0,
       "train_ms": 0,
-      "retrieve_mean_ms": 0.449,
-      "retrieve_p50_ms": 0.442,
-      "retrieve_p95_ms": 0.48
+      "retrieve_mean_ms": 0.726,
+      "retrieve_p50_ms": 0.712,
+      "retrieve_p95_ms": 0.768
     },
     {
       "system": "B3",
       "ingest_items": 197,
-      "ingest_total_ms": 2.345,
-      "ingest_p50_ms": 0.009,
-      "ingest_p95_ms": 0.033,
+      "ingest_total_ms": 3.775,
+      "ingest_p50_ms": 0.012,
+      "ingest_p95_ms": 0.049,
       "flush_ms": 0,
       "train_ms": 0,
-      "retrieve_mean_ms": 0.049,
-      "retrieve_p50_ms": 0.047,
-      "retrieve_p95_ms": 0.054
+      "retrieve_mean_ms": 0.084,
+      "retrieve_p50_ms": 0.079,
+      "retrieve_p95_ms": 0.096
     },
     {
       "system": "C1",
       "ingest_items": 197,
-      "ingest_total_ms": 1880.791,
-      "ingest_p50_ms": 7.706,
-      "ingest_p95_ms": 19.331,
-      "flush_ms": 88.726,
-      "train_ms": 0.01,
-      "retrieve_mean_ms": 2.157,
-      "retrieve_p50_ms": 2.039,
-      "retrieve_p95_ms": 2.911
+      "ingest_total_ms": 3303.824,
+      "ingest_p50_ms": 13.258,
+      "ingest_p95_ms": 35.073,
+      "flush_ms": 163.499,
+      "train_ms": 0.021,
+      "retrieve_mean_ms": 4.462,
+      "retrieve_p50_ms": 4.243,
+      "retrieve_p95_ms": 6.369
     },
     {
       "system": "C3",
       "ingest_items": 197,
-      "ingest_total_ms": 2115.367,
-      "ingest_p50_ms": 8.284,
-      "ingest_p95_ms": 21.88,
-      "flush_ms": 121.863,
-      "train_ms": 0.011,
-      "retrieve_mean_ms": 3.171,
-      "retrieve_p50_ms": 3.168,
-      "retrieve_p95_ms": 4.578
+      "ingest_total_ms": 3505.928,
+      "ingest_p50_ms": 13.692,
+      "ingest_p95_ms": 35.343,
+      "flush_ms": 190.332,
+      "train_ms": 0.016,
+      "retrieve_mean_ms": 5.032,
+      "retrieve_p50_ms": 5.042,
+      "retrieve_p95_ms": 7.207
     },
     {
       "system": "C4",
       "ingest_items": 197,
-      "ingest_total_ms": 2148.696,
-      "ingest_p50_ms": 8.333,
-      "ingest_p95_ms": 22.188,
-      "flush_ms": 136.94,
-      "train_ms": 0.016,
-      "retrieve_mean_ms": 3.214,
-      "retrieve_p50_ms": 3.186,
-      "retrieve_p95_ms": 4.545
+      "ingest_total_ms": 3965.659,
+      "ingest_p50_ms": 16.303,
+      "ingest_p95_ms": 42.983,
+      "flush_ms": 262.374,
+      "train_ms": 0.019,
+      "retrieve_mean_ms": 6.633,
+      "retrieve_p50_ms": 6.463,
+      "retrieve_p95_ms": 10.145
     },
     {
       "system": "C5",
       "ingest_items": 197,
-      "ingest_total_ms": 2124.107,
-      "ingest_p50_ms": 8.77,
-      "ingest_p95_ms": 21.775,
-      "flush_ms": 133.548,
-      "train_ms": 2848.889,
-      "retrieve_mean_ms": 5.645,
-      "retrieve_p50_ms": 5.44,
-      "retrieve_p95_ms": 8.512
+      "ingest_total_ms": 3416.126,
+      "ingest_p50_ms": 13.572,
+      "ingest_p95_ms": 36.785,
+      "flush_ms": 219.877,
+      "train_ms": 6724.318,
+      "retrieve_mean_ms": 19.261,
+      "retrieve_p50_ms": 14.946,
+      "retrieve_p95_ms": 39.241
     }
   ]
 }
