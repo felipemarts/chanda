@@ -31,11 +31,13 @@ import (
 // ranker_models.
 type Ranker struct {
 	env *env.Env
-	mu  sync.Mutex
+
+	mu     sync.Mutex
+	models map[string]*Model // decoded models by id; rows never change once written
 }
 
 // New returns a Ranker over e.
-func New(e *env.Env) *Ranker { return &Ranker{env: e} }
+func New(e *env.Env) *Ranker { return &Ranker{env: e, models: map[string]*Model{}} }
 
 // rankState mirrors one rank_state row.
 type rankState struct {
