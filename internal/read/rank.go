@@ -22,7 +22,7 @@ type cand struct {
 	utility, learned     float64
 	hasUtil, hasLearned  bool
 	final                float64
-	ageDays              int
+	ageSec               float64
 	dropped              string // "" while alive; a drop* reason otherwise
 	scored               bool   // reached fusion
 }
@@ -150,8 +150,12 @@ func (r *Reader) lambda(ctx context.Context, ns string) (float64, error) {
 	return math.Min(l, r.e.Cfg.Ranking.LambdaMax), nil
 }
 
+// NeutralUtility is the utility term of a record without one (internal/rank
+// contract): it neither helps nor hurts.
+const NeutralUtility = 0.5
+
 // adjust applies read step 7: final = (1 − λ)·relevance + λ·utility. A
-// candidate with no utility yet keeps final = relevance. Utility scores are
+// candidate with no utility yet uses NeutralUtility. Utility scores are
 // logged even when λ = 0 (they are ranking features).
 func (r *Reader) adjust(ctx context.Context, ns string, cs []*cand, lambda float64) error {
 	if r.deps.Utility != nil && len(cs) > 0 {
@@ -171,10 +175,11 @@ func (r *Reader) adjust(ctx context.Context, ns string, cs []*cand, lambda float
 		}
 	}
 	for _, c := range cs {
-		c.final = c.relevance
+		u := NeutralUtility
 		if c.hasUtil {
-			c.final = (1-lambda)*c.relevance + lambda*c.utility
+			u = c.utility
 		}
+		c.final = (1-lambda)*c.relevance + lambda*u // λ = 0 gives exactly relevance
 	}
 	return nil
 }
@@ -192,7 +197,7 @@ func (r *Reader) shadow(ctx context.Context, ns string, cs []*cand) {
 }
 
 func (c *cand) candidate() Candidate {
-	return Candidate{ID: c.id(), Type: c.rec.typ, Zone: c.rec.zone, AgeDays: c.ageDays, Scores: c.scores()}
+	return Candidate{ID: c.id(), Type: c.rec.typ, Zone: c.rec.zone, AgeSeconds: c.ageSec, Scores: c.scores()}
 }
 
 func ptr(v float64) *float64 { return &v }
@@ -220,14 +225,13 @@ func (c *cand) scores() Scores {
 	return s
 }
 
-// ageDays is whole days between the record's time and now (floor, ≥ 0).
-// Whole days keep logged features identical across repeated queries.
-func ageDays(ts string, now time.Time) int {
+// ageSeconds is whole seconds between the record's time and now (≥ 0).
+func ageSeconds(ts string, now time.Time) float64 {
 	t, err := core.ParseTime(ts)
 	if err != nil || t.After(now) {
 		return 0
 	}
-	return int(now.Sub(t) / (24 * time.Hour))
+	return float64(now.Sub(t) / time.Second)
 }
 
 // sortByFinal orders by final desc, relevance desc, id asc (total order).

@@ -79,7 +79,7 @@ func TestExplain(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !ex.Found || !ex.Candidate.Delivered || ex.Candidate.RRF == nil || ex.Candidate.Final == nil || ex.Mode != ModeContext || ex.Query != "database backup policy" {
+	if !ex.Found || !ex.Candidate.Delivered() || ex.Candidate.RRF == nil || ex.Candidate.Final == nil || ex.Mode != ModeContext || ex.Query != "database backup policy" {
 		t.Fatalf("explain: %+v", ex)
 	}
 	// The retired event was filtered in the keyword query itself, so it never became a candidate.

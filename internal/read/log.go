@@ -16,18 +16,52 @@ import (
 // query text or record content.
 const ActRetrieve = "retrieve"
 
-// LoggedCandidate is one entry of retrievals.candidates: the per-stage
-// scores and features of a candidate, whether it was delivered and, if not,
-// why it left the list.
+// LoggedCandidate is one entry of retrievals.candidates, in the shape
+// internal/rank reads (its Candidate): the stage scores as numbers (null when
+// the stage gave none), zone and age_seconds; every other feature is a
+// number under "features" (rank decodes features as map[string]float64).
+// "dropped" is the reason a candidate left the list; rank ignores it.
+//
+// utility is the term used in the final score: the record's utility, or
+// NeutralUtility when it has none (features.has_utility = 0).
 type LoggedCandidate struct {
-	ID      string          `json:"id"`
-	Type    core.RecordType `json:"type"`
-	Zone    core.Zone       `json:"zone,omitempty"`
-	AgeDays int             `json:"age_days"`
-	Scores
-	Delivered bool   `json:"delivered,omitempty"`
-	Position  int    `json:"position,omitempty"` // 1-based position in the delivered list
-	Dropped   string `json:"dropped,omitempty"`
+	ID         string             `json:"id"`
+	Type       core.RecordType    `json:"type"`
+	BM25       *float64           `json:"bm25"`
+	Cosine     *float64           `json:"cosine"`
+	Rerank     *float64           `json:"rerank"`
+	RRF        *float64           `json:"rrf"`
+	Utility    *float64           `json:"utility"`
+	Learned    *float64           `json:"learned"`
+	Final      *float64           `json:"final"`
+	Zone       core.Zone          `json:"zone"`
+	AgeSeconds float64            `json:"age_seconds"`
+	Features   map[string]float64 `json:"features"`
+	Dropped    string             `json:"dropped,omitempty"`
+}
+
+// Delivered reports whether the candidate was delivered.
+func (lc LoggedCandidate) Delivered() bool { return lc.Features["delivered"] == 1 }
+
+func loggedCandidate(c *cand, position int) LoggedCandidate {
+	s := c.scores()
+	lc := LoggedCandidate{
+		ID: c.id(), Type: c.rec.typ, BM25: s.BM25, Cosine: s.Cosine, Rerank: s.Rerank, RRF: s.RRF,
+		Learned: s.Learned, Final: s.Final, Zone: c.rec.zone, AgeSeconds: c.ageSec, Dropped: c.dropped,
+		Features: map[string]float64{"kw_rank": float64(c.kwRank), "vec_rank": float64(c.vecRank), "has_utility": 0, "delivered": 0},
+	}
+	if c.scored {
+		u := NeutralUtility
+		if c.hasUtil {
+			u, lc.Features["has_utility"] = c.utility, 1
+		}
+		lc.Utility = ptr(u)
+		lc.Features["coverage"], lc.Features["evidence"], lc.Features["relevance"] = c.coverage, c.evidence, c.relevance
+	}
+	if position > 0 {
+		lc.Features["delivered"], lc.Features["position"], lc.Dropped = 1, float64(position), ""
+	}
+	return lc
 }
 
 // logRetrieval writes the retrievals row and its audit entry in one
@@ -57,15 +91,11 @@ func (r *Reader) logRetrieval(ctx context.Context, q request, res *result, all [
 	sort.SliceStable(rest, func(i, j int) bool { return rest[i].id() < rest[j].id() })
 	logged := make([]LoggedCandidate, 0, len(scored)+len(rest))
 	for _, c := range append(scored, rest...) {
-		lc := LoggedCandidate{ID: c.id(), Type: c.rec.typ, Zone: c.rec.zone, AgeDays: c.ageDays, Scores: c.scores(), Dropped: c.dropped}
-		if p, ok := pos[c.id()]; ok {
-			lc.Delivered, lc.Position, lc.Dropped = true, p, ""
-		}
-		logged = append(logged, lc)
+		logged = append(logged, loggedCandidate(c, pos[c.id()]))
 	}
 	params := map[string]any{
 		"types": q.types, "zones": q.zones, "include_history": q.includeHistory,
-		"limit": q.limit, "budget_tokens": q.budget, "config_hash": r.cfgHash,
+		"limit": q.limit, "budget_tokens": q.budget, "config_hash": r.cfgHash, "gate": q.gate,
 	}
 	for k, v := range extra {
 		params[k] = v

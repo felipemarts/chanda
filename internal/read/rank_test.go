@@ -48,8 +48,8 @@ func TestUtilityAdjustment(t *testing.T) {
 	if err := r.adjust(f.ctx, "ns", []*cand{a, b}, l); err != nil {
 		t.Fatal(err)
 	}
-	if !near(a.final, a.relevance) || a.hasUtil {
-		t.Errorf("no utility → final = relevance: %+v", a)
+	if !near(a.final, 0.7*a.relevance+0.3*NeutralUtility) || a.hasUtil {
+		t.Errorf("no utility → neutral 0.5: %+v", a)
 	}
 	if !near(b.final, 0.7*b.relevance+0.3) {
 		t.Errorf("b final = %v", b.final)

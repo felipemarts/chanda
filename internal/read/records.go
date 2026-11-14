@@ -133,11 +133,13 @@ func (r *Reader) markFlagged(ctx context.Context, ns string, recs map[string]*re
 	sort.Strings(ids)
 	for start := 0; start < len(ids); start += inBatch {
 		batch := ids[start:min(start+inBatch, len(ids))]
-		args := []any{ns}
+		args := []any{}
 		for _, id := range batch {
 			args = append(args, id)
 		}
-		flagged, err := r.queryStrings(ctx, `SELECT DISTINCT record_id FROM flags WHERE namespace = ? AND record_id IN (`+
+		// Ids are globally unique (prefix + ULID), so record_id alone identifies
+		// the record whatever record_type string the flag writer used.
+		flagged, err := r.queryStrings(ctx, `SELECT DISTINCT record_id FROM flags WHERE record_id IN (`+
 			placeholders(len(batch))+`) ORDER BY record_id`, args...)
 		if err != nil {
 			return err

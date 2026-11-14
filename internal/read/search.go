@@ -19,6 +19,7 @@ type SearchInput struct {
 	Limit          int               // 0 = read.search_default_limit; capped at read.search_max_limit
 	IncludeHistory bool              // also superseded facts
 	SessionID      string
+	Gate           bool // query made for the gate set: logged with params {"gate": true}
 }
 
 // SearchResult is a ranked list. instruction_like items are returned with
@@ -37,6 +38,7 @@ type ContextInput struct {
 	BudgetTokens int       // 0 = read.context_default_tokens; capped at read.context_max_tokens
 	AsOf         time.Time // zero = now
 	SessionID    string
+	Gate         bool // query made for the gate set: logged with params {"gate": true}
 }
 
 // ContextResult is the rendered pre-context. Text is empty when nothing is
@@ -66,7 +68,7 @@ func (r *Reader) Search(ctx context.Context, in SearchInput) (SearchResult, erro
 	}
 	out, err := r.run(ctx, request{
 		mode: ModeSearch, ns: in.Namespace, text: in.Query, types: in.Types, zones: in.Zones,
-		asOf: in.AsOf, limit: limit, includeHistory: in.IncludeHistory, sessionID: in.SessionID,
+		asOf: in.AsOf, limit: limit, includeHistory: in.IncludeHistory, sessionID: in.SessionID, gate: in.Gate,
 	})
 	if err != nil {
 		return SearchResult{}, err
@@ -89,7 +91,7 @@ func (r *Reader) Context(ctx context.Context, in ContextInput) (ContextResult, e
 		budget = m
 	}
 	out, err := r.run(ctx, request{
-		mode: ModeContext, ns: in.Namespace, text: in.Query, asOf: in.AsOf, budget: budget, sessionID: in.SessionID,
+		mode: ModeContext, ns: in.Namespace, text: in.Query, asOf: in.AsOf, budget: budget, sessionID: in.SessionID, gate: in.Gate,
 	})
 	if err != nil {
 		return ContextResult{}, err
@@ -107,6 +109,7 @@ type request struct {
 	limit, budget  int
 	includeHistory bool
 	sessionID      string
+	gate           bool
 }
 
 type result struct {
@@ -255,7 +258,7 @@ func (r *Reader) run(ctx context.Context, q request) (*result, error) {
 		alive = append(alive, c)
 	}
 	for _, c := range alive {
-		c.ageDays = ageDays(c.rec.ts, now)
+		c.ageSec = ageSeconds(c.rec.ts, now)
 	}
 
 	// 5. Fuse. 6. Rerank. 7. Utility (and the shadow learned score).

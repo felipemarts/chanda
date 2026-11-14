@@ -19,7 +19,7 @@ import (
 
 // Utility gives the per-record utility in [0,1] and the namespace's λ
 // (implemented by the ranking area). Records missing from Scores have no
-// utility yet: their final score equals their relevance.
+// utility yet and use NeutralUtility (0.5).
 type Utility interface {
 	Scores(ctx context.Context, ns string, ids []string) (map[string]float64, error)
 	Lambda(ctx context.Context, ns string) (float64, error)
@@ -85,11 +85,11 @@ type Scores struct {
 
 // Candidate is what the learned ranker sees (features of one candidate).
 type Candidate struct {
-	ID      string          `json:"id"`
-	Type    core.RecordType `json:"type"`
-	Zone    core.Zone       `json:"zone"`
-	AgeDays int             `json:"age_days"`
-	Scores  Scores          `json:"scores"`
+	ID         string          `json:"id"`
+	Type       core.RecordType `json:"type"`
+	Zone       core.Zone       `json:"zone"`
+	AgeSeconds float64         `json:"age_seconds"`
+	Scores     Scores          `json:"scores"`
 }
 
 // Origin points an item back to the raw log.

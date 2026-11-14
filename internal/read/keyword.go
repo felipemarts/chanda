@@ -65,7 +65,8 @@ func (r *Reader) keywordSearch(ctx context.Context, ns string, terms []string, f
 		}
 		q := `SELECT ` + s.fts + `.record_id, -` + s.bm25 + ` FROM ` + s.fts +
 			` JOIN ` + s.base + ` b ON b.id = ` + s.fts + `.record_id` +
-			` WHERE ` + s.fts + ` MATCH ? AND ` + s.fts + `.namespace = ? AND b.namespace = ? AND ` + s.extra
+			` WHERE ` + s.fts + ` MATCH ? AND ` + s.fts + `.namespace = ? AND b.namespace = ? AND ` + s.extra +
+			` AND NOT EXISTS (SELECT 1 FROM flags fl WHERE fl.record_id = b.id)`
 		args := []any{expr, ns, ns}
 		if len(f.zones) > 0 {
 			q += ` AND b.trust_zone IN (` + placeholders(len(f.zones)) + `)`

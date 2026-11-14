@@ -462,8 +462,9 @@ func TestRetrievalLogged(t *testing.T) {
 			top = &lc[i]
 		}
 	}
-	if top == nil || top.BM25 == nil || top.Cosine == nil || top.RRF == nil || top.Final == nil || top.Utility == nil ||
-		top.Learned == nil || top.Relevance == nil || !top.Delivered || top.Position == 0 || top.Type != core.RecEvent || top.Zone != core.ZoneInternal {
+	if top == nil || top.BM25 == nil || top.Cosine == nil || top.RRF == nil || top.Final == nil || top.Utility == nil || *top.Utility != 0.6 ||
+		top.Learned == nil || top.Features["relevance"] == 0 || !top.Delivered() || top.Features["position"] == 0 ||
+		top.Type != core.RecEvent || top.Zone != core.ZoneInternal || top.Features["has_utility"] != 1 {
 		t.Fatalf("logged candidate: %+v", top)
 	}
 	var dl []string
