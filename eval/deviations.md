@@ -15,8 +15,12 @@ conditions or results had to be re-run. Entries are added in the order found.
   `embeddings`, and its bytes stayed in the database file. Forget's own
   verification reported `passed: true` because it only probes the records it
   removed.
-- **What changed:** see the fix commit referenced below.
-- **Re-run:** phase 5 in full. No LongMemEval condition had run yet.
+- **What changed:** commit 30b6a93 (decision 0130): the entity scope matches
+  the entity's canonical name and aliases (and merged entities) as whole-word
+  phrases over every event of the namespace; a new `entity_mentions` probe
+  re-runs the rule over what remains. The synthetic deletion suite now runs
+  entity requests last (11ff703).
+- **Re-run:** phase 5 in full (F3 passes). No LongMemEval condition had run yet.
 
 ## 2. Mem0 does not accept a timestamp on `add` (condition C setup)
 
@@ -40,3 +44,40 @@ conditions or results had to be re-run. Entries are added in the order found.
   the official LongMemEval question-only template: condition A uses the
   official retrieval template with an empty history block. The official
   question-only variant (`--a-template official-no-retrieval`) is not run.
+
+## 4. `log_session` dropped the turn timestamp (found by the LongMemEval harness)
+
+- **Found by:** the phase 1 smoke run (20 questions, hash, no LLM), before any
+  LongMemEval result was used for anything.
+- **What it was:** `internal/app/write.go` built `write.Turn` without `TS`, so
+  every event got `valid_from` NULL and `recorded_at` = ingest time. BASE.md
+  says `valid_from` uses the date given in the call first. Chanda therefore
+  knew no session dates, and temporal and knowledge-update questions could not
+  test what they are meant to test.
+- **What changed:** see the fix commit (pending).
+- **Re-run:** the smoke run; no full phase 1 or LLM condition had run.
+
+## 5. The context block shows no date for raw excerpts
+
+- **Found by:** the same smoke run.
+- **What it was:** `internal/read/render.go` prints a date only for facts. A
+  reader cannot place an excerpt in time, while plain RAG shows session dates.
+  BASE.md does not require the date in the block; this is fixed as a general
+  defect of the pre-context (an agent cannot use "what held on that date"
+  without dates), not tuned on LongMemEval questions, and it is disclosed here
+  because it was found through the battery.
+- **What changed:** see the fix commit (pending).
+- **Re-run:** as above.
+
+## 6. Context ceiling raised to the battery budget
+
+- BASE.md sets the `context` ceiling at 1,500 tokens; the owner's rule 3 fixes
+  2,000 tokens for every condition. The harness sets
+  `read.context_max_tokens: 2000` in the configuration of conditions D and E.
+  No code change.
+
+## Known limitations found during setup (not fixed)
+
+- Raw excerpts in the context block do not say who spoke (user or assistant).
+  This likely hurts single-session-assistant questions. Not changed: it is a
+  presentation choice, and changing it now would be tuning on the battery.
