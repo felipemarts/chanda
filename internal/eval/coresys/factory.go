@@ -3,6 +3,7 @@ package coresys
 import (
 	"context"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/felipemarts/chanda-mcp/internal/app"
@@ -60,8 +61,10 @@ const TrainPasses = 3
 
 // Train simulates a sequence of tasks (C5). First a person (the operator,
 // a human actor) adds the gate split as approved gate questions: question,
-// expected answers and as_of; no record ids, since the dataset does not know
-// them. Then each training question is one task: the agent calls context
+// expected answers, as_of and the ids of the records that are evidence for
+// the gold units (GateEvidence), as the person writing the answer key would
+// look them up in the namespace; the ids make the gate score rank-sensitive
+// (decision 0110). Then each training question is one task: the agent calls context
 // with the question, and the task outcome is derived from the gold labels:
 // the delivered records that are evidence for a gold unit (same corpus item,
 // span contained) are reported as used_ids with value +1; when none is, the
@@ -78,8 +81,12 @@ func (s *System) Train(ctx context.Context, train, gate []eval.Question) error {
 		return fmt.Errorf("%s: the dataset needs a training and a gate split", s.v.Name)
 	}
 	for _, q := range gate {
+		ids, err := s.GateEvidence(ctx, q)
+		if err != nil {
+			return err
+		}
 		if _, _, err := s.app.GateAdd(op(ctx), app.GateAddInput{Namespace: Namespace, Question: q.Question,
-			Expected: sleep.GateExpected{Answers: q.Answers, AsOf: q.AsOf}}); err != nil {
+			Expected: sleep.GateExpected{RecordIDs: ids, Answers: q.Answers, AsOf: q.AsOf}}); err != nil {
 			return fmt.Errorf("gate question %s: %w", q.ID, err)
 		}
 	}
@@ -138,8 +145,68 @@ func (s *System) Train(ctx context.Context, train, gate []eval.Question) error {
 		s.Declare(fmt.Sprintf("After %d tasks (%d positive) and %d gate questions, no ranker model was promoted (lambda 0; %s): ranking equals C4.",
 			tasks, positive, len(gate), run))
 	} else {
-		s.Declare(fmt.Sprintf("After %d tasks (%d positive) and %d gate questions: active model %s, lambda %.2f.",
-			tasks, positive, len(gate), st.Ranking.ActiveModel, st.Ranking.Lambda))
+		s.Declare(fmt.Sprintf("After %d tasks (%d positive) and %d gate questions: active model %s, lambda %.2f (%s).",
+			tasks, positive, len(gate), st.Ranking.ActiveModel, st.Ranking.Lambda, run))
 	}
 	return nil
+}
+
+// GateEvidence returns, sorted, the ids of the records of the namespace that
+// are evidence for a gold unit of q, by the same test the metrics and the
+// training outcomes use (eval.Hits: same corpus item, span contained in the
+// record's text as get returns it). Every event, fact, page and page item is
+// considered, whatever its status, so the key does not depend on any
+// ranking. A question without gold (abstention) has none.
+func (s *System) GateEvidence(ctx context.Context, q eval.Question) ([]string, error) {
+	if len(q.Gold) == 0 {
+		return nil, nil
+	}
+	if s.records == nil {
+		recs, err := s.allRecords(ctx)
+		if err != nil {
+			return nil, err
+		}
+		s.records = recs
+	}
+	var ids []string
+	for _, r := range s.records {
+		if slices.ContainsFunc(q.Gold, func(g eval.Gold) bool { return eval.Hits(r, g) }) {
+			ids = append(ids, r.ID)
+		}
+	}
+	return ids, nil
+}
+
+// allRecords reads every record of the namespace through get, as the
+// harness sees a delivered item (id, corpus item, text), ordered by id.
+func (s *System) allRecords(ctx context.Context) ([]eval.Retrieved, error) {
+	rows, err := s.e.Store.DB().QueryContext(ctx, `SELECT id FROM events WHERE namespace = ?1 UNION ALL SELECT id FROM facts WHERE namespace = ?1
+		UNION ALL SELECT id FROM pages WHERE namespace = ?1 UNION ALL SELECT id FROM page_items WHERE namespace = ?1 ORDER BY 1`, Namespace)
+	if err != nil {
+		return nil, err
+	}
+	var ids []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			rows.Close()
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	out := make([]eval.Retrieved, 0, len(ids))
+	for _, id := range ids {
+		g, err := s.app.Get(op(ctx), chanda.GetInput{Namespace: Namespace, ID: id})
+		if core.CodeOf(err) == core.CodeNotFound {
+			continue
+		}
+		if err != nil {
+			return nil, fmt.Errorf("get %s: %w", id, err)
+		}
+		out = append(out, eval.Retrieved{ID: id, DocID: s.docOf(g.Item), Text: g.Item.Text})
+	}
+	return out, nil
 }

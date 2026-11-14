@@ -121,6 +121,7 @@ type System struct {
 	events    map[string][]string // corpus item id -> its session turn event ids, in order
 	note      string              // declared deviation from the variant
 	lastSleep string              // report of the last sleep run
+	records   []eval.Retrieved    // every record as get returns it (GateEvidence), read once
 	model     string
 }
 
