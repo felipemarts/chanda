@@ -8,6 +8,8 @@
 //	chanda eval   [eval flags...]   (see "chanda eval -h")
 //	chanda forget [--config f] [--namespace ns] --kind record|document|source|entity|date_range|search
 //	              [--value v] [--from t] [--to t] [--query q] [--dry-run]
+//	chanda gate list|approve <id>|retire <id>|add --question q [--answer a]... [--as-of d]
+//	chanda ranking on|off
 //	chanda version
 //
 // Commands other than serve and eval print the result envelope as JSON on
@@ -83,6 +85,8 @@ commands:
   sleep    run memory consolidation now
   eval     run the evaluation report
   forget   delete in cascade and verify
+  gate     review the gate set (list, approve, retire, add)
+  ranking  switch learned ranking on or off
   version  print the version
 
 run "chanda <command> -h" for the flags of a command.
@@ -109,6 +113,10 @@ func (cl CLI) Run(ctx context.Context, args []string, stdout, stderr io.Writer) 
 		return cl.Eval(ctx, rest, stdout, stderr)
 	case "forget":
 		return cl.cmdForget(ctx, rest, stdout, stderr)
+	case "gate":
+		return cl.cmdGate(ctx, rest, stdout, stderr)
+	case "ranking":
+		return cl.cmdRanking(ctx, rest, stdout, stderr)
 	case "version", "--version", "-version", "-v":
 		fmt.Fprintln(stdout, "chanda", cl.Version)
 		return 0

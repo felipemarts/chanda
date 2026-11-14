@@ -343,3 +343,40 @@ func TestServeHTTP(t *testing.T) {
 		t.Fatalf("serve exit %d: %s", code, stderr.String())
 	}
 }
+
+// The gate set and learned ranking are reviewed by a person at the CLI
+// (decision 0092): add, list, approve and retire; switch ranking.
+func TestGateAndRankingCommands(t *testing.T) {
+	cfg := tempConfig(t, "")
+	run := func(args ...string) (int, chanda.Envelope) {
+		full := append(append(append([]string{}, args[:2]...), "--config", cfg), args[2:]...)
+		code, out, errs := runCLI(full...)
+		if code == 2 {
+			t.Fatalf("%v: usage error: %s", args, errs)
+		}
+		return code, decodeEnv(t, out)
+	}
+	code, env := run("gate", "add", "--question", "Qual o prazo de reembolso?", "--answer", "30 dias", "--as-of", "2026-03-01")
+	if code != 0 || !env.OK {
+		t.Fatalf("add: %d %+v", code, env)
+	}
+	id := env.Data.(map[string]any)["question"].(map[string]any)["id"].(string)
+	code, env = run("gate", "list", "--status", "approved")
+	if qs := env.Data.(map[string]any)["questions"].([]any); code != 0 || len(qs) != 1 {
+		t.Fatalf("list: %d %+v", code, env)
+	}
+	if code, env = run("gate", "retire", id); code != 0 || env.Data.(map[string]any)["to"] != "retired" {
+		t.Fatalf("retire: %d %+v", code, env)
+	}
+	if code, env = run("gate", "retire", id); code != 1 || env.Error.Code != chanda.CodeConflict {
+		t.Fatalf("retire twice: %d %+v", code, env)
+	}
+	if code, env = run("ranking", "off"); code != 0 || env.Data.(map[string]any)["enabled"] != false {
+		t.Fatalf("ranking off: %d %+v", code, env)
+	}
+	for _, args := range [][]string{{"gate"}, {"gate", "frob"}, {"gate", "add"}, {"gate", "approve"}, {"ranking"}, {"ranking", "maybe"}} {
+		if code, _, _ := runCLI(args...); code != 2 {
+			t.Errorf("%v: code %d, want usage error", args, code)
+		}
+	}
+}
