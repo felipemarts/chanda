@@ -32,6 +32,8 @@ const (
 	ActRetire       = "retire"    // chunk retired by a new document version
 	ActFactInsert   = "fact_insert"
 	ActFactConfirm  = "fact_confirm"
+	ActFactAdjust   = "fact_adjust" // a history insert shortened an older closed fact
+	ActPredicate    = "predicate_create"
 	ActSupersede    = "supersede"
 	ActQuarantine   = "quarantine"
 	ActStaleSource  = "stale_source"
