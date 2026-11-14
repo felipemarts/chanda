@@ -2,7 +2,6 @@ package read
 
 import (
 	"context"
-	"sort"
 	"strings"
 
 	"github.com/felipemarts/chanda-mcp/internal/core"
@@ -53,8 +52,7 @@ func ftsSpecs(withSuperseded bool) []ftsSpec {
 // filtered in the query, both on the FTS row and on the base row.
 func (r *Reader) keywordSearch(ctx context.Context, ns string, terms []string, f keywordFilter) (map[core.RecordType][]hit, error) {
 	out := map[core.RecordType][]hit{}
-	expr := matchExpr(terms)
-	if expr == "" {
+	if matchExpr(terms) == "" {
 		return out, nil
 	}
 	k := r.e.Cfg.Read.KeywordTopK
@@ -73,7 +71,7 @@ func (r *Reader) keywordSearch(ctx context.Context, ns string, terms []string, f
 				args = append(args, string(z))
 			}
 		}
-		list, err := ftsTop(ctx, r.db(), s.fts, s.base, s.bm25, expr, ns, k, cond, args)
+		list, err := r.keywordTop(ctx, s, terms, ns, k, cond, args)
 		if err != nil {
 			return nil, core.Wrap(core.CodeInternal, err, "keyword search "+string(s.typ))
 		}
@@ -121,11 +119,6 @@ func TopEventMatches(ctx context.Context, q store.Queryer, ns, expr string, k in
 // out. A common query term matching most of the corpus no longer costs a
 // content and base row read per match.
 func ftsTop(ctx context.Context, db store.Queryer, fts, base, bm25, expr, ns string, k int, cond string, condArgs []any) ([]hit, error) {
-	type match struct {
-		rowid int64
-		bm    float64
-		id    string
-	}
 	if k <= 0 || expr == "" {
 		return nil, nil
 	}
@@ -135,9 +128,9 @@ func ftsTop(ctx context.Context, db store.Queryer, fts, base, bm25, expr, ns str
 		if err != nil {
 			return nil, err
 		}
-		var ms []match
+		var ms []ftsMatch
 		for rows.Next() {
-			var m match
+			var m ftsMatch
 			if err := rows.Scan(&m.rowid, &m.bm); err != nil {
 				rows.Close()
 				return nil, err
@@ -150,73 +143,10 @@ func ftsTop(ctx context.Context, db store.Queryer, fts, base, bm25, expr, ns str
 			return nil, err
 		}
 		full := len(ms) == n
-		// Resolve rowids to record ids of this namespace.
-		byRow := map[int64]string{}
-		for start := 0; start < len(ms); start += inBatch {
-			batch := ms[start:min(start+inBatch, len(ms))]
-			args := make([]any, 0, len(batch)+1)
-			for _, m := range batch {
-				args = append(args, m.rowid)
-			}
-			args = append(args, ns)
-			rows, err := db.QueryContext(ctx, `SELECT rowid, record_id FROM `+fts+` WHERE rowid IN (`+placeholders(len(batch))+`)
-				AND namespace = ? ORDER BY rowid`, args...)
-			if err != nil {
-				return nil, err
-			}
-			for rows.Next() {
-				var rid int64
-				var id string
-				if err := rows.Scan(&rid, &id); err != nil {
-					rows.Close()
-					return nil, err
-				}
-				byRow[rid] = id
-			}
-			err = rows.Err()
-			rows.Close()
-			if err != nil {
-				return nil, err
-			}
+		el, err := eligibleMatches(ctx, db, fts, base, ns, cond, condArgs, ms)
+		if err != nil {
+			return nil, err
 		}
-		var ids []string
-		for i := range ms {
-			ms[i].id = byRow[ms[i].rowid]
-			if ms[i].id != "" {
-				ids = append(ids, ms[i].id)
-			}
-		}
-		// Eligibility on the base rows.
-		ok := map[string]bool{}
-		ids = uniqSorted(ids)
-		for start := 0; start < len(ids); start += inBatch {
-			batch := ids[start:min(start+inBatch, len(ids))]
-			args := []any{ns}
-			for _, id := range batch {
-				args = append(args, id)
-			}
-			args = append(args, condArgs...)
-			got, err := queryStringsOn(ctx, db, `SELECT b.id FROM `+base+` b WHERE +b.namespace = ? AND b.id IN (`+
-				placeholders(len(batch))+`) AND (`+cond+`) ORDER BY b.id`, args...)
-			if err != nil {
-				return nil, err
-			}
-			for _, id := range got {
-				ok[id] = true
-			}
-		}
-		var el []match
-		for _, m := range ms {
-			if ok[m.id] {
-				el = append(el, m)
-			}
-		}
-		sort.SliceStable(el, func(i, j int) bool {
-			if el[i].bm != el[j].bm {
-				return el[i].bm < el[j].bm
-			}
-			return el[i].id < el[j].id
-		})
 		if !full || (len(el) >= k && el[k-1].bm < ms[len(ms)-1].bm) {
 			el = el[:min(k, len(el))]
 			out := make([]hit, len(el))
@@ -227,6 +157,79 @@ func ftsTop(ctx context.Context, db store.Queryer, fts, base, bm25, expr, ns str
 		}
 		n *= 4
 	}
+}
+
+// ftsMatch is one FTS5 row: its rowid, bm25() and, once resolved, record id.
+type ftsMatch struct {
+	rowid int64
+	bm    float64
+	id    string
+}
+
+// eligibleMatches resolves the rowids of ms to record ids of namespace ns
+// and keeps those whose base row passes cond, best first (sortMatches).
+func eligibleMatches(ctx context.Context, db store.Queryer, fts, base, ns, cond string, condArgs []any, ms []ftsMatch) ([]ftsMatch, error) {
+	byRow := map[int64]string{}
+	for start := 0; start < len(ms); start += inBatch {
+		batch := ms[start:min(start+inBatch, len(ms))]
+		args := make([]any, 0, len(batch)+1)
+		for _, m := range batch {
+			args = append(args, m.rowid)
+		}
+		args = append(args, ns)
+		rows, err := db.QueryContext(ctx, `SELECT rowid, record_id FROM `+fts+` WHERE rowid IN (`+placeholders(len(batch))+`)
+			AND namespace = ? ORDER BY rowid`, args...)
+		if err != nil {
+			return nil, err
+		}
+		for rows.Next() {
+			var rid int64
+			var id string
+			if err := rows.Scan(&rid, &id); err != nil {
+				rows.Close()
+				return nil, err
+			}
+			byRow[rid] = id
+		}
+		err = rows.Err()
+		rows.Close()
+		if err != nil {
+			return nil, err
+		}
+	}
+	var ids []string
+	for i := range ms {
+		ms[i].id = byRow[ms[i].rowid]
+		if ms[i].id != "" {
+			ids = append(ids, ms[i].id)
+		}
+	}
+	ok := map[string]bool{}
+	ids = uniqSorted(ids)
+	for start := 0; start < len(ids); start += inBatch {
+		batch := ids[start:min(start+inBatch, len(ids))]
+		args := []any{ns}
+		for _, id := range batch {
+			args = append(args, id)
+		}
+		args = append(args, condArgs...)
+		got, err := queryStringsOn(ctx, db, `SELECT b.id FROM `+base+` b WHERE +b.namespace = ? AND b.id IN (`+
+			placeholders(len(batch))+`) AND (`+cond+`) ORDER BY b.id`, args...)
+		if err != nil {
+			return nil, err
+		}
+		for _, id := range got {
+			ok[id] = true
+		}
+	}
+	var el []ftsMatch
+	for _, m := range ms {
+		if ok[m.id] {
+			el = append(el, m)
+		}
+	}
+	sortMatches(el)
+	return el, nil
 }
 
 // queryStringsOn runs a one-column query on q and collects the result.

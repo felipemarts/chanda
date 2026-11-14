@@ -63,6 +63,7 @@ type Reader struct {
 	deps    Deps
 	cfgHash string
 	floors  config.EvidenceFloor // evidence floors of the embedding model (decision 0121)
+	fts     *ftsStats            // FTS row counts and term frequencies (decision 0122); shared by copies
 
 	// Read-only scoring (Score): queries go to q when set, nothing is
 	// logged and λ may be fixed by the caller.
@@ -85,7 +86,7 @@ func New(e *env.Env, deps Deps) *Reader {
 	if deps.Embedder != nil {
 		model = deps.Embedder.ModelID()
 	}
-	return &Reader{e: e, deps: deps, cfgHash: e.Cfg.Hash(), floors: e.Cfg.Read.Floors(model)}
+	return &Reader{e: e, deps: deps, cfgHash: e.Cfg.Hash(), floors: e.Cfg.Read.Floors(model), fts: newFTSStats()}
 }
 
 // Mode is the read mode (BASE.md "Differences between the modes").
