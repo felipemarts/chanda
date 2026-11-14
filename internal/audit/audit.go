@@ -51,6 +51,12 @@ const (
 	ActRankReset    = "rank_reset"
 	ActRankToggle   = "rank_toggle"
 	ActMigrate      = "migrate"
+
+	// Embedding index (actor "system:embed").
+	ActEmbedIndex     = "embed_index"
+	ActEmbedRemove    = "embed_remove"
+	ActEmbedDropModel = "embed_drop_model"
+	ActEmbedBackfill  = "embed_backfill"
 )
 
 type Entry struct {
