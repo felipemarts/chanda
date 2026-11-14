@@ -348,6 +348,8 @@ func (g *synth) genProcedures() {
 			}},
 	}
 
+	g.procs = procs
+
 	render := func(p *procedure, v int) string {
 		var b strings.Builder
 		fmt.Fprintf(&b, "# %s\n\nResponsável: %s\n", p.title, p.owner)

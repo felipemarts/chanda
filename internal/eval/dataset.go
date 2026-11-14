@@ -385,9 +385,6 @@ func (ds *Dataset) Validate() error {
 		if q.Split != "" && q.Split != SplitTrain && q.Split != SplitGate {
 			bad("%s: unknown split %q", where, q.Split)
 		}
-		if q.Split == SplitTrain && !q.Answerable() {
-			bad("%s: training questions need gold", where)
-		}
 		var goldText []string
 		for _, g := range q.Gold {
 			st := docs[g.DocID]

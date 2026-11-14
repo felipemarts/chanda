@@ -79,7 +79,7 @@ func TestDatasetValidation(t *testing.T) {
 		{"no gold without abstention tag", func(d *Dataset) { d.Questions[3].Tags = nil }, "abstention"},
 		{"bad tag", func(d *Dataset) { d.Questions[0].Tags = []string{"Bad Tag"} }, "bad tag"},
 		{"unknown split", func(d *Dataset) { d.Questions[0].Split = "dev" }, "unknown split"},
-		{"training without gold", func(d *Dataset) { d.Questions[3].Split = SplitTrain }, "training questions need gold"},
+		{"training without gold or abstention tag", func(d *Dataset) { d.Questions[3].Split = SplitTrain; d.Questions[3].Tags = nil }, "abstention"},
 		{"tool turn without name", func(d *Dataset) { d.Corpus[1].Turns[0].Role = "tool" }, "tool name"},
 		{"facts in a document", func(d *Dataset) { d.Corpus[0].Facts = []Statement{{"A", "b", "c"}} }, "a document has text"},
 		{"incomplete statement", func(d *Dataset) { d.Corpus[1].Facts = []Statement{{"Rui", "ramal", " "}} }, "incomplete fact"},

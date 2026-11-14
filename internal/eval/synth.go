@@ -82,6 +82,7 @@ type synth struct {
 	people   []*person
 	offices  []*office
 	products []*product
+	procs    []*procedure
 }
 
 func (g *synth) add(it Item) {
@@ -202,7 +203,9 @@ func distinct[T comparable](xs []T, keep T) []T {
 //     session statements;
 //   - instructions injected through web pages, tool results and tool turns;
 //   - unanswerable questions, many of them near misses;
-//   - a training split (other wordings of the same tasks) for C5.
+//   - a training split (other wordings of the same tasks) for C5 and for
+//     calibrating the context cut, with its own paraphrased and unanswerable
+//     questions (genHardTraining, decision 0123).
 //
 // The output depends only on seed.
 func GenerateSyntheticPT(seed string) *Dataset {
@@ -216,6 +219,7 @@ func GenerateSyntheticPT(seed string) *Dataset {
 	g.genExternal()
 	g.genDistractors()
 	g.genAbstention()
+	g.genHardTraining(seed)
 
 	sort.SliceStable(g.items, func(i, j int) bool { return g.items[i].Date < g.items[j].Date })
 	return &Dataset{
