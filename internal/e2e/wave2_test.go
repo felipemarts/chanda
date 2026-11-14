@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/felipemarts/chanda-mcp/internal/config"
 	"github.com/felipemarts/chanda-mcp/pkg/chanda"
 )
 
@@ -38,4 +39,25 @@ func TestSupersededValueNeverComesBackThroughAnExcerpt(t *testing.T) {
 		t.Fatal("search still finds the document chunk")
 	}
 	w.verify()
+}
+
+// Decision 0094: the default extractor set reads the metadata header of a
+// document ("Key: Value" lines under the title) into facts about the
+// document's subject; "extractors: []" turns it off.
+func TestDefaultExtractorsFeedTheTimeline(t *testing.T) {
+	doc := "# Project Atlas\n\nOwner: Marina Duarte\nStatus: green\n\nAtlas moves billing to the new cluster.\n"
+	w := newWorld(t, func(c *config.Config) { c.Write.Extractors = config.Default().Write.Extractors })
+	w.ok(w.agent, chanda.ToolIngest, map[string]any{"path": w.writeDoc("atlas.md", doc)}, nil)
+	var tl chanda.TimelineOutput
+	w.ok(w.agent, chanda.ToolTimeline, map[string]any{"subject": "Project Atlas", "predicate": "owner"}, &tl)
+	if tl.SubjectName != "Project Atlas" || len(tl.Entries) != 1 || tl.Entries[0].Value != "Marina Duarte" || tl.Entries[0].Origin.DocURI == "" {
+		t.Fatalf("timeline %+v", tl)
+	}
+	w.verify()
+
+	off := newWorld(t, func(c *config.Config) { c.Write.Extractors = []config.ExtractorConfig{} })
+	off.ok(off.agent, chanda.ToolIngest, map[string]any{"path": off.writeDoc("atlas.md", doc)}, nil)
+	if env := off.call(off.agent, chanda.ToolTimeline, map[string]any{"subject": "Project Atlas"}, nil); env.OK || env.Error.Code != chanda.CodeNotFound {
+		t.Fatalf("extractors off still extracted: %+v", env)
+	}
 }

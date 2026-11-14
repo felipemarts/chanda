@@ -35,7 +35,7 @@ type WriteConfig struct {
 	SecretPatterns      []string          `yaml:"secret_patterns"`      // extra regexes masked on top of the built-ins
 	InstructionPatterns []string          `yaml:"instruction_patterns"` // extra regexes for instruction_like
 	NearDupThreshold    float64           `yaml:"near_dup_threshold"`   // cosine, default 0.95
-	Extractors          []ExtractorConfig `yaml:"extractors"`           // deterministic fact extractors
+	Extractors          []ExtractorConfig `yaml:"extractors"`           // deterministic fact extractors; default: header ("extractors: []" turns them off)
 	IngestExtensions    []string          `yaml:"ingest_extensions"`    // file extensions ingested from a folder
 	// IngestRoots are the folders the ingest tool may read when called over
 	// MCP (symlinks resolved; empty = the MCP ingest tool refuses every
@@ -173,6 +173,7 @@ func Default() *Config {
 		Write: WriteConfig{
 			MinChars: 3, MaxChars: 1 << 20, MaxChunkChars: 2000, NearDupThreshold: 0.95,
 			IngestExtensions: []string{".md", ".markdown", ".txt"}, NearDupCandidates: 10,
+			Extractors: []ExtractorConfig{{Name: "header", Kind: "header"}},
 		},
 		Read: ReadConfig{
 			KeywordTopK: 50, VectorTopK: 50, RRFK: 60, RerankTopN: 30, RerankEnabled: false,
