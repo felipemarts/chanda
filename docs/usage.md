@@ -98,8 +98,11 @@ claude mcp add chanda -- /path/to/bin/chanda serve --config /home/me/.config/cha
 ```
 
 Over stdio, stdout carries only MCP frames and logs go to stderr.
-`chanda serve --http 127.0.0.1:7777` serves Streamable HTTP at `/mcp`
-(no authentication: keep it on localhost).
+`chanda serve --http 127.0.0.1:7777` serves Streamable HTTP at `/mcp`.
+If the environment variable named by `mcp.http_token_env` (default
+`CHANDA_MCP_TOKEN`) is set, every request needs `Authorization: Bearer
+<token>`; without a token the server refuses to listen on a non-loopback
+address.
 
 An agent should call `context` with the user's request before its first
 turn, inject the returned block as is, and end the task with `log_session`

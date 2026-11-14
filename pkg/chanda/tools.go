@@ -280,7 +280,7 @@ type DocumentResult struct {
 	URI           string `json:"uri" jsonschema:"document uri"`
 	DocID         string `json:"doc_id,omitempty" jsonschema:"document id"`
 	Version       int    `json:"version" jsonschema:"current version after ingestion"`
-	Action        string `json:"action" jsonschema:"created, updated, unchanged or rejected"`
+	Action        string `json:"action" jsonschema:"created, updated, unchanged, retired (left the ingested folder) or rejected"`
 	Reason        string `json:"reason,omitempty" jsonschema:"why, when rejected or unchanged"`
 	ChunksAdded   int    `json:"chunks_added"`
 	ChunksKept    int    `json:"chunks_kept"`
