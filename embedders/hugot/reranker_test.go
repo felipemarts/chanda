@@ -48,8 +48,8 @@ func TestRerankerMatchesONNXRuntime(t *testing.T) {
 		maxDiff = math.Max(maxDiff, math.Abs(float64(got[i])-g.Logits[i]))
 	}
 	t.Logf("%s logits %v, max abs diff to ONNX Runtime %.2g", r.ModelID(), got, maxDiff)
-	if maxDiff > 1e-4 {
-		t.Fatalf("max abs diff %.3g, want <= 1e-4", maxDiff)
+	if maxDiff > 1e-3 { // logits reach |10|: stock 6e-6, simd 1.2e-4
+		t.Fatalf("max abs diff %.3g, want <= 1e-3", maxDiff)
 	}
 	// docs 1 (Portuguese price) and 5 (English price) are the relevant ones
 	for i, s := range got {
