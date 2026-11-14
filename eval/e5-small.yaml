@@ -1,0 +1,16 @@
+# Evaluation configuration for the multilingual e5-small embedder
+# (decision 0121). Manual step, not part of `make eval`:
+#
+#   make hugot
+#   ./bin/chanda-hugot models verify models/e5-small     # or: models pull e5-small models/e5-small
+#   ./bin/chanda-hugot eval -config eval/e5-small.yaml -dataset eval/data/synthetic-pt -out eval/reports -name latest-e5
+#
+# model_path is relative to the working directory; point it (or a symlink)
+# at the model files. The evidence floors for "e5-small" are built into the
+# defaults (read.evidence_floors); recalibrate on the training split with
+#   ./bin/chanda-hugot eval -config eval/e5-small.yaml -calibrate C3
+embed:
+  provider: hugot
+  model_id: e5-small@hugot0.8.6+simd
+  model_path: models/e5-small
+  dim: 384
