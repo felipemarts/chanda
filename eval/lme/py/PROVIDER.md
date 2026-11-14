@@ -232,6 +232,61 @@ Other proxy behaviour:
 - A request without `max_tokens` gets `-default-max-tokens` (4096).
 - Streaming and `n > 1` are refused.
 
+**Record and replay.** Later runs can reuse earlier answers instead of
+paying for them again:
+
+```
+# record: every qualifying upstream call is also written to the store
+bin/lmeproxy -cap-usd 8 -offpeak-only -store eval/lme/llmstore ...
+# replay: answer from the store when the request is there, else forward
+bin/lmeproxy -cap-usd 8 -offpeak-only -store eval/lme/llmstore -replay ...
+# summary: entries, bytes and recorded cost by model and by first tag
+bin/lmeproxy -store eval/lme/llmstore -store-stats
+```
+
+- Recording happens whenever `-store` is set, with or without `-replay`.
+  Only HTTP 200 answers are stored, and only when they have usage, a
+  non-blank message content, `finish_reason` `stop` or `length`, and no
+  `refusal`. Errors, blank answers and calls the proxy refused are never
+  stored. The first answer for a key is kept; later identical calls do not
+  overwrite it.
+- **Key**: the sha256 of the exact body forwarded upstream, after the
+  proxy's rewrites (temperature 0, `thinking`, `max_tokens`, stream fields
+  removed). This is the `request_sha256` of the call log. The body contains
+  the model id, and the upstream path is always `/chat/completions`; both
+  are stored and checked again on lookup. The tag, the client's
+  credentials, the upstream base URL and the time are not part of the key,
+  so the same request under another tag is a hit.
+- **Files**: `DIR/<key[:2]>/<key>.json.gz`, one gzip'ed JSON object with
+  `version`, `key`, `model`, `upstream_path`, `first_tag`, `time`,
+  `price_window`, `usage`, `cost_usd`, `finish_reason`, `response_model`,
+  `system_fingerprint`, `content_type`, `request` (the forwarded JSON) and
+  `response` (the upstream body, verbatim, as a string). Writes go through
+  a temp file and a link/rename, so concurrent calls never leave a partial
+  file. Read one with `gzip -dc <file> | jq .`.
+- **A hit** is answered with the stored body byte for byte, status 200, the
+  stored content type and the header `X-Chanda-Eval-Replay: hit` (a miss
+  under `-replay` carries `miss`). It makes no upstream call, reserves
+  nothing against the cap, and is served at any hour: `-offpeak-only` and
+  `-window` apply only to calls that go upstream.
+- **Accounting**: a hit is logged with outcome `replayed`, the stored token
+  counts, `cost_usd` 0 and `saved_usd` (what the call cost when recorded).
+  In `cost.json`, `replayed` and `saved_usd` are added per tag and overall.
+  The existing fields keep their meaning: `calls`, the token counters,
+  `cost_usd` and `spent_usd` cover forwarded calls only. So `report.py`
+  reports what a run actually paid, and `estimate.py measured` (which
+  reads only `forwarded` lines) needs a run that was not replayed.
+- **When a replay is valid**: only for the same model id and the same
+  forwarded body, so any change to a prompt, a context, `max_tokens` or the
+  proxy's rewrites is a miss. A model id such as `deepseek-flash` is an
+  alias, and the model behind it may change upstream without the id
+  changing. A hit cannot detect that, so each entry keeps the response's
+  `model` and `system_fingerprint` (when upstream sends them) as
+  `response_model` and `system_fingerprint`. Compare them with a fresh call
+  before mixing replayed and new answers in one result. Delete the store,
+  or use a new directory, when the upstream model changes.
+- The default directory `eval/lme/llmstore/` is gitignored.
+
 Pipeline (Python commands run from `eval/lme/py` with `.local/venv/bin/python`):
 
 ```

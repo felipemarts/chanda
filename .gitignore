@@ -18,3 +18,4 @@
 /eval/lme/py/work/
 /eval/lme/py/**/__pycache__/
 /eval/lme/py/.pytest_cache/
+/eval/lme/llmstore/
