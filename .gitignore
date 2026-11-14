@@ -7,3 +7,4 @@
 /models/
 /eval/out/
 .DS_Store
+/.claude/worktrees/
