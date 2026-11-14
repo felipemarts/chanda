@@ -53,6 +53,37 @@ type WriteConfig struct {
 	// NearDupCandidates is how many events (FTS5 BM25 top-N of the new
 	// event's text) the near-duplicate guard compares a new event with.
 	NearDupCandidates int `yaml:"near_dup_candidates"`
+	// NearDupThresholds overrides NearDupThreshold per embedding model
+	// (decision 0125), keyed like read.evidence_floors: model id, then its
+	// family (the part before "@"). Calibrated with "chanda eval -calibrate".
+	// When the file does not set near_dup_threshold, Load (and Default)
+	// resolve it from this map for embed.model_id.
+	NearDupThresholds map[string]float64 `yaml:"near_dup_thresholds"`
+}
+
+// DefaultNearDupThreshold is write.near_dup_threshold for a model without an
+// entry in write.near_dup_thresholds (BASE.md "Near-duplicate guard").
+const DefaultNearDupThreshold = 0.95
+
+// NearDup returns the near-duplicate cosine threshold for an embedding
+// model: the entry of NearDupThresholds for the model id, else for its
+// family, else NearDupThreshold.
+func (w WriteConfig) NearDup(modelID string) float64 {
+	return perModel(w.NearDupThresholds, modelID, w.NearDupThreshold)
+}
+
+// perModel looks modelID up in m, then its family (before "@"), else
+// returns fallback.
+func perModel[T any](m map[string]T, modelID string, fallback T) T {
+	if v, ok := m[modelID]; ok && modelID != "" {
+		return v
+	}
+	if i := strings.IndexByte(modelID, '@'); i > 0 {
+		if v, ok := m[modelID[:i]]; ok {
+			return v
+		}
+	}
+	return fallback
 }
 
 // ExtractorConfig declares one deterministic fact extractor (write path, no LLM).
@@ -103,15 +134,7 @@ type EvidenceFloor struct {
 // EvidenceFloors for the model id, else for its family (before "@"), else
 // MinTermCoverage and MinCosine.
 func (r ReadConfig) Floors(modelID string) EvidenceFloor {
-	if f, ok := r.EvidenceFloors[modelID]; ok && modelID != "" {
-		return f
-	}
-	if i := strings.IndexByte(modelID, '@'); i > 0 {
-		if f, ok := r.EvidenceFloors[modelID[:i]]; ok {
-			return f
-		}
-	}
-	return EvidenceFloor{MinTermCoverage: r.MinTermCoverage, MinCosine: r.MinCosine}
+	return perModel(r.EvidenceFloors, modelID, EvidenceFloor{MinTermCoverage: r.MinTermCoverage, MinCosine: r.MinCosine})
 }
 
 type EmbedConfig struct {
@@ -141,6 +164,11 @@ type SleepConfig struct {
 	LessonMinEvents int     `yaml:"lesson_min_events"` // 3
 	SnapshotDir     string  `yaml:"snapshot_dir"`
 	MergeSimilarity float64 `yaml:"merge_similarity"`
+	// MergeSimilarities overrides MergeSimilarity for the cosine of entity
+	// name vectors, per embedding model (decision 0125), keyed like
+	// read.evidence_floors. Name (edit) similarity does not depend on the
+	// model and always uses MergeSimilarity.
+	MergeSimilarities map[string]float64 `yaml:"merge_similarities"`
 
 	CheckEveryMinutes int     `yaml:"check_every_minutes"` // scheduler poll period
 	BurstSeconds      int     `yaml:"burst_seconds"`       // a write this recent means a burst: no run starts (0 disables)
@@ -151,6 +179,13 @@ type SleepConfig struct {
 	GateProposals     int     `yaml:"gate_proposals"`      // gate questions phase 1 may propose per run (0 disables)
 	Scheduler         bool    `yaml:"scheduler"`           // run sleep on its own (App.Start); false: on demand only
 	StaleRunMinutes   int     `yaml:"stale_run_minutes"`   // a run still "running" after this long is recovered as failed (startup, next run); 0 disables
+}
+
+// MergeVectorSimilarity returns the cosine threshold of vector merge
+// proposals for an embedding model: the entry of MergeSimilarities for the
+// model id, else for its family, else MergeSimilarity.
+func (s SleepConfig) MergeVectorSimilarity(modelID string) float64 {
+	return perModel(s.MergeSimilarities, modelID, s.MergeSimilarity)
 }
 
 type RankingConfig struct {
@@ -207,12 +242,18 @@ type ForgetConfig struct {
 
 // Default returns the configuration with every default from BASE.md.
 func Default() *Config {
+	c := defaults()
+	c.Write.NearDupThreshold = c.Write.NearDup(c.Embed.ModelID)
+	return c
+}
+
+func defaults() *Config {
 	return &Config{
 		DBPath:    "chanda.db",
 		Namespace: "default",
 		IDSeed:    "chanda",
 		Write: WriteConfig{
-			MinChars: 3, MaxChars: 1 << 20, MaxChunkChars: 2000, NearDupThreshold: 0.95,
+			MinChars: 3, MaxChars: 1 << 20, MaxChunkChars: 2000, NearDupThreshold: DefaultNearDupThreshold,
 			IngestExtensions: []string{".md", ".markdown", ".txt"}, NearDupCandidates: 10,
 			Extractors: []ExtractorConfig{{Name: "header", Kind: "header"}},
 		},
@@ -267,10 +308,18 @@ func Load(path string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+	c = defaults()
+	c.Write.NearDupThreshold = 0 // unset: resolved per model below
 	dec := yaml.NewDecoder(bytes.NewReader(b))
 	dec.KnownFields(true)
 	if err := dec.Decode(c); err != nil && err.Error() != "EOF" {
 		return nil, fmt.Errorf("config %s: %w", path, err)
+	}
+	if c.Write.NearDupThreshold == 0 {
+		// Not in the file: the calibrated value of the configured model
+		// (decision 0125). The near-duplicate guard reads the scalar.
+		c.Write.NearDupThreshold = DefaultNearDupThreshold
+		c.Write.NearDupThreshold = c.Write.NearDup(c.Embed.ModelID)
 	}
 	return c, c.Validate()
 }

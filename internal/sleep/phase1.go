@@ -150,13 +150,20 @@ func (s *Sleeper) proposeMerges(ctx context.Context, r *run) error {
 	if err := rows.Err(); err != nil {
 		return err
 	}
-	threshold := s.env.Cfg.Sleep.MergeSimilarity
+	// Name similarity does not depend on the embedding model; the cosine of
+	// name vectors does, so its threshold is per model (decision 0125).
+	nameThreshold := s.env.Cfg.Sleep.MergeSimilarity
+	vectorThreshold := s.env.Cfg.Sleep.MergeVectorSimilarity(s.env.Cfg.Embed.ModelID)
 	compatible := func(i, j int) bool {
 		ti, tj := ents[i].typ, ents[j].typ
 		return ti == "" || tj == "" || ti == tj
 	}
 	found := map[[2]string]proposal{}
 	consider := func(i, j int, score float64, reason string) {
+		threshold := nameThreshold
+		if reason == "vector_similarity" {
+			threshold = vectorThreshold
+		}
 		k := pairKey(ents[i].id, ents[j].id)
 		if existing[k] || !compatible(i, j) || score < threshold {
 			return

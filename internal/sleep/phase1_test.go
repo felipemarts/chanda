@@ -92,6 +92,40 @@ func TestPhase1ProposesMergesNeverApplies(t *testing.T) {
 	f.verifyAudit()
 }
 
+// Decision 0125: vector merge proposals use the threshold of the configured
+// embedding model (sleep.merge_similarities); name similarity keeps
+// sleep.merge_similarity whatever the model.
+func TestPhase1VectorMergeThresholdPerModel(t *testing.T) {
+	f := newFixture(t)
+	f.e.Cfg.Embed.ModelID = "e5-small@hugot0.8.6+simd"
+	f.e.Cfg.Sleep.MergeSimilarities = map[string]float64{"e5-small": 0.999}
+	f.entity("ent_01", "Acme Corporation", "org", "acme corp")
+	f.entity("ent_02", "ACME Corp.", "org")
+	f.entity("ent_05", "Initech", "")
+	f.entity("ent_06", "Initrode", "")
+	f.entity("ent_07", "Umbrella", "")
+	f.entity("ent_08", "Hooli", "")
+	f.advance(time.Hour)
+	// cosine(05, 06) ≈ 0.9987 is under the e5 threshold; (07, 08) is 1.
+	vec := fakeVectors{"ent_05": {1, 0, 0}, "ent_06": {0.99, 0.05, 0}, "ent_07": {0, 0, 1}, "ent_08": {0, 0, 1}}
+	res, err := New(f.e, Deps{EntityVectors: vec}).Run(f.ctx, RunInput{Phases: []int{1}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(res.Counts.MergeProposals) != 2 {
+		t.Fatalf("proposals = %v", res.Counts.MergeProposals)
+	}
+	for _, c := range []struct{ a, b, reason string }{
+		{"ent_01", "ent_02", "name_similarity"},
+		{"ent_07", "ent_08", "vector_similarity"},
+	} {
+		if got := f.str(`SELECT reason FROM entity_merge_proposals WHERE entity_a=? AND entity_b=?`, c.a, c.b); got != c.reason {
+			t.Errorf("%s/%s: reason %q, want %q", c.a, c.b, got, c.reason)
+		}
+	}
+	f.verifyAudit()
+}
+
 // BASE.md Phase 1: "Marks as stale_source the facts whose origin was retired."
 func TestPhase1MarksStaleSourceWhenOriginRetired(t *testing.T) {
 	f := newFixture(t)
