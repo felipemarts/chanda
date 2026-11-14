@@ -49,3 +49,4 @@ Go toolchain for eval/lme | go1.27.0 darwin/arm64 | fetched by GOTOOLCHAIN=auto 
 github.com/modelcontextprotocol/go-sdk (eval/lme MCP client) | v1.8.0 | eval/lme/go.sum (same as the main module)
 modernc.org/sqlite (eval/lme BM25 FTS5 and embedding cache) | v1.62.0 | eval/lme/go.sum (same as the main module)
 github.com/knights-analytics/hugot (eval/lme e5 embedder, through embedders/hugot) | v0.8.6 | eval/lme/go.sum (same as embedders/hugot)
+chanda (code under evaluation): 7e57d12bd0ee5f72b20476d55608c6812ba576b9, frozen as tag eval-lme-freeze
