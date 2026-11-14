@@ -19,6 +19,7 @@ type PathResult struct {
 	Updated   int            `json:"updated"`   // documents with a new version
 	Unchanged int            `json:"unchanged"`
 	Rejected  int            `json:"rejected"`
+	Removed   int            `json:"removed"` // documents gone from the folder, retired (Action "retired")
 }
 
 // IngestPath ingests a file or a folder as documents of one source (kind
@@ -57,9 +58,13 @@ func (w *Writer) IngestPathWith(ctx context.Context, in PathInput) (PathResult, 
 	sourceURI = strings.TrimSuffix(sourceURI, "/")
 	res := PathResult{SourceURI: sourceURI}
 
-	files, err := w.listFiles(path)
+	files, dir, err := w.listFiles(path)
 	if err != nil {
 		return res, err
+	}
+	seen := map[string]bool{}
+	for _, f := range files {
+		seen[sourceURI+"/"+f.rel] = true
 	}
 	for _, f := range files {
 		r, err := w.ingestFile(ctx, in, f.abs, sourceURI+"/"+f.rel, sourceURI)
@@ -78,25 +83,35 @@ func (w *Writer) IngestPathWith(ctx context.Context, in PathInput) (PathResult, 
 			res.Rejected++
 		}
 	}
-	return res, nil
+	if !dir {
+		return res, nil
+	}
+	// The whole folder was walked: documents of this source that are no
+	// longer in it are retired (BASE.md step 6 at folder level).
+	gone, err := w.retireMissing(ctx, in, sourceURI, seen)
+	res.Documents = append(res.Documents, gone...)
+	res.Removed += len(gone)
+	return res, err
 }
 
 type fileEntry struct{ abs, rel string }
 
-func (w *Writer) listFiles(root string) ([]fileEntry, error) {
+// listFiles lists the files to ingest under root and reports whether root is
+// a folder.
+func (w *Writer) listFiles(root string) ([]fileEntry, bool, error) {
 	info, err := os.Stat(root)
 	if errors.Is(err, fs.ErrNotExist) {
-		return nil, core.Errf(core.CodeNotFound, "path %s not found", root)
+		return nil, false, core.Errf(core.CodeNotFound, "path %s not found", root)
 	}
 	if err != nil {
-		return nil, core.Wrap(core.CodeInvalidArgument, err, "ingest path")
+		return nil, false, core.Wrap(core.CodeInvalidArgument, err, "ingest path")
 	}
 	exts := map[string]bool{}
 	for _, e := range w.e.Cfg.Write.IngestExtensions {
 		exts[strings.ToLower(e)] = true
 	}
 	if !info.IsDir() {
-		return []fileEntry{{root, filepath.Base(root)}}, nil
+		return []fileEntry{{root, filepath.Base(root)}}, false, nil
 	}
 	var out []fileEntry
 	err = filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
@@ -123,9 +138,9 @@ func (w *Writer) listFiles(root string) ([]fileEntry, error) {
 		return nil
 	})
 	if err != nil {
-		return nil, core.Wrap(core.CodeInvalidArgument, err, "walk "+root)
+		return nil, true, core.Wrap(core.CodeInvalidArgument, err, "walk "+root)
 	}
-	return out, nil
+	return out, true, nil
 }
 
 func (w *Writer) ingestFile(ctx context.Context, in PathInput, abs, uri, sourceURI string) (IngestResult, error) {

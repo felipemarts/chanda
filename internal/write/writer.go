@@ -27,6 +27,7 @@ const (
 	ActionRejected  = "rejected"  // refused by an admission rule; see Reason
 	ActionUnchanged = "unchanged" // document re-ingested with the same full-text hash
 	ActionUpdated   = "updated"   // document changed: a new version was written
+	ActionRetired   = "retired"   // document gone from its re-ingested folder: every chunk retired
 )
 
 // Reasons for non-rejected results (rejections use the Reason* admission constants).
@@ -36,6 +37,7 @@ const (
 	ReasonNewDocument    = "new_document"
 	ReasonNewVersion     = "new_version"
 	ReasonSameContent    = "same_content"
+	ReasonMissingFromDir = "missing_from_folder"
 )
 
 // Audit actions used by this package (registered in internal/audit).

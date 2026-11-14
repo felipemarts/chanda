@@ -212,6 +212,117 @@ func (w *Writer) IngestDocument(ctx context.Context, in IngestInput) (IngestResu
 	return res, nil
 }
 
+// removedHash is the content_hash of a document version written when the
+// document left its folder: no normalized text hashes to it, so the file
+// coming back always writes a new version with fresh chunks.
+const removedHash = ""
+
+// retireMissing retires, one transaction each, the documents of the folder's
+// source (same namespace, kind and source uri, uri under sourceURI) that the
+// walk did not see. A retired document gets a new, empty version; every
+// chunk of its previous version gets retired_at; facts left without a live
+// origin become stale_source. Results are in uri order.
+func (w *Writer) retireMissing(ctx context.Context, in PathInput, sourceURI string, seen map[string]bool) ([]IngestResult, error) {
+	ns := w.namespace(in.Namespace)
+	kind := in.SourceKind
+	if kind == "" {
+		kind = core.SourceDocument
+	}
+	var srcID string
+	err := w.e.Store.DB().QueryRowContext(ctx,
+		`SELECT id FROM sources WHERE namespace = ? AND kind = ? AND uri = ?`, ns, string(kind), sourceURI).Scan(&srcID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, coreErr(err)
+	}
+	rows, err := w.e.Store.DB().QueryContext(ctx,
+		`SELECT uri FROM documents WHERE namespace = ? AND source_id = ? AND content_hash != ? ORDER BY uri, id`,
+		ns, srcID, removedHash)
+	if err != nil {
+		return nil, coreErr(err)
+	}
+	var gone []string
+	for rows.Next() {
+		var uri string
+		if err := rows.Scan(&uri); err != nil {
+			rows.Close()
+			return nil, coreErr(err)
+		}
+		if strings.HasPrefix(uri, sourceURI+"/") && !seen[uri] {
+			gone = append(gone, uri)
+		}
+	}
+	rows.Close()
+	if err := rows.Err(); err != nil {
+		return nil, coreErr(err)
+	}
+	var out []IngestResult
+	for _, uri := range gone {
+		r, err := w.retireDocument(ctx, ns, in.Actor, uri)
+		if err != nil {
+			return out, err
+		}
+		out = append(out, r)
+	}
+	return out, nil
+}
+
+// retireDocument writes an empty version of the document at uri and retires
+// the chunks of its previous version.
+func (w *Writer) retireDocument(ctx context.Context, ns, actor, uri string) (IngestResult, error) {
+	res := IngestResult{URI: uri, Action: ActionRetired, Reason: ReasonMissingFromDir}
+	err := w.e.Store.Tx(ctx, func(tx *sql.Tx) error {
+		now := w.now()
+		doc, found, err := loadDocument(ctx, tx, ns, uri)
+		if err != nil || !found {
+			return err
+		}
+		prev, err := versionChunks(ctx, tx, doc.id, doc.version)
+		if err != nil {
+			return err
+		}
+		version := doc.version + 1
+		if _, err := tx.ExecContext(ctx,
+			`UPDATE documents SET current_version = ?, content_hash = ?, updated_at = ? WHERE id = ?`,
+			version, removedHash, now, doc.id); err != nil {
+			return err
+		}
+		res.DocID, res.Version = doc.id, version
+		for _, p := range prev {
+			var retired sql.NullString
+			if err := tx.QueryRowContext(ctx, `SELECT retired_at FROM events WHERE id = ?`, p.eventID).Scan(&retired); err != nil {
+				return err
+			}
+			if retired.Valid {
+				continue
+			}
+			if err := w.retire(ctx, tx, ns, actor, doc.id, version, p.eventID, now); err != nil {
+				return err
+			}
+			res.Retired = append(res.Retired, p.eventID)
+		}
+		if res.StaleFacts, err = w.markStale(ctx, tx, ns, actor, doc.id, res.Retired); err != nil {
+			return err
+		}
+		res.AuditID, err = w.e.Audit.Append(ctx, tx, audit.Entry{
+			Namespace: ns, Actor: actor, Action: audit.ActDocumentRetire, Target: doc.id,
+			Details: struct {
+				SourceID   string `json:"source_id"`
+				Version    int    `json:"version"`
+				Retired    int    `json:"retired"`
+				StaleFacts int    `json:"stale_facts"`
+			}{doc.sourceID, version, len(res.Retired), len(res.StaleFacts)},
+		})
+		return err
+	})
+	if err != nil {
+		return IngestResult{URI: uri}, coreErr(err)
+	}
+	return res, nil
+}
+
 type prevChunk struct {
 	eventID, hash string
 }

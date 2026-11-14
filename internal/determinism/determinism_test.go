@@ -131,6 +131,18 @@ func appScenario(t *testing.T, e *env.Env) {
 	write("# Plano Pro\n\nOwner: Ana\nCurrent price: 12\n\nThe plan includes e-mail support.\n\n# Limits\n\nUp to 8 users.\n")
 	_, err = a.Ingest(cli, chanda.IngestInput{Path: dir, Source: chanda.SourceRef{URI: "docs"}})
 	step("ingest v2", err)
+	// A document that leaves the folder is retired on the next ingest.
+	extra := filepath.Join(dir, "extra.md")
+	if err := os.WriteFile(extra, []byte("# Extra\n\nOwner: Caio\n\nA temporary note about the beta.\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	_, err = a.Ingest(cli, chanda.IngestInput{Path: dir, Source: chanda.SourceRef{URI: "docs"}})
+	step("ingest extra", err)
+	if err := os.Remove(extra); err != nil {
+		t.Fatal(err)
+	}
+	_, err = a.Ingest(cli, chanda.IngestInput{Path: dir, Source: chanda.SourceRef{URI: "docs"}})
+	step("ingest without extra", err)
 
 	// log_session with a tool turn.
 	_, err = a.LogSession(agent, chanda.LogSessionInput{SessionID: "s2", Turns: []chanda.Turn{

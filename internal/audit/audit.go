@@ -32,6 +32,7 @@ const (
 	ActDocumentVersion = "document_version" // event written (remember, ingest chunk, log_session turn)
 	ActDuplicate       = "duplicate"        // exact duplicate: no new event
 	ActRetire          = "retire"           // chunk retired by a new document version
+	ActDocumentRetire  = "document_retire"  // document gone from its re-ingested folder: every live chunk retired
 	ActFactInsert      = "fact_insert"
 	ActFactConfirm     = "fact_confirm"
 	ActFactAdjust      = "fact_adjust" // a history insert shortened an older closed fact
@@ -76,7 +77,7 @@ const (
 // must use names from this list (tested in internal/app).
 func Actions() []string {
 	return []string{
-		ActDocumentVersion, ActDuplicate, ActEmbedBackfill, ActEmbedDropModel, ActEmbedIndex, ActEmbedRemove,
+		ActDocumentRetire, ActDocumentVersion, ActDuplicate, ActEmbedBackfill, ActEmbedDropModel, ActEmbedIndex, ActEmbedRemove,
 		ActEntityCreate, ActEntityMerge, ActEventsProcessed, ActFactAdjust, ActFactConfirm, ActFactInsert,
 		ActFactVerdict, ActFlag, ActForget, ActGatePropose, ActGateReview, ActMergePropose, ActMergeVerdict,
 		ActMigrate, ActNearDup, ActOutcome, ActPageUpdate, ActPredicate, ActPromote, ActQuarantine,
