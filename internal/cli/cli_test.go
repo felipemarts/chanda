@@ -1,4 +1,4 @@
-package main
+package cli
 
 import (
 	"bytes"
@@ -46,19 +46,20 @@ func (r *recAPI) Forget(ctx context.Context, in chanda.ForgetInput) (chanda.Forg
 
 func actorOf(ctx context.Context) chanda.Actor { a, _ := chanda.ActorFrom(ctx); return a }
 
-// useAPI swaps newAPI for the duration of the test.
-func useAPI(t *testing.T, api chanda.API) {
-	t.Helper()
-	old := newAPI
-	newAPI = func(*config.Config) (chanda.API, func() error, error) { return api, func() error { return nil }, nil }
-	t.Cleanup(func() { newAPI = old })
+// withAPI returns the default CLI over api.
+func withAPI(api chanda.API) CLI {
+	cl := Default()
+	cl.NewAPI = func(*config.Config) (chanda.API, func() error, error) { return api, func() error { return nil }, nil }
+	return cl
 }
 
-func runCLI(args ...string) (int, string, string) {
+func runWith(cl CLI, args ...string) (int, string, string) {
 	var out, errb bytes.Buffer
-	code := run(context.Background(), args, &out, &errb)
+	code := cl.Run(context.Background(), args, &out, &errb)
 	return code, out.String(), errb.String()
 }
+
+func runCLI(args ...string) (int, string, string) { return runWith(Default(), args...) }
 
 func decodeEnv(t *testing.T, s string) chanda.Envelope {
 	t.Helper()
@@ -105,7 +106,7 @@ func tempConfig(t *testing.T, extra string) string {
 	return p
 }
 
-// The commands run on the real core; sleep and eval are not wired yet.
+// The commands run on the real core; sleep is not wired yet.
 func TestCommandsUseTheCore(t *testing.T) {
 	cfg := tempConfig(t, "")
 	doc := filepath.Join(t.TempDir(), "notes.md")
@@ -119,7 +120,6 @@ func TestCommandsUseTheCore(t *testing.T) {
 		{[]string{"ingest", "--config", cfg, doc}, ""},
 		{[]string{"ingest", "--config", cfg, filepath.Join(t.TempDir(), "missing")}, chanda.CodeNotFound},
 		{[]string{"sleep", "--config", cfg}, chanda.CodeUnavailable},
-		{[]string{"eval", "--config", cfg}, chanda.CodeUnavailable},
 		{[]string{"forget", "--config", cfg, "--kind", "search", "--query", "release train", "--dry-run"}, ""},
 		{[]string{"forget", "--config", cfg, "--kind", "record", "--value", "evt_1"}, chanda.CodeNotFound},
 	} {
@@ -153,8 +153,7 @@ func TestCommandsCallTheAPI(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.args[0], func(t *testing.T) {
 			api := &recAPI{}
-			useAPI(t, api)
-			code, out, errs := runCLI(tc.args...)
+			code, out, errs := runWith(withAPI(api), tc.args...)
 			env := decodeEnv(t, out)
 			if code != 0 || !env.OK {
 				t.Fatalf("code %d env %+v stderr %s", code, env, errs)
@@ -167,26 +166,40 @@ func TestCommandsCallTheAPI(t *testing.T) {
 			}
 		})
 	}
-	api := &recAPI{}
-	useAPI(t, api)
-	_, out, _ := runCLI("ingest", "--config", cfgPath, "a.md")
+	_, out, _ := runWith(withAPI(&recAPI{}), "ingest", "--config", cfgPath, "a.md")
 	if env := decodeEnv(t, out); env.AuditID != 5 {
 		t.Fatalf("audit_id not surfaced: %+v", env)
 	}
 }
 
 func TestEvalHook(t *testing.T) {
-	old := runEval
-	t.Cleanup(func() { runEval = old })
+	cl := Default()
 	var got []string
-	runEval = func(_ context.Context, _ *config.Config, args []string, stdout, _ io.Writer) error {
+	cl.Eval = func(_ context.Context, args []string, stdout, _ io.Writer) int {
 		got = args
-		_, err := io.WriteString(stdout, "report\n")
-		return err
+		_, _ = io.WriteString(stdout, "report\n")
+		return 3
 	}
-	code, out, _ := runCLI("eval", "--config", "none.yaml", "--suite", "B1")
-	if code != 0 || out != "report\n" || !slices.Equal(got, []string{"--suite", "B1"}) {
+	code, out, _ := runWith(cl, "eval", "--config", "none.yaml", "--systems", "B1")
+	if code != 3 || out != "report\n" || !slices.Equal(got, []string{"--config", "none.yaml", "--systems", "B1"}) {
 		t.Fatalf("code %d out %q args %v", code, out, got)
+	}
+	cl.Eval = nil
+	code, out, _ = runWith(cl, "eval")
+	if env := decodeEnv(t, out); code != 1 || env.Error.Code != chanda.CodeUnavailable {
+		t.Fatalf("unwired eval: code %d %+v", code, env)
+	}
+	// The default hook is the harness: a usage error exits 2.
+	if code, _, _ := runCLI("eval", "-systems", "Z9", "-dataset", t.TempDir()); code == 0 {
+		t.Fatalf("eval with an unknown system and an empty dataset succeeded")
+	}
+}
+
+func TestVersionIsStamped(t *testing.T) {
+	cl := Default()
+	cl.Version = "v1.2.3-4-gabc"
+	if code, out, _ := runWith(cl, "version"); code != 0 || out != "chanda v1.2.3-4-gabc\n" {
+		t.Fatalf("%d %q", code, out)
 	}
 }
 
@@ -198,7 +211,7 @@ func buildBinary(t *testing.T) string {
 		t.Skip("go toolchain not in PATH")
 	}
 	bin := filepath.Join(t.TempDir(), "chanda")
-	cmd := exec.Command(gobin, "build", "-o", bin, ".")
+	cmd := exec.Command(gobin, "build", "-o", bin, "../../cmd/chanda")
 	cmd.Env = append(os.Environ(), "CGO_ENABLED=0")
 	if out, err := cmd.CombinedOutput(); err != nil {
 		t.Fatalf("go build: %v\n%s", err, out)
@@ -298,7 +311,7 @@ func TestServeHTTP(t *testing.T) {
 	done := make(chan int, 1)
 	go func() {
 		args := []string{"serve", "--config", tempConfig(t, ""), "--http", "127.0.0.1:0", "--profiles", "read"}
-		done <- run(srvCtx, args, io.Discard, &stderr)
+		done <- Run(srvCtx, args, io.Discard, &stderr)
 	}()
 	var url string
 	for url == "" {

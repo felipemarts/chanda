@@ -82,9 +82,10 @@ Output is JSON on stdout. Anything hugot prints while loading
 (`GoMLX: dynamic axes failed ...` on e5's first run) is sent to stderr, so
 stdout stays clean for the MCP stdio transport.
 
-`chanda-hugot serve|ingest|...` will be the regular chanda CLI with provider
-`hugot` registered once the CLI moves out of `cmd/chanda` into an importable
-package (decision 0033); until then those commands report that.
+`chanda-hugot serve|ingest|sleep|eval|forget` is the regular chanda CLI
+(`internal/cli.Run`) with provider `hugot` registered, so a configuration with
+`embed.provider: hugot` works with every chanda command, including
+`chanda-hugot eval`, which then compares B2 and C1..C5 on the hugot model.
 
 ## Library
 

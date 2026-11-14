@@ -51,7 +51,8 @@ func TestCommands(t *testing.T) {
 		{"pull unknown model", []string{"models", "pull", "nope", filepath.Join(t.TempDir(), "x")}, 1, "", "unknown model"},
 		{"pull into an existing directory", []string{"models", "pull", "paraphrase-minilm-l12", dir}, 1, "", "already exists"},
 		{"embed without text", []string{"embed", dir}, 2, "", "embed needs"},
-		{"chanda command not linked yet", []string{"serve"}, 2, "", "needs the chanda CLI"},
+		{"chanda commands run the chanda CLI", []string{"forget"}, 2, "", "usage: chanda forget"},
+		{"unknown commands reach the chanda CLI", []string{"frobnicate"}, 2, "", "chanda: unknown command"},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {

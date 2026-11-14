@@ -47,6 +47,7 @@ type CLI struct {
 	NewEmbedder func(cfg *config.Config) (core.Embedder, error)
 	Suites      func() *Registry // default NewRegistry
 	Clock       core.Clock       // report date; default clock.System
+	Version     string           // default of -version; empty = the VCS revision stamped by go build
 }
 
 // DefaultCLI runs the baselines with the local deterministic embedder.
@@ -78,7 +79,11 @@ func (c CLI) Main(args []string, stdout io.Writer) int {
 	name := fs.String("name", "report", "report name: writes <out>/<name>.md and .json")
 	cfgPath := fs.String("config", "", "chanda.yaml (default: built-in defaults)")
 	date := fs.String("date", "", "report date YYYY-MM-DD (default: today)")
-	version := fs.String("version", buildVersion(), "Chanda version recorded in the report")
+	defVersion := c.Version
+	if defVersion == "" || defVersion == "dev" {
+		defVersion = buildVersion()
+	}
+	version := fs.String("version", defVersion, "Chanda version recorded in the report")
 	if err := fs.Parse(args); err != nil {
 		return 2
 	}

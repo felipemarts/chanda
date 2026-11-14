@@ -26,19 +26,14 @@ import (
 	"time"
 
 	"github.com/felipemarts/chanda-mcp/embedders/hugot"
+	"github.com/felipemarts/chanda-mcp/internal/cli"
 )
 
 var version = "dev"
 
-// chandaMain runs the regular chanda CLI. The CLI lives in package main of
-// cmd/chanda, which no other package can import; until it moves to an
-// importable package (decision 0033) the chanda commands are not available
-// here.
-var chandaMain = func(ctx context.Context, args []string, stdout, stderr io.Writer) int {
-	fmt.Fprintf(stderr, "chanda-hugot: %q is a chanda command; it needs the chanda CLI as an importable package "+
-		"(see docs/decisions/0033-hugot-module-and-provider-hook.md). Available here: models, embed, rerank, version\n", args[0])
-	return 2
-}
+// chandaMain runs the regular chanda CLI (serve, ingest, sleep, eval,
+// forget) with provider "hugot" registered by main (decision 0033).
+var chandaMain = cli.Run
 
 const usage = `usage: chanda-hugot <command> [args]
 
@@ -55,6 +50,7 @@ other commands are the chanda CLI with embed.provider "hugot" available.
 
 func main() {
 	hugot.Register()
+	cli.Version = version
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	code := run(ctx, os.Args[1:], os.Stdout, os.Stderr)
 	stop()
