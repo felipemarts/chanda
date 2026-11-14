@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+
+	"github.com/felipemarts/chanda-mcp/internal/core"
 )
 
 // Suite names (BASE.md "Own suites").
@@ -80,6 +82,11 @@ type SuiteInput struct {
 	// Results, when set, are the harness's judgements of System on Dataset,
 	// so a suite can reuse them instead of retrieving again.
 	Results []QuestionResult
+	// Systems are the results of every compared system, for suites that run
+	// once per report (e.g. learning compares C5 with C4).
+	Systems []SystemResult
+	// Unavailable lists the configurations that could not be built.
+	Unavailable []UnavailableSystem
 }
 
 // RunFunc executes a suite and returns its measurements.
@@ -102,12 +109,14 @@ type Registry struct {
 	suites map[string]*Suite
 }
 
-// NewRegistry returns the eight BASE.md suites with their targets; only the
-// abstention suite has a runner here (it works against any System).
+// NewRegistry returns the eight BASE.md suites with their targets. The
+// suites that work from any system's results (temporal, abstention,
+// learning) have their runner here; the ones that need a live core are
+// registered by internal/eval/coresys.
 func NewRegistry() *Registry {
 	r := &Registry{suites: map[string]*Suite{}}
 	for _, s := range []Suite{
-		{Name: SuiteTemporal, Measures: "Rate of answers with an already superseded value",
+		{Name: SuiteTemporal, Measures: "Rate of answers with an already superseded value", PerSystem: true, Run: TemporalSuite,
 			Target: Target{Text: "Up to 1%", Bounds: []Bound{{"stale_answer_rate", "<=", 0.01}}}},
 		{Name: SuiteDeletion, Measures: "forget requests that pass every probe",
 			Target: Target{Text: "100%", Bounds: []Bound{{"forget_pass_rate", ">=", 1}}}},
@@ -119,7 +128,7 @@ func NewRegistry() *Registry {
 			Target: Target{Text: "0% and up to 5%", Bounds: []Bound{{"updates_discarded_rate", "<=", 0}, {"duplicates_missed_rate", "<=", 0.05}}}},
 		{Name: SuiteAbstention, Measures: "Empty pre-context when the corpus has no answer", PerSystem: true, Run: AbstentionSuite,
 			Target: Target{Text: "95% precision", Bounds: []Bound{{"precision", ">=", 0.95}}}},
-		{Name: SuiteLearning, Measures: "Gain of C5 over C4 along a sequence of tasks",
+		{Name: SuiteLearning, Measures: "Gain of C5 over C4 along a sequence of tasks", Run: LearningSuite,
 			Target: Target{Text: "Positive, with no regression at the gate", Bounds: []Bound{{"gain_c5_over_c4", ">", 0}, {"gate_regression", "<=", 0}}}},
 		{Name: SuiteDeterminism, Measures: "Identical databases in two equal runs",
 			Target: Target{Text: "100%", Bounds: []Bound{{"identical_rate", ">=", 1}}}},
@@ -168,7 +177,7 @@ type SuiteResult struct {
 	Suite    string   `json:"suite"`
 	System   string   `json:"system,omitempty"`
 	Target   Target   `json:"target"`
-	Status   string   `json:"status"` // pass, fail, not_implemented, error
+	Status   string   `json:"status"` // pass, fail, not_implemented, not_available, error
 	Measured Measured `json:"measured,omitempty"`
 	Reason   string   `json:"reason,omitempty"`
 }
@@ -183,6 +192,10 @@ func runSuite(ctx context.Context, s Suite, in SuiteInput) SuiteResult {
 		return res
 	}
 	m, err := s.Run(ctx, in)
+	if err != nil && core.CodeOf(err) == core.CodeUnavailable {
+		res.Status, res.Reason, res.Measured = "not_available", err.Error(), m
+		return res
+	}
 	if err != nil {
 		res.Status, res.Reason = "error", err.Error()
 		return res
@@ -216,6 +229,103 @@ func AbstentionSuite(ctx context.Context, in SuiteInput) (Measured, error) {
 		out["recall"] = *m.AbstentionRecall
 	}
 	return out, nil
+}
+
+// TemporalSuite measures the rate of answers that carry an already
+// superseded value: among the evaluated questions tagged temporal or update
+// (and not injection) that list superseded values in must_not_contain, the
+// share whose delivered context contains one of them. The rate of those
+// questions whose context holds the expected answer is published next to it.
+func TemporalSuite(ctx context.Context, in SuiteInput) (Measured, error) {
+	rs := in.Results
+	if rs == nil {
+		var err error
+		if rs, err = judgeAll(ctx, in.System, in.Dataset, in.Budget, nil, nil); err != nil {
+			return nil, err
+		}
+	}
+	var n, stale, answered, withAnswer int
+	for i, q := range in.Dataset.Evaluated() {
+		if !(q.HasTag(TagTemporal) || q.HasTag(TagUpdate)) || q.HasTag(TagInjection) || len(q.MustNotContain) == 0 {
+			continue
+		}
+		n++
+		if rs[i].Forbidden {
+			stale++
+		}
+		if rs[i].HasAnswers {
+			withAnswer++
+			if rs[i].AnswerHit {
+				answered++
+			}
+		}
+	}
+	if n == 0 {
+		return nil, fmt.Errorf("no temporal or update question with superseded values")
+	}
+	out := Measured{"questions": float64(n), "stale_answers": float64(stale), "stale_answer_rate": float64(stale) / float64(n)}
+	if withAnswer > 0 {
+		out["current_answer_rate"] = float64(answered) / float64(withAnswer)
+	}
+	return out, nil
+}
+
+// GatePoints is the gate-style score of one system's results, 0 to 100: the
+// mean over evaluated questions of 1 when an answerable question with
+// expected answers has one in its context or an unanswerable question gets
+// an empty result, else 0 (answerable questions without expected answers
+// count their recall@10).
+func GatePoints(rs []QuestionResult) float64 {
+	if len(rs) == 0 {
+		return 0
+	}
+	var sum float64
+	for _, r := range rs {
+		switch {
+		case !r.Answerable && r.Empty:
+			sum++
+		case r.Answerable && r.HasAnswers && r.AnswerHit:
+			sum++
+		case r.Answerable && !r.HasAnswers:
+			sum += r.RecallAt10
+		}
+	}
+	return 100 * sum / float64(len(rs))
+}
+
+// LearningSuite compares C5 with C4 on the evaluated questions (never the
+// training split): gain_c5_over_c4 is the difference in nDCG@10 and
+// gate_regression is how many gate points C5 loses against C4 (GatePoints;
+// negative when it gains). It is not available when either did not run.
+func LearningSuite(_ context.Context, in SuiteInput) (Measured, error) {
+	var c4, c5 *SystemResult
+	for i := range in.Systems {
+		switch in.Systems[i].Name {
+		case "C4":
+			c4 = &in.Systems[i]
+		case "C5":
+			c5 = &in.Systems[i]
+		}
+	}
+	if c4 == nil || c5 == nil {
+		var why []string
+		for _, u := range in.Unavailable {
+			if u.Name == "C4" || u.Name == "C5" {
+				why = append(why, u.Name+": "+u.Reason)
+			}
+		}
+		if len(why) == 0 {
+			why = append(why, "C4 and C5 were not among the compared systems")
+		}
+		return nil, core.Errf(core.CodeUnavailable, "%s", strings.Join(why, "; "))
+	}
+	g4, g5 := GatePoints(c4.Questions), GatePoints(c5.Questions)
+	return Measured{
+		"ndcg10_c4": c4.Overall.NDCGAt10, "ndcg10_c5": c5.Overall.NDCGAt10,
+		"gain_c5_over_c4": c5.Overall.NDCGAt10 - c4.Overall.NDCGAt10,
+		"gate_c4":         g4, "gate_c5": g5, "gate_regression": g4 - g5,
+		"train_questions": float64(len(in.Dataset.Training())),
+	}, nil
 }
 
 func fmtNum(v float64) string {

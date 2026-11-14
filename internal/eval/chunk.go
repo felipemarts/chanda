@@ -23,7 +23,8 @@ type Chunk struct {
 // ChunkItem splits an item by structure, without overlap: headings set the
 // heading path, blank lines separate paragraphs, and a paragraph longer than
 // maxChars is split at sentence ends (or hard-split if a sentence is longer).
-// Session turns are one chunk each.
+// Session turns, and the fact statements asserted in the session, are one
+// chunk each.
 func ChunkItem(it Item, maxChars int) []Chunk {
 	v := max(it.Version, 1)
 	var out []Chunk
@@ -38,6 +39,9 @@ func ChunkItem(it Item, maxChars int) []Chunk {
 	if it.Type == ItemSession {
 		for _, t := range it.Turns {
 			emit("", strings.TrimSpace(t.Text))
+		}
+		for _, f := range it.Facts {
+			emit("", f.Text())
 		}
 		return out
 	}

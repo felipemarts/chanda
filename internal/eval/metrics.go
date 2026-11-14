@@ -64,6 +64,10 @@ func hits(r Retrieved, normText string, g Gold) bool {
 	return r.DocID == g.DocID && (g.Span == "" || strings.Contains(normText, Normalize(g.Span)))
 }
 
+// Hits reports whether a retrieved excerpt is evidence for gold g (same
+// corpus item and, when g has a span, the excerpt contains it).
+func Hits(r Retrieved, g Gold) bool { return hits(r, Normalize(r.Text), g) }
+
 // Judge scores one ranked, budget-enforced result list against q.
 //
 //   - recall@k: share of relevance units hit within the first k items.

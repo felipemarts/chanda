@@ -178,3 +178,47 @@ func TestBuildVersionFallsBack(t *testing.T) {
 		t.Fatal("empty version")
 	}
 }
+
+// trainer records what the harness hands Train.
+type trainer struct {
+	oracle
+	got []string
+}
+
+func (tr *trainer) Name() string { return "C5" }
+func (tr *trainer) Train(_ context.Context, qs []Question) error {
+	for _, q := range qs {
+		tr.got = append(tr.got, q.ID)
+	}
+	return nil
+}
+
+// A learning system trains on the training split only, the split never
+// enters the metrics, and a configuration that could not run is reported
+// with its reason instead of disappearing.
+func TestTrainingSplitAndUnavailableSystems(t *testing.T) {
+	ds := validDataset()
+	ds.Questions = append(ds.Questions, Question{ID: "t1", Question: "Quanto custa o plano A hoje?",
+		Gold: []Gold{{DocID: "d1", Span: "custa R$ 12"}}, Answers: []string{"R$ 12"}, Split: SplitTrain})
+	tr := &trainer{}
+	rep, err := Run(context.Background(), Options{Dataset: ds, Systems: []System{tr}, Clock: clock.NewFake(env.TestEpoch, 0),
+		Hardware: &Hardware{}, Unavailable: []UnavailableSystem{{Name: "C2", Reason: "no reranker"}}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Join(tr.got, ",") != "t1" {
+		t.Fatalf("trained on %v", tr.got)
+	}
+	if rep.Dataset.Questions != 4 || rep.Dataset.Train != 1 || len(rep.Systems[0].Questions) != 4 {
+		t.Fatalf("dataset info %+v, %d results", rep.Dataset, len(rep.Systems[0].Questions))
+	}
+	md := rep.Markdown()
+	if !strings.Contains(md, "| C2 | - | **Not available in this run**: no reranker |") || !strings.Contains(md, "+1 training questions") {
+		t.Fatalf("markdown:\n%s", md)
+	}
+	for _, s := range rep.Suites {
+		if s.Suite == SuiteLearning && s.Status != "not_available" {
+			t.Fatalf("learning suite without C4: %+v", s)
+		}
+	}
+}

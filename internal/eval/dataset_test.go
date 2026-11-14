@@ -78,6 +78,11 @@ func TestDatasetValidation(t *testing.T) {
 		{"abstention with gold", func(d *Dataset) { d.Questions[0].Tags = []string{"abstention"} }, "abstention"},
 		{"no gold without abstention tag", func(d *Dataset) { d.Questions[3].Tags = nil }, "abstention"},
 		{"bad tag", func(d *Dataset) { d.Questions[0].Tags = []string{"Bad Tag"} }, "bad tag"},
+		{"unknown split", func(d *Dataset) { d.Questions[0].Split = "dev" }, "unknown split"},
+		{"training without gold", func(d *Dataset) { d.Questions[3].Split = SplitTrain }, "training questions need gold"},
+		{"tool turn without name", func(d *Dataset) { d.Corpus[1].Turns[0].Role = "tool" }, "tool name"},
+		{"facts in a document", func(d *Dataset) { d.Corpus[0].Facts = []Statement{{"A", "b", "c"}} }, "a document has text"},
+		{"incomplete statement", func(d *Dataset) { d.Corpus[1].Facts = []Statement{{"Rui", "ramal", " "}} }, "incomplete fact"},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -114,5 +119,27 @@ func TestReadJSONLRejectsUnknownFields(t *testing.T) {
 	_, err := ReadJSONL[Question](strings.NewReader("{\"id\":\"q\",\"question\":\"x\"}\n\n{\"id\":\"q2\",\"oops\":1}\n"))
 	if err == nil || !strings.Contains(err.Error(), "line 3") {
 		t.Fatalf("got %v", err)
+	}
+}
+
+// Statements asserted in a session are part of its text (baselines index
+// them as chunks) and training questions stay out of the evaluated set.
+func TestSessionFactsAndTrainingSplit(t *testing.T) {
+	d := validDataset()
+	d.Corpus[1].Facts = []Statement{{Subject: "Rui", Predicate: "ramal", Value: "4321"}}
+	d.Questions = append(d.Questions, Question{ID: "t1", Question: "Ramal do Rui?", Gold: []Gold{{DocID: "s1", Span: "Rui ramal: 4321"}},
+		Answers: []string{"4321"}, Split: SplitTrain})
+	if err := d.Validate(); err != nil {
+		t.Fatal(err)
+	}
+	if got := ItemText(d.Corpus[1]); got != "O ramal do Rui é 1234.\nRui ramal: 4321" {
+		t.Fatalf("session text %q", got)
+	}
+	cs := ChunkItem(d.Corpus[1], 2000)
+	if len(cs) != 2 || cs[1].Text != "Rui ramal: 4321" {
+		t.Fatalf("chunks %+v", cs)
+	}
+	if len(d.Evaluated()) != 4 || len(d.Training()) != 1 || d.Training()[0].ID != "t1" {
+		t.Fatalf("split: %d evaluated, %d training", len(d.Evaluated()), len(d.Training()))
 	}
 }

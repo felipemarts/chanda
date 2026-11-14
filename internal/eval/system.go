@@ -55,6 +55,22 @@ type Flusher interface {
 	Flush(ctx context.Context) error
 }
 
+// Trainer is optionally implemented by a learning system (C5). The harness
+// calls Train once, after ingestion and Flush and before any evaluated
+// question, with the training split (questions with their gold labels). The
+// evaluated questions are never passed to Train.
+type Trainer interface {
+	Train(ctx context.Context, train []Question) error
+}
+
+// UnavailableSystem is a compared configuration that could not be built in
+// this environment (e.g. no reranker configured). It is listed in the report
+// with the reason, never silently dropped or replaced.
+type UnavailableSystem struct {
+	Name   string `json:"name"`
+	Reason string `json:"reason"`
+}
+
 // Sizer is optionally implemented by systems that can report their storage size.
 type Sizer interface {
 	SizeBytes(ctx context.Context) (int64, error)

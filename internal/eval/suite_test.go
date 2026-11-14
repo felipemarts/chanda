@@ -2,6 +2,7 @@ package eval
 
 import (
 	"context"
+	"strings"
 	"testing"
 )
 
@@ -41,7 +42,8 @@ func TestRegistryHasEveryBaseSuite(t *testing.T) {
 		if want[s.Name] != s.Target.Text || len(s.Target.Bounds) == 0 {
 			t.Errorf("%s: target %+v", s.Name, s.Target)
 		}
-		if (s.Run != nil) != (s.Name == SuiteAbstention) {
+		generic := s.Name == SuiteAbstention || s.Name == SuiteTemporal || s.Name == SuiteLearning
+		if (s.Run != nil) != generic {
 			t.Errorf("%s: unexpected runner state", s.Name)
 		}
 	}
@@ -65,7 +67,7 @@ func TestRegistryHasEveryBaseSuite(t *testing.T) {
 			}
 		}
 	}
-	if res := runSuite(context.Background(), r.Suites()[0], SuiteInput{}); res.Status != "not_implemented" {
+	if res := runSuite(context.Background(), r.Suites()[2], SuiteInput{}); res.Status != "not_implemented" {
 		t.Fatalf("%+v", res)
 	}
 }
@@ -100,5 +102,71 @@ func TestAbstentionSuiteAgainstAnySystem(t *testing.T) {
 	s := NewRegistry().Suites()[5]
 	if s.Name != SuiteAbstention || s.Target.Check(m).OK {
 		t.Fatal("B0 must fail the abstention target")
+	}
+}
+
+// BASE.md temporal suite: answers with an already superseded value, up to 1%.
+func TestTemporalSuiteCountsSupersededValues(t *testing.T) {
+	ds := validDataset()
+	ctx := context.Background()
+	stale := staleSystem{}
+	m, err := TemporalSuite(ctx, SuiteInput{System: stale, Dataset: ds, Budget: 800})
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Only q1 (update, with a superseded value) counts; the stale system shows R$ 10.
+	if m["questions"] != 1 || m["stale_answer_rate"] != 1 || m["current_answer_rate"] != 0 {
+		t.Fatalf("stale system: %v", m)
+	}
+	m, _ = TemporalSuite(ctx, SuiteInput{System: oracle{}, Dataset: ds, Budget: 800})
+	if m["stale_answer_rate"] != 0 || m["current_answer_rate"] != 1 {
+		t.Fatalf("oracle: %v", m)
+	}
+	if s := NewRegistry().Suites()[0]; s.Name != SuiteTemporal || !s.Target.Check(m).OK || !s.PerSystem {
+		t.Fatal("the oracle must pass the temporal target")
+	}
+}
+
+type staleSystem struct{ NoMemory }
+
+func (staleSystem) Name() string { return "stale" }
+func (staleSystem) Retrieve(context.Context, Query, int) ([]Retrieved, error) {
+	return []Retrieved{{ID: "x", DocID: "d1", Text: "O plano A custa R$ 10."}}, nil
+}
+
+// BASE.md learning suite: gain of C5 over C4, positive, with no regression
+// at the gate; not available when C4 or C5 did not run.
+func TestLearningSuiteComparesC5WithC4(t *testing.T) {
+	ds := validDataset()
+	ctx := context.Background()
+	_, err := LearningSuite(ctx, SuiteInput{Dataset: ds, Unavailable: []UnavailableSystem{{Name: "C4", Reason: "no sleep"}}})
+	if err == nil || !strings.Contains(err.Error(), "C4: no sleep") {
+		t.Fatalf("missing systems: %v", err)
+	}
+	res := runSuite(ctx, Suite{Name: SuiteLearning, Run: LearningSuite}, SuiteInput{Dataset: ds})
+	if res.Status != "not_available" {
+		t.Fatalf("%+v", res)
+	}
+	judge := func(sys System) SystemResult {
+		rs, err := judgeAll(ctx, sys, ds, 800, nil, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return SystemResult{Name: sys.Name(), Questions: rs, Overall: Aggregate(rs)}
+	}
+	c4, c5 := judge(NoMemory{}), judge(oracle{})
+	c4.Name, c5.Name = "C4", "C5"
+	m, err := LearningSuite(ctx, SuiteInput{Dataset: ds, Systems: []SystemResult{c4, c5}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if m["gain_c5_over_c4"] <= 0 || m["gate_regression"] >= 0 {
+		t.Fatalf("%v", m)
+	}
+	same := c5
+	same.Name = "C4"
+	m, _ = LearningSuite(ctx, SuiteInput{Dataset: ds, Systems: []SystemResult{same, c5}})
+	if m["gain_c5_over_c4"] != 0 || m["gate_regression"] != 0 {
+		t.Fatalf("same results: %v", m)
 	}
 }

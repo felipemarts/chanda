@@ -45,9 +45,9 @@ func BaselineFactories() map[string]Factory {
 type CLI struct {
 	Factories   map[string]Factory
 	NewEmbedder func(cfg *config.Config) (core.Embedder, error)
-	Suites      func() *Registry // default NewRegistry
-	Clock       core.Clock       // report date; default clock.System
-	Version     string           // default of -version; empty = the VCS revision stamped by go build
+	Suites      func(FactoryEnv) *Registry // default NewRegistry
+	Clock       core.Clock                 // report date; default clock.System
+	Version     string                     // default of -version; empty = the VCS revision stamped by go build
 }
 
 // DefaultCLI runs the baselines with the local deterministic embedder.
@@ -116,6 +116,7 @@ func (c CLI) Main(args []string, stdout io.Writer) int {
 	}
 	ctx := context.Background()
 	var syss []System
+	var unavailable []UnavailableSystem
 	defer func() {
 		for _, s := range syss {
 			_ = s.Close()
@@ -128,6 +129,11 @@ func (c CLI) Main(args []string, stdout io.Writer) int {
 			return fail(2, fmt.Errorf("unknown system %q (known: %s)", n, strings.Join(names, ", ")))
 		}
 		s, err := f(ctx, FactoryEnv{Config: cfg, Embedder: emb})
+		if core.CodeOf(err) == core.CodeUnavailable {
+			unavailable = append(unavailable, UnavailableSystem{Name: n, Reason: err.Error()})
+			fmt.Fprintf(stdout, "  %-3s not available: %v\n", n, err)
+			continue
+		}
 		if err != nil {
 			return fail(1, fmt.Errorf("%s: %w", n, err))
 		}
@@ -135,10 +141,10 @@ func (c CLI) Main(args []string, stdout io.Writer) int {
 	}
 	suites := NewRegistry()
 	if c.Suites != nil {
-		suites = c.Suites()
+		suites = c.Suites(FactoryEnv{Config: cfg, Embedder: emb})
 	}
 	rep, err := Run(ctx, Options{Dataset: ds, Systems: syss, Budget: *budget, OutDir: *out, Name: *name,
-		Config: cfg, Embedder: emb, Clock: clk, Version: *version, Suites: suites})
+		Config: cfg, Embedder: emb, Clock: clk, Version: *version, Suites: suites, Unavailable: unavailable})
 	if err != nil {
 		return fail(1, err)
 	}

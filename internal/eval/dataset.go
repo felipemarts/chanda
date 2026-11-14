@@ -67,13 +67,28 @@ type Item struct {
 	Title   string `json:"title,omitempty"`
 	Text    string `json:"text,omitempty"`  // documents
 	Turns   []Turn `json:"turns,omitempty"` // sessions
+	// Facts are structured statements the agent asserted during a session
+	// (assert_fact). Systems without structured facts store them as text.
+	Facts []Statement `json:"facts,omitempty"`
 }
 
 // Turn is one session turn.
 type Turn struct {
-	Role string `json:"role"` // user | assistant | tool
-	Text string `json:"text"`
+	Role string `json:"role"`           // user | assistant | tool
+	Text string `json:"text"`           //
+	Name string `json:"name,omitempty"` // tool name, for tool turns
 }
+
+// Statement is one structured fact asserted in a session.
+type Statement struct {
+	Subject   string `json:"subject"`
+	Predicate string `json:"predicate"`
+	Value     string `json:"value"`
+}
+
+// Text is the statement as plain text, the same form the core stores as the
+// raw event of an assert_fact call.
+func (s Statement) Text() string { return s.Subject + " " + s.Predicate + ": " + s.Value }
 
 // Gold is one piece of evidence: an item (DocID) and, optionally, a span that
 // a retrieved excerpt must contain. Entries sharing Unit are alternatives for
@@ -93,7 +108,14 @@ type Question struct {
 	Answers        []string `json:"answers,omitempty"`          // any of these substrings in the context answers the question
 	MustNotContain []string `json:"must_not_contain,omitempty"` // stale values, injected instructions
 	Tags           []string `json:"tags,omitempty"`
+	// Split is "" for evaluated questions and SplitTrain for the questions a
+	// learning system may train on (outcomes from their gold labels). Train
+	// questions never enter the metrics or the gate.
+	Split string `json:"split,omitempty"`
 }
+
+// SplitTrain marks training questions.
+const SplitTrain = "train"
 
 // Answerable reports whether the corpus holds an answer.
 func (q Question) Answerable() bool { return len(q.Gold) > 0 }
@@ -122,6 +144,29 @@ type Dataset struct {
 	Manifest  Manifest
 	Corpus    []Item
 	Questions []Question
+}
+
+// Evaluated returns the questions that enter the metrics (every question
+// outside the training split), in dataset order.
+func (ds *Dataset) Evaluated() []Question {
+	out := make([]Question, 0, len(ds.Questions))
+	for _, q := range ds.Questions {
+		if q.Split != SplitTrain {
+			out = append(out, q)
+		}
+	}
+	return out
+}
+
+// Training returns the training split, in dataset order.
+func (ds *Dataset) Training() []Question {
+	var out []Question
+	for _, q := range ds.Questions {
+		if q.Split == SplitTrain {
+			out = append(out, q)
+		}
+	}
+	return out
 }
 
 // LoadDataset reads and validates a dataset directory.
@@ -260,7 +305,7 @@ func (ds *Dataset) Validate() error {
 		var text string
 		switch it.Type {
 		case ItemDocument:
-			if strings.TrimSpace(it.Text) == "" || len(it.Turns) > 0 {
+			if strings.TrimSpace(it.Text) == "" || len(it.Turns) > 0 || len(it.Facts) > 0 {
 				bad("%s: a document has text and no turns", where)
 			}
 			text = it.Text
@@ -275,7 +320,16 @@ func (ds *Dataset) Validate() error {
 				if strings.TrimSpace(tu.Text) == "" || tu.Role == "" {
 					bad("%s: empty turn", where)
 				}
+				if (tu.Role == "tool") != (tu.Name != "") {
+					bad("%s: tool turns, and only they, carry a tool name", where)
+				}
 				text += tu.Text + "\n"
+			}
+			for _, f := range it.Facts {
+				if strings.TrimSpace(f.Subject) == "" || strings.TrimSpace(f.Predicate) == "" || strings.TrimSpace(f.Value) == "" {
+					bad("%s: incomplete fact statement", where)
+				}
+				text += f.Text() + "\n"
 			}
 		default:
 			bad("%s: unknown type %q", where, it.Type)
@@ -326,6 +380,12 @@ func (ds *Dataset) Validate() error {
 		if !q.Answerable() && len(q.Answers) > 0 {
 			bad("%s: answers without gold", where)
 		}
+		if q.Split != "" && q.Split != SplitTrain {
+			bad("%s: unknown split %q", where, q.Split)
+		}
+		if q.Split == SplitTrain && !q.Answerable() {
+			bad("%s: training questions need gold", where)
+		}
 		var goldText []string
 		for _, g := range q.Gold {
 			st := docs[g.DocID]
@@ -367,14 +427,18 @@ func (ds *Dataset) Validate() error {
 	return nil
 }
 
-// ItemText returns the full text of an item (session turns joined by newlines).
+// ItemText returns the full text of an item (session turns, then asserted
+// fact statements, joined by newlines).
 func ItemText(it Item) string {
 	if it.Type != ItemSession {
 		return it.Text
 	}
-	parts := make([]string, len(it.Turns))
-	for i, t := range it.Turns {
-		parts[i] = t.Text
+	parts := make([]string, 0, len(it.Turns)+len(it.Facts))
+	for _, t := range it.Turns {
+		parts = append(parts, t.Text)
+	}
+	for _, f := range it.Facts {
+		parts = append(parts, f.Text())
 	}
 	return strings.Join(parts, "\n")
 }

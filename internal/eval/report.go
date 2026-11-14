@@ -35,6 +35,8 @@ type Report struct {
 	Systems        []SystemResult `json:"systems"`
 	Suites         []SuiteResult  `json:"suites"`
 	Losses         []Loss         `json:"losses"`
+	// Unavailable lists configurations that could not be built here, with why.
+	Unavailable []UnavailableSystem `json:"unavailable_systems"`
 	// Latency is measured with a real clock and is not deterministic.
 	Latency []Latency `json:"latency"`
 }
@@ -56,7 +58,8 @@ type DatasetInfo struct {
 	Documents int            `json:"documents"` // distinct document ids
 	Versions  int            `json:"document_versions"`
 	Sessions  int            `json:"sessions"`
-	Questions int            `json:"questions"`
+	Questions int            `json:"questions"`       // evaluated questions
+	Train     int            `json:"train_questions"` // training split, never evaluated
 	Tags      map[string]int `json:"tags"`
 }
 
@@ -78,6 +81,7 @@ type Latency struct {
 	IngestP50Ms    float64 `json:"ingest_p50_ms"`
 	IngestP95Ms    float64 `json:"ingest_p95_ms"`
 	FlushMs        float64 `json:"flush_ms"`
+	TrainMs        float64 `json:"train_ms"`
 	RetrieveMeanMs float64 `json:"retrieve_mean_ms"`
 	RetrieveP50Ms  float64 `json:"retrieve_p50_ms"`
 	RetrieveP95Ms  float64 `json:"retrieve_p95_ms"`
@@ -96,7 +100,9 @@ type Loss struct {
 
 func newReport(o Options) *Report {
 	ds := o.Dataset
-	info := DatasetInfo{Name: ds.Manifest.Name, Hash: ds.Hash(), Items: len(ds.Corpus), Questions: len(ds.Questions), Tags: map[string]int{}}
+	evaluated := ds.Evaluated()
+	info := DatasetInfo{Name: ds.Manifest.Name, Hash: ds.Hash(), Items: len(ds.Corpus), Questions: len(evaluated),
+		Train: len(ds.Questions) - len(evaluated), Tags: map[string]int{}}
 	docs := map[string]bool{}
 	for _, it := range ds.Corpus {
 		if it.Type == ItemSession {
@@ -108,7 +114,7 @@ func newReport(o Options) *Report {
 	}
 	info.Documents = len(docs)
 	for _, tag := range datasetTags(ds) {
-		for _, q := range ds.Questions {
+		for _, q := range evaluated {
 			if questionTag(q, tag) {
 				info.Tags[tag]++
 			}
@@ -123,7 +129,7 @@ func newReport(o Options) *Report {
 		ChandaVersion: o.Version, ConfigHash: o.Config.Hash(), EmbeddingModel: emb,
 		ReaderModel: "n/a (retrieval-only; no LLM reader or judge)", Hardware: *o.Hardware,
 		Dataset: info, BudgetTokens: o.Budget, TokenEstimator: "ceil(characters / 4)",
-		Systems: []SystemResult{}, Suites: []SuiteResult{}, Losses: []Loss{}, Latency: []Latency{},
+		Systems: []SystemResult{}, Suites: []SuiteResult{}, Losses: []Loss{}, Latency: []Latency{}, Unavailable: []UnavailableSystem{},
 	}
 }
 
@@ -306,7 +312,7 @@ func (r *Report) Markdown() string {
 	w("| Hardware | %s/%s, %d CPUs, %s |\n", r.Hardware.GOOS, r.Hardware.GOARCH, r.Hardware.NumCPU, r.Hardware.CPUModel)
 	w("| Go | %s |\n", r.Hardware.GoVersion)
 	d := r.Dataset
-	w("| Dataset | %s, hash `%s`: %d items (%d documents in %d versions, %d sessions), %d questions |\n", d.Name, d.Hash, d.Items, d.Documents, d.Versions, d.Sessions, d.Questions)
+	w("| Dataset | %s, hash `%s`: %d items (%d documents in %d versions, %d sessions), %d evaluated questions (+%d training questions, never evaluated) |\n", d.Name, d.Hash, d.Items, d.Documents, d.Versions, d.Sessions, d.Questions, d.Train)
 	w("| Context budget | %d tokens per query, same for every system (estimator: %s) |\n", r.BudgetTokens, r.TokenEstimator)
 	w("| Report schema | %s |\n\n", r.Schema)
 
@@ -318,7 +324,14 @@ func (r *Report) Markdown() string {
 
 	w("## Systems\n\n| System | Embedding | Description |\n| --- | --- | --- |\n")
 	for _, s := range r.Systems {
-		w("| %s | %s | %s |\n", s.Name, s.Info.EmbeddingModel, s.Info.Description)
+		desc := s.Info.Description
+		if s.Info.ConfigHash != "" {
+			desc += " Config hash `" + s.Info.ConfigHash + "`."
+		}
+		w("| %s | %s | %s |\n", s.Name, s.Info.EmbeddingModel, desc)
+	}
+	for _, u := range r.Unavailable {
+		w("| %s | - | **Not available in this run**: %s |\n", u.Name, u.Reason)
 	}
 
 	w("\n## Overall, side by side\n\nRetrieval metrics are means over answerable questions; the best value of each row is in bold. ")
@@ -392,10 +405,10 @@ func (r *Report) Markdown() string {
 	}
 
 	w("\n%s\n\nMeasured with the wall clock on the hardware above; excluded from determinism checks. Milliseconds.\n\n", LatencyHeading)
-	w("| System | Ingest items | Ingest total | Ingest p50 | Ingest p95 | Flush | Retrieve mean | Retrieve p50 | Retrieve p95 |\n")
-	w("| --- | --- | --- | --- | --- | --- | --- | --- | --- |\n")
+	w("| System | Ingest items | Ingest total | Ingest p50 | Ingest p95 | Flush | Train | Retrieve mean | Retrieve p50 | Retrieve p95 |\n")
+	w("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n")
 	for _, l := range r.Latency {
-		w("| %s | %d | %.3f | %.3f | %.3f | %.3f | %.3f | %.3f | %.3f |\n", l.System, l.IngestItems, l.IngestTotalMs, l.IngestP50Ms, l.IngestP95Ms, l.FlushMs, l.RetrieveMeanMs, l.RetrieveP50Ms, l.RetrieveP95Ms)
+		w("| %s | %d | %.3f | %.3f | %.3f | %.3f | %.3f | %.3f | %.3f | %.3f |\n", l.System, l.IngestItems, l.IngestTotalMs, l.IngestP50Ms, l.IngestP95Ms, l.FlushMs, l.TrainMs, l.RetrieveMeanMs, l.RetrieveP50Ms, l.RetrieveP95Ms)
 	}
 	return b.String()
 }

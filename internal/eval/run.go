@@ -27,6 +27,9 @@ type Options struct {
 	Version  string         // Chanda version; default "dev"
 	Suites   *Registry      // default NewRegistry()
 	Hardware *Hardware      // default DetectHardware()
+	// Unavailable lists configurations that could not be built; they are
+	// reported with their reason.
+	Unavailable []UnavailableSystem
 }
 
 func (o Options) withDefaults() Options {
@@ -74,6 +77,7 @@ func Run(ctx context.Context, o Options) (*Report, error) {
 		seen[s.Name()] = true
 	}
 	rep := newReport(o)
+	rep.Unavailable = append(rep.Unavailable, o.Unavailable...)
 	for _, sys := range o.Systems {
 		sr, lat, err := runSystem(ctx, o, sys)
 		if err != nil {
@@ -89,7 +93,7 @@ func Run(ctx context.Context, o Options) (*Report, error) {
 	}
 	for _, s := range o.Suites.Suites() {
 		if !s.PerSystem {
-			rep.Suites = append(rep.Suites, runSuite(ctx, s, SuiteInput{Dataset: o.Dataset, Budget: o.Budget}))
+			rep.Suites = append(rep.Suites, runSuite(ctx, s, SuiteInput{Dataset: o.Dataset, Budget: o.Budget, Systems: rep.Systems, Unavailable: rep.Unavailable}))
 		}
 	}
 	rep.Losses = losses(rep)
@@ -120,6 +124,13 @@ func runSystem(ctx context.Context, o Options, sys System) (SystemResult, Latenc
 		lat.FlushMs = ms(o.Timer.Now().Sub(t0))
 	}
 	lat.IngestTotalMs = ms(o.Timer.Now().Sub(start))
+	if tr, ok := sys.(Trainer); ok {
+		t0 := o.Timer.Now()
+		if err := tr.Train(ctx, o.Dataset.Training()); err != nil {
+			return SystemResult{}, lat, fmt.Errorf("train: %w", err)
+		}
+		lat.TrainMs = ms(o.Timer.Now().Sub(t0))
+	}
 	lat.IngestP50Ms, lat.IngestP95Ms = ms(Percentile(ingest, 50)), ms(Percentile(ingest, 95))
 
 	var retrieve []time.Duration
@@ -151,7 +162,7 @@ func runSystem(ctx context.Context, o Options, sys System) (SystemResult, Latenc
 	sr.ByTag = map[string]Metrics{}
 	for _, tag := range datasetTags(o.Dataset) {
 		var sub []QuestionResult
-		for i, q := range o.Dataset.Questions {
+		for i, q := range o.Dataset.Evaluated() {
 			if questionTag(q, tag) {
 				sub = append(sub, results[i])
 			}
@@ -161,15 +172,16 @@ func runSystem(ctx context.Context, o Options, sys System) (SystemResult, Latenc
 	return sr, lat, nil
 }
 
-// judgeAll retrieves and judges every question of ds with sys, in dataset
-// order. When timer is set, onLatency receives each retrieval's duration.
+// judgeAll retrieves and judges every evaluated question of ds with sys, in
+// dataset order (the training split is skipped). When timer is set, onLatency receives each retrieval's duration.
 func judgeAll(ctx context.Context, sys System, ds *Dataset, budget int, timer core.Clock, onLatency func(time.Duration)) ([]QuestionResult, error) {
 	uris := map[string]string{}
 	for _, it := range ds.Corpus {
 		uris[it.URI] = it.ID
 	}
-	out := make([]QuestionResult, 0, len(ds.Questions))
-	for _, q := range ds.Questions {
+	qs := ds.Evaluated()
+	out := make([]QuestionResult, 0, len(qs))
+	for _, q := range qs {
 		query := Query{ID: q.ID, Text: q.Question}
 		if q.AsOf != "" {
 			t, err := ItemTime(q.AsOf)
@@ -212,11 +224,11 @@ func questionTag(q Question, tag string) bool {
 	return q.HasTag(tag)
 }
 
-// datasetTags lists the tags present in ds, sorted, plus TagPlain if any
-// question is untagged.
+// datasetTags lists the tags present in the evaluated questions of ds,
+// sorted, plus TagPlain if any question is untagged.
 func datasetTags(ds *Dataset) []string {
 	m := map[string]bool{}
-	for _, q := range ds.Questions {
+	for _, q := range ds.Evaluated() {
 		if len(q.Tags) == 0 {
 			m[TagPlain] = true
 		}
