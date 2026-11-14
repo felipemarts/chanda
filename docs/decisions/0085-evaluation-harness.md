@@ -19,9 +19,10 @@ BASE.md "Evaluation" fixes what is compared and reported, not how. `internal/eva
   not import `internal/write`.
 - **B3 at an 800-token budget does not fit the corpus**, so it falls back to the
   most recent chunks that fit. The report states how many queries were truncated.
-- **B2 uses a stand-in embedder** (`eval-localhash-v1-256`: signed feature
-  hashing of words and character trigrams) until the real Embedder is injected.
-  The report declares the `model_id`.
+- **B2 uses the configured embedder** (`internal/embed`: the hash embedder
+  by default, hugot in chanda-hugot), the same instance C1..C5 use (decision
+  0086). The stand-in `eval-localhash-v1-256` remains for tests of the
+  package. The report declares the `model_id`.
 - **Abstention precision** = empty results on unanswerable questions ÷ all empty
   results. It is undefined (and the suite fails) for a system that never returns
   an empty result. The suite target (95% precision) can be met by a system that
