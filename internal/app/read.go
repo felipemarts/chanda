@@ -150,8 +150,9 @@ func (a *App) Get(ctx context.Context, in chanda.GetInput) (chanda.GetOutput, er
 	if g.Record.Type == core.RecFact {
 		fd := &chanda.FactDetail{Subject: g.Record.Subject, Predicate: g.Record.Predicate, Value: g.Record.Value,
 			SupersededBy: g.Record.SupersededBy}
+		// The read path resolved the subject through accepted merges.
 		if err := db.QueryRowContext(ctx, `SELECT f.confidence, COALESCE(e.canonical_name, '') FROM facts f
-			LEFT JOIN entities e ON e.id = f.subject WHERE f.id = ?`, g.Record.ID).Scan(&fd.Confidence, &fd.SubjectName); err != nil {
+			LEFT JOIN entities e ON e.id = ? WHERE f.id = ?`, g.Record.Subject, g.Record.ID).Scan(&fd.Confidence, &fd.SubjectName); err != nil {
 			return out, coded(err)
 		}
 		out.Fact = fd

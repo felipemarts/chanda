@@ -150,7 +150,78 @@ func (r *Reader) loadRecords(ctx context.Context, ns string, byType map[core.Rec
 	if err := r.loadDerived(ctx, ns, out); err != nil {
 		return nil, err
 	}
+	if err := r.resolveSubjects(ctx, ns, out); err != nil {
+		return nil, err
+	}
 	return out, nil
+}
+
+// maxMergeHops bounds a merged_into chain walk (as internal/facts does).
+const maxMergeHops = 16
+
+// resolveSubjects replaces each fact's subject with the surviving entity of
+// its merged_into chain: an accepted merge leaves facts on the old subject
+// id, but they describe the surviving entity.
+func (r *Reader) resolveSubjects(ctx context.Context, ns string, recs map[string]*record) error {
+	into := map[string]string{}
+	var frontier []string
+	seen := map[string]bool{}
+	for _, rec := range recs {
+		if rec.typ == core.RecFact && rec.subject != "" && !seen[rec.subject] {
+			seen[rec.subject] = true
+			frontier = append(frontier, rec.subject)
+		}
+	}
+	for hop := 0; hop < maxMergeHops && len(frontier) > 0; hop++ {
+		sort.Strings(frontier)
+		var next []string
+		for start := 0; start < len(frontier); start += inBatch {
+			batch := frontier[start:min(start+inBatch, len(frontier))]
+			args := []any{ns}
+			for _, id := range batch {
+				args = append(args, id)
+			}
+			rows, err := r.db().QueryContext(ctx, `SELECT id, merged_into FROM entities
+				WHERE namespace = ? AND merged_into IS NOT NULL AND id IN (`+placeholders(len(batch))+`) ORDER BY id`, args...)
+			if err != nil {
+				return core.Wrap(core.CodeInternal, err, "entity merges")
+			}
+			for rows.Next() {
+				var id, to string
+				if err := rows.Scan(&id, &to); err != nil {
+					rows.Close()
+					return err
+				}
+				into[id] = to
+				if !seen[to] {
+					seen[to] = true
+					next = append(next, to)
+				}
+			}
+			err = rows.Err()
+			rows.Close()
+			if err != nil {
+				return err
+			}
+		}
+		frontier = next
+	}
+	if len(into) == 0 {
+		return nil
+	}
+	for _, rec := range recs {
+		if rec.typ != core.RecFact {
+			continue
+		}
+		for hop := 0; hop < maxMergeHops; hop++ {
+			to, ok := into[rec.subject]
+			if !ok {
+				break
+			}
+			rec.subject = to
+		}
+	}
+	return nil
 }
 
 // loadDerived fills rec.derived for the events of recs.

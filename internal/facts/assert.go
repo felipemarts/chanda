@@ -101,10 +101,17 @@ func scanFacts(rows *sql.Rows) ([]Fact, error) {
 	return out, rows.Err()
 }
 
-// chainFacts returns every fact of (ns, subject, predicate), oldest first.
+// chainFacts returns every fact of (ns, subject, predicate), oldest first,
+// including the facts of entities merged into subject (they keep their
+// own subject id).
 func chainFacts(ctx context.Context, q store.Queryer, ns, subject, predicate string) ([]Fact, error) {
-	rows, err := q.QueryContext(ctx, `SELECT `+factCols+` FROM facts WHERE namespace = ? AND subject = ? AND predicate = ?
-		ORDER BY valid_from, recorded_at, id`, ns, subject, predicate)
+	set, err := MergeSet(ctx, q, ns, subject)
+	if err != nil {
+		return nil, err
+	}
+	cond, args := subjectIn(set)
+	rows, err := q.QueryContext(ctx, `SELECT `+factCols+` FROM facts WHERE namespace = ? AND `+cond+` AND predicate = ?
+		ORDER BY valid_from, recorded_at, id`, append(append([]any{ns}, args...), predicate)...)
 	if err != nil {
 		return nil, err
 	}

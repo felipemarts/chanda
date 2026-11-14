@@ -22,16 +22,22 @@ type TimelineEntry struct {
 	Origins []Origin `json:"origins"`
 }
 
-// subjectFilter resolves subject (name or entity id, never created) and
-// builds the WHERE clause shared by the queries. ok is false when the
-// subject is unknown.
+// subjectFilter resolves subject (name or entity id, never created; merges
+// followed) and builds the WHERE clause shared by the queries: the facts of
+// the surviving entity and of every entity merged into it. ok is false when
+// the subject is unknown.
 func (s *Service) subjectFilter(ctx context.Context, ns, subject, predicate string) (string, []any, bool, error) {
 	id, ok, err := s.LookupEntity(ctx, s.e.Store.DB(), ns, subject)
 	if err != nil || !ok {
 		return "", nil, false, err
 	}
-	where := `namespace = ? AND subject = ?`
-	args := []any{ns, id}
+	set, err := MergeSet(ctx, s.e.Store.DB(), ns, id)
+	if err != nil {
+		return "", nil, false, err
+	}
+	cond, sargs := subjectIn(set)
+	where := `namespace = ? AND ` + cond
+	args := append([]any{ns}, sargs...)
 	if p := strings.TrimSpace(predicate); p != "" {
 		where += ` AND predicate = ?`
 		args = append(args, norm.Predicate(p))

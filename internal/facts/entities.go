@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"strings"
 
 	"github.com/felipemarts/chanda-mcp/internal/audit"
 	"github.com/felipemarts/chanda-mcp/internal/core"
@@ -75,6 +76,40 @@ func followMerges(ctx context.Context, q store.Queryer, ns, id string) (string, 
 		id = into.String
 	}
 	return "", core.Errf(core.CodeIntegrity, "entity merge chain too long at %s", id)
+}
+
+// MergeSet returns id and every entity merged into it, directly or through
+// a chain (entities.merged_into, set by an accepted merge), sorted. Facts
+// keep the subject id they were written with, so readers of a subject must
+// read the facts of the whole set.
+func MergeSet(ctx context.Context, q store.Queryer, ns, id string) ([]string, error) {
+	rows, err := q.QueryContext(ctx, `WITH RECURSIVE m(id, depth) AS (
+			SELECT ?, 0
+			UNION SELECT e.id, m.depth + 1 FROM entities e JOIN m ON e.merged_into = m.id
+			WHERE e.namespace = ? AND m.depth < ?)
+		SELECT DISTINCT id FROM m ORDER BY id`, id, ns, maxMergeHops)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []string
+	for rows.Next() {
+		var x string
+		if err := rows.Scan(&x); err != nil {
+			return nil, err
+		}
+		out = append(out, x)
+	}
+	return out, rows.Err()
+}
+
+// subjectIn is a "subject IN (...)" condition over a merge set.
+func subjectIn(set []string) (string, []any) {
+	args := make([]any, len(set))
+	for i, x := range set {
+		args[i] = x
+	}
+	return `subject IN (?` + strings.Repeat(",?", len(set)-1) + `)`, args
 }
 
 // LookupEntity resolves a subject given as an entity id or as a name,
