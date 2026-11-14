@@ -28,6 +28,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/felipemarts/chanda-mcp/internal/app"
 	"github.com/felipemarts/chanda-mcp/internal/config"
 	"github.com/felipemarts/chanda-mcp/internal/mcp"
 	"github.com/felipemarts/chanda-mcp/pkg/chanda"
@@ -36,11 +37,18 @@ import (
 var version = "dev"
 
 // newAPI builds the Chanda core for cfg and returns it with a close function.
-// Integration replaces it; until then it reports CodeUnavailable, and serve
-// still starts (every tool answers unavailable) so the binary is testable.
+// serve starts its background indexer (see starter). Tests replace it.
 var newAPI = func(cfg *config.Config) (chanda.API, func() error, error) {
-	return nil, nil, chanda.Errf(chanda.CodeUnavailable, "the chanda core is not wired into this binary yet")
+	a, err := app.Open(context.Background(), cfg)
+	if err != nil {
+		return nil, nil, err
+	}
+	return a, a.Close, nil
 }
+
+// starter is implemented by an API with background work (the embedding
+// indexer of app.App); serve starts it, one-shot commands do not.
+type starter interface{ Start(context.Context) }
 
 // runEval runs the evaluation harness (BASE.md "Evaluation"). Integration
 // replaces it; it may call newAPI for each configuration it compares.
@@ -212,6 +220,9 @@ func cmdServe(ctx context.Context, args []string, stderr io.Writer) int {
 	default:
 		logger.Error("open", "err", err)
 		return 1
+	}
+	if st, ok := api.(starter); ok {
+		st.Start(ctx)
 	}
 	srv, err := mcp.New(api, cfg, mcp.Options{Version: version, Logger: logger})
 	if err != nil {

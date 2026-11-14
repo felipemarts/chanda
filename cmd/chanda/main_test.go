@@ -92,18 +92,44 @@ func TestVersionAndUsage(t *testing.T) {
 	}
 }
 
-func TestCommandsReportUnwiredCore(t *testing.T) {
-	cfg := filepath.Join(t.TempDir(), "none.yaml") // missing file: defaults apply
-	for _, args := range [][]string{
-		{"ingest", "--config", cfg, "x"},
-		{"sleep", "--config", cfg},
-		{"eval", "--config", cfg},
-		{"forget", "--config", cfg, "--kind", "record", "--value", "evt_1"},
+// tempConfig writes a chanda.yaml whose database lives in a temp dir, plus
+// extra YAML, and returns its path.
+func tempConfig(t *testing.T, extra string) string {
+	t.Helper()
+	dir := t.TempDir()
+	p := filepath.Join(dir, "chanda.yaml")
+	body := "db_path: " + filepath.Join(dir, "chanda.db") + "\n" + extra
+	if err := os.WriteFile(p, []byte(body), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	return p
+}
+
+// The commands run on the real core; sleep and eval are not wired yet.
+func TestCommandsUseTheCore(t *testing.T) {
+	cfg := tempConfig(t, "")
+	doc := filepath.Join(t.TempDir(), "notes.md")
+	if err := os.WriteFile(doc, []byte("# Notes\n\nThe release train leaves on Fridays."), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct {
+		args []string
+		code chanda.Code // "" = ok
+	}{
+		{[]string{"ingest", "--config", cfg, doc}, ""},
+		{[]string{"ingest", "--config", cfg, filepath.Join(t.TempDir(), "missing")}, chanda.CodeNotFound},
+		{[]string{"sleep", "--config", cfg}, chanda.CodeUnavailable},
+		{[]string{"eval", "--config", cfg}, chanda.CodeUnavailable},
+		{[]string{"forget", "--config", cfg, "--kind", "search", "--query", "release train", "--dry-run"}, ""},
+		{[]string{"forget", "--config", cfg, "--kind", "record", "--value", "evt_1"}, chanda.CodeNotFound},
 	} {
-		code, out, _ := runCLI(args...)
+		code, out, _ := runCLI(tc.args...)
 		env := decodeEnv(t, out)
-		if code != 1 || env.OK || env.Error.Code != chanda.CodeUnavailable {
-			t.Errorf("%v: code %d env %+v", args, code, env)
+		switch {
+		case tc.code == "" && (code != 0 || !env.OK):
+			t.Errorf("%v: code %d env %+v", tc.args, code, env)
+		case tc.code != "" && (code != 1 || env.OK || env.Error.Code != tc.code):
+			t.Errorf("%v: code %d env %+v, want %s", tc.args, code, env, tc.code)
 		}
 	}
 }
@@ -181,14 +207,11 @@ func buildBinary(t *testing.T) string {
 }
 
 // Acceptance (BASE.md phase 2): an MCP client lists and calls the tools of
-// the real binary over stdio. The core is not wired, so tools answer
-// unavailable in the envelope; stdout must carry nothing but MCP frames.
+// the real binary over stdio, on the real core; stdout must carry nothing
+// but MCP frames.
 func TestServeStdioBinary(t *testing.T) {
 	bin := buildBinary(t)
-	cfgPath := filepath.Join(t.TempDir(), "chanda.yaml")
-	if err := os.WriteFile(cfgPath, []byte("mcp:\n  profiles: [read, standard]\n"), 0o600); err != nil {
-		t.Fatal(err)
-	}
+	cfgPath := tempConfig(t, "mcp:\n  profiles: [read, standard]\n")
 	tests := []struct {
 		name  string
 		extra []string
@@ -217,18 +240,29 @@ func TestServeStdioBinary(t *testing.T) {
 			if len(lt.Tools) != tc.want {
 				t.Fatalf("%d tools, want %d", len(lt.Tools), tc.want)
 			}
-			name, args := chanda.ToolSearch, map[string]any{"query": "q"}
+			call := func(name string, args map[string]any) chanda.Envelope {
+				t.Helper()
+				res, err := cs.CallTool(ctx, &sdk.CallToolParams{Name: name, Arguments: args})
+				if err != nil {
+					t.Fatal(err)
+				}
+				b, _ := json.Marshal(res.StructuredContent)
+				env := decodeEnv(t, string(b))
+				if res.IsError || !env.OK {
+					t.Fatalf("%s: %s", name, b)
+				}
+				return env
+			}
 			if tc.want == 5 {
-				name, args = chanda.ToolVerify, map[string]any{}
+				if env := call(chanda.ToolVerify, map[string]any{}); env.Data.(map[string]any)["ok"] != true {
+					t.Fatalf("verify: %+v", env)
+				}
+				return
 			}
-			res, err := cs.CallTool(ctx, &sdk.CallToolParams{Name: name, Arguments: args})
-			if err != nil {
-				t.Fatal(err)
-			}
-			b, _ := json.Marshal(res.StructuredContent)
-			env := decodeEnv(t, string(b))
-			if !res.IsError || env.OK || env.Error.Code != chanda.CodeUnavailable {
-				t.Fatalf("%s: %s", name, b)
+			call(chanda.ToolRemember, map[string]any{"content": "The release train leaves on Fridays."})
+			env := call(chanda.ToolSearch, map[string]any{"query": "release train"})
+			if items := env.Data.(map[string]any)["items"].([]any); len(items) != 1 {
+				t.Fatalf("search after remember: %+v", env.Data)
 			}
 		})
 	}
@@ -263,7 +297,7 @@ func TestServeHTTP(t *testing.T) {
 	var stderr syncBuffer
 	done := make(chan int, 1)
 	go func() {
-		args := []string{"serve", "--config", filepath.Join(t.TempDir(), "none.yaml"), "--http", "127.0.0.1:0", "--profiles", "read"}
+		args := []string{"serve", "--config", tempConfig(t, ""), "--http", "127.0.0.1:0", "--profiles", "read"}
 		done <- run(srvCtx, args, io.Discard, &stderr)
 	}()
 	var url string
