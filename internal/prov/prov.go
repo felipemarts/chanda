@@ -7,11 +7,12 @@
 //
 //   - An edge points from a derived record to one of its sources
 //     (derived_type, derived_id) -> (source_type, source_id).
-//   - Origin edges are every relation except mentions, duplicate_of and
-//     supersedes. Those three describe a relation between records, not where
-//     the content came from, so they are never followed when computing
-//     origins or descendants. Unknown relations count as origin edges: when in
-//     doubt, the zone goes down and forget removes more, never less.
+//   - Origin (derivation) edges are exactly derived_from, confirmed_by and
+//     cites; only they are followed when computing origins, zones and
+//     descendants. supersedes (new fact -> old fact), duplicate_of (new ->
+//     older record) and mentions (event/fact -> entity) relate records
+//     without carrying content, so forgetting an old fact's origin never
+//     deletes its successor. Any other relation is not a path to an event.
 //   - A page reaches events through its items (page_items.page_id) and through
 //     any edge whose derived side is the page itself.
 //   - Embeddings carry no edges: a vector belongs to (record_type, record_id)
@@ -31,19 +32,20 @@ import (
 	"github.com/felipemarts/chanda-mcp/internal/store"
 )
 
-// nonOrigin lists the relations that do not carry content from source to derived.
-var nonOrigin = map[string]bool{
-	core.RelMentions:    true,
-	core.RelDuplicateOf: true,
-	core.RelSupersedes:  true,
+// originRelations are the derivation relations: the content of the derived
+// record came from the source.
+var originRelations = map[string]bool{
+	core.RelDerivedFrom: true,
+	core.RelConfirmedBy: true,
+	core.RelCites:       true,
 }
 
 // IsOriginRelation reports whether an edge with relation rel is followed when
 // computing origins and descendants.
-func IsOriginRelation(rel string) bool { return !nonOrigin[rel] }
+func IsOriginRelation(rel string) bool { return originRelations[rel] }
 
-// nonOriginSQL is the SQL list matching nonOrigin, for "relation NOT IN (...)".
-const nonOriginSQL = `('mentions','duplicate_of','supersedes')`
+// originSQL is the SQL list matching originRelations, for "relation IN (...)".
+const originSQL = `('derived_from','confirmed_by','cites')`
 
 // Ref names one record.
 type Ref struct {
@@ -87,7 +89,7 @@ func AddEdge(ctx context.Context, q store.Queryer, clk core.Clock, ns string, de
 // sources returns the origin-edge sources of a record, plus the items of a page.
 func sources(ctx context.Context, q store.Queryer, r Ref) ([]Ref, error) {
 	out, err := scanRefs(ctx, q, `SELECT source_type, source_id FROM provenance
-		WHERE derived_type = ? AND derived_id = ? AND relation NOT IN `+nonOriginSQL+`
+		WHERE derived_type = ? AND derived_id = ? AND relation IN `+originSQL+`
 		ORDER BY source_type, source_id`, string(r.Type), r.ID)
 	if err != nil {
 		return nil, err
@@ -216,7 +218,7 @@ func Descendants(ctx context.Context, q store.Queryer, rootEventIDs []string) (D
 		r := queue[0]
 		queue = queue[1:]
 		derived, err := scanRefs(ctx, q, `SELECT derived_type, derived_id FROM provenance
-			WHERE source_type = ? AND source_id = ? AND relation NOT IN `+nonOriginSQL+`
+			WHERE source_type = ? AND source_id = ? AND relation IN `+originSQL+`
 			ORDER BY derived_type, derived_id`, string(r.Type), r.ID)
 		if err != nil {
 			return set, err

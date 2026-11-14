@@ -150,3 +150,35 @@ func TestAddEdge(t *testing.T) {
 		}
 	}
 }
+
+// Architect note: only derived_from, confirmed_by and cites are derivation
+// edges. duplicate_of, supersedes and any other relation are not paths to
+// events and are not followed by Descendants.
+func TestOnlyDerivationRelationsAreOrigins(t *testing.T) {
+	e, s := graph(t)
+	ctx := context.Background()
+	s.Edge("fact", "fct_6", "fact", "fct_1", core.RelDuplicateOf)
+	s.Edge("fact", "fct_6", "event", "evt_3", "related_to")
+	got, err := prov.Origins(ctx, e.Store.DB(), core.RecFact, "fct_6")
+	if err != nil || !reflect.DeepEqual(ids(got), []string{"evt_2"}) {
+		t.Fatalf("origins = %v %v", ids(got), err)
+	}
+	for _, root := range []string{"evt_1", "evt_3"} {
+		d, _ := prov.Descendants(ctx, e.Store.DB(), []string{root})
+		for _, f := range d.Facts {
+			if f == "fct_6" {
+				t.Errorf("descendants of %s followed a non-derivation edge", root)
+			}
+		}
+	}
+	for _, r := range []string{core.RelDerivedFrom, core.RelConfirmedBy, core.RelCites} {
+		if !prov.IsOriginRelation(r) {
+			t.Errorf("%s must be an origin relation", r)
+		}
+	}
+	for _, r := range []string{core.RelMentions, core.RelDuplicateOf, core.RelSupersedes, "related_to"} {
+		if prov.IsOriginRelation(r) {
+			t.Errorf("%s must not be an origin relation", r)
+		}
+	}
+}
