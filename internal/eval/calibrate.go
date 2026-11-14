@@ -83,11 +83,11 @@ type SignalSummary struct {
 // evaluated mix). The floors minimise lost + filled over every pair of
 // candidate floors: coverage at each value observed (or off), cosine at the
 // midpoint between consecutive observed values (or off). Ties go to fewer
-// filled unanswerable questions (principle 8); among the pairs still tied,
-// the cosine floor is the centre of the widest run of optimal cosine floors
-// (the largest margin to the decisions on either side), then the lower
-// coverage floor. A candidate passes when coverage or cosine reaches its
-// floor (decision 0020): either signal suffices on its own.
+// filled unanswerable questions (principle 8), then to fewer non-gold
+// candidates of answerable questions passing (the same decisions with less
+// filler: principle 8 again), then to the lower floors. A candidate passes
+// when coverage or cosine reaches its floor (decision 0020): either signal
+// suffices on its own.
 func CalibrateEvidence(ctx context.Context, p EvidenceProber, ds *Dataset, budget int) (Calibration, error) {
 	cal := Calibration{System: p.Name(), ByTag: map[string]TagCalibration{}}
 	if d, ok := p.(Describer); ok {
@@ -205,24 +205,37 @@ func chooseFloors(cal Calibration, qs []calQuestion) (Calibration, error) {
 			}
 		}
 	}
-	// Among the optimal pairs, the cosine floor sits in the middle of the
-	// widest run of consecutive optimal cosine floors (the largest margin
-	// on both sides); ties go to the lower coverage floor.
-	bc, bs, bw := 0.0, 0.0, -1.0
+	// Among the optimal pairs, the one that lets the fewest non-gold
+	// candidates of answerable questions through (the same decisions on the
+	// training questions, less filler in the context); then the lower
+	// coverage floor, then the lower cosine floor.
+	bc, bs, bn := 0.0, 0.0, math.MaxInt
 	for i, c := range covs {
-		for j := 0; j < len(coss); {
-			if scores[i][j] != best {
-				j++
+		lex := 0
+		var rest []float64 // cosines of the noise below the coverage floor
+		for _, q := range qs {
+			if !q.answerable {
 				continue
 			}
-			k := j
-			for k+1 < len(coss) && scores[i][k+1] == best {
-				k++
+			for n, cd := range q.cands {
+				switch {
+				case q.gold[n]:
+				case cd.Coverage >= c:
+					lex++
+				case cd.HasCosine:
+					rest = append(rest, cd.Cosine)
+				}
 			}
-			if w := coss[k] - coss[j]; w > bw {
-				bc, bs, bw = c, (coss[j]+coss[k])/2, w
+		}
+		sort.Float64s(rest)
+		for j, s := range coss {
+			if scores[i][j] != best {
+				continue
 			}
-			j = k + 1
+			noise := lex + len(rest) - sort.SearchFloat64s(rest, s)
+			if noise < bn {
+				bc, bs, bn = c, s, noise
+			}
 		}
 	}
 	if bs > 1 {

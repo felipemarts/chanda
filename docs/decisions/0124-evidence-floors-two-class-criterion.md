@@ -27,11 +27,21 @@ mirrors the evaluated mix by construction, 0123):
 
 The floors minimise lost + filled over every pair: c at each coverage value
 observed (or off, 1.01), s at the midpoint between consecutive observed
-cosines (or off). Ties go to fewer filled questions (principle 8); among
-pairs still tied, s is the centre of the widest run of optimal cosine floors
-(the largest margin to the decisions on either side), then the lower c.
-Floors are published with four decimals (coverage rounded down, cosine
-rounded unless that would cross an observed value).
+cosines (or off). Ties go to fewer filled questions (principle 8), then to
+fewer non-gold candidates of answerable questions passing (the same
+decisions on the training questions with less filler in the context:
+principle 8 again), then to the lower c and s. Floors are published with
+four decimals (coverage rounded down, cosine rounded unless that would cross
+an observed value).
+
+One revision, made on training output only (before any evaluated run with
+the new floors): the first version broke the remaining ties by the centre
+of the widest run of optimal cosine floors, then the lower c. On the hash
+training split every pair that keeps all judged gold also fills all 17
+unanswerable questions, so all of them tie, and that rule picked c = 0:
+every candidate passes, the cut does nothing. Minimising the non-gold
+candidates that pass among the tied pairs keeps the same training decisions
+with the strictest floors that make them.
 
 Why these choices: equal unit costs on the natural mix make a lost answer
 and a filled abstention equally bad, which is what "weighs both errors"

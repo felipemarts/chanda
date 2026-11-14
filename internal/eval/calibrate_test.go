@@ -59,8 +59,9 @@ func TestCalibrateEvidenceWeighsBothErrorsOnTheTrainingSplit(t *testing.T) {
 		}
 	}
 	// Coverage 0.5 would fill "g"; cosine must stay above 0.79 (h) and at or
-	// below 0.82 (e): the optimal cosine floors 0.795 and 0.81 are centred.
-	if cal.MinTermCoverage != 1 || cal.MinCosine != 0.8025 {
+	// below 0.82 (e): of the optimal cosine floors 0.795 and 0.81, 0.81 lets
+	// no noise (0.8) through.
+	if cal.MinTermCoverage != 1 || cal.MinCosine != 0.81 {
 		t.Fatalf("floors %v / %v", cal.MinTermCoverage, cal.MinCosine)
 	}
 	if cal.Cost != 0 || cal.Kept != 6 || cal.Filled != 0 || cal.Unanswerable != 2 || cal.ByTag[TagParaphrase].Kept != 2 {

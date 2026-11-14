@@ -141,9 +141,11 @@ var courtesy = []string{"Obrigado.", "Atenciosamente.", "Confirmado.", "Até mai
 // held-out measurement). Positives: three real duplicates of each paragraph
 // (first letter's case swapped; a courtesy sentence appended; the final
 // period removed or added), kept only when the signature is unchanged (the
-// threshold is what decides them). Negatives: every pair of different
-// paragraphs with identical signatures (the guard would collapse them on
-// the cosine alone).
+// threshold is what decides them). Negatives: every pair of paragraphs with
+// identical signatures (the guard would collapse them on the cosine alone)
+// whose words differ; two paragraphs with the same words in another order
+// ("equipes de Financeiro e Suporte" / "de Suporte e Financeiro") say the
+// same thing and are not negatives.
 func nearDupPairs(ds *Dataset, maxChunkChars int) (paras []string, pos []dupPair, neg [][2]int) {
 	skip := map[string]bool{}
 	for _, b := range DedupProbeBases(ds, maxChunkChars) {
@@ -188,10 +190,19 @@ func nearDupPairs(ds *Dataset, maxChunkChars int) (paras []string, pos []dupPair
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
+	bags := make([]string, len(paras))
+	for i, p := range paras {
+		ws := terms(p)
+		sort.Strings(ws)
+		bags[i] = strings.Join(ws, " ")
+	}
 	for _, k := range keys {
 		g := groups[k]
 		for x := 0; x < len(g); x++ {
 			for y := x + 1; y < len(g); y++ {
+				if bags[g[x]] == bags[g[y]] {
+					continue // the same words in another order: a duplicate, not a negative
+				}
 				neg = append(neg, [2]int{g[x], g[y]})
 			}
 		}
