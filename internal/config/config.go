@@ -69,6 +69,8 @@ type EmbedConfig struct {
 	Dim               int    `yaml:"dim"`
 	BatchSize         int    `yaml:"batch_size"`
 	RerankerModelPath string `yaml:"reranker_model_path"`
+	PollIntervalMS    int    `yaml:"poll_interval_ms"` // background indexer re-checks embed_queue this often
+	ScanWorkers       int    `yaml:"scan_workers"`     // goroutines per vector scan; 0 = GOMAXPROCS
 }
 
 type FactsConfig struct {
@@ -132,7 +134,7 @@ func Default() *Config {
 			RelevanceThreshold: 0.0, MaxPerDocument: 3, SearchDefaultLimit: 20,
 			ContextDefaultTokens: 800, ContextMaxTokens: 1500,
 		},
-		Embed: EmbedConfig{Provider: "hash", ModelID: "hash-v1-256", Dim: 256, BatchSize: 32},
+		Embed: EmbedConfig{Provider: "hash", ModelID: "hash-v1-256", Dim: 256, BatchSize: 32, PollIntervalMS: 1000},
 		Facts: FactsConfig{
 			SinglePredicates:  []string{"job_title", "address", "current_price", "owner", "email", "phone", "status", "manager", "employer", "location"},
 			ConfirmBoost:      0.1,
