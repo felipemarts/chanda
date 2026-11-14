@@ -98,6 +98,13 @@ type SleepConfig struct {
 	LessonMinEvents int     `yaml:"lesson_min_events"` // 3
 	SnapshotDir     string  `yaml:"snapshot_dir"`
 	MergeSimilarity float64 `yaml:"merge_similarity"`
+
+	CheckEveryMinutes int     `yaml:"check_every_minutes"` // scheduler poll period
+	BurstSeconds      int     `yaml:"burst_seconds"`       // a write this recent means a burst: no run starts (0 disables)
+	BatchEvents       int     `yaml:"batch_events"`        // events per LLM call (extraction batch, lesson cluster cap)
+	LessonSimilarity  float64 `yaml:"lesson_similarity"`   // Jaccard over key terms for "similar events"
+	LessonPoolEvents  int     `yaml:"lesson_pool_events"`  // most recent uncited events considered for lessons
+	MergeMaxEntities  int     `yaml:"merge_max_entities"`  // above this, vector merge proposals are skipped
 }
 
 type RankingConfig struct {
@@ -125,6 +132,8 @@ type LLMConfig struct {
 	Model          string `yaml:"model"`
 	APIKeyEnv      string `yaml:"api_key_env"`
 	TimeoutSeconds int    `yaml:"timeout_seconds"`
+	ResponseFormat string `yaml:"response_format"` // auto (json_schema, falling back to json_object), json_schema, json_object
+	MaxTokens      int    `yaml:"max_tokens"`      // output ceiling per call
 }
 
 type MCPConfig struct {
@@ -169,6 +178,8 @@ func Default() *Config {
 			IdleMinutes: 30, VolumeEvents: 200, IntervalHours: 24,
 			BudgetTokens: 200000, BudgetEvents: 500, GateTolerance: 2.0, LessonMinEvents: 3,
 			SnapshotDir: "snapshots", MergeSimilarity: 0.92,
+			CheckEveryMinutes: 5, BurstSeconds: 10, BatchEvents: 20, LessonSimilarity: 0.5,
+			LessonPoolEvents: 1000, MergeMaxEntities: 2000,
 		},
 		Ranking: RankingConfig{
 			Enabled: true, MinExposures: 5, LambdaMax: 0.3, LambdaStep: 0.05, PromotionMargin: 1.0,
@@ -176,7 +187,7 @@ func Default() *Config {
 			FlagPenalty: 10, RankerKind: "logreg", TrainIterations: 300, LearningRate: 0.5, L2: 0.001,
 			HiddenUnits: 8, MinTrainExamples: 50, HoldoutFraction: 0.2, ModelSeed: "chanda-rank",
 		},
-		LLM:    LLMConfig{TimeoutSeconds: 120},
+		LLM:    LLMConfig{TimeoutSeconds: 120, ResponseFormat: "auto", MaxTokens: 2048},
 		MCP:    MCPConfig{Profiles: []string{"read", "standard"}, Actor: "agent"},
 		Forget: ForgetConfig{TombstoneKeepsHash: false, ProbeTerms: 3, ProbeNeedles: 4, ProbeNeedleBytes: 16, ProbeVectorK: 50},
 	}
