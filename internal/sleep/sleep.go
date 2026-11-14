@@ -194,23 +194,24 @@ type Counts struct {
 	GateProposed        []string    `json:"gate_proposed"` // gate questions proposed (status proposed)
 	Learning            LearnResult `json:"learning"`
 
-	EventsExtracted int            `json:"events_extracted"`
-	EventsSkipped   []string       `json:"events_skipped"` // larger than the whole token budget
-	FactActions     map[string]int `json:"fact_actions"`
-	CandidatesDrop  int            `json:"candidates_dropped"`
-	Verdicts        map[string]int `json:"verdicts"`
-	FactsActivated  []string       `json:"facts_activated"`
-	FactsSuperseded []string       `json:"facts_superseded"`
-	FactsHistory    []string       `json:"facts_history"`
-	FactsRejected   []string       `json:"facts_rejected"`
-	VerdictsRefused []string       `json:"verdicts_refused"`
-	MergesApplied   []string       `json:"merges_applied"`
-	MergesRejected  []string       `json:"merges_rejected"`
-	PagesCreated    []string       `json:"pages_created"`
-	PageItemsAdded  []string       `json:"page_items_added"`
-	LessonsSkipped  int            `json:"lessons_skipped"`
-	InvalidAnswers  int            `json:"invalid_answers"`
-	LLMErrors       int            `json:"llm_errors"`
+	EventsExtracted  int            `json:"events_extracted"`
+	EventsSkipped    []string       `json:"events_skipped"` // larger than the whole token budget
+	FactActions      map[string]int `json:"fact_actions"`
+	CandidatesDrop   int            `json:"candidates_dropped"`
+	Verdicts         map[string]int `json:"verdicts"`
+	FactsActivated   []string       `json:"facts_activated"`
+	FactsSuperseded  []string       `json:"facts_superseded"`
+	FactsHistory     []string       `json:"facts_history"`
+	FactsQuarantined []string       `json:"facts_quarantined"` // active facts of a lower zone quarantined by a merge (decision 0103)
+	FactsRejected    []string       `json:"facts_rejected"`
+	VerdictsRefused  []string       `json:"verdicts_refused"`
+	MergesApplied    []string       `json:"merges_applied"`
+	MergesRejected   []string       `json:"merges_rejected"`
+	PagesCreated     []string       `json:"pages_created"`
+	PageItemsAdded   []string       `json:"page_items_added"`
+	LessonsSkipped   int            `json:"lessons_skipped"`
+	InvalidAnswers   int            `json:"invalid_answers"`
+	LLMErrors        int            `json:"llm_errors"`
 }
 
 // Gate is the outcome of the evaluation gate.
@@ -448,7 +449,7 @@ func sumActions(m map[string]int) int {
 
 func sortCounts(c *Counts) {
 	for _, l := range []*[]string{&c.MergeProposals, &c.StaleFacts, &c.PagesRebuilt, &c.GateProposed, &c.EventsSkipped,
-		&c.FactsActivated, &c.FactsSuperseded, &c.FactsHistory, &c.FactsRejected, &c.VerdictsRefused,
+		&c.FactsActivated, &c.FactsSuperseded, &c.FactsHistory, &c.FactsQuarantined, &c.FactsRejected, &c.VerdictsRefused,
 		&c.MergesApplied, &c.MergesRejected, &c.PagesCreated, &c.PageItemsAdded} {
 		if *l == nil {
 			*l = []string{}

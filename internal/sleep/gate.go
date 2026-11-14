@@ -446,7 +446,8 @@ func (s *Sleeper) applyFactVerdict(ctx context.Context, tx *sql.Tx, r *run, v ve
 // accepts it (entity_b is merged into entity_a, the older id: merged_into is
 // set and its aliases move to entity_a); coexist and reject mark it
 // rejected; keep_pending leaves it pending. Facts keep their subject id;
-// readers resolve entities.merged_into.
+// readers resolve entities.merged_into. An accepted merge then reconciles
+// the single predicates of the merged set (reconcileMerge).
 func (s *Sleeper) applyMergeVerdict(ctx context.Context, tx *sql.Tx, r *run, v verdict) error {
 	c := &r.res.Counts
 	var a, b, status string
@@ -479,7 +480,10 @@ func (s *Sleeper) applyMergeVerdict(ctx context.Context, tx *sql.Tx, r *run, v v
 			}
 		}
 		c.MergesApplied = append(c.MergesApplied, v.id)
-		return s.audit(ctx, tx, r.ns, audit.ActEntityMerge, from, map[string]any{"into": into, "proposal": v.id, "run": r.res.RunID})
+		if err := s.audit(ctx, tx, r.ns, audit.ActEntityMerge, from, map[string]any{"into": into, "proposal": v.id, "run": r.res.RunID}); err != nil {
+			return err
+		}
+		return s.reconcileMerge(ctx, tx, r, into, from)
 	default: // coexist, reject
 		if _, err := tx.ExecContext(ctx, `UPDATE entity_merge_proposals SET status='rejected' WHERE id=?`, v.id); err != nil {
 			return err
