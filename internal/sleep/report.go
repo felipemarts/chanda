@@ -24,6 +24,15 @@ func renderReport(r *Result) string {
 	list(&b, "Merge proposals (pending)", c.MergeProposals)
 	list(&b, "Facts marked stale_source", c.StaleFacts)
 	list(&b, "Pages rebuilt", c.PagesRebuilt)
+	list(&b, "Gate questions proposed (awaiting a human)", c.GateProposed)
+	if l := c.Learning; l.Trained != "" || l.Evaluated != "" || len(l.Notices) > 0 {
+		fmt.Fprintf(&b, "- Ranker: trained %s, evaluated %s, passed %t, promoted %t, baseline %.2f, learned %.2f, lambda %.2f",
+			orNone(l.Trained), orNone(l.Evaluated), l.Passed, l.Promoted, l.Baseline, l.Learned, l.Lambda)
+		if len(l.Notices) > 0 {
+			fmt.Fprintf(&b, " (%s)", strings.Join(l.Notices, ", "))
+		}
+		b.WriteByte('\n')
+	}
 
 	if len(r.Phases) == 2 {
 		b.WriteString("\n## Phase 2\n\n")
@@ -71,6 +80,13 @@ func renderReport(r *Result) string {
 		}
 	}
 	return b.String()
+}
+
+func orNone(s string) string {
+	if s == "" {
+		return "none"
+	}
+	return s
 }
 
 func list(b *strings.Builder, title string, ids []string) {

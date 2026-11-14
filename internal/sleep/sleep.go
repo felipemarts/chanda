@@ -103,6 +103,32 @@ type Evaluator interface {
 	Score(ctx context.Context, q store.Queryer, ns string) (float64, error)
 }
 
+// GateSizer is optionally implemented by an Evaluator: how many questions
+// it scores in ns. With none, the gate measures nothing and rests on the
+// integrity check alone; the run says so in a notice.
+type GateSizer interface {
+	GateSize(ctx context.Context, q store.Queryer, ns string) (int, error)
+}
+
+// Learning trains the stage-2 ranker and attempts its promotion through
+// the gate set (phase 1; BASE.md "Ranking that learns from use"). Called
+// outside any sleep transaction, after the utility recompute.
+type Learning interface {
+	Learn(ctx context.Context, ns string) (LearnResult, error)
+}
+
+// LearnResult is what Learning did: ids and numbers only.
+type LearnResult struct {
+	Trained   string   `json:"trained,omitempty"`   // model trained in this run
+	Evaluated string   `json:"evaluated,omitempty"` // model the promotion evaluated
+	Passed    bool     `json:"passed"`
+	Promoted  bool     `json:"promoted"` // the model became the live one in this run
+	Baseline  float64  `json:"baseline"`
+	Learned   float64  `json:"learned"`
+	Lambda    float64  `json:"lambda"` // λ after the run
+	Notices   []string `json:"notices,omitempty"`
+}
+
 // EntityVectors optionally returns one vector per entity id (missing ids are
 // simply absent), for vector-based merge proposals.
 type EntityVectors interface {
@@ -120,6 +146,7 @@ type Deps struct {
 	Utility       Utility
 	Evaluator     Evaluator
 	EntityVectors EntityVectors
+	Learning      Learning
 	// Logf receives scheduler errors (Start); nil discards them.
 	Logf func(format string, args ...any)
 }
@@ -160,10 +187,12 @@ func (c Cost) Tokens() int { return c.InputTokens + c.OutputTokens }
 
 // Counts lists what a run did. Id lists are sorted.
 type Counts struct {
-	IntegrityViolations int      `json:"integrity_violations"`
-	MergeProposals      []string `json:"merge_proposals"`
-	StaleFacts          []string `json:"stale_facts"`
-	PagesRebuilt        []string `json:"pages_rebuilt"`
+	IntegrityViolations int         `json:"integrity_violations"`
+	MergeProposals      []string    `json:"merge_proposals"`
+	StaleFacts          []string    `json:"stale_facts"`
+	PagesRebuilt        []string    `json:"pages_rebuilt"`
+	GateProposed        []string    `json:"gate_proposed"` // gate questions proposed (status proposed)
+	Learning            LearnResult `json:"learning"`
 
 	EventsExtracted int            `json:"events_extracted"`
 	EventsSkipped   []string       `json:"events_skipped"` // larger than the whole token budget
@@ -418,7 +447,7 @@ func sumActions(m map[string]int) int {
 }
 
 func sortCounts(c *Counts) {
-	for _, l := range []*[]string{&c.MergeProposals, &c.StaleFacts, &c.PagesRebuilt, &c.EventsSkipped,
+	for _, l := range []*[]string{&c.MergeProposals, &c.StaleFacts, &c.PagesRebuilt, &c.GateProposed, &c.EventsSkipped,
 		&c.FactsActivated, &c.FactsSuperseded, &c.FactsHistory, &c.FactsRejected, &c.VerdictsRefused,
 		&c.MergesApplied, &c.MergesRejected, &c.PagesCreated, &c.PageItemsAdded} {
 		if *l == nil {

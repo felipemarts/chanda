@@ -40,13 +40,23 @@ func (s *Sleeper) phase1(ctx context.Context, r *run) error {
 	} else {
 		r.res.notice("utility not configured; recompute skipped")
 	}
+	if s.d.Learning != nil {
+		lr, err := s.d.Learning.Learn(ctx, r.ns)
+		if err != nil {
+			return err
+		}
+		r.res.Counts.Learning = lr
+	}
 	if err := s.proposeMerges(ctx, r); err != nil {
 		return err
 	}
 	if err := s.markStale(ctx, r); err != nil {
 		return err
 	}
-	return s.rebuildPages(ctx, r)
+	if err := s.rebuildPages(ctx, r); err != nil {
+		return err
+	}
+	return s.proposeGate(ctx, r)
 }
 
 // ---------------------------------------------------------------------------

@@ -56,6 +56,15 @@ func (s *Sleeper) applyGated(ctx context.Context, r *run, p *plan) error {
 	if g.Before, err = s.d.Evaluator.Score(ctx, tx, r.ns); err != nil {
 		return err
 	}
+	if gs, ok := s.d.Evaluator.(GateSizer); ok {
+		n, err := gs.GateSize(ctx, tx, r.ns)
+		if err != nil {
+			return err
+		}
+		if n == 0 {
+			r.res.notice("gate: no approved gate questions; the score measured nothing and only the integrity check guarded this run")
+		}
+	}
 	if s.d.Integrity != nil {
 		if g.ViolationsBefore, err = s.d.Integrity.Check(ctx, tx, r.ns); err != nil {
 			return err
