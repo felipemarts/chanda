@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chanda-hermes"
+version = "0.1.0"
+description = "Chanda memory provider plugin for Hermes Agent."
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.11"
+# Hermes Agent v0.23.1 pins mcp==2.3.0, inside this range.
+dependencies = ["mcp>=2.3.0,<3"]
+
+[project.entry-points."hermes_agent.memory_providers"]
+chanda = "chanda_hermes:register"
+
+[tool.setuptools]
+packages = ["chanda_hermes"]
+
+[tool.setuptools.package-data]
+chanda_hermes = ["plugin.yaml"]
