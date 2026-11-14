@@ -294,7 +294,7 @@ func chandaSearch(ctx context.Context, o *RunOptions, emb *Cached, q *Question) 
 		DBBytes: st.DBSizeBytes, DiskBytes: DiskBytes(srv.DBPath), Items: len(out.Items),
 		Extra: map[string]any{
 			"turns": in.Turns, "created": in.Created, "duplicates": in.Duplicates, "near_duplicates": in.NearDups,
-			"rejected": in.Rejected, "flush_ms": in.FlushMS, "item_types": types, "unmapped_items": unmapped,
+			"rejected": in.Rejected, "reject_reasons": in.RejectReasons, "flush_ms": in.FlushMS, "item_types": types, "unmapped_items": unmapped,
 			"reason": out.Reason, "events": st.Counts.Events, "embeddings": st.Counts.Embeddings, "facts": st.Counts.Facts,
 			"embed_model": st.EmbedModel,
 		},

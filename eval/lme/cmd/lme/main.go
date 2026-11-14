@@ -168,13 +168,25 @@ func cmdStats(args []string) error {
 	fs := flag.NewFlagSet("stats", flag.ContinueOnError)
 	data := fs.String("data", defaultData, "dataset file")
 	out := fs.String("json", "", "also write the statistics to this file")
+	sample := fs.String("sample", "", "only the questions of this sample file")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
 	if err := checkData(*data); err != nil {
 		return err
 	}
-	st, err := lme.ComputeStats(*data)
+	var only map[string]bool
+	if *sample != "" {
+		s, err := lme.ReadSample(*sample)
+		if err != nil {
+			return err
+		}
+		only = map[string]bool{}
+		for _, id := range s.IDs() {
+			only[id] = true
+		}
+	}
+	st, err := lme.ComputeStatsFor(*data, only)
 	if err != nil {
 		return err
 	}
@@ -238,7 +250,7 @@ func (c *common) register(fs *flag.FlagSet) {
 	fs.IntVar(&c.limit, "limit", 0, "only the first N selected questions (0 = all)")
 	fs.StringVar(&c.embedder, "embedder", "hash", "hash or e5")
 	fs.StringVar(&c.e5Dir, "e5-dir", lme.DefaultE5Dir(), "e5-small model directory (in-process e5)")
-	fs.StringVar(&c.embedURL, "embed-url", "", "base URL of a running 'lme embedserve' to embed through (required for e5 with more than one worker)")
+	fs.StringVar(&c.embedURL, "embed-url", "", "base URL of a running 'lme embedserve' to embed through (required for e5: one process holds the model)")
 	fs.StringVar(&c.cache, "cache", "auto", "embedding cache file, or off; auto = "+defaultCache+" for e5, off for hash")
 	fs.StringVar(&c.work, "work", "", "work directory for per-question databases (default work/<command>)")
 	fs.IntVar(&c.workers, "workers", 4, "questions processed in parallel")
@@ -297,8 +309,10 @@ func (c *common) options(cmd string) (*lme.RunOptions, error) {
 		}
 		o.Embed.Cache = abs
 	}
-	if c.embedder == "e5" && c.embedURL == "" && c.workers > 1 {
-		return nil, fmt.Errorf("e5 in process loads the model in every chanda server too: start 'lme embedserve -embedder e5' and pass -embed-url, or use -workers 1")
+	if c.embedder == "e5" && c.embedURL == "" {
+		// In process, the harness and every chanda server would each load
+		// the 1.5 GB model; at most one e5 process may run on the machine.
+		return nil, fmt.Errorf("e5 runs in one process only: start 'lme embedserve -embedder e5 -e5-dir DIR -role query' and pass -embed-url http://ADDR")
 	}
 	if c.e5Dir != "" {
 		abs, err := filepath.Abs(c.e5Dir)

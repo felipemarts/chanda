@@ -110,6 +110,7 @@ type DatasetStats struct {
 	AnswerIDsNotInHaystack     int            `json:"answer_session_ids_missing_from_haystack"`
 	NoOfficialTarget           []string       `json:"questions_without_official_target"`
 	NoOfficialTargetNonAbs     int            `json:"non_abstention_without_official_target"`
+	NoOfficialTargetByType     map[string]int `json:"non_abstention_without_official_target_by_type"`
 	OfficialTargetsDiffer      int            `json:"official_targets_differ_from_answer_session_ids"`
 	HasAnswerOutsideAnswerIDs  int            `json:"has_answer_turns_in_sessions_without_answer_in_id"`
 	SessionsAfterQuestionDate  int            `json:"haystack_sessions_dated_after_question"`
@@ -122,12 +123,15 @@ type DatasetStats struct {
 }
 
 // ComputeStats streams path and measures it.
-func ComputeStats(path string) (*DatasetStats, error) {
-	st := &DatasetStats{ByType: map[string]int{}, AbstentionByType: map[string]int{}, Roles: map[string]int{}}
+func ComputeStats(path string) (*DatasetStats, error) { return ComputeStatsFor(path, nil) }
+
+// ComputeStatsFor measures only the questions in only (all when nil).
+func ComputeStatsFor(path string, only map[string]bool) (*DatasetStats, error) {
+	st := &DatasetStats{ByType: map[string]int{}, AbstentionByType: map[string]int{}, Roles: map[string]int{}, NoOfficialTargetByType: map[string]int{}}
 	var sess, turns, chars, evid []float64
 	ids := map[string]bool{}
 	us, ut, uc, uq := newUniq(), newUniq(), newUniq(), newUniq()
-	err := Each(path, func(q *Question) error {
+	err := Select(path, only, func(q *Question) error {
 		st.Questions++
 		st.ByType[q.QuestionType]++
 		if IsAbstention(q.QuestionID) {
@@ -200,6 +204,7 @@ func ComputeStats(path string) (*DatasetStats, error) {
 			st.NoOfficialTarget = append(st.NoOfficialTarget, q.QuestionID)
 			if !IsAbstention(q.QuestionID) {
 				st.NoOfficialTargetNonAbs++
+				st.NoOfficialTargetByType[q.QuestionType]++
 			}
 		}
 		if !IsAbstention(q.QuestionID) && len(off) > 0 && !sameSet(off, q.AnswerSessionIDs) {

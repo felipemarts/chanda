@@ -155,6 +155,7 @@ type Ingested struct {
 	Created       int
 	Duplicates    int
 	Rejected      int
+	RejectReasons map[string]int
 	NearDups      int
 	Elapsed       time.Duration // log_session calls + flush
 	FlushMS       float64
@@ -164,7 +165,7 @@ type Ingested struct {
 // chronological order (211 of the 500 S haystacks are not sorted by date,
 // although the README says they are) and flushes the index.
 func (c *ChandaServer) IngestQuestion(ctx context.Context, q *Question) (*Ingested, error) {
-	in := &Ingested{EventSessions: map[string][]int{}}
+	in := &Ingested{EventSessions: map[string][]int{}, RejectReasons: map[string]int{}}
 	start := time.Now()
 	for _, i := range ChronologicalOrder(q) {
 		sess := q.HaystackSessions[i]
@@ -191,6 +192,7 @@ func (c *ChandaServer) IngestQuestion(ctx context.Context, q *Question) (*Ingest
 				in.NearDups++
 			case "rejected":
 				in.Rejected++
+				in.RejectReasons[tr.Reason]++
 			}
 			if tr.ID != "" && !containsInt(in.EventSessions[tr.ID], i) {
 				in.EventSessions[tr.ID] = append(in.EventSessions[tr.ID], i)
