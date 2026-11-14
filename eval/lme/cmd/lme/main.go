@@ -375,7 +375,7 @@ func cmdRetrieve(ctx context.Context, args []string) error {
 			"budget_tokens": o.Budget, "token_estimator": "ceil(runes/4)", "chanda_search_limit": o.SearchLimit,
 			"workers": o.Workers, "wall_seconds": wall.Seconds(), "harness_cache_hits": hits, "harness_cache_misses": misses,
 			"date": time.Now().UTC().Format(time.RFC3339), "go": runtime.Version(), "goos_goarch": runtime.GOOS + "/" + runtime.GOARCH,
-			"chanda_search_as_of": "filters.as_of = question date (affects facts only; events are not filtered by date)",
+			"chanda_search_as_of": "filters.as_of = question day (YYYY-MM-DD, end of day; events dated after it are dropped, decision 0135)",
 		},
 		Conditions: lme.Summarize(qs, o.Conds),
 	}
