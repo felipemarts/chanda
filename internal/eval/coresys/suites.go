@@ -154,34 +154,6 @@ func DeletionSuite(ctx context.Context, fe eval.FactoryEnv, in eval.SuiteInput) 
 			docs = append(docs, it)
 		}
 	}
-	// entity (first, before other requests remove their facts): two subjects
-	// of active facts, probed by those fact values that occur in a single
-	// corpus item.
-	ents, err := s.entitiesWithValues(ctx, 2)
-	if err != nil {
-		return nil, err
-	}
-	texts := make([]string, len(ds.Corpus))
-	for i, it := range ds.Corpus {
-		texts[i] = it.ID + "\x00" + eval.Normalize(eval.ItemText(it))
-	}
-	for _, e := range ents {
-		var vals []string
-		for _, v := range e.values {
-			owners := map[string]bool{}
-			for _, t := range texts {
-				id, body, _ := strings.Cut(t, "\x00")
-				if containsTerms(body, v) {
-					owners[id] = true
-				}
-			}
-			if len(owners) == 1 {
-				vals = append(vals, v)
-			}
-		}
-		cases = append(cases, forgetCase{scope: chanda.ForgetScope{Kind: chanda.ScopeEntity, Value: e.name}, needles: vals,
-			gone: append(append([]string{}, e.facts...), e.origins...), factsOnly: true})
-	}
 	// record: one turn of three sessions (the turn holding a distinctive term).
 	for _, it := range sessions[:min(3, len(sessions))] {
 		for i, t := range it.Turns {
@@ -252,35 +224,76 @@ func DeletionSuite(ctx context.Context, fe eval.FactoryEnv, in eval.SuiteInput) 
 
 	var passed, coreFail, extraFail int
 	byKind, failedKind := map[string]int{}, map[string]int{}
-	for _, c := range cases {
-		byKind[c.scope.Kind]++
-		ok := true
-		out, err := s.app.Forget(op(ctx), chanda.ForgetInput{Namespace: Namespace, Scope: c.scope})
-		if err != nil {
-			return nil, fmt.Errorf("forget %s %q: %w", c.scope.Kind, c.scope.Value+c.scope.Query, err)
-		}
-		if !out.Verification.Passed {
-			coreFail++
-			ok = false
-			for _, p := range out.Verification.Probes {
-				if !p.Passed {
-					Logf("deletion: %s %s%s: forget probe %s failed (%s)", c.scope.Kind, c.scope.Value, c.scope.Query, p.Name, p.Detail)
+	run := func(cases []forgetCase) error {
+		for _, c := range cases {
+			byKind[c.scope.Kind]++
+			ok := true
+			out, err := s.app.Forget(op(ctx), chanda.ForgetInput{Namespace: Namespace, Scope: c.scope})
+			if err != nil {
+				return fmt.Errorf("forget %s %q: %w", c.scope.Kind, c.scope.Value+c.scope.Query, err)
+			}
+			if !out.Verification.Passed {
+				coreFail++
+				ok = false
+				for _, p := range out.Verification.Probes {
+					if !p.Passed {
+						Logf("deletion: %s %s%s: forget probe %s failed (%s)", c.scope.Kind, c.scope.Value, c.scope.Query, p.Name, p.Detail)
+					}
 				}
 			}
+			if why, err := s.stillFindable(ctx, c); err != nil {
+				return err
+			} else if why != "" {
+				extraFail++
+				ok = false
+				Logf("deletion: %s %s%s: %s", c.scope.Kind, c.scope.Value, c.scope.Query, why)
+			}
+			if ok {
+				passed++
+			} else {
+				failedKind[c.scope.Kind]++
+			}
 		}
-		if why, err := s.stillFindable(ctx, c); err != nil {
-			return nil, err
-		} else if why != "" {
-			extraFail++
-			ok = false
-			Logf("deletion: %s %s%s: %s", c.scope.Kind, c.scope.Value, c.scope.Query, why)
-		}
-		if ok {
-			passed++
-		} else {
-			failedKind[c.scope.Kind]++
-		}
+		return nil
 	}
+	if err := run(cases); err != nil {
+		return nil, err
+	}
+	// entity, last: an entity scope also removes every event that names the
+	// entity (decision 0130), so running it first would take the turns and
+	// documents chosen above with it. Two subjects of facts still active
+	// after the requests above, probed by those fact values that occur in a
+	// single corpus item.
+	ents, err := s.entitiesWithValues(ctx, 2)
+	if err != nil {
+		return nil, err
+	}
+	texts := make([]string, len(ds.Corpus))
+	for i, it := range ds.Corpus {
+		texts[i] = it.ID + "\x00" + eval.Normalize(eval.ItemText(it))
+	}
+	var entityCases []forgetCase
+	for _, e := range ents {
+		var vals []string
+		for _, v := range e.values {
+			owners := map[string]bool{}
+			for _, t := range texts {
+				id, body, _ := strings.Cut(t, "\x00")
+				if containsTerms(body, v) {
+					owners[id] = true
+				}
+			}
+			if len(owners) == 1 {
+				vals = append(vals, v)
+			}
+		}
+		entityCases = append(entityCases, forgetCase{scope: chanda.ForgetScope{Kind: chanda.ScopeEntity, Value: e.name}, needles: vals,
+			gone: append(append([]string{}, e.facts...), e.origins...), factsOnly: true})
+	}
+	if err := run(entityCases); err != nil {
+		return nil, err
+	}
+	cases = append(cases, entityCases...)
 	if len(cases) == 0 {
 		return nil, fmt.Errorf("no forget request could be built from the dataset")
 	}
