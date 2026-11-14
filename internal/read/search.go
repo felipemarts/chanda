@@ -305,7 +305,11 @@ func (r *Reader) run(ctx context.Context, q request) (*result, error) {
 				kept = append(kept, c)
 			}
 		}
-		alive = kept
+		// Raw excerpts stating a value that does not hold at as_of
+		// (decision 0120); run on what passed the cut, to read less.
+		if alive, err = r.dropStaleValues(ctx, o, kept); err != nil {
+			return nil, err
+		}
 	}
 
 	// 9. Diversify and respect the budget. 10. Assemble.

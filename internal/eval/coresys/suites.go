@@ -20,7 +20,9 @@ import (
 // Register attaches the suites that need a live core to r. Each suite builds
 // its own core with the C3 configuration (the most complete one that needs
 // neither a reranker nor sleep; without a reranker, exactly what the report
-// runs as C3), over the evaluation config and embedder of fe.
+// runs as C3), over the evaluation config and embedder of fe. The temporal
+// suite keeps eval.TemporalSuite's measure and adds the stale-record
+// diagnostics of TemporalSuite.
 func Register(r *eval.Registry, fe eval.FactoryEnv) error {
 	for name, run := range map[string]func(context.Context, eval.FactoryEnv, eval.SuiteInput) (eval.Measured, error){
 		eval.SuiteDeletion:       DeletionSuite,
@@ -36,7 +38,7 @@ func Register(r *eval.Registry, fe eval.FactoryEnv) error {
 			return err
 		}
 	}
-	return nil
+	return r.Register(eval.SuiteTemporal, true, TemporalSuite)
 }
 
 // suiteVariant is the configuration the core suites run on.

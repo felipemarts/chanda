@@ -24,6 +24,7 @@ type record struct {
 	ts     string // recorded_at (events, facts) or updated_at (pages): recency
 	// events
 	sourceID, docID, retiredAt, sessionID string
+	headingPath                           string // document chunks: "H1 > H2"
 	docVersion, ordinal                   sql.NullInt64
 	// facts
 	subject, predicate, validFrom, validTo string
@@ -44,16 +45,22 @@ type derivedFact struct {
 // judged wrong as seen at as_of: rejected or flagged, or superseded by a
 // later-recorded fact, unless an explicit as_of falls inside its validity
 // (it held then). A history insert (a value recorded as already past) is
-// not outdated: the event stated it as history.
+// not outdated without an explicit as_of: the event stated it as history.
+// With an explicit as_of, an active or superseded fact whose validity does
+// not contain as_of is outdated too: its value did not hold at that date,
+// either because it was already replaced or because it only began later
+// (decision 0120).
 func (d derivedFact) outdatedAt(o filterOpts) bool {
 	switch core.FactStatus(d.status) {
 	case core.FactRejected, core.FactFlagged:
 		return true
 	case core.FactSuperseded:
-		if !d.replacedLater {
-			return false
+		if o.asOfExplicit {
+			return !validAt(d.validFrom, d.validTo, o.asOf)
 		}
-		return !(o.asOfExplicit && validAt(d.validFrom, d.validTo, o.asOf))
+		return d.replacedLater
+	case core.FactActive:
+		return o.asOfExplicit && !validAt(d.validFrom, d.validTo, o.asOf)
 	}
 	return false
 }
@@ -106,7 +113,7 @@ func (r *Reader) loadRecords(ctx context.Context, ns string, byType map[core.Rec
 			switch typ {
 			case core.RecEvent:
 				q = `SELECT id, namespace, kind, content, trust_zone, flags, source_id, COALESCE(doc_id,''), doc_version, ordinal,
-					COALESCE(retired_at,''), COALESCE(session_id,''), recorded_at FROM events`
+					COALESCE(retired_at,''), COALESCE(session_id,''), recorded_at, COALESCE(heading_path,'') FROM events`
 			case core.RecFact:
 				q = `SELECT id, namespace, subject, predicate, text, status, trust_zone, valid_from, COALESCE(valid_to,''), recorded_at FROM facts`
 			case core.RecPage:
@@ -123,7 +130,7 @@ func (r *Reader) loadRecords(ctx context.Context, ns string, byType map[core.Rec
 				switch typ {
 				case core.RecEvent:
 					err = rows.Scan(&rec.id, &rec.ns, &rec.kind, &rec.text, &zone, &flags, &rec.sourceID, &rec.docID,
-						&rec.docVersion, &rec.ordinal, &rec.retiredAt, &rec.sessionID, &rec.ts)
+						&rec.docVersion, &rec.ordinal, &rec.retiredAt, &rec.sessionID, &rec.ts, &rec.headingPath)
 				case core.RecFact:
 					err = rows.Scan(&rec.id, &rec.ns, &rec.subject, &rec.predicate, &rec.text, &rec.status, &zone,
 						&rec.validFrom, &rec.validTo, &rec.ts)
@@ -163,51 +170,18 @@ const maxMergeHops = 16
 // its merged_into chain: an accepted merge leaves facts on the old subject
 // id, but they describe the surviving entity.
 func (r *Reader) resolveSubjects(ctx context.Context, ns string, recs map[string]*record) error {
-	into := map[string]string{}
-	var frontier []string
 	seen := map[string]bool{}
 	for _, rec := range recs {
-		if rec.typ == core.RecFact && rec.subject != "" && !seen[rec.subject] {
+		if rec.typ == core.RecFact && rec.subject != "" {
 			seen[rec.subject] = true
-			frontier = append(frontier, rec.subject)
 		}
 	}
-	for hop := 0; hop < maxMergeHops && len(frontier) > 0; hop++ {
-		sort.Strings(frontier)
-		var next []string
-		for start := 0; start < len(frontier); start += inBatch {
-			batch := frontier[start:min(start+inBatch, len(frontier))]
-			args := []any{ns}
-			for _, id := range batch {
-				args = append(args, id)
-			}
-			rows, err := r.db().QueryContext(ctx, `SELECT id, merged_into FROM entities
-				WHERE +namespace = ? AND merged_into IS NOT NULL AND id IN (`+placeholders(len(batch))+`) ORDER BY id`, args...)
-			if err != nil {
-				return core.Wrap(core.CodeInternal, err, "entity merges")
-			}
-			for rows.Next() {
-				var id, to string
-				if err := rows.Scan(&id, &to); err != nil {
-					rows.Close()
-					return err
-				}
-				into[id] = to
-				if !seen[to] {
-					seen[to] = true
-					next = append(next, to)
-				}
-			}
-			err = rows.Err()
-			rows.Close()
-			if err != nil {
-				return err
-			}
-		}
-		frontier = next
-	}
-	if len(into) == 0 {
+	if len(seen) == 0 {
 		return nil
+	}
+	into, err := r.mergeTargets(ctx, ns, sortedKeys(seen))
+	if err != nil || len(into) == 0 {
+		return err
 	}
 	for _, rec := range recs {
 		if rec.typ != core.RecFact {
