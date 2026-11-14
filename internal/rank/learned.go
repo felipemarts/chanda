@@ -35,13 +35,8 @@ func (l *Learned) ScoreAll(ctx context.Context, ns string, cands []Candidate) (m
 		return nil, err
 	}
 	db := l.r.env.Store.DB()
-	var id string
-	err := db.QueryRowContext(ctx, `SELECT id FROM ranker_models WHERE namespace = ? AND status IN ('shadow','promoted')
-ORDER BY created_at DESC, id DESC LIMIT 1`, ns).Scan(&id)
-	if err == sql.ErrNoRows {
-		return nil, nil
-	}
-	if err != nil {
+	id, err := newestModel(ctx, db, ns)
+	if err != nil || id == "" {
 		return nil, err
 	}
 	m, err := l.r.model(ctx, db, id)
