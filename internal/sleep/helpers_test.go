@@ -121,11 +121,11 @@ func (fi *fakeIntegrity) Check(ctx context.Context, q store.Queryer, ns string) 
 	var n int
 	err := q.QueryRowContext(ctx, `SELECT
 		(SELECT count(*) FROM facts f WHERE f.namespace=?1 AND NOT EXISTS
-			(SELECT 1 FROM provenance p WHERE p.derived_type='fact' AND p.derived_id=f.id AND p.source_type='event'))
+			(SELECT 1 FROM provenance p WHERE p.derived_type='fact' AND p.derived_id=f.id AND p.source_type='event' AND p.relation IN ('derived_from','confirmed_by','cites')))
 		+ (SELECT count(*) FROM pages g WHERE g.namespace=?1 AND g.status<>'retired' AND NOT EXISTS
-			(SELECT 1 FROM provenance p WHERE p.derived_type='page' AND p.derived_id=g.id AND p.source_type='event'))
+			(SELECT 1 FROM provenance p WHERE p.derived_type='page' AND p.derived_id=g.id AND p.source_type='event' AND p.relation IN ('derived_from','confirmed_by','cites')))
 		+ (SELECT count(*) FROM page_items i WHERE i.namespace=?1 AND i.status<>'retired' AND NOT EXISTS
-			(SELECT 1 FROM provenance p WHERE p.derived_type='page_item' AND p.derived_id=i.id AND p.source_type='event'))`, ns).Scan(&n)
+			(SELECT 1 FROM provenance p WHERE p.derived_type='page_item' AND p.derived_id=i.id AND p.source_type='event' AND p.relation IN ('derived_from','confirmed_by','cites')))`, ns).Scan(&n)
 	return n, err
 }
 

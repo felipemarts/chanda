@@ -262,6 +262,10 @@ func pairKey(a, b string) [2]string {
 // ---------------------------------------------------------------------------
 // stale_source.
 
+// originRelations are the provenance relations that count as an origin path
+// to an event (supersedes, duplicate_of and mentions do not).
+const originRelations = `('derived_from','confirmed_by','cites')`
+
 // markStale sets status stale_source on active or quarantined facts that
 // have event origins and none of them is live (every origin event retired
 // or gone).
@@ -269,9 +273,11 @@ func (s *Sleeper) markStale(ctx context.Context, r *run) error {
 	return s.env.Store.Tx(ctx, func(tx *sql.Tx) error {
 		ids, err := queryStrings(ctx, tx, `SELECT f.id FROM facts f
 			WHERE f.namespace=? AND f.status IN ('active','quarantined')
-			AND EXISTS (SELECT 1 FROM provenance p WHERE p.derived_type='fact' AND p.derived_id=f.id AND p.source_type='event')
+			AND EXISTS (SELECT 1 FROM provenance p WHERE p.derived_type='fact' AND p.derived_id=f.id AND p.source_type='event'
+				AND p.relation IN `+originRelations+`)
 			AND NOT EXISTS (SELECT 1 FROM provenance p JOIN events e ON e.id=p.source_id
-				WHERE p.derived_type='fact' AND p.derived_id=f.id AND p.source_type='event' AND e.retired_at IS NULL)
+				WHERE p.derived_type='fact' AND p.derived_id=f.id AND p.source_type='event'
+				AND p.relation IN `+originRelations+` AND e.retired_at IS NULL)
 			ORDER BY f.id`, r.ns)
 		if err != nil {
 			return err
