@@ -38,8 +38,9 @@ chanda version
 
 The CLI acts for a person at the terminal: it may ingest any path and write in
 the `user` zone. Every command prints the result envelope
-(`{ok, data, notices, audit_id, error}`) as JSON. `chanda sleep` and
-`chanda eval` are not wired yet.
+(`{ok, data, notices, audit_id, error}`) as JSON. `chanda sleep` runs
+consolidation now; `chanda eval` (or `make eval`) regenerates the evaluation
+report in `eval/reports/`. See [docs/usage.md](docs/usage.md) for every command.
 
 ### Claude Code
 
@@ -130,8 +131,8 @@ Every tool takes an optional `namespace` and answers in the same envelope.
 | admin | `forget`, `promote`, `sleep_run`, `verify`, `ranking_reset` |
 
 An agent that reads untrusted content should get `read` and `standard` only.
-`promote` also requires `mcp.human_actor: true`. `sleep_run` currently
-answers `unavailable` (sleep is not wired yet).
+`promote` also requires `mcp.human_actor: true`. Without an LLM provider,
+`sleep_run` runs phase 1 (deterministic maintenance) only.
 
 A typical integration calls `context` with the user's request before the
 first turn and injects `data.text` (a block delimited by `<chanda-context>`
