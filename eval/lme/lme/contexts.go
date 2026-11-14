@@ -34,8 +34,8 @@ type ContextLine struct {
 	// Gold, for error analysis only: never put it in a prompt.
 	GoldEvidenceSessionIDs []string `json:"gold_evidence_session_ids"`
 	EvidenceRecall         *float64 `json:"evidence_recall_in_context,omitempty"`
-	IngestMS               float64  `json:"ingest_ms"`
-	RetrievalMS            float64  `json:"retrieval_ms"`
+	IngestSeconds          float64  `json:"ingest_seconds"`
+	RetrievalMS            float64  `json:"retrieval_latency_ms"`
 	DBBytes                int64    `json:"db_bytes"` // B: chunk text + vectors; D/E: Chanda .db + -wal + -shm
 	EmbedModel             string   `json:"embed_model"`
 	ChandaTokensUsed       int      `json:"chanda_tokens_used,omitempty"`
@@ -87,7 +87,7 @@ func contextB(ctx context.Context, o *RunOptions, emb *Cached, q *Question, l *C
 	if err != nil {
 		return err
 	}
-	l.Context, l.IngestMS, l.RetrievalMS, l.Items = g.Context, g.EmbedMS, g.SearchMS, len(g.Selected)
+	l.Context, l.IngestSeconds, l.RetrievalMS, l.Items = g.Context, g.EmbedMS/1000, g.SearchMS, len(g.Selected)
 	l.RetrievedSessionIDs = sessionIDs(q, g.InBudget)
 	for _, c := range g.Chunks {
 		l.DBBytes += int64(len(c.Text)) + int64(4*emb.Dim())
@@ -124,11 +124,11 @@ func contextChanda(ctx context.Context, o *RunOptions, emb *Cached, q *Question,
 	if err != nil {
 		return err
 	}
-	l.IngestMS = ms(in.Elapsed)
+	l.IngestSeconds = in.Elapsed.Seconds()
 	if sleep {
 		s := time.Now()
 		var out chanda.SleepRunOutput
-		if err := srv.Call(ctx, chanda.ToolSleepRun, chanda.SleepRunInput{Phases: []int{1, 2}}, &out); err != nil {
+		if err := srv.Call(ctx, chanda.ToolSleepRun, chanda.SleepRunInput{Phases: []int{1, 2}, Budget: co.SleepBudget}, &out); err != nil {
 			return err
 		}
 		l.SleepMS = ms(time.Since(s))

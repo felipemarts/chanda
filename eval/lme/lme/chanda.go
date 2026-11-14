@@ -27,6 +27,9 @@ type ChandaOptions struct {
 	LLMURL    string
 	LLMModel  string
 	LLMKeyEnv string
+	// SleepBudget caps each sleep_run (zero: Chanda's sleep.budget_tokens
+	// and sleep.budget_events defaults, 200,000 tokens and 500 events).
+	SleepBudget chanda.SleepBudget
 }
 
 // ChandaServer is a real chanda MCP server over stdio with its own database.
@@ -59,7 +62,7 @@ func (o ChandaOptions) ConfigYAML(dir string, modelID string, dim int) string {
 	}
 	fmt.Fprintf(&b, "mcp:\n  profiles: %s\n", profiles)
 	if o.LLMURL != "" {
-		fmt.Fprintf(&b, "llm:\n  endpoint: %q\n  model: %q\n", o.LLMURL, o.LLMModel)
+		fmt.Fprintf(&b, "llm:\n  endpoint: %q\n  model: %q\n  response_format: json_object\n", o.LLMURL, o.LLMModel)
 		if o.LLMKeyEnv != "" {
 			fmt.Fprintf(&b, "  api_key_env: %q\n", o.LLMKeyEnv)
 		}

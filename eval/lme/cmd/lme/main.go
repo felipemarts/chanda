@@ -36,6 +36,7 @@ import (
 	"github.com/felipemarts/chanda-mcp/embedders/hugot"
 	"github.com/felipemarts/chanda-mcp/eval/lme/lme"
 	"github.com/felipemarts/chanda-mcp/internal/cli"
+	"github.com/felipemarts/chanda-mcp/pkg/chanda"
 )
 
 const (
@@ -405,9 +406,11 @@ func cmdContexts(ctx context.Context, args []string) error {
 	c.register(fs)
 	cond := fs.String("cond", "", "B (plain RAG), D (Chanda context) or E (Chanda context after sleep_run)")
 	out := fs.String("out", "", "output JSONL file")
-	llmURL := fs.String("llm-url", "", "E: OpenAI-compatible base URL for Chanda's sleep phase 2 (the cost proxy)")
-	llmModel := fs.String("llm-model", "", "E: model name")
+	llmURL := fs.String("llm-url", "http://127.0.0.1:8787/tag/E-sleep/v1", "E: OpenAI-compatible base URL for Chanda's sleep phase 2 (the cost proxy, tag E-sleep)")
+	llmModel := fs.String("llm-model", "deepseek-flash", "E: model name")
 	llmKey := fs.String("llm-key-env", "", "E: environment variable holding the API key (empty: none)")
+	sleepTokens := fs.Int("sleep-budget-tokens", 0, "E: LLM token ceiling per sleep_run (0: Chanda's default, 200000)")
+	sleepEvents := fs.Int("sleep-budget-events", 0, "E: events ceiling per sleep_run (0: Chanda's default, 500)")
 	allowLLM := fs.Bool("allow-llm", false, "E: confirm that LLM calls may be made")
 	if err := fs.Parse(args); err != nil {
 		return err
@@ -423,6 +426,7 @@ func cmdContexts(ctx context.Context, args []string) error {
 		return err
 	}
 	o.Chanda.LLMURL, o.Chanda.LLMModel, o.Chanda.LLMKeyEnv = *llmURL, *llmModel, *llmKey
+	o.Chanda.SleepBudget = chanda.SleepBudget{Tokens: *sleepTokens, Events: *sleepEvents}
 	emb, err := lme.OpenEmbedder(ctx, o.Embed)
 	if err != nil {
 		return err
