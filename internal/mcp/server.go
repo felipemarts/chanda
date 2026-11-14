@@ -10,13 +10,17 @@ package mcp
 
 import (
 	"context"
+	"crypto/sha256"
+	"crypto/subtle"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
 	"net"
 	"net/http"
+	"os"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/google/jsonschema-go/jsonschema"
@@ -42,6 +46,9 @@ const instructions = `Chanda is long-term memory for this agent. It stores docum
 type Options struct {
 	Version string       // reported in serverInfo; default "dev"
 	Logger  *slog.Logger // diagnostics; default discards. Never log to stdout in stdio mode.
+	// Getenv reads the bearer token named by mcp.http_token_env; default
+	// os.Getenv (tests pass a map lookup).
+	Getenv func(string) string
 }
 
 // Server is an MCP server bound to one chanda.API.
@@ -52,6 +59,7 @@ type Server struct {
 	actor     chanda.Actor
 	log       *slog.Logger
 	tools     []string
+	token     string // bearer token for Streamable HTTP; empty = no auth (loopback only)
 }
 
 // New builds a server that registers only the tools of cfg.MCP.Profiles.
@@ -69,6 +77,13 @@ func New(api chanda.API, cfg *config.Config, opts Options) (*Server, error) {
 	if opts.Logger == nil {
 		opts.Logger = slog.New(slog.DiscardHandler)
 	}
+	if opts.Getenv == nil {
+		opts.Getenv = os.Getenv
+	}
+	var token string
+	if cfg.MCP.HTTPTokenEnv != "" {
+		token = strings.TrimSpace(opts.Getenv(cfg.MCP.HTTPTokenEnv))
+	}
 	actor := chanda.Actor{Name: cfg.MCP.Actor, Human: cfg.MCP.HumanActor, Remote: true, MaxZone: chanda.Zone(cfg.MCP.MaxZone)}
 	if actor.Name == "" {
 		actor.Name = DefaultActor
@@ -78,6 +93,7 @@ func New(api chanda.API, cfg *config.Config, opts Options) (*Server, error) {
 		namespace: cfg.Namespace,
 		actor:     actor,
 		log:       opts.Logger,
+		token:     token,
 		sdk: sdk.NewServer(
 			&sdk.Implementation{Name: "chanda", Title: "Chanda memory", Version: opts.Version},
 			&sdk.ServerOptions{Instructions: instructions, Logger: opts.Logger},
@@ -104,15 +120,78 @@ func (s *Server) Run(ctx context.Context, t sdk.Transport) error { return s.sdk.
 // RunStdio serves over stdin/stdout. Nothing else may write to stdout.
 func (s *Server) RunStdio(ctx context.Context) error { return s.sdk.Run(ctx, &sdk.StdioTransport{}) }
 
-// HTTPHandler returns a handler serving Streamable HTTP at HTTPPath.
-// It does no authentication; the SDK's localhost protection stays on.
+// HTTPHandler returns a handler serving Streamable HTTP at HTTPPath. With a
+// token (mcp.http_token_env) every request must carry
+// "Authorization: Bearer <token>", else 401. The SDK's localhost (DNS
+// rebinding) protection stays on either way.
 func (s *Server) HTTPHandler() http.Handler {
 	mux := http.NewServeMux()
 	mux.Handle(HTTPPath, sdk.NewStreamableHTTPHandler(
 		func(*http.Request) *sdk.Server { return s.sdk },
 		&sdk.StreamableHTTPOptions{Logger: s.log},
 	))
-	return mux
+	if s.token == "" {
+		return mux
+	}
+	return bearerAuth(s.token, mux)
+}
+
+// Authenticated reports whether the HTTP transport requires a bearer token.
+func (s *Server) Authenticated() bool { return s.token != "" }
+
+// bearerAuth admits a request only with the right bearer token. Both sides
+// are hashed first so the comparison is constant-time in length too.
+func bearerAuth(token string, next http.Handler) http.Handler {
+	want := sha256.Sum256([]byte(token))
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		got, ok := bearer(r.Header.Get("Authorization"))
+		gotSum := sha256.Sum256([]byte(got))
+		if subtle.ConstantTimeCompare(want[:], gotSum[:]) != 1 || !ok {
+			w.Header().Set("WWW-Authenticate", `Bearer realm="chanda"`)
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+// bearer extracts the token of an "Authorization: Bearer <token>" header
+// (scheme case-insensitive, RFC 6750).
+func bearer(h string) (string, bool) {
+	scheme, tok, ok := strings.Cut(strings.TrimSpace(h), " ")
+	if !ok || !strings.EqualFold(scheme, "Bearer") {
+		return "", false
+	}
+	tok = strings.TrimSpace(tok)
+	return tok, tok != ""
+}
+
+// CheckListenAddr refuses a non-loopback address when no token is set: an
+// unauthenticated memory server must not be reachable from the network.
+func (s *Server) CheckListenAddr(addr net.Addr) error {
+	if s.token != "" || isLoopback(addr) {
+		return nil
+	}
+	return chanda.Errf(chanda.CodePermissionDenied,
+		"mcp: refusing Streamable HTTP on non-loopback %s without a token; set the environment variable named by mcp.http_token_env", addr)
+}
+
+func isLoopback(addr net.Addr) bool {
+	var ip net.IP
+	switch a := addr.(type) {
+	case *net.TCPAddr:
+		ip = a.IP
+	default:
+		host, _, err := net.SplitHostPort(addr.String())
+		if err != nil {
+			return false
+		}
+		if host == "localhost" {
+			return true
+		}
+		ip = net.ParseIP(host)
+	}
+	return ip != nil && ip.IsLoopback()
 }
 
 // ListenAndServe serves Streamable HTTP on addr until ctx ends.
@@ -124,8 +203,13 @@ func (s *Server) ListenAndServe(ctx context.Context, addr string) error {
 	return s.Serve(ctx, ln)
 }
 
-// Serve serves Streamable HTTP on ln until ctx ends, then shuts down.
+// Serve serves Streamable HTTP on ln until ctx ends, then shuts down. It
+// refuses (and closes ln) when ln is not loopback and no token is set.
 func (s *Server) Serve(ctx context.Context, ln net.Listener) error {
+	if err := s.CheckListenAddr(ln.Addr()); err != nil {
+		ln.Close()
+		return err
+	}
 	hs := &http.Server{Handler: s.HTTPHandler(), ReadHeaderTimeout: 10 * time.Second}
 	done := make(chan struct{})
 	go func() {

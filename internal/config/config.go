@@ -154,6 +154,10 @@ type MCPConfig struct {
 	// (decision 0090): zone = MinZone(ZoneForSource(kind), max_zone).
 	// "user" is allowed only with human_actor.
 	MaxZone string `yaml:"max_zone"`
+	// HTTPTokenEnv names the environment variable holding the bearer token
+	// the Streamable HTTP transport requires (decision 0100). Unset or
+	// empty: no authentication, and HTTP serves on loopback addresses only.
+	HTTPTokenEnv string `yaml:"http_token_env"`
 }
 
 type ForgetConfig struct {
@@ -202,7 +206,7 @@ func Default() *Config {
 			HiddenUnits: 8, MinTrainExamples: 50, HoldoutFraction: 0.2, ModelSeed: "chanda-rank",
 		},
 		LLM:    LLMConfig{TimeoutSeconds: 120, ResponseFormat: "auto", MaxTokens: 2048},
-		MCP:    MCPConfig{Profiles: []string{"read", "standard"}, Actor: "agent", MaxZone: "internal"},
+		MCP:    MCPConfig{Profiles: []string{"read", "standard"}, Actor: "agent", MaxZone: "internal", HTTPTokenEnv: "CHANDA_MCP_TOKEN"},
 		Forget: ForgetConfig{TombstoneKeepsHash: false, ProbeTerms: 3, ProbeNeedles: 4, ProbeNeedleBytes: 16, ProbeVectorK: 50},
 	}
 }
@@ -255,12 +259,13 @@ func (c *Config) Validate() error {
 
 // Hash is the configuration hash required in evaluation reports. It covers
 // what decides behaviour, not where files live or how the server listens:
-// db_path, sleep.snapshot_dir, write.ingest_roots and mcp.http_addr are left
-// out, so the same configuration hashes the same on every machine (and the
+// db_path, sleep.snapshot_dir, write.ingest_roots, mcp.http_addr and
+// mcp.http_token_env are left out, so the same configuration hashes the same on every machine (and the
 // hash logged with each retrieval keeps the database byte-identical).
 func (c *Config) Hash() string {
 	cp := *c
 	cp.DBPath, cp.Sleep.SnapshotDir, cp.Write.IngestRoots, cp.MCP.HTTPAddr = "", "", nil, ""
+	cp.MCP.HTTPTokenEnv = ""
 	b, _ := yaml.Marshal(&cp)
 	h := sha256.Sum256(b)
 	return hex.EncodeToString(h[:8])
