@@ -24,10 +24,11 @@ import (
 //	(d) the per-write integrity check of the facts created in (a).
 //
 // The fact_assertion event written by assert_fact skips (a): its fact is
-// asserted by the call itself (AssertFact), before this chain runs.
+// asserted by the call itself (AssertFact), before this chain runs. With
+// Options.DisableFacts, (a) never runs.
 func (a *App) afterEvent(ctx context.Context, tx *sql.Tx, ev write.Event) error {
 	var created []string
-	if ev.Kind != core.EventFact {
+	if ev.Kind != core.EventFact && !a.opt.DisableFacts {
 		res, err := a.facts.AfterEvent(ctx, tx, facts.Event{
 			ID: ev.ID, Namespace: ev.Namespace, Content: ev.Content, TrustZone: ev.TrustZone,
 			RecordedAt: ev.RecordedAt, ValidFrom: ev.ValidFrom, HeadingPath: ev.HeadingPath,

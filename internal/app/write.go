@@ -84,6 +84,10 @@ var factActions = map[facts.Action]string{
 func (a *App) AssertFact(ctx context.Context, in chanda.AssertFactInput) (chanda.AssertFactOutput, error) {
 	c := a.begin(ctx, in.Namespace)
 	out := chanda.AssertFactOutput{}
+	if a.opt.DisableFacts {
+		out.Meta = c.meta(0)
+		return out, core.Errf(core.CodeUnavailable, "assert_fact: facts are disabled in this configuration")
+	}
 	subject, pred, value := strings.TrimSpace(in.Subject), strings.TrimSpace(in.Predicate), strings.TrimSpace(in.Value)
 	if subject == "" || pred == "" || value == "" {
 		out.Meta = c.meta(0)

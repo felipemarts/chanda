@@ -46,6 +46,7 @@ type App struct {
 	reader  *read.Reader
 	ranker  *rank.Ranker
 	roots   []string // resolved write.ingest_roots
+	opt     Options
 
 	mu     sync.Mutex
 	cancel context.CancelFunc
@@ -54,9 +55,49 @@ type App struct {
 
 var _ chanda.API = (*App)(nil)
 
+// Options select the parts of the system an App runs. The zero value is
+// the full system; the evaluation configurations of BASE.md are subsets:
+//
+//	C1 hybrid search, no reranker   Options{DisableFacts: true, DisableSleep: true, DisableLearning: true}
+//	C2 C1 plus the reranker         C1 with Reranker set (and read.rerank_enabled: true)
+//	C3 C2 plus facts                Options{Reranker: rr, DisableSleep: true, DisableLearning: true}
+//	C4 C3 plus sleep                Options{Reranker: rr, DisableLearning: true}
+//	C5 C4 plus learned ranking      Options{Reranker: rr}
+type Options struct {
+	// DisableVectors makes the read path keyword only (no query embedding,
+	// no vector search). The write path still queues embeddings.
+	DisableVectors bool
+	// DisableFacts turns off deterministic fact extraction on write and
+	// refuses assert_fact with CodeUnavailable; no fact is ever created.
+	DisableFacts bool
+	// DisableSleep refuses sleep_run with CodeUnavailable and never starts
+	// the sleep scheduler.
+	DisableSleep bool
+	// DisableLearning keeps λ at 0 (the read order is exactly the
+	// pre-learning order) and skips training and promotion in sleep.
+	// Outcomes and flags are still recorded.
+	DisableLearning bool
+
+	// Embedder replaces the embedder built from cfg.Embed (nil: from config).
+	Embedder core.Embedder
+	// Reranker is the cross-encoder of read step 6 (nil: no rerank). It is
+	// used only when read.rerank_enabled is true.
+	Reranker core.Reranker
+	// LLM replaces the provider built from cfg.LLM for sleep phase 2 (nil:
+	// llm.FromConfig; tests pass an llm.Fake).
+	LLM core.LLMProvider
+	// Logf receives background errors (sleep scheduler); nil discards them.
+	Logf func(format string, args ...any)
+}
+
 // Open opens cfg.DBPath with the system clock and wires an App that owns the
 // store. Call Start to run the background embedding indexer, Close to stop.
 func Open(ctx context.Context, cfg *config.Config) (*App, error) {
+	return OpenWith(ctx, cfg, Options{})
+}
+
+// OpenWith is Open with options.
+func OpenWith(ctx context.Context, cfg *config.Config, o Options) (*App, error) {
 	if err := cfg.Validate(); err != nil {
 		return nil, core.Wrap(core.CodeInvalidArgument, err, "config")
 	}
@@ -64,7 +105,7 @@ func Open(ctx context.Context, cfg *config.Config) (*App, error) {
 	if err != nil {
 		return nil, core.Wrap(core.CodeInternal, err, "open database")
 	}
-	a, err := New(e)
+	a, err := NewWith(e, o)
 	if err != nil {
 		e.Store.Close()
 		return nil, err
@@ -73,18 +114,25 @@ func Open(ctx context.Context, cfg *config.Config) (*App, error) {
 	return a, nil
 }
 
-// New wires an App over an existing Env (tests, determinism). The caller
-// keeps ownership of the store.
-func New(e *env.Env) (*App, error) {
+// New wires the full App over an existing Env (tests, determinism). The
+// caller keeps ownership of the store.
+func New(e *env.Env) (*App, error) { return NewWith(e, Options{}) }
+
+// NewWith wires an App with options over an existing Env. The caller keeps
+// ownership of the store.
+func NewWith(e *env.Env, o Options) (*App, error) {
 	cfg := e.Cfg
 	if err := facts.ValidateExtractors(cfg.Write.Extractors); err != nil {
 		return nil, core.Wrap(core.CodeInvalidArgument, err, "write.extractors")
 	}
-	emb, err := embed.NewFromConfig(cfg.Embed)
-	if err != nil {
-		return nil, err
+	emb := o.Embedder
+	if emb == nil {
+		var err error
+		if emb, err = embed.NewFromConfig(cfg.Embed); err != nil {
+			return nil, err
+		}
 	}
-	a := &App{e: e, facts: facts.New(e), guard: dedup.New(e), emb: emb, ranker: rank.New(e)}
+	a := &App{e: e, facts: facts.New(e), guard: dedup.New(e), emb: emb, ranker: rank.New(e), opt: o}
 	for _, r := range cfg.Write.IngestRoots {
 		rr, err := resolvePath(r)
 		if err != nil {
@@ -94,16 +142,23 @@ func New(e *env.Env) (*App, error) {
 	}
 	a.index = embed.NewExactIndex(e)
 	a.indexer = embed.NewIndexer(e, emb, a.index)
+	var err error
 	if a.writer, err = write.New(e, write.EventHookFunc(a.afterEvent)); err != nil {
 		return nil, err
 	}
-	deps := read.Deps{
-		Embedder: emb, VectorIndex: a.index, Utility: a.ranker,
-		Learned: learnedAdapter{a.ranker.Learned()},
+	deps := read.Deps{Embedder: emb, VectorIndex: a.index, Reranker: o.Reranker}
+	if o.DisableVectors {
+		deps.Embedder, deps.VectorIndex = nil, nil
+	}
+	if !o.DisableLearning {
+		deps.Utility, deps.Learned = a.ranker, learnedAdapter{a.ranker.Learned()}
 	}
 	a.reader = read.New(e, deps)
 	return a, nil
 }
+
+// Options returns the options the App was wired with.
+func (a *App) Options() Options { return a.opt }
 
 // Env returns the environment the App runs on.
 func (a *App) Env() *env.Env { return a.e }
