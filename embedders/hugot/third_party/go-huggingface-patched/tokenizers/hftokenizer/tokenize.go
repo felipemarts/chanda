@@ -228,13 +228,7 @@ func (t *Tokenizer) unigramTokenizeWithSpans(word wordWithOffset) ([]int, []api.
 	for i := 1; i <= n; i++ {
 		best[i] = negInf
 	}
-	minScore := 0.0
-	for _, sc := range t.tokenizer.Model.Scores {
-		if sc < minScore {
-			minScore = sc
-		}
-	}
-	unkScore := minScore - 10 // same convention as sentencepiece (kUnkPenalty = 10)
+	unkScore := t.tokenizer.Model.MinScore - 10 // same convention as sentencepiece (kUnkPenalty = 10)
 	for end := 1; end <= n; end++ {
 		for start := end - 1; start >= 0 && end-start <= maxPiece; start-- {
 			if best[start] == negInf {

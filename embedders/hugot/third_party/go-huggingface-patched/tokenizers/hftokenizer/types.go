@@ -113,6 +113,7 @@ type Decoder struct {
 type Model struct {
 	Type                    string         `json:"type"`
 	Scores                  []float64      `json:"-"` // Unigram log-probs by id (patched)
+	MinScore                float64        `json:"-"` // min(0, Scores...), for the unknown-piece penalty (patched)
 	Vocab                   map[string]int `json:"-"` // Custom unmarshaling handles both map and array formats
 	Merges                  []string       `json:"-"` // Custom unmarshaling handles both string and array formats
 	UnkToken                string         `json:"unk_token"`

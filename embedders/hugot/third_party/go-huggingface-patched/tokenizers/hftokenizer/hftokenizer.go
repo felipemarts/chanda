@@ -61,6 +61,7 @@ func (m *Model) UnmarshalJSON(data []byte) error {
 					if len(pair) >= 2 {
 						if sc, ok := pair[1].(float64); ok {
 							m.Scores[idx] = sc
+							m.MinScore = min(m.MinScore, sc)
 						}
 					}
 					if len(pair) >= 1 {

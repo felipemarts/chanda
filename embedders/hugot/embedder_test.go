@@ -237,20 +237,39 @@ func TestEmbedLongTextAndNFKC(t *testing.T) {
 	}
 }
 
+// The clipper keeps the longest whole-word prefix that fits the window, on
+// both tokenizer files (MiniLM's reports broken spans, so spans are not used).
 func TestClipKeepsTheWindow(t *testing.T) {
-	dir := modelDir(t, "e5-small")
-	c, err := newClipper(dir, 16)
-	if err != nil {
-		t.Fatal(err)
+	cases := []struct {
+		name, model, text string
+		window            int
+		want              string // "" = any prefix within bounds
+		minTokens         int    // 0 = text must be unchanged
+	}{
+		{"fits", "e5-small", "passage: O gato dorme.", 16, "", 0},
+		{"cut at a word", "e5-small", "passage: " + strings.Repeat("Configurar o pipeline de integração contínua. ", 10), 16, "", 10},
+		{"repeated word", "paraphrase-minilm-l12", strings.TrimSpace(strings.Repeat("contrato ", 200)), 128,
+			strings.TrimSpace(strings.Repeat("contrato ", 126)), 126},
+		{"one huge word", "paraphrase-minilm-l12", strings.Repeat("x", 3000), 128, "", 100},
 	}
-	short := "passage: O gato dorme."
-	if got := c.clip(short); got != short {
-		t.Fatalf("short text changed: %q", got)
-	}
-	long := "passage: " + strings.Repeat("Configurar o pipeline de integração contínua. ", 10)
-	got := c.clip(long)
-	if n := len(c.tok.EncodeWithAnnotations(got).IDs); n > 14 || n < 10 || !strings.HasPrefix(long, got) {
-		t.Fatalf("clip(long) = %q (%d tokens), want a prefix of at most 14 tokens", got, n)
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			cl, err := newClipper(modelDir(t, c.model), c.window)
+			if err != nil {
+				t.Fatal(err)
+			}
+			got := cl.clip(c.text)
+			n := len(cl.tok.Encode(got))
+			if !strings.HasPrefix(c.text, got) || n > c.window-2 || n < c.minTokens {
+				t.Fatalf("clip = %.60q... (%d tokens), want a prefix of %d to %d tokens", got, n, c.minTokens, c.window-2)
+			}
+			if c.want != "" && got != c.want {
+				t.Fatalf("clip = %.60q..., want %.60q...", got, c.want)
+			}
+			if c.minTokens == 0 && got != c.text {
+				t.Fatalf("text that fits was changed to %q", got)
+			}
+		})
 	}
 }
 

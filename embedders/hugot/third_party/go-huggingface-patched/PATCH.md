@@ -23,12 +23,20 @@ embedder applies `norm.NFKC` to its input instead.
 
 Only `tokenizers/hftokenizer/`:
 
-- `types.go`: `Model` gains `Scores []float64` (Unigram log-prob by token id).
-- `hftokenizer.go`: the Unigram vocab array `[[piece, score], ...]` fills `Scores`.
+- `types.go`: `Model` gains `Scores []float64` (Unigram log-prob by token id)
+  and `MinScore float64` (`min(0, Scores...)`).
+- `hftokenizer.go`: the Unigram vocab array `[[piece, score], ...]` fills
+  `Scores` and `MinScore` once, at load (computing the minimum per word cost
+  38 ms per paragraph on the 250k-piece XLM-R vocabulary).
 - `tokenize.go`: `unigramTokenizeWithSpans` is Viterbi: best-scoring
   segmentation over pieces of at most 32 runes, an unknown single rune costs
-  `min(score) - 10` (SentencePiece's `kUnkPenalty`), byte offsets are kept for
+  `MinScore - 10` (SentencePiece's `kUnkPenalty`), byte offsets are kept for
   the spans. Imports re-sorted by gofmt.
+
+Known upstream issues left alone (worked around in `embedders/hugot`):
+`EncodeOptions.MaxLen` is ignored (no truncation), and token spans are wrong
+for some `tokenizer.json` files (every span `{0, 11}` on
+paraphrase-multilingual-MiniLM-L12-v2).
 
 Everything else is an unmodified copy, trimmed to the packages hugot imports
 (`.`, `hub`, `internal/files`, `internal/downloader`, `tokenizers`,
