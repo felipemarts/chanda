@@ -106,9 +106,10 @@ func tempConfig(t *testing.T, extra string) string {
 	return p
 }
 
-// The commands run on the real core; sleep is not wired yet.
+// The commands run on the real core.
 func TestCommandsUseTheCore(t *testing.T) {
-	cfg := tempConfig(t, "")
+	// No write-burst pause, so sleep may run right after the ingest.
+	cfg := tempConfig(t, "sleep:\n  burst_seconds: 0\n")
 	doc := filepath.Join(t.TempDir(), "notes.md")
 	if err := os.WriteFile(doc, []byte("# Notes\n\nThe release train leaves on Fridays."), 0o600); err != nil {
 		t.Fatal(err)
@@ -119,7 +120,7 @@ func TestCommandsUseTheCore(t *testing.T) {
 	}{
 		{[]string{"ingest", "--config", cfg, doc}, ""},
 		{[]string{"ingest", "--config", cfg, filepath.Join(t.TempDir(), "missing")}, chanda.CodeNotFound},
-		{[]string{"sleep", "--config", cfg}, chanda.CodeUnavailable},
+		{[]string{"sleep", "--config", cfg, "--phases", "1"}, ""},
 		{[]string{"forget", "--config", cfg, "--kind", "search", "--query", "release train", "--dry-run"}, ""},
 		{[]string{"forget", "--config", cfg, "--kind", "record", "--value", "evt_1"}, chanda.CodeNotFound},
 	} {
