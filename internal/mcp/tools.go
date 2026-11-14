@@ -1,7 +1,6 @@
 package mcp
 
 import (
-	"fmt"
 	"slices"
 
 	"github.com/felipemarts/chanda-mcp/pkg/chanda"
@@ -62,15 +61,6 @@ func SpecsFor(profiles []Profile) []ToolSpec {
 		}
 	}
 	return out
-}
-
-func spec(name string) ToolSpec {
-	for _, s := range specs {
-		if s.Name == name {
-			return s
-		}
-	}
-	panic(fmt.Sprintf("mcp: no spec for tool %q", name))
 }
 
 const envelopeNote = " Answers in the Chanda envelope {ok, data, notices, audit_id, error}; on failure ok is false and error.code is a stable code."
