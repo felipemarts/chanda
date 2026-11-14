@@ -55,6 +55,7 @@ const (
 	ActRankReset       = "rank_reset"
 	ActRankToggle      = "rank_toggle"
 	ActMigrate         = "migrate"
+	ActRetrieve        = "retrieve" // a read logged in retrievals (internal/read)
 
 	// Embedding index (actor "system:embed").
 	ActEmbedIndex     = "embed_index"
@@ -62,6 +63,18 @@ const (
 	ActEmbedDropModel = "embed_drop_model"
 	ActEmbedBackfill  = "embed_backfill"
 )
+
+// Actions lists every registered action name, sorted. Packages that audit
+// must use names from this list (tested in internal/app).
+func Actions() []string {
+	return []string{
+		ActDocumentVersion, ActDuplicate, ActEmbedBackfill, ActEmbedDropModel, ActEmbedIndex, ActEmbedRemove,
+		ActEntityCreate, ActEntityMerge, ActFactAdjust, ActFactConfirm, ActFactInsert, ActFlag, ActForget,
+		ActMigrate, ActNearDup, ActOutcome, ActPageUpdate, ActPredicate, ActPromote, ActQuarantine,
+		ActRankAdjust, ActRankPromote, ActRankReset, ActRankToggle, ActRetire, ActRetrieve, ActSleepEnd,
+		ActSleepRevert, ActSleepStart, ActSourceCreate, ActStaleSource, ActSupersede, ActWrite,
+	}
+}
 
 type Entry struct {
 	Namespace string

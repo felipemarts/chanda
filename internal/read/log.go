@@ -14,7 +14,7 @@ import (
 // ActRetrieve is the audit action for a logged query (the retrievals row is
 // a mutation of the learning layer). Details hold counts only, never the
 // query text or record content.
-const ActRetrieve = "retrieve"
+const ActRetrieve = audit.ActRetrieve
 
 // LoggedCandidate is one entry of retrievals.candidates, in the shape
 // internal/rank reads (its Candidate): the stage scores as numbers (null when

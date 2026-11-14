@@ -22,6 +22,15 @@ func TestChainVerifies(t *testing.T) {
 	}
 }
 
+func TestActionsSortedAndUnique(t *testing.T) {
+	acts := audit.Actions()
+	for i := 1; i < len(acts); i++ {
+		if acts[i-1] >= acts[i] {
+			t.Fatalf("actions not sorted/unique at %q, %q", acts[i-1], acts[i])
+		}
+	}
+}
+
 func TestTamperDetected(t *testing.T) {
 	e, _ := env.NewTest(t)
 	ctx := context.Background()

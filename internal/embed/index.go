@@ -17,12 +17,12 @@ import (
 // Actor is recorded in the audit log for mutations made by this package.
 const Actor = "system:embed"
 
-// Audit actions of this package (to be folded into the audit vocabulary).
+// Audit actions of this package (registered in internal/audit).
 const (
-	ActEmbedIndex    = "embed_index"      // vectors written (indexer batch or Upsert)
-	ActEmbedRemove   = "embed_remove"     // vectors of one record removed
-	ActEmbedDrop     = "embed_drop_model" // all vectors of an old model dropped after migration
-	ActEmbedBackfill = "embed_backfill"   // records lacking a vector enqueued for the current model
+	ActEmbedIndex    = audit.ActEmbedIndex     // vectors written (indexer batch or Upsert)
+	ActEmbedRemove   = audit.ActEmbedRemove    // vectors of one record removed
+	ActEmbedDrop     = audit.ActEmbedDropModel // all vectors of an old model dropped after migration
+	ActEmbedBackfill = audit.ActEmbedBackfill  // records lacking a vector enqueued for the current model
 )
 
 // minPerWorker is the smallest slice of vectors worth a goroutine.

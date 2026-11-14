@@ -16,15 +16,16 @@ package facts
 import (
 	"context"
 
+	"github.com/felipemarts/chanda-mcp/internal/audit"
 	"github.com/felipemarts/chanda-mcp/internal/core"
 	"github.com/felipemarts/chanda-mcp/internal/env"
 	"github.com/felipemarts/chanda-mcp/internal/store"
 )
 
-// Audit action names owned by this package that internal/audit does not list.
+// Audit action names of this package (registered in internal/audit).
 const (
-	ActPredicateCreate = "predicate_create"
-	ActFactAdjust      = "fact_adjust" // a history insert trimmed an overlapping closed fact
+	ActPredicateCreate = audit.ActPredicate
+	ActFactAdjust      = audit.ActFactAdjust // a history insert trimmed an overlapping closed fact
 )
 
 // Service owns the entities, entity_aliases, predicates and facts tables.
