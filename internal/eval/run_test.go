@@ -186,8 +186,8 @@ type trainer struct {
 }
 
 func (tr *trainer) Name() string { return "C5" }
-func (tr *trainer) Train(_ context.Context, qs []Question) error {
-	for _, q := range qs {
+func (tr *trainer) Train(_ context.Context, train, gate []Question) error {
+	for _, q := range append(train, gate...) {
 		tr.got = append(tr.got, q.ID)
 	}
 	return nil
@@ -199,21 +199,22 @@ func (tr *trainer) Train(_ context.Context, qs []Question) error {
 func TestTrainingSplitAndUnavailableSystems(t *testing.T) {
 	ds := validDataset()
 	ds.Questions = append(ds.Questions, Question{ID: "t1", Question: "Quanto custa o plano A hoje?",
-		Gold: []Gold{{DocID: "d1", Span: "custa R$ 12"}}, Answers: []string{"R$ 12"}, Split: SplitTrain})
+		Gold: []Gold{{DocID: "d1", Span: "custa R$ 12"}}, Answers: []string{"R$ 12"}, Split: SplitTrain},
+		Question{ID: "g1", Question: "Preço do plano A?", Gold: []Gold{{DocID: "d1", Span: "custa R$ 12"}}, Answers: []string{"R$ 12"}, Split: SplitGate})
 	tr := &trainer{}
 	rep, err := Run(context.Background(), Options{Dataset: ds, Systems: []System{tr}, Clock: clock.NewFake(env.TestEpoch, 0),
 		Hardware: &Hardware{}, Unavailable: []UnavailableSystem{{Name: "C2", Reason: "no reranker"}}})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if strings.Join(tr.got, ",") != "t1" {
+	if strings.Join(tr.got, ",") != "t1,g1" {
 		t.Fatalf("trained on %v", tr.got)
 	}
-	if rep.Dataset.Questions != 4 || rep.Dataset.Train != 1 || len(rep.Systems[0].Questions) != 4 {
+	if rep.Dataset.Questions != 4 || rep.Dataset.Train != 1 || rep.Dataset.Gate != 1 || len(rep.Systems[0].Questions) != 4 {
 		t.Fatalf("dataset info %+v, %d results", rep.Dataset, len(rep.Systems[0].Questions))
 	}
 	md := rep.Markdown()
-	if !strings.Contains(md, "| C2 | - | **Not available in this run**: no reranker |") || !strings.Contains(md, "+1 training questions") {
+	if !strings.Contains(md, "| C2 | - | **Not available in this run**: no reranker |") || !strings.Contains(md, "+1 training and 1 gate questions") {
 		t.Fatalf("markdown:\n%s", md)
 	}
 	for _, s := range rep.Suites {

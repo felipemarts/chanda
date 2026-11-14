@@ -48,7 +48,7 @@ func suiteVariant() Variant {
 
 // loaded builds a suite core and ingests the whole corpus into it.
 func loaded(ctx context.Context, fe eval.FactoryEnv, ds *eval.Dataset, v Variant) (*System, error) {
-	s, err := Open(ctx, v, fe.Config, fe.Embedder)
+	s, err := Open(ctx, v, fe)
 	if err != nil {
 		return nil, err
 	}
@@ -612,7 +612,7 @@ var firstNumber = regexp.MustCompile(`\d+`)
 // updates_discarded_rate (U answered duplicate or near_duplicate) and
 // duplicates_missed_rate (a duplicate stored as a new record).
 func DeduplicationSuite(ctx context.Context, fe eval.FactoryEnv, in eval.SuiteInput) (eval.Measured, error) {
-	s, err := Open(ctx, suiteVariant(), fe.Config, fe.Embedder)
+	s, err := Open(ctx, suiteVariant(), fe)
 	if err != nil {
 		return nil, err
 	}

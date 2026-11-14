@@ -60,6 +60,7 @@ type DatasetInfo struct {
 	Sessions  int            `json:"sessions"`
 	Questions int            `json:"questions"`       // evaluated questions
 	Train     int            `json:"train_questions"` // training split, never evaluated
+	Gate      int            `json:"gate_questions"`  // gate split, never evaluated
 	Tags      map[string]int `json:"tags"`
 }
 
@@ -102,7 +103,7 @@ func newReport(o Options) *Report {
 	ds := o.Dataset
 	evaluated := ds.Evaluated()
 	info := DatasetInfo{Name: ds.Manifest.Name, Hash: ds.Hash(), Items: len(ds.Corpus), Questions: len(evaluated),
-		Train: len(ds.Questions) - len(evaluated), Tags: map[string]int{}}
+		Train: len(ds.Training()), Gate: len(ds.Gate()), Tags: map[string]int{}}
 	docs := map[string]bool{}
 	for _, it := range ds.Corpus {
 		if it.Type == ItemSession {
@@ -312,7 +313,7 @@ func (r *Report) Markdown() string {
 	w("| Hardware | %s/%s, %d CPUs, %s |\n", r.Hardware.GOOS, r.Hardware.GOARCH, r.Hardware.NumCPU, r.Hardware.CPUModel)
 	w("| Go | %s |\n", r.Hardware.GoVersion)
 	d := r.Dataset
-	w("| Dataset | %s, hash `%s`: %d items (%d documents in %d versions, %d sessions), %d evaluated questions (+%d training questions, never evaluated) |\n", d.Name, d.Hash, d.Items, d.Documents, d.Versions, d.Sessions, d.Questions, d.Train)
+	w("| Dataset | %s, hash `%s`: %d items (%d documents in %d versions, %d sessions), %d evaluated questions (+%d training and %d gate questions for C5, never evaluated) |\n", d.Name, d.Hash, d.Items, d.Documents, d.Versions, d.Sessions, d.Questions, d.Train, d.Gate)
 	w("| Context budget | %d tokens per query, same for every system (estimator: %s) |\n", r.BudgetTokens, r.TokenEstimator)
 	w("| Report schema | %s |\n\n", r.Schema)
 

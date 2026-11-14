@@ -126,7 +126,7 @@ func runSystem(ctx context.Context, o Options, sys System) (SystemResult, Latenc
 	lat.IngestTotalMs = ms(o.Timer.Now().Sub(start))
 	if tr, ok := sys.(Trainer); ok {
 		t0 := o.Timer.Now()
-		if err := tr.Train(ctx, o.Dataset.Training()); err != nil {
+		if err := tr.Train(ctx, o.Dataset.Training(), o.Dataset.Gate()); err != nil {
 			return SystemResult{}, lat, fmt.Errorf("train: %w", err)
 		}
 		lat.TrainMs = ms(o.Timer.Now().Sub(t0))

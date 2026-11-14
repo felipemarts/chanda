@@ -60,10 +60,11 @@ type Flusher interface {
 
 // Trainer is optionally implemented by a learning system (C5). The harness
 // calls Train once, after ingestion and Flush and before any evaluated
-// question, with the training split (questions with their gold labels). The
+// question, with the training split (questions with their gold labels) and
+// the gate split (questions the system may approve as its gate set). The
 // evaluated questions are never passed to Train.
 type Trainer interface {
-	Train(ctx context.Context, train []Question) error
+	Train(ctx context.Context, train, gate []Question) error
 }
 
 // UnavailableSystem is a compared configuration that could not be built in

@@ -70,11 +70,21 @@ var PortugueseSinglePredicates = []string{
 	"gestor", "fornecedor", "centro_de_custo", "prazo", "status", "valor",
 }
 
+// Options returns the app options of v (decision 0094): C1 has no facts,
+// sleep or learning; C2 adds the reranker; C3 has facts; C4 sleep; C5
+// learning. emb is the shared embedder; rr the reranker (nil: none).
+func Options(v Variant, emb core.Embedder, rr core.Reranker) app.Options {
+	o := app.Options{Embedder: emb, DisableFacts: !v.Facts, DisableSleep: !v.Sleep, DisableLearning: !v.Learning}
+	if v.Reranker {
+		o.Reranker = rr
+	}
+	return o
+}
+
 // Configure returns the core configuration of v over base (a copy).
 func Configure(base *config.Config, v Variant) *config.Config {
 	c := *base
 	c.Namespace = Namespace
-	c.Write.Extractors = nil
 	c.Read.RerankEnabled = v.Reranker
 	if v.Facts {
 		c.Write.Extractors = []config.ExtractorConfig{{Name: "header", Kind: "header"}, {Name: "kv_table", Kind: "kv_table"}}
@@ -91,52 +101,44 @@ func Configure(base *config.Config, v Variant) *config.Config {
 	return &c
 }
 
-// RerankerAvailable reports whether the core can rerank. internal/app wires
-// read.Deps.Reranker as nil and no provider builds a reranker from
-// embed.reranker_model_path, so C2 and above cannot run a reranker in this
-// build. The reason is reported instead of faking the stage.
-func RerankerAvailable(*config.Config) (bool, string) {
-	return false, "no cross-encoder reranker is wired into the core (internal/app builds read.Deps with Reranker nil; embed.reranker_model_path has no consumer), so the reranking stage cannot run"
-}
+// NoRerankerReason explains why C2 cannot run without a reranker.
+const NoRerankerReason = "no cross-encoder reranker is configured in this binary " +
+	"(the chanda binary has none; chanda-hugot loads one from embed.reranker_model_path), so the reranking stage cannot run"
 
 // System is one C configuration over a private database.
 type System struct {
-	v       Variant
-	cfg     *config.Config
-	dir     string
-	app     *app.App
-	e       *env.Env
-	fc      *clock.Fake
-	last    time.Time
-	byURI   map[string]string   // document or source uri -> corpus item id
-	byEvent map[string]string   // event id -> corpus item id (session turns, remembered statements)
-	events  map[string][]string // corpus item id -> its session turn event ids, in order
-	note    string              // declared deviation from the variant
-	model   string
+	v         Variant
+	cfg       *config.Config
+	dir       string
+	app       *app.App
+	e         *env.Env
+	fc        *clock.Fake
+	last      time.Time
+	byURI     map[string]string   // document or source uri -> corpus item id
+	byEvent   map[string]string   // event id -> corpus item id (session turns, remembered statements)
+	events    map[string][]string // corpus item id -> its session turn event ids, in order
+	note      string              // declared deviation from the variant
+	lastSleep string              // report of the last sleep run
+	model     string
 }
 
-// Open builds an empty system for v. base is the evaluation configuration;
-// emb is the shared embedder (B2 uses the same one): the core builds its
-// own instance from cfg.Embed, and Open fails if the model ids differ.
-func Open(ctx context.Context, v Variant, base *config.Config, emb core.Embedder) (*System, error) {
-	cfg := Configure(base, v)
+// Open builds an empty system for v over the evaluation configuration of
+// fe, with fe's embedder (the one B2 uses) and, for C2+, fe's reranker.
+func Open(ctx context.Context, v Variant, fe eval.FactoryEnv) (*System, error) {
+	cfg := Configure(fe.Config, v)
 	dir, err := os.MkdirTemp("", "chanda-eval-"+strings.ToLower(v.Name)+"-")
 	if err != nil {
 		return nil, err
 	}
-	s, err := openAt(ctx, v, cfg, dir)
+	s, err := openAt(ctx, v, cfg, dir, Options(v, fe.Embedder, fe.Reranker))
 	if err != nil {
 		os.RemoveAll(dir)
 		return nil, err
 	}
-	if emb != nil && s.model != emb.ModelID() {
-		s.Close()
-		return nil, core.Errf(core.CodeInvalidArgument, "%s: core embedder %s differs from the shared embedder %s", v.Name, s.model, emb.ModelID())
-	}
 	return s, nil
 }
 
-func openAt(ctx context.Context, v Variant, cfg *config.Config, dir string) (*System, error) {
+func openAt(ctx context.Context, v Variant, cfg *config.Config, dir string, opts app.Options) (*System, error) {
 	if err := os.MkdirAll(filepath.Join(dir, "docs"), 0o755); err != nil {
 		return nil, err
 	}
@@ -151,7 +153,7 @@ func openAt(ctx context.Context, v Variant, cfg *config.Config, dir string) (*Sy
 	}
 	fc := clock.NewFake(env.TestEpoch, time.Millisecond)
 	e := env.New(cfg, st, fc)
-	a, err := app.New(e)
+	a, err := app.NewWith(e, opts)
 	if err != nil {
 		st.Close()
 		return nil, err
@@ -298,9 +300,11 @@ func (s *System) flush(ctx context.Context) error {
 }
 
 // sleep runs the maintenance phase once. Without an LLM provider only phase
-// 1 can run; the report declares it.
+// 1 can run; the report declares it. The clock first moves past the
+// write-burst window (sleep.burst_seconds), as a real idle period would.
 func (s *System) sleep(ctx context.Context) error {
 	s.queryTime()
+	s.fc.Advance(time.Duration(s.cfg.Sleep.BurstSeconds+60) * time.Second)
 	phases := []int{1}
 	if s.cfg.LLM.Endpoint != "" {
 		phases = []int{1, 2}
@@ -309,8 +313,22 @@ func (s *System) sleep(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	s.Declare(fmt.Sprintf("Sleep run %s: phases %v, status %s.", out.RunID, out.Phases, out.Status))
+	s.Declare(fmt.Sprintf("Sleep run: phases %v, status %s.", out.Phases, out.Status))
+	s.lastSleep = out.Report
 	return s.flush(ctx)
+}
+
+// sleepReport runs sleep and returns the ranker line of its report.
+func (s *System) sleepReport(ctx context.Context) (string, error) {
+	if err := s.sleep(ctx); err != nil {
+		return "", err
+	}
+	for _, l := range strings.Split(s.lastSleep, "\n") {
+		if strings.Contains(l, "Ranker:") {
+			return strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(l), "- ")), nil
+		}
+	}
+	return "no ranker step in the sleep report", nil
 }
 
 // queryTime moves the clock one day past the last item, so retrievals are

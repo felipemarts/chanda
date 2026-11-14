@@ -19,6 +19,7 @@ import (
 type FactoryEnv struct {
 	Config   *config.Config
 	Embedder core.Embedder // the shared embedding model (B2 and C1..C5 use the same one)
+	Reranker core.Reranker // the configured cross-encoder, nil when none (C2+)
 }
 
 // Factory builds one fresh, empty System.
@@ -45,6 +46,9 @@ func BaselineFactories() map[string]Factory {
 type CLI struct {
 	Factories   map[string]Factory
 	NewEmbedder func(cfg *config.Config) (core.Embedder, error)
+	// NewReranker builds the configured cross-encoder; nil, or a nil
+	// reranker, means none is available (C2 is then reported not run).
+	NewReranker func(cfg *config.Config) (core.Reranker, error)
 	Suites      func(FactoryEnv) *Registry // default NewRegistry
 	Clock       core.Clock                 // report date; default clock.System
 	Version     string                     // default of -version; empty = the VCS revision stamped by go build
@@ -114,6 +118,13 @@ func (c CLI) Main(args []string, stdout io.Writer) int {
 	if err != nil {
 		return fail(1, err)
 	}
+	var rr core.Reranker
+	if c.NewReranker != nil {
+		if rr, err = c.NewReranker(cfg); err != nil {
+			return fail(1, err)
+		}
+	}
+	fe := FactoryEnv{Config: cfg, Embedder: emb, Reranker: rr}
 	ctx := context.Background()
 	var syss []System
 	var unavailable []UnavailableSystem
@@ -128,7 +139,7 @@ func (c CLI) Main(args []string, stdout io.Writer) int {
 		if !ok {
 			return fail(2, fmt.Errorf("unknown system %q (known: %s)", n, strings.Join(names, ", ")))
 		}
-		s, err := f(ctx, FactoryEnv{Config: cfg, Embedder: emb})
+		s, err := f(ctx, fe)
 		if core.CodeOf(err) == core.CodeUnavailable {
 			unavailable = append(unavailable, UnavailableSystem{Name: n, Reason: Reason(err)})
 			fmt.Fprintf(stdout, "  %-3s not available: %s\n", n, Reason(err))
@@ -141,7 +152,7 @@ func (c CLI) Main(args []string, stdout io.Writer) int {
 	}
 	suites := NewRegistry()
 	if c.Suites != nil {
-		suites = c.Suites(FactoryEnv{Config: cfg, Embedder: emb})
+		suites = c.Suites(fe)
 	}
 	rep, err := Run(ctx, Options{Dataset: ds, Systems: syss, Budget: *budget, OutDir: *out, Name: *name,
 		Config: cfg, Embedder: emb, Clock: clk, Version: *version, Suites: suites, Unavailable: unavailable})

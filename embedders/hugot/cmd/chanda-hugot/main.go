@@ -27,6 +27,8 @@ import (
 
 	"github.com/felipemarts/chanda-mcp/embedders/hugot"
 	"github.com/felipemarts/chanda-mcp/internal/cli"
+	"github.com/felipemarts/chanda-mcp/internal/config"
+	"github.com/felipemarts/chanda-mcp/internal/core"
 )
 
 var version = "dev"
@@ -34,6 +36,19 @@ var version = "dev"
 // chandaMain runs the regular chanda CLI (serve, ingest, sleep, eval,
 // forget) with provider "hugot" registered by main (decision 0033).
 var chandaMain = cli.Run
+
+// newReranker opens the cross-encoder in embed.reranker_model_path for the
+// evaluation's C2..C5 (none when the path is empty).
+func newReranker(cfg *config.Config) (core.Reranker, error) {
+	if cfg.Embed.RerankerModelPath == "" {
+		return nil, nil
+	}
+	r, err := hugot.OpenReranker(context.Background(), cfg.Embed.RerankerModelPath)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
+}
 
 const usage = `usage: chanda-hugot <command> [args]
 
@@ -51,6 +66,7 @@ other commands are the chanda CLI with embed.provider "hugot" available.
 func main() {
 	hugot.Register()
 	cli.Version = version
+	cli.NewReranker = newReranker
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	code := run(ctx, os.Args[1:], os.Stdout, os.Stderr)
 	stop()

@@ -4,18 +4,18 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/felipemarts/chanda-mcp/internal/app"
 	"github.com/felipemarts/chanda-mcp/internal/core"
 	"github.com/felipemarts/chanda-mcp/internal/eval"
+	"github.com/felipemarts/chanda-mcp/internal/sleep"
 	"github.com/felipemarts/chanda-mcp/pkg/chanda"
 )
 
-// Factories returns the C1..C5 factories. A configuration that cannot run
-// here returns a CodeUnavailable error (the report lists it with the reason):
-//
-//   - C2 needs a reranker; none is wired into the core yet.
-//   - C3..C5 build on C2: without a reranker they run without it and say so
-//     in their description (C3 is then C1 + facts).
-//   - C4 needs sleep_run; C5 needs C4.
+// Factories returns the C1..C5 factories (app.Options per decision 0094).
+// C2 needs a reranker: without one (FactoryEnv.Reranker nil) it returns a
+// CodeUnavailable error and the report lists it with the reason. C3..C5
+// build on C2: without a reranker they run without it and say so in their
+// description (C3 is then C1 + facts).
 func Factories() map[string]eval.Factory {
 	out := map[string]eval.Factory{}
 	for _, v := range Variants {
@@ -27,30 +27,25 @@ func Factories() map[string]eval.Factory {
 func factory(v Variant) eval.Factory {
 	return func(ctx context.Context, fe eval.FactoryEnv) (eval.System, error) {
 		var notes []string
-		if v.Reranker {
-			if ok, why := RerankerAvailable(fe.Config); !ok {
-				if v.Name == "C2" {
-					return nil, core.Errf(core.CodeUnavailable, "C2 not run, %s", why)
-				}
-				v.Reranker = false
-				notes = append(notes, "Runs WITHOUT the reranker (none is wired into the core), so it is C1 + the stages above.")
+		if v.Reranker && fe.Reranker == nil {
+			if v.Name == "C2" {
+				return nil, core.Errf(core.CodeUnavailable, "C2 not run: %s", NoRerankerReason)
 			}
+			v.Reranker = false
+			notes = append(notes, "Runs WITHOUT the reranker (none configured), so it is C1 + the stages above.")
+		} else if v.Reranker {
+			notes = append(notes, "Reranker "+fe.Reranker.ModelID()+".")
 		}
-		s, err := Open(ctx, v, fe.Config, fe.Embedder)
+		s, err := Open(ctx, v, fe)
 		if err != nil {
 			return nil, err
 		}
-		if v.Sleep {
-			if err := s.probeSleep(ctx); err != nil {
-				s.Close()
-				return nil, err
-			}
-			if s.cfg.LLM.Endpoint == "" {
-				notes = append(notes, "No LLM provider is configured: sleep runs phase 1 (maintenance) only.")
-			}
+		if v.Sleep && s.cfg.LLM.Endpoint == "" {
+			notes = append(notes, "No LLM provider is configured: sleep runs phase 1 (maintenance) only.")
 		}
 		if v.Learning {
-			notes = append(notes, fmt.Sprintf("Training: %d passes over the training split, outcome +1 with the delivered records that hit a gold span as used_ids, -1 with none; then a sleep run.", TrainPasses))
+			notes = append(notes, fmt.Sprintf("Learning: the gate split is approved as the gate set, then %d passes over the training split "+
+				"(outcome +1 with the delivered records that hit a gold span as used_ids, -1 with none), then a sleep run trains and may promote a ranker.", TrainPasses))
 		}
 		for _, n := range notes {
 			s.Declare(n)
@@ -59,33 +54,33 @@ func factory(v Variant) eval.Factory {
 	}
 }
 
-// probeSleep checks that sleep_run is wired, on a namespace of its own so
-// the evaluated namespace is untouched.
-func (s *System) probeSleep(ctx context.Context) error {
-	_, err := s.app.SleepRun(op(ctx), chanda.SleepRunInput{Namespace: Namespace + "-probe", Phases: []int{1}})
-	if core.CodeOf(err) == core.CodeUnavailable {
-		return core.Errf(core.CodeUnavailable, "%s not run, sleep_run is unavailable in the core (%s)", s.v.Name, eval.Reason(err))
-	}
-	return err
-}
-
 // TrainPasses is how many times the training split is replayed as tasks.
 const TrainPasses = 3
 
-// Train simulates a sequence of tasks (C5). Each training question is one
-// task: the agent calls context with the question, and the task outcome is
-// derived from the gold labels: the delivered records that are evidence for
-// a gold unit (same corpus item, span contained) are reported as used_ids
-// with value +1; when none is, the outcome is -1 with no used ids (every
-// delivered record was unused). The split is replayed TrainPasses times in
-// dataset order, then a sleep run trains and, if the gate allows, promotes
-// the ranker. Evaluated (gate) questions never reach this method.
-func (s *System) Train(ctx context.Context, train []eval.Question) error {
+// Train simulates a sequence of tasks (C5). First a person (the operator,
+// a human actor) adds the gate split as approved gate questions: question,
+// expected answers and as_of; no record ids, since the dataset does not know
+// them. Then each training question is one task: the agent calls context
+// with the question, and the task outcome is derived from the gold labels:
+// the delivered records that are evidence for a gold unit (same corpus item,
+// span contained) are reported as used_ids with value +1; when none is, the
+// outcome is -1 with no used ids (every delivered record was unused). The
+// split is replayed TrainPasses times in dataset order, then a sleep run
+// trains a ranker and promotes it only if the gate allows. Evaluated
+// questions never reach this method; gate questions proposed by sleep are
+// left unreviewed.
+func (s *System) Train(ctx context.Context, train, gate []eval.Question) error {
 	if !s.v.Learning {
 		return nil
 	}
-	if len(train) == 0 {
-		return fmt.Errorf("%s: the dataset has no training split", s.v.Name)
+	if len(train) == 0 || len(gate) == 0 {
+		return fmt.Errorf("%s: the dataset needs a training and a gate split", s.v.Name)
+	}
+	for _, q := range gate {
+		if _, _, err := s.app.GateAdd(op(ctx), app.GateAddInput{Namespace: Namespace, Question: q.Question,
+			Expected: sleep.GateExpected{Answers: q.Answers, AsOf: q.AsOf}}); err != nil {
+			return fmt.Errorf("gate question %s: %w", q.ID, err)
+		}
 	}
 	var tasks, positive int
 	for range TrainPasses {
@@ -125,7 +120,8 @@ func (s *System) Train(ctx context.Context, train []eval.Question) error {
 			tasks++
 		}
 	}
-	if err := s.sleep(ctx); err != nil {
+	run, err := s.sleepReport(ctx)
+	if err != nil {
 		return err
 	}
 	st, err := s.app.Stats(agent(ctx), chanda.StatsInput{Namespace: Namespace})
@@ -133,9 +129,11 @@ func (s *System) Train(ctx context.Context, train []eval.Question) error {
 		return err
 	}
 	if st.Ranking.ActiveModel == "" && st.Ranking.Lambda == 0 {
-		s.Declare(fmt.Sprintf("After %d tasks (%d positive) no ranker model was promoted (lambda 0): ranking equals C4.", tasks, positive))
+		s.Declare(fmt.Sprintf("After %d tasks (%d positive) and %d gate questions, no ranker model was promoted (lambda 0; %s): ranking equals C4.",
+			tasks, positive, len(gate), run))
 	} else {
-		s.Declare(fmt.Sprintf("After %d tasks (%d positive): active model %q, lambda %.2f.", tasks, positive, st.Ranking.ActiveModel, st.Ranking.Lambda))
+		s.Declare(fmt.Sprintf("After %d tasks (%d positive) and %d gate questions: active model %s, lambda %.2f.",
+			tasks, positive, len(gate), st.Ranking.ActiveModel, st.Ranking.Lambda))
 	}
 	return nil
 }

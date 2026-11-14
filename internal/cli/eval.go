@@ -12,6 +12,11 @@ import (
 	"github.com/felipemarts/chanda-mcp/internal/eval/coresys"
 )
 
+// NewReranker builds the cross-encoder the evaluation gives C2..C5 from the
+// configuration (nil, nil when none). The chanda binary has none; a binary
+// with a reranker (chanda-hugot) sets it before calling Run.
+var NewReranker func(cfg *config.Config) (core.Reranker, error)
+
 // EvalCLI is the evaluation front end used by "chanda eval": the baselines
 // B0..B3 and the Chanda configurations C1..C5, compared with the configured
 // embedder (internal/embed: the hash embedder by default, hugot in
@@ -25,6 +30,12 @@ func EvalCLI(version string) eval.CLI {
 	return eval.CLI{
 		Factories:   fs,
 		NewEmbedder: func(cfg *config.Config) (core.Embedder, error) { return embed.NewFromConfig(cfg.Embed) },
+		NewReranker: func(cfg *config.Config) (core.Reranker, error) {
+			if NewReranker == nil {
+				return nil, nil
+			}
+			return NewReranker(cfg)
+		},
 		Suites: func(fe eval.FactoryEnv) *eval.Registry {
 			r := eval.NewRegistry()
 			if err := coresys.Register(r, fe); err != nil {

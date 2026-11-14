@@ -108,14 +108,19 @@ type Question struct {
 	Answers        []string `json:"answers,omitempty"`          // any of these substrings in the context answers the question
 	MustNotContain []string `json:"must_not_contain,omitempty"` // stale values, injected instructions
 	Tags           []string `json:"tags,omitempty"`
-	// Split is "" for evaluated questions and SplitTrain for the questions a
-	// learning system may train on (outcomes from their gold labels). Train
-	// questions never enter the metrics or the gate.
+	// Split is "" for evaluated questions, SplitTrain for the questions a
+	// learning system may train on (outcomes from their gold labels) and
+	// SplitGate for the questions it may approve as its gate set. Neither
+	// split enters the metrics; evaluated questions never reach a system's
+	// training or gate.
 	Split string `json:"split,omitempty"`
 }
 
-// SplitTrain marks training questions.
-const SplitTrain = "train"
+// Question splits.
+const (
+	SplitTrain = "train"
+	SplitGate  = "gate"
+)
 
 // Answerable reports whether the corpus holds an answer.
 func (q Question) Answerable() bool { return len(q.Gold) > 0 }
@@ -146,23 +151,20 @@ type Dataset struct {
 	Questions []Question
 }
 
-// Evaluated returns the questions that enter the metrics (every question
-// outside the training split), in dataset order.
-func (ds *Dataset) Evaluated() []Question {
-	out := make([]Question, 0, len(ds.Questions))
-	for _, q := range ds.Questions {
-		if q.Split != SplitTrain {
-			out = append(out, q)
-		}
-	}
-	return out
-}
+// Evaluated returns the questions that enter the metrics (those in no
+// split), in dataset order.
+func (ds *Dataset) Evaluated() []Question { return ds.split("") }
 
 // Training returns the training split, in dataset order.
-func (ds *Dataset) Training() []Question {
-	var out []Question
+func (ds *Dataset) Training() []Question { return ds.split(SplitTrain) }
+
+// Gate returns the gate split, in dataset order.
+func (ds *Dataset) Gate() []Question { return ds.split(SplitGate) }
+
+func (ds *Dataset) split(name string) []Question {
+	out := []Question{}
 	for _, q := range ds.Questions {
-		if q.Split == SplitTrain {
+		if q.Split == name {
 			out = append(out, q)
 		}
 	}
@@ -380,7 +382,7 @@ func (ds *Dataset) Validate() error {
 		if !q.Answerable() && len(q.Answers) > 0 {
 			bad("%s: answers without gold", where)
 		}
-		if q.Split != "" && q.Split != SplitTrain {
+		if q.Split != "" && q.Split != SplitTrain && q.Split != SplitGate {
 			bad("%s: unknown split %q", where, q.Split)
 		}
 		if q.Split == SplitTrain && !q.Answerable() {
