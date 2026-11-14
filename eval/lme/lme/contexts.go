@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -126,10 +127,23 @@ func contextChanda(ctx context.Context, o *RunOptions, emb *Cached, q *Question,
 	}
 	l.IngestSeconds = in.Elapsed.Seconds()
 	if sleep {
-		s := time.Now()
+		// Chanda refuses a sleep run during a write burst (a write in the last
+		// sleep.burst_seconds, 10 by default): wait it out, as a real caller
+		// would, and retry while it still says so.
 		var out chanda.SleepRunOutput
-		if err := srv.Call(ctx, chanda.ToolSleepRun, chanda.SleepRunInput{Phases: []int{1, 2}, Budget: co.SleepBudget}, &out); err != nil {
-			return err
+		var s time.Time
+		for attempt := 1; ; attempt++ {
+			if err := waitCtx(ctx, SleepBurstWait); err != nil {
+				return err
+			}
+			s = time.Now()
+			err := srv.Call(ctx, chanda.ToolSleepRun, chanda.SleepRunInput{Phases: []int{1, 2}, Budget: co.SleepBudget}, &out)
+			if err == nil {
+				break
+			}
+			if attempt >= 3 || !strings.Contains(err.Error(), "write burst") {
+				return err
+			}
 		}
 		l.SleepMS = ms(time.Since(s))
 		l.Sleep = out
@@ -162,4 +176,19 @@ func contextChanda(ctx context.Context, o *RunOptions, emb *Cached, q *Question,
 	closed = true
 	l.DBBytes = DiskBytes(srv.DBPath)
 	return nil
+}
+
+// SleepBurstWait is how long condition E waits after its last write before
+// sleep_run: Chanda's sleep.burst_seconds (10) plus a second.
+const SleepBurstWait = 11 * time.Second
+
+func waitCtx(ctx context.Context, d time.Duration) error {
+	t := time.NewTimer(d)
+	defer t.Stop()
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-t.C:
+		return nil
+	}
 }

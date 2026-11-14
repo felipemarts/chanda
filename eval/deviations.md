@@ -111,6 +111,29 @@ conditions or results had to be re-run. Entries are added in the order found.
 - **Re-run:** nothing to re-run for correctness. Phase 1 with e5 was
   restarted on the fixed build; the 60-question e5 run that finished before
   the fix used the same vectors.
+- **Defect in the first fix (3591184), fixed in the next commit:** the
+  reload created the new session with the context of the call that
+  triggered it, and hugot derives the session's context from it; once that
+  call ended, every later call failed with "context canceled" (about 1,000
+  calls after a start). It stopped phase 1 attempt 1 on the fixed build and
+  the smoke run's condition C on its 10th question. The reload now uses
+  `context.WithoutCancel`; `TestRecycleSurvivesTheCallersContext` fails on
+  3591184 and passes on the fix. No result was produced on the broken
+  build: both runs failed and are re-run.
+
+## 9. Condition E called `sleep_run` inside Chanda's write-burst window (harness)
+
+- **Found by:** the smoke run: `sleep_run` answered `conflict: sleep: write
+  burst in progress; try again later` on the first question.
+- **What it was:** a harness defect, not a Chanda one. Chanda refuses a
+  sleep run while a write is less than `sleep.burst_seconds` (10) old
+  (BASE.md: "A run never starts during a write burst"); the harness called
+  `sleep_run` right after `flush`.
+- **What changed:** `eval/lme` waits 11 s after ingest before `sleep_run`
+  and retries (at most 3 attempts) while Chanda still reports a burst.
+  No Chanda code changed. The wait is not counted in `sleep_ms`.
+- **Re-run:** condition E of the smoke run (no E result existed).
+
 
 ## Known limitations found during setup (not fixed)
 
