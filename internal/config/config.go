@@ -101,6 +101,15 @@ type RankingConfig struct {
 	UnusedPenalty        float64 `yaml:"unused_penalty"` // 0.25
 	OutcomeRatePerMinute int     `yaml:"outcome_rate_per_minute"`
 	MovingAverageAlpha   float64 `yaml:"moving_average_alpha"`
+	FlagPenalty          float64 `yaml:"flag_penalty"`       // beta added by flag (strong negative)
+	RankerKind           string  `yaml:"ranker_kind"`        // "logreg" or "mlp"
+	TrainIterations      int     `yaml:"train_iterations"`   // full-batch gradient steps
+	LearningRate         float64 `yaml:"learning_rate"`      // gradient step size
+	L2                   float64 `yaml:"l2"`                 // weight decay
+	HiddenUnits          int     `yaml:"hidden_units"`       // MLP hidden layer width
+	MinTrainExamples     int     `yaml:"min_train_examples"` // below this, Train refuses
+	HoldoutFraction      float64 `yaml:"holdout_fraction"`   // most recent share of retrievals kept for the eval score
+	ModelSeed            string  `yaml:"model_seed"`         // seed of the hash-based MLP init
 }
 
 type LLMConfig struct {
@@ -150,6 +159,8 @@ func Default() *Config {
 		Ranking: RankingConfig{
 			Enabled: true, MinExposures: 5, LambdaMax: 0.3, LambdaStep: 0.05, PromotionMargin: 1.0,
 			UnusedPenalty: 0.25, OutcomeRatePerMinute: 60, MovingAverageAlpha: 0.1,
+			FlagPenalty: 10, RankerKind: "logreg", TrainIterations: 300, LearningRate: 0.5, L2: 0.001,
+			HiddenUnits: 8, MinTrainExamples: 50, HoldoutFraction: 0.2, ModelSeed: "chanda-rank",
 		},
 		LLM:    LLMConfig{TimeoutSeconds: 120},
 		MCP:    MCPConfig{Profiles: []string{"read", "standard"}, Actor: "agent"},
