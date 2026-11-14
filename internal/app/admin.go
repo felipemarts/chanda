@@ -195,3 +195,16 @@ func (a *App) RankingReset(ctx context.Context, in chanda.RankingResetInput) (ch
 	out := chanda.RankingResetOutput{Meta: c.meta(r.AuditID), UtilityRows: r.UtilityRows, Models: r.Models}
 	return out, coded(err)
 }
+
+// RankingToggle turns learned ranking on or off for a namespace (the runtime
+// toggle of decision 0070; ranking.enabled is the global switch). Off sets
+// λ to 0 at once, so every read returns the pre-learning (C4) order; on
+// again needs a new promotion. Only a human actor may toggle.
+func (a *App) RankingToggle(ctx context.Context, namespace string, enabled bool) (chanda.Meta, error) {
+	c := a.begin(ctx, namespace)
+	if !c.actor.Human {
+		return c.meta(0), core.Errf(core.CodePermissionDenied, "only a human may toggle learned ranking")
+	}
+	id, err := a.ranker.SetEnabled(ctx, c.ns, enabled, c.actor.Name)
+	return c.meta(id), coded(err)
+}
