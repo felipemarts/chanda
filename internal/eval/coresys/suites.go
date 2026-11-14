@@ -670,24 +670,7 @@ func DeduplicationSuite(ctx context.Context, fe eval.FactoryEnv, in eval.SuiteIn
 		return nil, err
 	}
 	defer s.Close()
-	var bases []string
-	seen := map[string]bool{}
-	for _, it := range in.Dataset.Corpus {
-		if it.Type != eval.ItemDocument || it.Source != "document" {
-			continue
-		}
-		for _, c := range eval.ChunkItem(it, fe.Config.Write.MaxChunkChars) {
-			if len(bases) >= 40 {
-				break
-			}
-			t := strings.TrimSpace(c.Text)
-			if seen[t] || len(strings.Fields(t)) < 8 || !firstNumber.MatchString(t) || strings.Contains(t, ": ") {
-				continue
-			}
-			seen[t] = true
-			bases = append(bases, t)
-		}
-	}
+	bases := eval.DedupProbeBases(in.Dataset, fe.Config.Write.MaxChunkChars)
 	if len(bases) == 0 {
 		return nil, fmt.Errorf("no paragraph with a number to build deduplication probes from")
 	}

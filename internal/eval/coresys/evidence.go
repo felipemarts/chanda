@@ -8,6 +8,27 @@ import (
 	"github.com/felipemarts/chanda-mcp/internal/eval"
 )
 
+// EntityNames lists the live entities of the namespace with their types,
+// ordered by name (eval.EntityLister): the names sleep compares when it
+// proposes merges by vector similarity.
+func (s *System) EntityNames(ctx context.Context) ([]eval.EntityName, error) {
+	rows, err := s.e.Store.DB().QueryContext(ctx, `SELECT canonical_name, COALESCE(type, '') FROM entities
+		WHERE namespace = ? AND merged_into IS NULL ORDER BY canonical_name, id`, Namespace)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []eval.EntityName
+	for rows.Next() {
+		var e eval.EntityName
+		if err := rows.Scan(&e.Name, &e.Type); err != nil {
+			return nil, err
+		}
+		out = append(out, e)
+	}
+	return out, rows.Err()
+}
+
 // Evidence runs one context query and returns every candidate the relevance
 // cut judged (those that reached fusion: they passed the rule filter and the
 // near-duplicate collapse), with the coverage and cosine logged in the

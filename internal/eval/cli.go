@@ -132,11 +132,9 @@ func (c CLI) Main(args []string, stdout io.Writer) int {
 		if !ok {
 			return fail(2, fmt.Errorf("unknown system %q (known: %s)", *calibrate, strings.Join(names, ", ")))
 		}
-		cal, err := calibrateWith(ctx, f, fe, ds, *budget)
-		if err != nil {
+		if err := calibrateWith(ctx, stdout, f, fe, ds, *budget); err != nil {
 			return fail(1, err)
 		}
-		WriteCalibration(stdout, cal)
 		return 0
 	}
 	var syss []System
@@ -213,30 +211,53 @@ func buildVersion() string {
 	return rev
 }
 
-// calibrateWith builds one system, ingests the corpus and calibrates the
-// evidence floors on the training split (CalibrateEvidence).
-func calibrateWith(ctx context.Context, f Factory, fe FactoryEnv, ds *Dataset, budget int) (Calibration, error) {
+// calibrateWith builds one system, ingests the corpus, calibrates the
+// evidence floors on the training split (CalibrateEvidence, decision 0124),
+// then the near-duplicate and vector merge thresholds of the embedding
+// model (CalibrateNearDup, CalibrateMerge, decision 0125), and prints them.
+func calibrateWith(ctx context.Context, w io.Writer, f Factory, fe FactoryEnv, ds *Dataset, budget int) error {
 	sys, err := f(ctx, fe)
 	if err != nil {
-		return Calibration{}, err
+		return err
 	}
 	defer sys.Close()
 	p, ok := sys.(EvidenceProber)
 	if !ok {
-		return Calibration{}, fmt.Errorf("system %s does not report the evidence of its cut", sys.Name())
+		return fmt.Errorf("system %s does not report the evidence of its cut", sys.Name())
 	}
 	for _, it := range ds.Corpus {
 		if err := sys.Ingest(ctx, it); err != nil {
-			return Calibration{}, fmt.Errorf("ingest %s v%d: %w", it.ID, it.Version, err)
+			return fmt.Errorf("ingest %s v%d: %w", it.ID, it.Version, err)
 		}
 	}
 	if fl, ok := sys.(Flusher); ok {
 		if err := fl.Flush(ctx); err != nil {
-			return Calibration{}, err
+			return err
 		}
 	}
 	if budget <= 0 {
 		budget = fe.Config.Read.ContextDefaultTokens
 	}
-	return CalibrateEvidence(ctx, p, ds, budget, CalibrateRetention)
+	cal, err := CalibrateEvidence(ctx, p, ds, budget)
+	if err != nil {
+		return err
+	}
+	WriteCalibration(w, cal)
+	nd, err := CalibrateNearDup(ctx, fe.Embedder, ds, fe.Config.Write.MaxChunkChars, fe.Config.Write.NearDupThreshold)
+	if err != nil {
+		return err
+	}
+	WriteThreshold(w, nd)
+	if el, ok := sys.(EntityLister); ok {
+		ents, err := el.EntityNames(ctx)
+		if err != nil {
+			return err
+		}
+		mg, err := CalibrateMerge(ctx, fe.Embedder, ents, fe.Config.Sleep.MergeVectorSimilarity(fe.Embedder.ModelID()))
+		if err != nil {
+			return err
+		}
+		WriteThreshold(w, mg)
+	}
+	return nil
 }
