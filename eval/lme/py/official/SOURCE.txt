@@ -1,0 +1,7 @@
+Verbatim copies (MIT, see LICENSE) of two files of
+https://github.com/xiaowu0162/LongMemEval at commit 9e0b455f4ef0e2ab8f2e582289761153549043fc
+(read 2026-11-14):
+  src/generation/run_generation.py -> run_generation.py.txt
+  src/evaluation/evaluate_qa.py    -> evaluate_qa.py.txt
+Kept as .txt so they are never imported or run; tests/test_prompts.py parses
+them to prove that prompts.py holds the templates verbatim.
