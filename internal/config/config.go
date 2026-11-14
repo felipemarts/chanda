@@ -113,6 +113,7 @@ type SleepConfig struct {
 	LessonPoolEvents  int     `yaml:"lesson_pool_events"`  // most recent uncited events considered for lessons
 	MergeMaxEntities  int     `yaml:"merge_max_entities"`  // above this, vector merge proposals are skipped
 	GateProposals     int     `yaml:"gate_proposals"`      // gate questions phase 1 may propose per run (0 disables)
+	Scheduler         bool    `yaml:"scheduler"`           // run sleep on its own (App.Start); false: on demand only
 }
 
 type RankingConfig struct {
@@ -191,7 +192,7 @@ func Default() *Config {
 			BudgetTokens: 200000, BudgetEvents: 500, GateTolerance: 2.0, LessonMinEvents: 3,
 			SnapshotDir: "snapshots", MergeSimilarity: 0.92,
 			CheckEveryMinutes: 5, BurstSeconds: 10, BatchEvents: 20, LessonSimilarity: 0.5,
-			LessonPoolEvents: 1000, MergeMaxEntities: 2000, GateProposals: 10,
+			LessonPoolEvents: 1000, MergeMaxEntities: 2000, GateProposals: 10, Scheduler: true,
 		},
 		Ranking: RankingConfig{
 			Enabled: true, MinExposures: 5, LambdaMax: 0.3, LambdaStep: 0.05, PromotionMargin: 1.0,

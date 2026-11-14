@@ -8,14 +8,20 @@ import (
 	"bytes"
 	"context"
 	"crypto/sha256"
+	"encoding/json"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/felipemarts/chanda-mcp/internal/app"
 	"github.com/felipemarts/chanda-mcp/internal/audit"
 	"github.com/felipemarts/chanda-mcp/internal/config"
+	"github.com/felipemarts/chanda-mcp/internal/core"
 	"github.com/felipemarts/chanda-mcp/internal/env"
+	"github.com/felipemarts/chanda-mcp/internal/llm"
 	"github.com/felipemarts/chanda-mcp/pkg/chanda"
 )
 
@@ -23,6 +29,46 @@ import (
 func configure(c *config.Config) {
 	c.Namespace = "ns"
 	c.Write.Extractors = []config.ExtractorConfig{{Name: "hdr", Kind: "header"}}
+	c.Ranking.MinTrainExamples = 4
+	c.Sleep.Scheduler = false
+}
+
+var (
+	reEvent = regexp.MustCompile(`(?s)<event id="([^"]+)"[^>]*>\n(.*?)\n</event>`)
+	reClaim = regexp.MustCompile(`^(.+?)'s (\w+) is (.+?)\.?$`)
+)
+
+// scriptedLLM is sleep's phase-2 provider in the scenario: it extracts
+// "<Subject>'s <attribute> is <value>." from each event, keeps judged items
+// pending and skips lessons. Deterministic by construction.
+func scriptedLLM() *llm.Fake {
+	return &llm.Fake{Handler: func(req core.LLMRequest) llm.FakeResponse {
+		switch {
+		case strings.Contains(req.System, "You extract facts"):
+			type fact struct {
+				EventIDs    []string `json:"event_ids"`
+				Subject     string   `json:"subject"`
+				SubjectType string   `json:"subject_type"`
+				Predicate   string   `json:"predicate"`
+				Value       string   `json:"value"`
+				ValidFrom   string   `json:"valid_from"`
+			}
+			out := struct {
+				Facts []fact `json:"facts"`
+			}{Facts: []fact{}}
+			for _, m := range reEvent.FindAllStringSubmatch(req.Prompt, -1) {
+				if c := reClaim.FindStringSubmatch(strings.TrimSpace(m[2])); c != nil {
+					out.Facts = append(out.Facts, fact{EventIDs: []string{m[1]}, Subject: c[1], Predicate: c[2], Value: c[3]})
+				}
+			}
+			b, _ := json.Marshal(out)
+			return llm.FakeResponse{JSON: string(b)}
+		case strings.Contains(req.System, "lessons learned"):
+			return llm.FakeResponse{JSON: `{"skip":true,"page_id":"","title":"","item":""}`}
+		default:
+			return llm.FakeResponse{JSON: `{"verdicts":[]}`}
+		}
+	}}
 }
 
 // Scenario is the shared operation sequence. Append new feature operations here.
@@ -42,7 +88,7 @@ func Scenario(t *testing.T, e *env.Env) {
 // mutates the database, with the embedding queue drained synchronously
 // (flush), never by the background indexer.
 func appScenario(t *testing.T, e *env.Env) {
-	a, err := app.New(e)
+	a, err := app.NewWith(e, app.Options{LLM: scriptedLLM()})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -155,9 +201,52 @@ func appScenario(t *testing.T, e *env.Env) {
 	}
 	_, err = a.RankingReset(cli, chanda.RankingResetInput{})
 	step("ranking_reset", err)
-	_, err = a.SleepRun(cli, chanda.SleepRunInput{})
-	if chanda.CodeOf(err) != chanda.CodeUnavailable {
-		t.Fatalf("sleep_run: %v", err)
+
+	// Learning signals: searches with outcomes of both signs, enough for
+	// training (ranking.min_train_examples is 4 here).
+	for i, q := range []string{"Plano Pro price", "staging cluster", "Bruna job title", "Plano Pro limits",
+		"e-mail support", "Bruna skill", "Plano Pro owner", "users limit"} {
+		r, err := a.Search(agent, chanda.SearchInput{Query: q, Limit: 3})
+		step("search "+q, err)
+		var used []string
+		if len(r.Items) > 0 && i%2 == 0 {
+			used = []string{r.Items[0].ID}
+		}
+		_, err = a.Outcome(agent, chanda.OutcomeInput{RetrievalID: r.RetrievalID, Value: float64(1 - 2*(i%2)), UsedIDs: used})
+		step("outcome "+q, err)
+	}
+
+	// sleep phase 1: maintenance, training and promotion, gate proposals.
+	clk := e.Clock.(interface{ Advance(time.Duration) })
+	clk.Advance(time.Minute)
+	s1, err := a.SleepRun(cli, chanda.SleepRunInput{Phases: []int{1}})
+	step("sleep phase 1", err)
+	if !strings.Contains(s1.Report, "Ranker: trained mdl_") {
+		t.Fatalf("phase 1 did not train:\n%s", s1.Report)
+	}
+	// A human approves the proposed gate set.
+	qs, err := a.GateList(cli, "", app.GateProposed)
+	step("gate list", err)
+	if len(qs) == 0 {
+		t.Fatal("phase 1 proposed no gate question")
+	}
+	for _, q := range qs {
+		_, err := a.GateReview(cli, app.GateReviewInput{ID: q.ID, Status: app.GateApproved})
+		step("gate approve", err)
+	}
+	// sleep phases 1 and 2: extraction by the scripted LLM through the gate.
+	_, err = a.Remember(agent, chanda.RememberInput{Content: "Carla's role is designer."})
+	step("remember for sleep", err)
+	clk.Advance(time.Minute)
+	s2, err := a.SleepRun(cli, chanda.SleepRunInput{})
+	step("sleep phase 2", err)
+	if s2.Status != "completed" || s2.Created == 0 {
+		t.Fatalf("sleep phase 2: %+v\n%s", s2, s2.Report)
+	}
+	v, err = a.Verify(cli, chanda.VerifyInput{})
+	step("verify after sleep", err)
+	if !v.OK {
+		t.Fatalf("verify after sleep: %+v %v", v, v.Notices)
 	}
 }
 

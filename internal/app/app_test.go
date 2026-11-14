@@ -7,6 +7,7 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/felipemarts/chanda-mcp/internal/audit"
 	"github.com/felipemarts/chanda-mcp/internal/config"
@@ -301,18 +302,10 @@ func TestPromoteNeedsHumanAndAHigherZone(t *testing.T) {
 	verifyOK(t, a)
 }
 
-func TestSleepRunIsNotWiredYet(t *testing.T) {
-	a, _ := newApp(t, nil)
-	out, err := a.SleepRun(cli, chanda.SleepRunInput{})
-	if core.CodeOf(err) != core.CodeUnavailable || !slices.Contains(out.Notices, "sleep not wired yet") {
-		t.Fatalf("sleep_run: %v %+v", err, out)
-	}
-}
-
 // Every action written to the audit log is registered in internal/audit,
 // and every mutation records the caller.
 func TestAuditActionsAreRegistered(t *testing.T) {
-	a, _ := newApp(t, func(c *config.Config) { c.Write.Extractors = []config.ExtractorConfig{{Kind: "header"}} })
+	a, fc := newApp(t, func(c *config.Config) { c.Write.Extractors = []config.ExtractorConfig{{Kind: "header"}} })
 	dir := t.TempDir()
 	os.WriteFile(filepath.Join(dir, "d.md"), []byte("# Acme\n\nOwner: Ana\n\nAcme sells boats in Recife."), 0o644)
 	must(a.Ingest(cli, chanda.IngestInput{Path: dir}))
@@ -327,6 +320,8 @@ func TestAuditActionsAreRegistered(t *testing.T) {
 	must(a.Outcome(agent, chanda.OutcomeInput{RetrievalID: s.RetrievalID, Value: 1, UsedIDs: []string{r.ID}}))
 	must(a.Flag(agent, chanda.FlagInput{ID: f.ID, Reason: "outdated"}))
 	must(a.RankingReset(cli, chanda.RankingResetInput{}))
+	fc.Advance(time.Minute)
+	must(a.SleepRun(cli, chanda.SleepRunInput{}))
 	must(a.Forget(cli, chanda.ForgetInput{Scope: chanda.ForgetScope{Kind: chanda.ScopeRecord, Value: r.ID}}))
 	rows, err := a.e.Store.DB().Query(`SELECT DISTINCT action FROM audit_log ORDER BY action`)
 	if err != nil {

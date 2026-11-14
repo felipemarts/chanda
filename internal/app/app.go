@@ -24,6 +24,7 @@ import (
 	"github.com/felipemarts/chanda-mcp/internal/facts"
 	"github.com/felipemarts/chanda-mcp/internal/rank"
 	"github.com/felipemarts/chanda-mcp/internal/read"
+	"github.com/felipemarts/chanda-mcp/internal/sleep"
 	"github.com/felipemarts/chanda-mcp/internal/store"
 	"github.com/felipemarts/chanda-mcp/internal/write"
 	"github.com/felipemarts/chanda-mcp/pkg/chanda"
@@ -45,7 +46,8 @@ type App struct {
 	indexer *embed.Indexer
 	reader  *read.Reader
 	ranker  *rank.Ranker
-	roots   []string // resolved write.ingest_roots
+	sleeper *sleep.Sleeper // nil with Options.DisableSleep
+	roots   []string       // resolved write.ingest_roots
 	opt     Options
 
 	mu     sync.Mutex
@@ -154,6 +156,11 @@ func NewWith(e *env.Env, o Options) (*App, error) {
 		deps.Utility, deps.Term, deps.Learned = a.ranker, termAdapter{a.ranker}, learnedAdapter{a.ranker.Learned()}
 	}
 	a.reader = read.New(e, deps)
+	if !o.DisableSleep {
+		if a.sleeper, err = a.newSleeper(); err != nil {
+			return nil, err
+		}
+	}
 	return a, nil
 }
 
@@ -166,8 +173,10 @@ func (a *App) Env() *env.Env { return a.e }
 // Indexer returns the embedding indexer (flush, determinism tests).
 func (a *App) Indexer() *embed.Indexer { return a.indexer }
 
-// Start runs the background embedding indexer until ctx ends or Close is
-// called. Calling it twice does nothing.
+// Start runs the background loops until ctx ends or Close is called: the
+// embedding indexer and, when sleep.scheduler is on and sleep is not
+// disabled, the sleep scheduler (BASE.md "When it runs"). Calling it twice
+// does nothing.
 func (a *App) Start(ctx context.Context) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -175,10 +184,25 @@ func (a *App) Start(ctx context.Context) {
 		return
 	}
 	ctx, a.cancel = context.WithCancel(ctx)
-	a.done = a.indexer.Start(ctx)
+	indexed := a.indexer.Start(ctx)
+	done := make(chan struct{})
+	a.done = done
+	scheduler := a.sleeper != nil && a.e.Cfg.Sleep.Scheduler
+	go func() {
+		defer close(done)
+		if scheduler {
+			if err := a.sleeper.Start(ctx); err != nil && a.opt.Logf != nil {
+				a.opt.Logf("sleep scheduler: %v", err)
+			}
+		}
+		<-indexed
+	}()
 }
 
-// Close stops the indexer and, when the App opened it, closes the store.
+// Sleeper returns the sleep runner (nil with Options.DisableSleep).
+func (a *App) Sleeper() *sleep.Sleeper { return a.sleeper }
+
+// Close stops the background loops and, when the App opened it, closes the store.
 func (a *App) Close() error {
 	a.mu.Lock()
 	cancel, done := a.cancel, a.done

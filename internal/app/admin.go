@@ -143,13 +143,6 @@ func (a *App) Promote(ctx context.Context, in chanda.PromoteInput) (chanda.Promo
 	return out, nil
 }
 
-// SleepRun is not wired yet: sleep is being built in parallel.
-func (a *App) SleepRun(ctx context.Context, in chanda.SleepRunInput) (chanda.SleepRunOutput, error) {
-	c := a.begin(ctx, in.Namespace)
-	c.notice("sleep not wired yet")
-	return chanda.SleepRunOutput{Meta: c.meta(0)}, core.Errf(core.CodeUnavailable, "sleep_run: sleep not wired yet")
-}
-
 // Verify checks the audit hash chain and the provenance graph of the
 // namespace. A failed check is data (ok false), not an error.
 func (a *App) Verify(ctx context.Context, in chanda.VerifyInput) (chanda.VerifyOutput, error) {
