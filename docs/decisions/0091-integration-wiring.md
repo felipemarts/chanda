@@ -53,10 +53,8 @@ value would not.
 fact is the readable record, and the raw event would bring a superseded
 value back. `get` still shows them.
 
-Known gap: a free-text event (a `remember` statement or a document chunk
-still live) whose extracted fact was later superseded can still be
-delivered by `context` as a raw excerpt with the old value. Only
-`fact_assertion` events and retired chunks are excluded today.
+Closed in decision 0093: a live event whose extracted fact was later
+superseded (or judged wrong) is no longer delivered by `context`.
 
 ## Channels: zone ceiling, actor, ingest roots
 
@@ -78,11 +76,9 @@ Defaults: `remember` and `assert_fact` without a source kind use `session`
 
 ## Read wiring
 
-`read.Deps{Embedder, VectorIndex: ExactIndex, Reranker: nil, Utility:
-rank.Ranker, Learned: adapter over rank.Learned}`. The read path's λ term is
-the stage-1 utility, while decision 0070 says it should be the promoted
-model's score; λ stays 0 until a model is promoted (sleep/eval), so the two
-agree today and must be reconciled before promotion goes live.
+`read.Deps{Embedder, VectorIndex: ExactIndex, Reranker: Options.Reranker,
+Utility: rank.Ranker, Term: rank.Ranker.Terms, Learned: adapter over
+rank.Learned}`. The λ term is the promoted model's score (decision 0093).
 Retrievals are audited under the caller's actor and their audit id is
 returned. `search` ignores `filters.source_uri` (notice).
 
@@ -98,7 +94,7 @@ returned. `search` ignores `filters.source_uri` (notice).
   violation kinds are listed in notices, record ids in `orphans`.
 - `flush`: drains the queue in the caller's goroutine (`RunOnce` until
   empty, or `timeout_ms`).
-- `sleep_run`: `unavailable` with the notice "sleep not wired yet".
+- `sleep_run`: wired in decision 0092.
 - `log_session`: `Turn.name` names the tool of a tool turn; `Turn.ts` is
   not stored (the raw log is dated by the clock).
 - `timeline` gained `as_of`: only the facts that held at that date.
