@@ -235,8 +235,8 @@ func (p perfStats) String() string {
 }
 
 func TestPerformanceAt100k(t *testing.T) {
-	if testing.Short() {
-		t.Skip("performance measurement (100k records)")
+	if testing.Short() || os.Getenv("CHANDA_PERF") == "" {
+		t.Skip("performance measurement (100k records); run with CHANDA_PERF=1 (make perf)")
 	}
 	total := 100_000
 	if s := os.Getenv("CHANDA_PERF_RECORDS"); s != "" {

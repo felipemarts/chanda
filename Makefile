@@ -7,6 +7,7 @@
 #   make dataset   regenerate eval/data/synthetic-pt from its seed
 #   make hugot     bin/chanda-hugot (separate module, Go 1.27, GOEXPERIMENT=simd)
 #   make e2e       adapters end-to-end test (needs Python with mcp installed)
+#   make perf      100k-record latency measurement (BASE.md performance targets)
 
 VERSION   ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 LDFLAGS   := -X github.com/felipemarts/chanda-mcp/internal/cli.Version=$(VERSION)
@@ -14,7 +15,7 @@ EVAL_ARGS ?=
 
 export CGO_ENABLED = 0
 
-.PHONY: all build test lint eval dataset hugot e2e clean
+.PHONY: all build test lint eval dataset hugot e2e perf clean
 
 all: lint test build
 
@@ -37,6 +38,9 @@ dataset:
 
 hugot:
 	cd embedders/hugot && GOEXPERIMENT=simd go build -ldflags "$(LDFLAGS)" -o ../../bin/chanda-hugot ./cmd/chanda-hugot
+
+perf:
+	CHANDA_PERF=1 go test -count=1 -run TestPerformanceAt100k -v ./internal/app/
 
 e2e: build
 	sh adapters/e2e_test.sh
