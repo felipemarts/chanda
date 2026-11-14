@@ -289,12 +289,14 @@ func TestValidFromPrecedence(t *testing.T) {
 		given     string
 		docDate   string
 		dbDocDate string
+		evDate    string // events.valid_from of the origin: the date given when it was written
 		want      string
 	}{
-		{"date given in the call wins", "2026-02-02", "2025-05-05", "2024-04-04", "2026-02-02"},
-		{"then the document date passed in", "", "2025-05-05", "2024-04-04", "2025-05-05"},
-		{"then the document date of the origin", "", "", "2024-04-04", "2024-04-04"},
-		{"then recorded_at of the origin", "", "", "", "rec"},
+		{"date given in the call wins", "2026-02-02", "2025-05-05", "2024-04-04", "2023-03-03", "2026-02-02"},
+		{"then the document date passed in", "", "2025-05-05", "2024-04-04", "2023-03-03", "2025-05-05"},
+		{"then the date given when the origin was written", "", "", "2024-04-04", "2023-03-03", "2023-03-03"},
+		{"then the document date of the origin", "", "", "2024-04-04", "", "2024-04-04"},
+		{"then recorded_at of the origin", "", "", "", "", "rec"},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -302,8 +304,12 @@ func TestValidFromPrecedence(t *testing.T) {
 			f.exec(`INSERT INTO documents(id,namespace,source_id,uri,current_version,doc_date,content_hash,updated_at)
 				VALUES('doc_1',?, 'src_internal','file:a',1,NULLIF(?,''),'h','t')`, testNS, c.dbDocDate)
 			rec := core.FormatTime(f.e.Clock.Now())
-			f.exec(`INSERT INTO events(id,namespace,source_id,kind,content,content_hash,trust_zone,actor,recorded_at,doc_id,doc_version,ordinal)
-				VALUES('evt_doc',?,'src_internal','chunk','x','h','internal','t',?,'doc_1',1,0)`, testNS, rec)
+			evDate := c.evDate
+			if evDate != "" {
+				evDate = day(evDate)
+			}
+			f.exec(`INSERT INTO events(id,namespace,source_id,kind,content,content_hash,trust_zone,actor,recorded_at,valid_from,doc_id,doc_version,ordinal)
+				VALUES('evt_doc',?,'src_internal','chunk','x','h','internal','t',?,NULLIF(?,''),'doc_1',1,0)`, testNS, rec, evDate)
 			res, err := f.s.AssertCommit(f.ctx, AssertInput{Namespace: testNS, Subject: "Alice", Predicate: "job_title", Value: "x",
 				ValidFrom: c.given, DocDate: c.docDate, OriginEventIDs: []string{"evt_doc"}})
 			if err != nil {

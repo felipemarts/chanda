@@ -34,7 +34,7 @@ type AssertInput struct {
 	SubjectType    string
 	Predicate      string
 	Value          string
-	ValidFrom      string // date given in the call
+	ValidFrom      string // date given in the call; when empty, the origins' events.valid_from (decision 0135)
 	DocDate        string // document date; when empty, documents.doc_date of the origins
 	OriginEventIDs []string
 	Actor          string
@@ -122,6 +122,7 @@ type origins struct {
 	ids        []string // sorted, unique
 	zone       core.Zone
 	recordedAt string // latest recorded_at among the origins
+	validFrom  string // latest events.valid_from among the origins (the date given when each was written), normalized
 	docDate    string // latest documents.doc_date among the origins, normalized
 }
 
@@ -142,7 +143,7 @@ func loadOrigins(ctx context.Context, tx *sql.Tx, ns string, ids []string) (orig
 	for _, id := range o.ids {
 		args = append(args, id)
 	}
-	rows, err := tx.QueryContext(ctx, `SELECT id, trust_zone, recorded_at, COALESCE(doc_id,''), retired_at IS NOT NULL
+	rows, err := tx.QueryContext(ctx, `SELECT id, trust_zone, recorded_at, COALESCE(valid_from,''), COALESCE(doc_id,''), retired_at IS NOT NULL
 		FROM events WHERE +namespace = ? AND id IN (?`+strings.Repeat(",?", len(o.ids)-1)+`) ORDER BY id`, args...)
 	if err != nil {
 		return o, err
@@ -152,9 +153,9 @@ func loadOrigins(ctx context.Context, tx *sql.Tx, ns string, ids []string) (orig
 	found := 0
 	var retired []string
 	for rows.Next() {
-		var id, z, rec, doc string
+		var id, z, rec, vf, doc string
 		var isRetired bool
-		if err := rows.Scan(&id, &z, &rec, &doc, &isRetired); err != nil {
+		if err := rows.Scan(&id, &z, &rec, &vf, &doc, &isRetired); err != nil {
 			rows.Close()
 			return o, err
 		}
@@ -162,6 +163,11 @@ func loadOrigins(ctx context.Context, tx *sql.Tx, ns string, ids []string) (orig
 		zones = append(zones, core.Zone(z))
 		if rec > o.recordedAt {
 			o.recordedAt = rec
+		}
+		if t, err := core.ParseTime(vf); vf != "" && err == nil {
+			if s := core.FormatTime(t); s > o.validFrom {
+				o.validFrom = s
+			}
 		}
 		if doc != "" {
 			docIDs = append(docIDs, doc)
@@ -198,6 +204,11 @@ func loadOrigins(ctx context.Context, tx *sql.Tx, ns string, ids []string) (orig
 
 // pickValidFrom applies the precedence of BASE.md: the date given in the
 // call, then the document date, then recorded_at (of the origin events).
+// When this call gives no date, the date given when the origin events were
+// written (events.valid_from: a turn's ts, remember's valid_from, the date of
+// the document version a chunk first appeared in) comes before the origins'
+// current document date, so a fact extracted from a dated turn takes the
+// turn's date, not the ingest time (decision 0135).
 func pickValidFrom(given, docDate string, o origins) (string, error) {
 	for _, d := range []string{given, docDate} {
 		if d = strings.TrimSpace(d); d != "" {
@@ -207,6 +218,9 @@ func pickValidFrom(given, docDate string, o origins) (string, error) {
 			}
 			return core.FormatTime(t), nil
 		}
+	}
+	if o.validFrom != "" {
+		return o.validFrom, nil
 	}
 	if o.docDate != "" {
 		return o.docDate, nil
