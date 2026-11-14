@@ -126,6 +126,9 @@ func ftsTop(ctx context.Context, db store.Queryer, fts, base, bm25, expr, ns str
 		bm    float64
 		id    string
 	}
+	if k <= 0 || expr == "" {
+		return nil, nil
+	}
 	n := k + k/2 + 16 // a little room for rows the filter drops; grows ×4 when short
 	for {
 		rows, err := db.QueryContext(ctx, `SELECT rowid, `+bm25+` FROM `+fts+` WHERE `+fts+` MATCH ? ORDER BY `+bm25+` LIMIT ?`, expr, n)
