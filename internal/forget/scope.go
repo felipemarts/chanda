@@ -2,8 +2,6 @@ package forget
 
 import (
 	"context"
-	"strings"
-	"unicode"
 
 	"github.com/felipemarts/chanda-mcp/internal/core"
 	"github.com/felipemarts/chanda-mcp/internal/prov"
@@ -42,6 +40,12 @@ type resolved struct {
 	sources   []string
 	// desc is the content-free scope description stored in the tombstone.
 	desc map[string]any
+	// Entity scope only (decision 0130): the names of the entities with the
+	// mention rule applied, the terms used, and the records they matched.
+	entityScope bool
+	terms       []EntityTerm
+	used        []mentionTerm
+	mentions    []Mention
 }
 
 func resolve(ctx context.Context, q store.Queryer, ns string, s Scope) (*resolved, error) {
@@ -169,67 +173,6 @@ func (r *resolved) source(ctx context.Context, q store.Queryer, ns, ref string) 
 		}
 		if err := r.addDocuments(ctx, q, docs); err != nil {
 			return err
-		}
-	}
-	return nil
-}
-
-// normAlias approximates the write path's alias normalization (lowercase, no
-// punctuation, collapsed spaces) for looking an entity up by name.
-func normAlias(s string) string {
-	f := strings.FieldsFunc(strings.ToLower(s), func(r rune) bool { return !unicode.IsLetter(r) && !unicode.IsNumber(r) })
-	return strings.Join(f, " ")
-}
-
-func (r *resolved) entity(ctx context.Context, q store.Queryer, ns, ref string) error {
-	ents, err := ids(ctx, q, `SELECT id FROM entities WHERE namespace = ?1 AND (id = ?2 OR canonical_name = ?2 COLLATE NOCASE)
-		UNION SELECT entity_id FROM entity_aliases WHERE namespace = ?1 AND alias_norm IN (?2, ?3) ORDER BY 1`, ns, ref, normAlias(ref))
-	if err != nil {
-		return err
-	}
-	if len(ents) == 0 {
-		return core.Errf(core.CodeNotFound, "forget: entity not found")
-	}
-	// Entities merged into the target are the same real-world entity.
-	seen := map[string]bool{}
-	for i := 0; i < len(ents); i++ {
-		if seen[ents[i]] {
-			continue
-		}
-		seen[ents[i]] = true
-		more, err := ids(ctx, q, `SELECT id FROM entities WHERE merged_into = ? ORDER BY id`, ents[i])
-		if err != nil {
-			return err
-		}
-		ents = append(ents, more...)
-	}
-	ents = prov.SortedUnique(ents)
-	r.desc["entities"] = ents
-	r.entities = append(r.entities, ents...)
-	for _, ent := range ents {
-		// Events that mention the entity.
-		evs, err := ids(ctx, q, `SELECT derived_id FROM provenance WHERE source_type = 'entity' AND source_id = ?
-			AND relation = 'mentions' AND derived_type = 'event' ORDER BY derived_id`, ent)
-		if err != nil {
-			return err
-		}
-		r.roots = append(r.roots, evs...)
-		// Facts about the entity, or mentioning it, and the events they came from.
-		facts, err := ids(ctx, q, `SELECT id FROM facts WHERE namespace = ?1 AND subject = ?2
-			UNION SELECT derived_id FROM provenance WHERE source_type = 'entity' AND source_id = ?2
-			AND relation = 'mentions' AND derived_type = 'fact' ORDER BY 1`, ns, ent)
-		if err != nil {
-			return err
-		}
-		r.facts = append(r.facts, facts...)
-		for _, f := range facts {
-			origins, err := prov.Origins(ctx, q, core.RecFact, f)
-			if err != nil {
-				return err
-			}
-			for _, o := range origins {
-				r.roots = append(r.roots, o.ID)
-			}
 		}
 	}
 	return nil

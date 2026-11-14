@@ -9,7 +9,7 @@
   "passed": 14,
   "failed": 1,
   "failed_ids": [
-    "F3"
+    "A2"
   ],
   "scenarios": [
     {
@@ -395,14 +395,14 @@
         {
           "name": "live raw byte scan (db, wal, shm) for the markers",
           "expected": "none (files absent: none)",
-          "measured": "chanda.db:drovanquiz=2 (files absent: none)",
-          "pass": false
+          "measured": "none (files absent: none)",
+          "pass": true
         },
         {
           "name": "raw byte scan after exit (db, wal, shm) for the markers",
           "expected": "none",
-          "measured": "chanda.db:drovanquiz=2",
-          "pass": false
+          "measured": "none",
+          "pass": true
         },
         {
           "name": "files present after exit (WAL and SHM are removed on a clean close)",
@@ -419,56 +419,56 @@
         {
           "name": "tables whose rows hold a marker (every column, every table, FTS shadow tables included)",
           "expected": "none",
-          "measured": "events:drovanquiz, events_fts:drovanquiz, events_fts_content:drovanquiz",
-          "pass": false
+          "measured": "none",
+          "pass": true
         },
         {
           "name": "markers in the FTS5 vocabulary",
           "expected": "none",
-          "measured": "events_fts:drovanquiz",
-          "pass": false
+          "measured": "none",
+          "pass": true
         },
         {
           "name": "embeddings rows of the forgotten records",
           "expected": "0",
-          "measured": "1",
-          "pass": false
+          "measured": "0",
+          "pass": true
         },
         {
           "name": "rows of any table keyed by a forgotten id (events, facts, embeddings, embed_queue, provenance)",
           "expected": "0",
-          "measured": "1",
-          "pass": false
+          "measured": "0",
+          "pass": true
         },
         {
           "name": "search (default) items holding a marker",
           "expected": "none",
-          "measured": "drovanquiz",
-          "pass": false
+          "measured": "none",
+          "pass": true
         },
         {
           "name": "search (include_history) items holding a marker",
           "expected": "none",
-          "measured": "drovanquiz",
-          "pass": false
+          "measured": "none",
+          "pass": true
         },
         {
           "name": "search items with a forgotten id",
           "expected": "none",
-          "measured": "query drovanquiz",
-          "pass": false
+          "measured": "none",
+          "pass": true
         },
         {
           "name": "context blocks holding a marker (pre-forget queries and the markers themselves)",
           "expected": "none",
-          "measured": "\"Qual o apelido de Ysolde Karvenni?\"-\u003edrovanquiz, \"drovanquiz\"-\u003edrovanquiz",
-          "pass": false
+          "measured": "none",
+          "pass": true
         },
         {
           "name": "get on each forgotten id",
           "expected": "not_found for all 2",
-          "measured": "not_found for 1",
-          "pass": false
+          "measured": "not_found for 2",
+          "pass": true
         },
         {
           "name": "control record still found by search",
@@ -477,7 +477,7 @@
           "pass": true
         }
       ],
-      "status": "FAIL"
+      "status": "PASS"
     },
     {
       "id": "F4",
@@ -1306,8 +1306,8 @@
         {
           "name": "context \"Qual e o horario de limpeza da maquina de lavar louca?\": text / items / reason",
           "expected": "empty / 0 / no_relevant_memory",
-          "measured": "empty / 0 / no_relevant_memory",
-          "pass": true
+          "measured": "477 chars / 1 / ",
+          "pass": false
         },
         {
           "name": "context \"Qual o telefone do suporte da VPN?\": text / items / reason",
@@ -1322,7 +1322,7 @@
           "pass": true
         }
       ],
-      "status": "PASS"
+      "status": "FAIL"
     }
   ]
 }

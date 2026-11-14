@@ -21,6 +21,9 @@ const (
 	ProbeBytes      = "bytes"      // removed byte strings absent from the database and WAL files
 	ProbeReferences = "references" // no table row references a removed id
 	ProbeSnapshots  = "snapshots"  // snapshot files that could hold the content are gone
+	// ProbeEntity runs for the entity scope only: no record of the namespace
+	// still names the entity by the mention rule (decision 0130).
+	ProbeEntity = "entity_mentions"
 )
 
 // Probe is the outcome of one verification probe. Failures name ids, tables
@@ -75,13 +78,17 @@ func checkpoint(ctx context.Context, db *sql.DB) error {
 func (p *plan) verify(ctx context.Context, e *env.Env, ns, dbPath string) (*Verification, error) {
 	db := e.Store.DB()
 	v := &Verification{OK: true}
-	for _, run := range []func() (Probe, error){
+	probes := []func() (Probe, error){
 		func() (Probe, error) { return p.probeFTS(ctx, db, ns) },
 		func() (Probe, error) { return p.probeVector(ctx, db, e.Cfg.Forget.ProbeVectorK) },
 		func() (Probe, error) { return p.probeBytes(ctx, db, dbPath) },
 		func() (Probe, error) { return p.probeReferences(ctx, db) },
 		func() (Probe, error) { return p.probeSnapshots(), nil },
-	} {
+	}
+	if p.scope.entityScope {
+		probes = append(probes, func() (Probe, error) { return p.probeEntity(ctx, db, ns) })
+	}
+	for _, run := range probes {
 		pr, err := run()
 		if err != nil {
 			return nil, err
@@ -374,6 +381,36 @@ func columns(ctx context.Context, conn *sql.Conn, table string) ([]string, error
 		out = append(out, n)
 	}
 	return out, rows.Err()
+}
+
+// probeEntity re-runs the entity scope's own claim over what remains: the
+// mention rule finds no event, fact, page title or page item of the
+// namespace that still names a used term. Failures name the term by its
+// position in the sorted used terms, never by its text.
+func (p *plan) probeEntity(ctx context.Context, db *sql.DB, ns string) (Probe, error) {
+	pr := Probe{Name: ProbeEntity}
+	if len(p.scope.used) == 0 {
+		pr.Note = "no name of the entity is long enough for the mention rule"
+		return pr, nil
+	}
+	h, err := findMentions(ctx, db, ns, p.scope.used)
+	if err != nil {
+		return pr, err
+	}
+	idx := map[string]int{}
+	for i, t := range p.scope.used {
+		idx[t.term] = i
+	}
+	pr.Checked = 4 * len(p.scope.used) // events, facts, page titles, page items
+	for _, x := range []struct {
+		what string
+		l    []Mention
+	}{{"event", h.events}, {"fact", h.facts}, {"page title", h.pages}, {"page item", h.items}} {
+		for _, m := range x.l {
+			pr.Failures = append(pr.Failures, fmt.Sprintf("%s %s still names entity term %d", x.what, m.ID, idx[m.Term]))
+		}
+	}
+	return pr, nil
 }
 
 // probeSnapshots confirms the snapshot files listed before deletion are gone.

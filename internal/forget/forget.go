@@ -5,8 +5,10 @@
 // every derived record, deletes physically in one transaction, scrubs the
 // file (FTS optimize, WAL truncation, VACUUM with secure_delete), deletes
 // snapshots, writes a content-free tombstone and audit entry, and then runs
-// four probes before answering: full-text search, vector search, a byte scan
-// of the database and WAL files, and a scan of every table for removed ids.
+// its probes before answering: full-text search, vector search, a byte scan
+// of the database and WAL files, a scan of every table for removed ids, the
+// snapshot files and, for the entity scope, the entity's names in what
+// remains (decision 0130).
 package forget
 
 import (
@@ -39,6 +41,12 @@ type Report struct {
 	TombstoneID  string         `json:"tombstone_id,omitempty"`
 	AuditID      int64          `json:"audit_id,omitempty"`
 	Verification *Verification  `json:"verification,omitempty"`
+	// Entity scope only (decision 0130): every name of the scope's entities
+	// with the mention rule applied, and every record whose text names a
+	// used term, with the term that matched. They hold entity names, so they
+	// are returned to the caller and never stored.
+	EntityTerms []EntityTerm `json:"entity_terms,omitempty"`
+	Mentions    []Mention    `json:"mentions,omitempty"`
 }
 
 // Forget removes scope from namespace ns, or with dryRun only reports what
@@ -57,7 +65,8 @@ func Forget(ctx context.Context, e *env.Env, ns string, scope Scope, dryRun bool
 	rep := Report{
 		DryRun: dryRun, Scope: p.scope.desc, Removed: p.removed,
 		FactsKept: p.factsKept, PagesRebuild: p.rebuild, Snapshots: len(p.snapshots),
-		Counts: map[string]int{"embeddings": len(p.embs)},
+		Counts:      map[string]int{"embeddings": len(p.embs)},
+		EntityTerms: p.scope.terms, Mentions: p.scope.mentions,
 	}
 	if dryRun {
 		return rep, nil
