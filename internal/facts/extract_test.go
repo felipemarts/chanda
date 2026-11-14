@@ -57,6 +57,30 @@ func TestDeterministicExtractors(t *testing.T) {
 			want: "[]",
 		},
 		{
+			name: "header: no heading or title key, subject from the document file name",
+			ext:  config.ExtractorConfig{Kind: KindHeader},
+			ev:   Event{Content: "Owner: Maria\nStatus: draft", DocURI: "kb/projects/project-atlas.md"},
+			want: "[project-atlas|owner|Maria project-atlas|status|draft]",
+		},
+		{
+			name: "header: the file name only when nothing better names the subject",
+			ext:  config.ExtractorConfig{Kind: KindHeader},
+			ev:   Event{Content: "Title: Atlas\nOwner: Maria", DocURI: "kb/notes.md"},
+			want: "[Atlas|owner|Maria]",
+		},
+		{
+			name: "header: file name without extension, or the whole name when it has none",
+			ext:  config.ExtractorConfig{Kind: KindHeader},
+			ev:   Event{Content: "Owner: Maria", DocURI: "README"},
+			want: "[README|owner|Maria]",
+		},
+		{
+			name: "kv_table: no heading, subject from the document file name",
+			ext:  config.ExtractorConfig{Kind: KindKVTable},
+			ev:   Event{Content: "| key | value |\n|---|---|\n| owner | Maria |", DocURI: "docs/Plano Pro.txt"},
+			want: "[Plano Pro|owner|Maria]",
+		},
+		{
 			name: "header: subject from heading path, predicate filter",
 			ext:  config.ExtractorConfig{Kind: KindHeader, Predicate: "Owner"},
 			ev:   Event{Content: "Owner: Maria\nStatus: draft", HeadingPath: "Policies > Travel"},

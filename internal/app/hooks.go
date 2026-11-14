@@ -29,9 +29,15 @@ import (
 func (a *App) afterEvent(ctx context.Context, tx *sql.Tx, ev write.Event) error {
 	var created []string
 	if ev.Kind != core.EventFact && !a.opt.DisableFacts {
+		var docURI string
+		if ev.DocID != "" {
+			if err := tx.QueryRowContext(ctx, `SELECT uri FROM documents WHERE id = ?`, ev.DocID).Scan(&docURI); err != nil {
+				return err
+			}
+		}
 		res, err := a.facts.AfterEvent(ctx, tx, facts.Event{
 			ID: ev.ID, Namespace: ev.Namespace, Content: ev.Content, TrustZone: ev.TrustZone,
-			RecordedAt: ev.RecordedAt, ValidFrom: ev.ValidFrom, HeadingPath: ev.HeadingPath,
+			RecordedAt: ev.RecordedAt, ValidFrom: ev.ValidFrom, HeadingPath: ev.HeadingPath, DocURI: docURI,
 		})
 		if err != nil {
 			return err

@@ -3,6 +3,7 @@ package facts
 import (
 	"context"
 	"database/sql"
+	"path"
 	"regexp"
 	"strings"
 
@@ -30,6 +31,21 @@ type Event struct {
 	DocDate     string // document date, if the event is a document chunk
 	ValidFrom   string // date given in the call, if any
 	HeadingPath string // "H1 > H2" for document chunks
+	DocURI      string // document uri, if the event is a document chunk (its file name is the last-resort subject)
+}
+
+// docName is the file name of a document uri without its extension
+// ("kb/notes/project-atlas.md" -> "project-atlas"), or "".
+func docName(uri string) string {
+	uri = strings.TrimRight(strings.TrimSpace(uri), "/")
+	if uri == "" {
+		return ""
+	}
+	base := path.Base(uri)
+	if ext := path.Ext(base); ext != base {
+		base = strings.TrimSuffix(base, ext)
+	}
+	return strings.TrimSpace(base)
 }
 
 // Candidate is one fact found by a deterministic extractor.
@@ -169,7 +185,8 @@ type addFunc func(x extractor, subj, pred, val string)
 // extractHeader reads a front-matter block (between "---" lines) or the
 // "Key: value" lines at the top of the chunk, after any leading headings.
 // Subject: the configured one, else a title/name/subject key, else the
-// nearest heading, else the last element of HeadingPath.
+// nearest heading, else the last element of HeadingPath, else the
+// document file name without extension.
 func extractHeader(x extractor, ev Event, add addFunc) {
 	ls := lines(ev.Content)
 	i := 0
@@ -229,6 +246,9 @@ func extractHeader(x extractor, ev Event, add addFunc) {
 		subj = lastHeading(ev.HeadingPath)
 	}
 	if subj == "" {
+		subj = docName(ev.DocURI)
+	}
+	if subj == "" {
 		return
 	}
 	for _, p := range pairs {
@@ -254,7 +274,8 @@ func tableCells(line string) []string {
 
 // extractTables reads two-column Markdown tables (header row, separator row,
 // then key | value rows). Subject: the configured one, else the nearest
-// heading above the table, else the last element of HeadingPath.
+// heading above the table, else the last element of HeadingPath, else the
+// document file name without extension.
 func extractTables(x extractor, ev Event, add addFunc) {
 	ls := lines(ev.Content)
 	heading := ""
@@ -277,6 +298,9 @@ func extractTables(x extractor, ev Event, add addFunc) {
 		}
 		if subj == "" {
 			subj = lastHeading(ev.HeadingPath)
+		}
+		if subj == "" {
+			subj = docName(ev.DocURI)
 		}
 		j := i + 2
 		for ; j < len(ls); j++ {
