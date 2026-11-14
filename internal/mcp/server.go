@@ -69,7 +69,7 @@ func New(api chanda.API, cfg *config.Config, opts Options) (*Server, error) {
 	if opts.Logger == nil {
 		opts.Logger = slog.New(slog.DiscardHandler)
 	}
-	actor := chanda.Actor{Name: cfg.MCP.Actor, Human: cfg.MCP.HumanActor}
+	actor := chanda.Actor{Name: cfg.MCP.Actor, Human: cfg.MCP.HumanActor, Remote: true, MaxZone: chanda.Zone(cfg.MCP.MaxZone)}
 	if actor.Name == "" {
 		actor.Name = DefaultActor
 	}

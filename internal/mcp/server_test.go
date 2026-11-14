@@ -209,7 +209,7 @@ func TestEveryToolAnswersInTheEnvelope(t *testing.T) {
 			if c.tool != name {
 				t.Fatalf("API saw %q", c.tool)
 			}
-			if !c.hasActor || c.actor != (chanda.Actor{Name: "hermes", Human: true}) {
+			if !c.hasActor || c.actor != (chanda.Actor{Name: "hermes", Human: true, Remote: true, MaxZone: chanda.ZoneInternal}) {
 				t.Fatalf("actor %+v (set=%v)", c.actor, c.hasActor)
 			}
 			if ns := reflect.ValueOf(c.in).FieldByName("Namespace").String(); ns != "acme" {

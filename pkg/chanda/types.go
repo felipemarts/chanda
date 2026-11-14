@@ -106,6 +106,14 @@ func CodeOf(err error) Code { return core.CodeOf(err) }
 type Actor struct {
 	Name  string // identity written to audit_log.actor, e.g. "agent" or "cli"
 	Human bool   // true only when a person is in control (required by Promote)
+	// Remote marks a caller reached over a protocol (MCP). A remote caller
+	// may ingest only under write.ingest_roots.
+	Remote bool
+	// MaxZone caps the trust zone of every write made by this caller
+	// (decision 0090): zone = MinZone(zone of the source kind, MaxZone).
+	// Empty means the configured mcp.max_zone. "user" counts only for a
+	// Human actor; otherwise it is lowered to "internal".
+	MaxZone Zone
 }
 
 type actorKey struct{}

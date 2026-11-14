@@ -136,7 +136,7 @@ func TestCommandsCallTheAPI(t *testing.T) {
 			if !reflect.DeepEqual(api.in, tc.want) {
 				t.Fatalf("API got %+v\nwant %+v", api.in, tc.want)
 			}
-			if api.actor != (chanda.Actor{Name: "cli", Human: true}) {
+			if api.actor != (chanda.Actor{Name: "cli", Human: true, MaxZone: chanda.ZoneUser}) {
 				t.Fatalf("actor %+v", api.actor)
 			}
 		})

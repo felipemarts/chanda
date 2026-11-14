@@ -124,6 +124,7 @@ type TimelineInput struct {
 	Namespace string `json:"namespace,omitempty" jsonschema:"memory namespace; omit for the configured default"`
 	Subject   string `json:"subject" jsonschema:"entity id or name (aliases are resolved)"`
 	Predicate string `json:"predicate,omitempty" jsonschema:"attribute; omit for every attribute of the subject"`
+	AsOf      string `json:"as_of,omitempty" jsonschema:"reference date: only the facts that held then (RFC 3339 or YYYY-MM-DD); default the whole history"`
 }
 
 // TimelineEntry is one fact in a timeline.
@@ -298,6 +299,7 @@ type Turn struct {
 	Role    string `json:"role" jsonschema:"user, assistant, system or tool; tool turns enter the external zone"`
 	Content string `json:"content" jsonschema:"turn text"`
 	TS      string `json:"ts,omitempty" jsonschema:"when the turn happened"`
+	Name    string `json:"name,omitempty" jsonschema:"tool name, for tool turns; the turn is stored under the source tool:<name>"`
 }
 
 // LogSessionInput writes the turns of a session.

@@ -127,7 +127,7 @@ func parse(fs *flag.FlagSet, args []string) int {
 }
 
 // withAPI loads the configuration, builds the API and runs fn with the CLI
-// actor (a person at a terminal, hence Human). The result is printed as an
+// actor (a person at a terminal, hence Human, with the user zone ceiling). The result is printed as an
 // envelope.
 func (c *common) withAPI(ctx context.Context, stdout, stderr io.Writer, fn func(context.Context, chanda.API, string) (any, error)) int {
 	cfg, err := config.Load(c.config)
@@ -150,7 +150,8 @@ func (c *common) withAPI(ctx context.Context, stdout, stderr io.Writer, fn func(
 	if ns == "" {
 		ns = cfg.Namespace
 	}
-	ctx = chanda.WithActor(ctx, chanda.Actor{Name: c.actor, Human: true})
+	// A person at the terminal may state things in the user zone (decision 0090).
+	ctx = chanda.WithActor(ctx, chanda.Actor{Name: c.actor, Human: true, MaxZone: chanda.ZoneUser})
 	out, err := fn(ctx, api, ns)
 	return emit(stdout, stderr, out, err)
 }
