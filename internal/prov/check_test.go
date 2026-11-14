@@ -36,20 +36,25 @@ func TestCheckIntegrityRules(t *testing.T) {
 			s.Edge("fact", "fct_1", "event", "evt_gone", "derived_from")
 		}, []string{prov.VDanglingEdge}},
 		{"zone never rises on its own", func(s *provtest.Seeder) {
-			s.Exec(`UPDATE facts SET trust_zone='user' WHERE id='fct_2'`)
+			s.Exec(`UPDATE facts SET trust_zone='user' WHERE id='fct_6'`)
 		}, []string{prov.VZoneAboveOrigins}},
+		{"a confirmation from a lower zone does not lower the zone", func(s *provtest.Seeder) {
+			// fct_2 is derived from a user event and confirmed by an external one.
+			s.Exec(`UPDATE facts SET trust_zone='user' WHERE id='fct_2'`)
+		}, nil},
 		{"page zone never rises on its own", func(s *provtest.Seeder) {
 			s.Exec(`UPDATE pages SET trust_zone='user' WHERE id='pg_1'`)
 		}, []string{prov.VZoneAboveOrigins}},
 		{"a promotion allows the raised zone", func(s *provtest.Seeder) {
-			s.Exec(`UPDATE facts SET trust_zone='user' WHERE id='fct_2'`)
+			s.Exec(`UPDATE facts SET trust_zone='user' WHERE id='fct_6'`)
 			s.Exec(`INSERT INTO promotions(id,namespace,record_type,record_id,from_zone,to_zone,actor,audit_id,ts)
-				VALUES('prm_1','ns','fact','fct_2','external','user','human',1,?)`, provtest.T)
+				VALUES('prm_1','ns','fact','fct_6','internal','user','human',1,?)`, provtest.T)
 		}, nil},
 		{"a promotion does not allow more than it granted", func(s *provtest.Seeder) {
-			s.Exec(`UPDATE facts SET trust_zone='user' WHERE id='fct_2'`)
+			s.Edge("fact", "fct_3", "event", "evt_3", "derived_from")
+			s.Exec(`UPDATE facts SET trust_zone='user' WHERE id='fct_3'`)
 			s.Exec(`INSERT INTO promotions(id,namespace,record_type,record_id,from_zone,to_zone,actor,audit_id,ts)
-				VALUES('prm_1','ns','fact','fct_2','external','internal','human',1,?)`, provtest.T)
+				VALUES('prm_1','ns','fact','fct_3','external','internal','human',1,?)`, provtest.T)
 		}, []string{prov.VZoneAboveOrigins}},
 	}
 	for _, c := range cases {

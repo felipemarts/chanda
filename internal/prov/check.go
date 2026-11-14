@@ -40,6 +40,7 @@ type graphState struct {
 	exists  map[core.RecordType]map[string]bool
 	zone    map[string]core.Zone // fact, page, page_item and event zones by id
 	edges   map[string][]Ref     // derived key -> origin-edge sources
+	zedges  map[string][]Ref     // derived key -> zone-defining sources (derived_from, cites)
 	items   map[string][]string  // page id -> item ids
 	ceiling map[string]core.Zone // record key -> highest promoted zone
 }
@@ -56,6 +57,7 @@ func loadGraph(ctx context.Context, q store.Queryer, ns string) (*graphState, []
 		exists:  map[core.RecordType]map[string]bool{},
 		zone:    map[string]core.Zone{},
 		edges:   map[string][]Ref{},
+		zedges:  map[string][]Ref{},
 		items:   map[string][]string{},
 		ceiling: map[string]core.Zone{},
 	}
@@ -129,6 +131,9 @@ func loadGraph(ctx context.Context, q store.Queryer, ns string) (*graphState, []
 		if IsOriginRelation(r.relation) {
 			g.edges[r.derived.key()] = append(g.edges[r.derived.key()], r.source)
 		}
+		if r.relation != core.RelConfirmedBy && IsOriginRelation(r.relation) {
+			g.zedges[r.derived.key()] = append(g.zedges[r.derived.key()], r.source)
+		}
 	}
 	rows, err = q.QueryContext(ctx, `SELECT record_type, record_id, to_zone FROM promotions WHERE `+where+` ORDER BY id`, args...)
 	if err != nil {
@@ -176,7 +181,20 @@ type edgeRow struct {
 }
 
 // origins returns the existing origin events of r (cycle-safe).
-func (g *graphState) origins(r Ref) []string {
+func (g *graphState) origins(r Ref) []string { return g.walk(r, g.edges) }
+
+// zoneOrigins returns the origin events that define r's zone: confirmed_by
+// edges are supporting evidence and do not lower it (decision 0040), so
+// only derived_from and cites are followed. A record reachable only through
+// confirmations falls back to every origin.
+func (g *graphState) zoneOrigins(r Ref) []string {
+	if evs := g.walk(r, g.zedges); len(evs) > 0 {
+		return evs
+	}
+	return g.origins(r)
+}
+
+func (g *graphState) walk(r Ref, edges map[string][]Ref) []string {
 	seen := map[string]bool{}
 	var out []string
 	stack := []Ref{r}
@@ -193,7 +211,7 @@ func (g *graphState) origins(r Ref) []string {
 			}
 			continue
 		}
-		stack = append(stack, g.edges[n.key()]...)
+		stack = append(stack, edges[n.key()]...)
 		if n.Type == core.RecPage {
 			for _, it := range g.items[n.ID] {
 				stack = append(stack, Ref{core.RecPageItem, it})
@@ -219,8 +237,10 @@ func sortedKeys(m map[string]bool) []string {
 //   - every fact, page item and page reaches at least one event (pages
 //     through their items); every vector belongs to an existing record and,
 //     for derived records, reaches an event through it;
-//   - every derived record's zone is at most core.MinZone of its origins,
-//     unless a promotion (promote tool) raised it to at most that zone;
+//   - every derived record's zone is at most core.MinZone of the origins
+//     that define it (derived_from and cites; a confirmed_by edge is
+//     evidence and never lowers it, decision 0040), unless a promotion
+//     (promote tool) raised it to at most that zone;
 //   - every edge endpoint exists.
 //
 // It reads only; violations are returned in the report, not as an error.
@@ -238,11 +258,11 @@ func Check(ctx context.Context, q store.Queryer, ns string) (Report, error) {
 		rep.Checked[string(rt)+"s"] = len(ids)
 		for _, id := range ids {
 			r := Ref{rt, id}
-			evs := g.origins(r)
-			if len(evs) == 0 {
+			if len(g.origins(r)) == 0 {
 				add(VNoOrigin, rt, id, "")
 				continue
 			}
+			evs := g.zoneOrigins(r)
 			zs := make([]core.Zone, len(evs))
 			for i, ev := range evs {
 				zs[i] = g.zone[ev]
