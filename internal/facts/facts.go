@@ -29,12 +29,19 @@ const (
 
 // Service owns the entities, entity_aliases, predicates and facts tables.
 type Service struct {
-	e *env.Env
+	e    *env.Env
+	exts []extractor
+	// extErr is the first invalid extractor configuration, reported by AfterEvent.
+	extErr error
 }
 
-// New returns a Service bound to e.
+// New returns a Service bound to e. Extractors are compiled from
+// e.Cfg.Write.Extractors; an invalid configuration is reported by
+// AfterEvent (and by ValidateExtractors, for startup checks).
 func New(e *env.Env) *Service {
-	return &Service{e: e}
+	s := &Service{e: e}
+	s.exts, s.extErr = compileExtractors(e.Cfg.Write.Extractors)
+	return s
 }
 
 func (s *Service) now() string { return core.FormatTime(s.e.Clock.Now()) }
