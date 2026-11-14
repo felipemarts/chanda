@@ -35,6 +35,8 @@ func ToolNames() []string {
 // Read profile
 
 // ContextInput asks for the short pre-context delivered before the first turn.
+// A date-only AsOf means the end of that day in UTC; with AsOf, raw excerpts
+// dated after it (valid_from, else recorded_at) are not delivered (decision 0135).
 type ContextInput struct {
 	Namespace    string `json:"namespace,omitempty" jsonschema:"memory namespace; omit for the configured default"`
 	Query        string `json:"query" jsonschema:"the user's request or task, verbatim"`
@@ -59,7 +61,9 @@ type ContextOutput struct {
 	TokensUsed  int    `json:"tokens_used" jsonschema:"tokens used by text"`
 }
 
-// SearchFilters narrows a search.
+// SearchFilters narrows a search. AsOf is read as in ContextInput: a
+// date-only value means the end of that day in UTC, facts must be valid then
+// and events dated after it (valid_from, else recorded_at) are left out.
 type SearchFilters struct {
 	Types     []RecordType `json:"types,omitempty" jsonschema:"record types to include: event, fact, page; default all"`
 	Zones     []Zone       `json:"zones,omitempty" jsonschema:"trust zones to include; default all"`
@@ -251,7 +255,9 @@ type RememberOutput struct {
 	WriteResult
 }
 
-// AssertFactInput writes a structured fact.
+// AssertFactInput writes a structured fact. Without ValidFrom, a call whose
+// SessionID names a session whose turns carried ts takes the latest of those
+// dates; otherwise the time of the call (decision 0135).
 type AssertFactInput struct {
 	Namespace string    `json:"namespace,omitempty" jsonschema:"memory namespace; omit for the configured default"`
 	Subject   string    `json:"subject" jsonschema:"entity the fact is about (name or entity id)"`
@@ -294,7 +300,9 @@ type IngestOutput struct {
 	Documents []DocumentResult `json:"documents"`
 }
 
-// Turn is one session turn.
+// Turn is one session turn. TS (RFC 3339 or YYYY-MM-DD) becomes the
+// valid_from of the turn's event; recorded_at stays the write time. An
+// unparsable TS fails the call with invalid_argument (decision 0135).
 type Turn struct {
 	Role    string `json:"role" jsonschema:"user, assistant, system or tool; tool turns enter the external zone"`
 	Content string `json:"content" jsonschema:"turn text"`

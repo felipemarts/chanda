@@ -12,12 +12,26 @@ import (
 	"github.com/felipemarts/chanda-mcp/pkg/chanda"
 )
 
-// optTime parses an optional date given by a caller.
-func optTime(s string) (time.Time, error) {
+// dateOnly is the layout of a bare date.
+const dateOnly = "2006-01-02"
+
+// asOfTime parses an optional as_of given by a caller (context, search,
+// timeline). A bare date means the end of that day in UTC (the last
+// nanosecond): "what held on 2023-05-20" includes everything dated that day,
+// and a date-only valid_from (stored as 00:00 UTC) is valid on its own day
+// (decision 0135). Zero means no as_of.
+func asOfTime(s string) (time.Time, error) {
 	if s = strings.TrimSpace(s); s == "" {
 		return time.Time{}, nil
 	}
-	return core.ParseTime(s)
+	t, err := core.ParseTime(s)
+	if err != nil {
+		return t, err
+	}
+	if _, err := time.Parse(dateOnly, s); err == nil {
+		t = t.Add(24*time.Hour - time.Nanosecond)
+	}
+	return t, nil
 }
 
 func strs(xs []string) []string {
@@ -61,7 +75,7 @@ func items(xs []read.Item) []chanda.Item {
 // Context returns the pre-context block (read path, mode context).
 func (a *App) Context(ctx context.Context, in chanda.ContextInput) (chanda.ContextOutput, error) {
 	c := a.begin(ctx, in.Namespace)
-	asOf, err := optTime(in.AsOf)
+	asOf, err := asOfTime(in.AsOf)
 	if err != nil {
 		return chanda.ContextOutput{Meta: c.meta(0)}, err
 	}
@@ -85,7 +99,7 @@ func (a *App) Context(ctx context.Context, in chanda.ContextInput) (chanda.Conte
 // Search returns a ranked list (read path, mode search).
 func (a *App) Search(ctx context.Context, in chanda.SearchInput) (chanda.SearchOutput, error) {
 	c := a.begin(ctx, in.Namespace)
-	asOf, err := optTime(in.Filters.AsOf)
+	asOf, err := asOfTime(in.Filters.AsOf)
 	if err != nil {
 		return chanda.SearchOutput{Meta: c.meta(0)}, err
 	}
@@ -171,7 +185,7 @@ func (a *App) Get(ctx context.Context, in chanda.GetInput) (chanda.GetOutput, er
 func (a *App) Timeline(ctx context.Context, in chanda.TimelineInput) (chanda.TimelineOutput, error) {
 	c := a.begin(ctx, in.Namespace)
 	out := chanda.TimelineOutput{Meta: c.meta(0), Entries: []chanda.TimelineEntry{}}
-	asOf, err := optTime(in.AsOf)
+	asOf, err := asOfTime(in.AsOf)
 	if err != nil {
 		return out, err
 	}

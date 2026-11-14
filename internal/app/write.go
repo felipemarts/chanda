@@ -102,6 +102,13 @@ func (a *App) AssertFact(ctx context.Context, in chanda.AssertFactInput) (chanda
 		uri = in.SessionID
 	}
 	validFrom := strings.TrimSpace(in.ValidFrom)
+	if validFrom == "" && in.SessionID != "" {
+		var err error
+		if validFrom, err = a.sessionDate(ctx, c.ns, in.SessionID); err != nil {
+			out.Meta = c.meta(0)
+			return out, coded(err)
+		}
+	}
 	if validFrom == "" {
 		validFrom = core.FormatTime(a.e.Clock.Now()) // "default the time of the call"
 	} else if t, err := core.ParseTime(validFrom); err != nil {
@@ -149,6 +156,21 @@ func (a *App) AssertFact(ctx context.Context, in chanda.AssertFactInput) (chanda
 	return out, nil
 }
 
+// sessionDate is the date of a session as its turns gave it: the latest
+// valid_from among the live events of the session, or "" when no turn of the
+// session carried a ts. An assert_fact without valid_from inside a dated
+// session takes it, so a session replayed out of date order still dates its
+// facts by the session, not by the call (decision 0135).
+func (a *App) sessionDate(ctx context.Context, ns, sessionID string) (string, error) {
+	var d sql.NullString
+	err := a.e.Store.DB().QueryRowContext(ctx, `SELECT MAX(valid_from) FROM events
+		WHERE namespace = ? AND session_id = ? AND valid_from IS NOT NULL AND retired_at IS NULL`, ns, sessionID).Scan(&d)
+	if err != nil {
+		return "", err
+	}
+	return d.String, nil
+}
+
 // Ingest ingests a file or folder. A remote (MCP) caller may only read
 // under write.ingest_roots, with symlinks resolved; the CLI and Go callers
 // may read anywhere.
@@ -193,12 +215,13 @@ func (a *App) Ingest(ctx context.Context, in chanda.IngestInput) (chanda.IngestO
 }
 
 // LogSession writes the turns of a session; tool turns enter the external
-// zone under the source tool:<name>.
+// zone under the source tool:<name>. A turn's ts becomes its event's
+// valid_from (decision 0135); an unparsable ts fails the call.
 func (a *App) LogSession(ctx context.Context, in chanda.LogSessionInput) (chanda.LogSessionOutput, error) {
 	c := a.begin(ctx, in.Namespace)
 	turns := make([]write.Turn, len(in.Turns))
 	for i, t := range in.Turns {
-		turns[i] = write.Turn{Role: t.Role, Content: t.Content, ToolName: t.Name}
+		turns[i] = write.Turn{Role: t.Role, Content: t.Content, ToolName: t.Name, TS: t.TS}
 	}
 	c.clampNotice(core.SourceSession)
 	r, err := a.writer.LogSessionWith(ctx, write.SessionInput{
