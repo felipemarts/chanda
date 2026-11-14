@@ -95,6 +95,23 @@ conditions or results had to be re-run. Entries are added in the order found.
   using the question date as the reference, as the owner asked.
 - **Re-run:** the smoke run.
 
+## 8. The e5 embedder leaked memory under a long load (phase 1, e5)
+
+- **Found by:** LongMemEval phase 1 with e5 (no LLM). The `lme embedserve`
+  process, which embeds through Chanda's `embedders/hugot`, was killed
+  (SIGKILL) after about 40 minutes, on every attempt; `footprint` showed
+  11 GB on an 8 GB machine. Not visible in the synthetic evaluation, which
+  makes far fewer calls.
+- **What it was:** GoMLX's Go backend keeps the buffers of every call in pools
+  that never shrink, about 0.45 MB per call (decision 0136).
+- **What changed:** Chanda reloads the hugot session every 1,000 model calls
+  (decision 0136). Vectors are bit-identical across reloads (tested), so the
+  embeddings already cached by the harness and every e5 result already
+  reported stay valid.
+- **Re-run:** nothing to re-run for correctness. Phase 1 with e5 was
+  restarted on the fixed build; the 60-question e5 run that finished before
+  the fix used the same vectors.
+
 ## Known limitations found during setup (not fixed)
 
 - Raw excerpts in the context block do not say who spoke (user or assistant).

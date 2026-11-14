@@ -25,11 +25,13 @@ import (
 type Reranker struct {
 	model Model
 	id    string
+	dir   string
 
 	mu      sync.Mutex
 	clip    *clipper
 	session *khugot.Session
 	pipe    *pipelines.CrossEncoderPipeline
+	calls   int // model calls since the session was loaded (see recycleEvery)
 }
 
 var _ core.Reranker = (*Reranker)(nil)
@@ -40,18 +42,28 @@ func OpenReranker(ctx context.Context, dir string) (*Reranker, error) {
 	if err != nil {
 		return nil, err
 	}
-	r := &Reranker{model: m, id: m.ModelID()}
-	err = stdoutToStderr(func() error {
+	r := &Reranker{model: m, id: m.ModelID(), dir: dir}
+	if r.clip, err = newClipper(dir, m.MaxTokens); err == nil {
+		err = r.load(ctx)
+	}
+	if err != nil {
+		r.Close()
+		return nil, core.Wrap(core.CodeUnavailable, err, "hugot: load "+m.Name+" from "+dir)
+	}
+	return r, nil
+}
+
+// load creates the session and the pipeline and runs the warm-up call, with
+// stdout redirected to stderr; r.mu is held (or r is not shared yet).
+func (r *Reranker) load(ctx context.Context) error {
+	return stdoutToStderr(func() error {
 		s, err := khugot.NewGoSession(ctx)
 		if err != nil {
 			return err
 		}
-		r.session = s
-		if r.clip, err = newClipper(dir, m.MaxTokens); err != nil {
-			return err
-		}
+		r.session, r.calls = s, 0
 		r.pipe, err = khugot.NewPipeline(s, khugot.CrossEncoderConfig{
-			ModelPath: resolve(dir), OnnxFilename: "model.onnx", Name: "chanda-rerank"})
+			ModelPath: resolve(r.dir), OnnxFilename: "model.onnx", Name: "chanda-rerank"})
 		if err != nil {
 			return err
 		}
@@ -61,11 +73,28 @@ func OpenReranker(ctx context.Context, dir string) (*Reranker, error) {
 		_, err = r.logit(ctx, "warm-up", "warm-up")
 		return err
 	})
-	if err != nil {
-		r.Close()
-		return nil, core.Wrap(core.CodeUnavailable, err, "hugot: load "+m.Name+" from "+dir)
+}
+
+// recycle reloads the session once it has served recycleEvery calls (decision
+// 0136); r.mu is held. A failed reload leaves the reranker closed.
+func (r *Reranker) recycle(ctx context.Context) error {
+	if r.calls < recycleEvery {
+		return nil
 	}
-	return r, nil
+	err := r.session.Destroy()
+	r.session, r.pipe = nil, nil
+	releaseMemory()
+	if err == nil {
+		err = r.load(ctx)
+	}
+	if err != nil {
+		if r.session != nil {
+			_ = r.session.Destroy()
+		}
+		r.session, r.pipe = nil, nil
+		return core.Wrap(core.CodeUnavailable, err, "hugot: reload "+r.model.Name+" from "+r.dir)
+	}
+	return nil
 }
 
 // ModelID is, for example, "mmarco-minilm-l12@hugot0.8.6+simd".
@@ -82,6 +111,9 @@ func (r *Reranker) Score(ctx context.Context, query string, docs []string) ([]fl
 	out := make([]float32, len(docs))
 	for i, d := range docs {
 		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
+		if err := r.recycle(ctx); err != nil {
 			return nil, err
 		}
 		v, err := r.logit(ctx, q, norm.NFKC.String(d))
@@ -109,6 +141,7 @@ func (r *Reranker) Close() error {
 // template, which is what hugot's pair tokenizer builds), cutting the doc
 // when the pair exceeds the window. r.mu is held (or r is not shared yet).
 func (r *Reranker) logit(ctx context.Context, query, doc string) (float32, error) {
+	r.calls++
 	text := r.clip.clip(query + "</s></s>" + doc)
 	model := r.pipe.Model
 	res, err := backends.RunPipeline(ctx, 1,

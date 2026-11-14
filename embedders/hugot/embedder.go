@@ -22,11 +22,13 @@ import (
 type Embedder struct {
 	model Model
 	id    string
+	dir   string
 
 	mu      sync.Mutex
 	clip    *clipper
 	session *khugot.Session
 	pipe    *pipelines.FeatureExtractionPipeline
+	calls   int // model calls since the session was loaded (see recycleEvery)
 }
 
 var _ core.RoleEmbedder = (*Embedder)(nil)
@@ -42,29 +44,57 @@ func Open(ctx context.Context, dir string) (*Embedder, error) {
 }
 
 func open(ctx context.Context, dir string, m Model) (*Embedder, error) {
-	e := &Embedder{model: m, id: m.ModelID()}
-	err := stdoutToStderr(func() error {
-		s, err := khugot.NewGoSession(ctx)
-		if err != nil {
-			return err
-		}
-		e.session = s
-		if e.clip, err = newClipper(dir, m.MaxTokens); err != nil {
-			return err
-		}
-		e.pipe, err = khugot.NewPipeline(s, khugot.FeatureExtractionConfig{
-			ModelPath: resolve(dir), OnnxFilename: "model.onnx", Name: "chanda-embed"})
-		if err != nil {
-			return err
-		}
-		_, err = e.embedOne(ctx, m.PassagePrefix, "warm-up")
-		return err
-	})
+	e := &Embedder{model: m, id: m.ModelID(), dir: dir}
+	var err error
+	if e.clip, err = newClipper(dir, m.MaxTokens); err == nil {
+		err = e.load(ctx)
+	}
 	if err != nil {
 		e.Close()
 		return nil, core.Wrap(core.CodeUnavailable, err, "hugot: load "+m.Name+" from "+dir)
 	}
 	return e, nil
+}
+
+// load creates the session and the pipeline and runs the warm-up call, with
+// stdout redirected to stderr; e.mu is held (or e is not shared yet).
+func (e *Embedder) load(ctx context.Context) error {
+	return stdoutToStderr(func() error {
+		s, err := khugot.NewGoSession(ctx)
+		if err != nil {
+			return err
+		}
+		e.session, e.calls = s, 0
+		e.pipe, err = khugot.NewPipeline(s, khugot.FeatureExtractionConfig{
+			ModelPath: resolve(e.dir), OnnxFilename: "model.onnx", Name: "chanda-embed"})
+		if err != nil {
+			return err
+		}
+		_, err = e.embedOne(ctx, e.model.PassagePrefix, "warm-up")
+		return err
+	})
+}
+
+// recycle reloads the session once it has served recycleEvery calls (decision
+// 0136); e.mu is held. A failed reload leaves the embedder closed.
+func (e *Embedder) recycle(ctx context.Context) error {
+	if e.calls < recycleEvery {
+		return nil
+	}
+	err := e.session.Destroy()
+	e.session, e.pipe = nil, nil
+	releaseMemory()
+	if err == nil {
+		err = e.load(ctx)
+	}
+	if err != nil {
+		if e.session != nil {
+			_ = e.session.Destroy()
+		}
+		e.session, e.pipe = nil, nil
+		return core.Wrap(core.CodeUnavailable, err, "hugot: reload "+e.model.Name+" from "+e.dir)
+	}
+	return nil
 }
 
 // Model returns the model description.
@@ -109,6 +139,9 @@ func (e *Embedder) embed(ctx context.Context, prefix string, texts []string) ([]
 		if err := ctx.Err(); err != nil {
 			return nil, err
 		}
+		if err := e.recycle(ctx); err != nil {
+			return nil, err
+		}
 		v, err := e.embedOne(ctx, prefix, t)
 		if err != nil {
 			return nil, core.Wrap(core.CodeInternal, err, "hugot: embed with "+e.id)
@@ -120,6 +153,7 @@ func (e *Embedder) embed(ctx context.Context, prefix string, texts []string) ([]
 
 // embedOne runs one text through the model; e.mu is held (or e is not shared yet).
 func (e *Embedder) embedOne(ctx context.Context, prefix, text string) ([]float32, error) {
+	e.calls++
 	res, err := e.pipe.RunPipeline(ctx, []string{e.clip.clip(prefix + norm.NFKC.String(text))})
 	if err != nil {
 		return nil, err
