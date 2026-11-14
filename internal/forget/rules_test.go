@@ -1,13 +1,17 @@
 package forget_test
 
 import (
+	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"strings"
 	"testing"
 
 	"github.com/felipemarts/chanda-mcp/internal/core"
 	"github.com/felipemarts/chanda-mcp/internal/forget"
 	"github.com/felipemarts/chanda-mcp/internal/prov"
+	"github.com/felipemarts/chanda-mcp/internal/prov/provtest"
 )
 
 func probe(v *forget.Verification, name string) forget.Probe {
@@ -190,5 +194,54 @@ func TestTombstoneKeepsHashOnlyWhenConfigured(t *testing.T) {
 	}
 	if r, _ := prov.Verify(context.Background(), e); !r.OK {
 		t.Fatalf("verify: %+v", r)
+	}
+}
+
+// Entity scope on a document section named after the entity (the header
+// extractor's subject is the heading): the facts about the entity and the
+// chunk they came from are removed, while another paragraph under the same
+// heading survives and keeps the heading in its heading_path. Those heading
+// bytes are held by a surviving record, so the byte scan must not report the
+// facts' text that starts with the entity name as residue; content held only
+// by the removed records must still be absent from the file.
+func TestEntityScopeKeepsSiblingChunkUnderTheHeading(t *testing.T) {
+	e, _ := corpus(t)
+	s := provtest.New(t, e, ns)
+	s.Source("src_06", "document", "file:///docs/ticket-desk.md", "internal")
+	s.Document("doc_03", "src_06", "file:///docs/ticket-desk.md")
+	chunk := func(id, content string, ordinal int) {
+		h := sha256.Sum256([]byte(content))
+		s.Exec(`INSERT INTO events(id,namespace,source_id,kind,content,content_hash,trust_zone,actor,recorded_at,doc_id,doc_version,ordinal,heading_path)
+			VALUES(?,?,'src_06','chunk',?,?,'internal','tester',?,'doc_03',1,?,'Quarterly ticket desk')`, id, ns, content, hex.EncodeToString(h[:]), provtest.T, ordinal)
+		s.Exec(`INSERT INTO document_chunks(namespace,doc_id,version,ordinal,event_id) VALUES(?,'doc_03',1,?,?)`, ns, ordinal, id)
+		s.Embedding("event", id, content)
+	}
+	chunk("evt_11", "Owner: Technology\nResponse: four business hours", 0)
+	chunk("evt_12", "Problems with laptops and access are filed as tickets.", 1)
+	s.Entity("ent_06", "Quarterly ticket desk", "quarterly ticket desk")
+	for _, f := range [][3]string{{"fct_07", "response", "four business hours"}, {"fct_08", "owner", "Technology"}} {
+		s.Fact(f[0], "ent_06", f[1], f[2], "internal", "Quarterly ticket desk "+f[1]+": "+f[2])
+		s.Edge("fact", f[0], "event", "evt_11", core.RelDerivedFrom)
+		s.Embedding("fact", f[0], f[0])
+	}
+
+	rep, err := forget.Forget(context.Background(), e, ns, forget.Scope{Kind: forget.ScopeEntity, Ref: "Quarterly ticket desk"}, false, "admin")
+	if err != nil {
+		t.Fatalf("%v %+v", err, rep.Verification)
+	}
+	if strings.Join(rep.Removed.Events, ",") != "evt_11" || strings.Join(rep.Removed.Facts, ",") != "fct_07,fct_08" {
+		t.Fatalf("removed events %v facts %v", rep.Removed.Events, rep.Removed.Facts)
+	}
+	if p := probe(rep.Verification, forget.ProbeBytes); !p.Pass || p.Checked == 0 {
+		t.Fatalf("bytes probe: %+v", p)
+	}
+	raw := fileBytes(t, e.Store.Path())
+	for _, gone := range []string{"four business hours", "Owner: Technology"} {
+		if bytes.Contains(raw, []byte(gone)) {
+			t.Errorf("%q survives in the file", gone)
+		}
+	}
+	if count(t, e, `SELECT count(*) FROM events WHERE id = 'evt_12'`) != 1 {
+		t.Fatal("the sibling chunk under the heading was removed")
 	}
 }

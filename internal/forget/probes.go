@@ -199,9 +199,12 @@ func (p *plan) probeVector(ctx context.Context, db *sql.DB, k int) (Probe, error
 }
 
 // survivorText lists the columns where forgotten bytes may legitimately
-// remain: the same text held by a record that was not forgotten.
+// remain: the same text held by a record that was not forgotten. A chunk's
+// heading_path is text of that chunk: an entity scope removes the facts
+// about a heading's subject and their chunks, not every paragraph under the
+// heading, and those paragraphs keep the heading (decision 0110).
 var survivorText = []string{
-	`SELECT 1 FROM events WHERE instr(content, ?1) > 0`,
+	`SELECT 1 FROM events WHERE instr(content, ?1) > 0 OR instr(heading_path, ?1) > 0`,
 	`SELECT 1 FROM facts WHERE instr(text, ?1) > 0 OR instr(value, ?1) > 0`,
 	`SELECT 1 FROM pages WHERE instr(title, ?1) > 0 OR instr(body, ?1) > 0`,
 	`SELECT 1 FROM page_items WHERE instr(text, ?1) > 0`,
