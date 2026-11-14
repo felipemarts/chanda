@@ -151,7 +151,7 @@ func NewWith(e *env.Env, o Options) (*App, error) {
 		deps.Embedder, deps.VectorIndex = nil, nil
 	}
 	if !o.DisableLearning {
-		deps.Utility, deps.Learned = a.ranker, learnedAdapter{a.ranker.Learned()}
+		deps.Utility, deps.Term, deps.Learned = a.ranker, termAdapter{a.ranker}, learnedAdapter{a.ranker.Learned()}
 	}
 	a.reader = read.New(e, deps)
 	return a, nil

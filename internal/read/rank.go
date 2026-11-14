@@ -21,6 +21,8 @@ type cand struct {
 	relevance            float64
 	utility, learned     float64
 	hasUtil, hasLearned  bool
+	term                 float64
+	hasTerm              bool
 	final                float64
 	ageSec               float64
 	dropped              string // "" while alive; a drop* reason otherwise
@@ -135,28 +137,43 @@ func (r *Reader) rerankStep(ctx context.Context, query string, cs []*cand) (bool
 }
 
 // lambda returns λ clamped to [0, ranking.lambda_max]; 0 when learning is
-// off or no Utility is wired.
+// off or no Utility or Term is wired. A scoring reader may fix λ.
 func (r *Reader) lambda(ctx context.Context, ns string) (float64, error) {
-	if r.deps.Utility == nil || !r.e.Cfg.Ranking.Enabled {
+	if r.lambdaFix != nil {
+		return clampLambda(*r.lambdaFix, r.e.Cfg.Ranking.LambdaMax), nil
+	}
+	if r.deps.Utility == nil || r.deps.Term == nil || !r.e.Cfg.Ranking.Enabled {
 		return 0, nil
 	}
 	l, err := r.deps.Utility.Lambda(ctx, ns)
 	if err != nil {
 		return 0, err
 	}
+	return clampLambda(l, r.e.Cfg.Ranking.LambdaMax), nil
+}
+
+func clampLambda(l, max float64) float64 {
 	if math.IsNaN(l) || l < 0 {
-		l = 0
+		return 0
 	}
-	return math.Min(l, r.e.Cfg.Ranking.LambdaMax), nil
+	return math.Min(l, max)
 }
 
 // NeutralUtility is the utility term of a record without one (internal/rank
 // contract): it neither helps nor hurts.
 const NeutralUtility = 0.5
 
-// adjust applies read step 7: final = (1 − λ)·relevance + λ·utility. A
-// candidate with no utility yet uses NeutralUtility. Utility scores are
-// logged even when λ = 0 (they are ranking features).
+// adjust applies read step 7 as decision 0070 defines it:
+//
+//	final = relevance                          when λ = 0
+//	final = (1 − λ)·relevance + λ·term         otherwise
+//
+// where term is the promoted model's score (Deps.Term; NeutralUtility for a
+// candidate it does not score). Stage-1 utility is not a term of its own:
+// it enters through the model's features. It is still looked up and logged
+// (a ranking feature) whenever a Utility is wired. With λ = 0 the final
+// score is the relevance bit for bit, so the order is exactly the
+// pre-learning (C4) order.
 func (r *Reader) adjust(ctx context.Context, ns string, cs []*cand, lambda float64) error {
 	if r.deps.Utility != nil && len(cs) > 0 {
 		ids := make([]string, len(cs))
@@ -174,19 +191,39 @@ func (r *Reader) adjust(ctx context.Context, ns string, cs []*cand, lambda float
 			}
 		}
 	}
-	for _, c := range cs {
-		u := NeutralUtility
-		if c.hasUtil {
-			u = c.utility
+	if lambda > 0 && r.deps.Term != nil && len(cs) > 0 {
+		in := make([]Candidate, len(cs))
+		for i, c := range cs {
+			in[i] = c.candidate()
 		}
-		c.final = (1-lambda)*c.relevance + lambda*u // λ = 0 gives exactly relevance
+		ts, err := r.deps.Term.Terms(ctx, ns, in)
+		if err != nil {
+			return err
+		}
+		for _, c := range cs {
+			c.term, c.hasTerm = NeutralUtility, true
+			if v, ok := ts[c.id()]; ok && !math.IsNaN(v) {
+				c.term = v
+			}
+		}
+	}
+	for _, c := range cs {
+		c.final = finalScore(c.relevance, c.term, lambda, c.hasTerm)
 	}
 	return nil
 }
 
+// finalScore is rank.Final: relevance unchanged when λ = 0 (or no term).
+func finalScore(relevance, term, lambda float64, hasTerm bool) float64 {
+	if lambda <= 0 || !hasTerm {
+		return relevance
+	}
+	return (1-lambda)*relevance + lambda*term
+}
+
 // shadow logs the learned score of every candidate without using it.
 func (r *Reader) shadow(ctx context.Context, ns string, cs []*cand) {
-	if r.deps.Learned == nil {
+	if r.deps.Learned == nil || r.scoreOnly {
 		return
 	}
 	for _, c := range cs {
@@ -221,6 +258,9 @@ func (c *cand) scores() Scores {
 	}
 	if c.hasLearned {
 		s.Learned = ptr(c.learned)
+	}
+	if c.hasTerm {
+		s.Term = ptr(c.term)
 	}
 	return s
 }

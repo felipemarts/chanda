@@ -22,8 +22,9 @@ const ActRetrieve = audit.ActRetrieve
 // number under "features" (rank decodes features as map[string]float64).
 // "dropped" is the reason a candidate left the list; rank ignores it.
 //
-// utility is the term used in the final score: the record's utility, or
-// NeutralUtility when it has none (features.has_utility = 0).
+// utility is the record's stage-1 utility, or NeutralUtility when it has
+// none (features.has_utility = 0); it is a ranking feature. When λ > 0 the
+// learned term of the promoted model is in features.term.
 type LoggedCandidate struct {
 	ID         string             `json:"id"`
 	Type       core.RecordType    `json:"type"`
@@ -57,6 +58,9 @@ func loggedCandidate(c *cand, position int) LoggedCandidate {
 		}
 		lc.Utility = ptr(u)
 		lc.Features["coverage"], lc.Features["evidence"], lc.Features["relevance"] = c.coverage, c.evidence, c.relevance
+		if c.hasTerm {
+			lc.Features["term"] = c.term
+		}
 	}
 	if position > 0 {
 		lc.Features["delivered"], lc.Features["position"], lc.Dropped = 1, float64(position), ""

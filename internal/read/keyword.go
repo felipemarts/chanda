@@ -76,7 +76,7 @@ func (r *Reader) keywordSearch(ctx context.Context, ns string, terms []string, f
 		}
 		q += ` ORDER BY ` + s.bm25 + `, ` + s.fts + `.record_id LIMIT ?`
 		args = append(args, k)
-		rows, err := r.e.Store.DB().QueryContext(ctx, q, args...)
+		rows, err := r.db().QueryContext(ctx, q, args...)
 		if err != nil {
 			return nil, core.Wrap(core.CodeInternal, err, "keyword search "+string(s.typ))
 		}

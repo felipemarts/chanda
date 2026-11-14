@@ -1,6 +1,7 @@
 package read
 
 import (
+	"context"
 	"math"
 	"testing"
 
@@ -35,12 +36,27 @@ func TestRRFFusionK60(t *testing.T) {
 	}
 }
 
-// BASE.md read step 7: final = (1 − λ)·relevance + λ·utility; λ capped by lambda_max.
-func TestUtilityAdjustment(t *testing.T) {
+type fakeTerm map[string]float64
+
+func (f fakeTerm) Terms(_ context.Context, _ string, cs []Candidate) (map[string]float64, error) {
+	out := map[string]float64{}
+	for _, c := range cs {
+		if v, ok := f[c.ID]; ok {
+			out[c.ID] = v
+		}
+	}
+	return out, nil
+}
+
+// BASE.md read step 7 as decision 0070 settles it: final = (1 − λ)·relevance
+// + λ·term, term being the promoted model's score; λ capped by lambda_max;
+// stage-1 utility is only a logged feature; λ = 0 returns relevance exactly.
+func TestLearnedTermAdjustment(t *testing.T) {
 	f := newFx(t)
 	a, b := mk("evt_a", 1, 0), mk("evt_b", 2, 0)
 	fuse([]*cand{a, b}, 60, 1)
-	r := New(f.e, Deps{Utility: fakeUtility{lambda: 0.9, by: map[string]float64{"evt_b": 1}}})
+	u := fakeUtility{lambda: 0.9, by: map[string]float64{"evt_b": 1}}
+	r := New(f.e, Deps{Utility: u, Term: fakeTerm{"evt_b": 0.8}})
 	l, err := r.lambda(f.ctx, "ns")
 	if err != nil || l != f.e.Cfg.Ranking.LambdaMax {
 		t.Fatalf("lambda must be capped at %v: %v %v", f.e.Cfg.Ranking.LambdaMax, l, err)
@@ -49,17 +65,27 @@ func TestUtilityAdjustment(t *testing.T) {
 		t.Fatal(err)
 	}
 	if !near(a.final, 0.7*a.relevance+0.3*NeutralUtility) || a.hasUtil {
-		t.Errorf("no utility → neutral 0.5: %+v", a)
+		t.Errorf("no term → neutral 0.5: %+v", a)
 	}
-	if !near(b.final, 0.7*b.relevance+0.3) {
-		t.Errorf("b final = %v", b.final)
+	if !near(b.final, 0.7*b.relevance+0.3*0.8) || !b.hasUtil || b.utility != 1 {
+		t.Errorf("b final = %v (the term, not the utility, is weighted)", b.final)
+	}
+	if err := r.adjust(f.ctx, "ns", []*cand{a, b}, 0); err != nil {
+		t.Fatal(err)
+	}
+	if a.final != a.relevance || b.final != b.relevance {
+		t.Errorf("λ = 0 must return relevance bit for bit: %v %v", a.final, b.final)
 	}
 	f.e.Cfg.Ranking.Enabled = false
 	if l, _ := r.lambda(f.ctx, "ns"); l != 0 {
 		t.Errorf("learning off → λ = 0, got %v", l)
 	}
+	f.e.Cfg.Ranking.Enabled = true
 	if l, _ := New(f.e, Deps{}).lambda(f.ctx, "ns"); l != 0 {
 		t.Errorf("nil Utility → λ = 0, got %v", l)
+	}
+	if l, _ := New(f.e, Deps{Utility: u}).lambda(f.ctx, "ns"); l != 0 {
+		t.Errorf("no Term → λ = 0, got %v", l)
 	}
 }
 

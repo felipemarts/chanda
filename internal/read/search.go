@@ -169,7 +169,10 @@ func (r *Reader) run(ctx context.Context, q request) (*result, error) {
 	} else {
 		o.asOfExplicit = true
 	}
-	res := &result{retrievalID: r.e.IDs.New(core.PrefixRetrieval)}
+	res := &result{retrievalID: scoreRetrievalID}
+	if !r.scoreOnly {
+		res.retrievalID = r.e.IDs.New(core.PrefixRetrieval)
+	}
 	terms := queryTerms(q.text, r.e.Cfg.Read.MaxQueryTerms)
 
 	// 2. Keyword. 3. Vector.
@@ -283,7 +286,7 @@ func (r *Reader) run(ctx context.Context, q request) (*result, error) {
 	if err := r.adjust(ctx, q.ns, alive, lambda); err != nil {
 		res.notices = append(res.notices, "utility_unavailable")
 		for _, c := range alive {
-			c.final, c.hasUtil = c.relevance, false
+			c.final, c.hasUtil, c.hasTerm = c.relevance, false, false
 		}
 	}
 	r.shadow(ctx, q.ns, alive)
@@ -324,7 +327,13 @@ func (r *Reader) run(ctx context.Context, q request) (*result, error) {
 		res.reason = ReasonNoRelevantMemory
 	}
 
-	// 11. Log.
+	// 11. Log (never for a read-only scoring query).
+	if r.scoreOnly {
+		if res.items == nil {
+			res.items = []Item{}
+		}
+		return res, nil
+	}
 	all := make([]*cand, 0, len(byID))
 	for _, id := range order {
 		all = append(all, byID[id])

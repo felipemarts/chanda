@@ -206,10 +206,8 @@ func (a *App) checkDerived(ctx context.Context, tx *sql.Tx, ns string, factIDs [
 	return nil
 }
 
-// learnedAdapter shows the stage-2 ranker to the read path (shadow mode).
-type learnedAdapter struct{ l *rank.Learned }
-
-func (l learnedAdapter) Score(ctx context.Context, ns string, c read.Candidate) (float64, bool) {
+// rankCandidate is the read path's candidate as internal/rank sees it.
+func rankCandidate(c read.Candidate) rank.Candidate {
 	val := func(p *float64) float64 {
 		if p == nil {
 			return 0
@@ -217,12 +215,43 @@ func (l learnedAdapter) Score(ctx context.Context, ns string, c read.Candidate) 
 		return *p
 	}
 	s := c.Scores
-	v, ok, err := l.l.Score(ctx, ns, rank.Candidate{
+	return rank.Candidate{
 		ID: c.ID, Type: c.Type, Zone: c.Zone, AgeSeconds: c.AgeSeconds,
 		BM25: val(s.BM25), Cosine: val(s.Cosine), Rerank: val(s.Rerank), RRF: val(s.RRF), Utility: val(s.Utility),
-	})
+	}
+}
+
+func rankCandidates(cs []read.Candidate) []rank.Candidate {
+	out := make([]rank.Candidate, len(cs))
+	for i, c := range cs {
+		out[i] = rankCandidate(c)
+	}
+	return out
+}
+
+// learnedAdapter shows the stage-2 ranker to the read path (shadow mode).
+type learnedAdapter struct{ l *rank.Learned }
+
+func (l learnedAdapter) Score(ctx context.Context, ns string, c read.Candidate) (float64, bool) {
+	v, ok, err := l.l.Score(ctx, ns, rankCandidate(c))
 	if err != nil {
 		return 0, false
 	}
 	return v, ok
+}
+
+// termAdapter is read step 7's learned term: the promoted model's score
+// (rank.Terms; decision 0070).
+type termAdapter struct{ r *rank.Ranker }
+
+func (t termAdapter) Terms(ctx context.Context, ns string, cs []read.Candidate) (map[string]float64, error) {
+	return t.r.Terms(ctx, ns, rankCandidates(cs))
+}
+
+// modelTerm scores with the newest non-retired model (the one rank.Promote
+// evaluates), for the promotion evaluator.
+type modelTerm struct{ l *rank.Learned }
+
+func (t modelTerm) Terms(ctx context.Context, ns string, cs []read.Candidate) (map[string]float64, error) {
+	return t.l.ScoreAll(ctx, ns, rankCandidates(cs))
 }

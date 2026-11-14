@@ -66,7 +66,7 @@ const inBatch = 400
 // is part of every query.
 func (r *Reader) loadRecords(ctx context.Context, ns string, byType map[core.RecordType][]string) (map[string]*record, error) {
 	out := map[string]*record{}
-	db := r.e.Store.DB()
+	db := r.db()
 	for _, typ := range []core.RecordType{core.RecEvent, core.RecFact, core.RecPage} {
 		ids := uniqSorted(byType[typ])
 		for start := 0; start < len(ids); start += inBatch {
@@ -153,7 +153,7 @@ func (r *Reader) markFlagged(ctx context.Context, ns string, recs map[string]*re
 
 // queryStrings runs a one-column query and collects the result.
 func (r *Reader) queryStrings(ctx context.Context, q string, args ...any) ([]string, error) {
-	rows, err := r.e.Store.DB().QueryContext(ctx, q, args...)
+	rows, err := r.db().QueryContext(ctx, q, args...)
 	if err != nil {
 		return nil, core.Wrap(core.CodeInternal, err, "query")
 	}
@@ -324,7 +324,7 @@ func (r *Reader) collapseDuplicates(ctx context.Context, eligible map[string]*re
 				args = append(args, id)
 			}
 			ph := placeholders(len(batch))
-			rows, err := r.e.Store.DB().QueryContext(ctx, `SELECT derived_type, derived_id, source_type, source_id FROM provenance
+			rows, err := r.db().QueryContext(ctx, `SELECT derived_type, derived_id, source_type, source_id FROM provenance
 				WHERE namespace = ? AND relation = ? AND (derived_id IN (`+ph+`) OR source_id IN (`+ph+`))
 				ORDER BY derived_type, derived_id, source_type, source_id`, args...)
 			if err != nil {
@@ -425,7 +425,7 @@ func (r *Reader) originEvents(ctx context.Context, ns string, typ core.RecordTyp
 	for depth := 0; len(frontier) > 0 && depth < 16 && len(seen) < 10000; depth++ {
 		var next []node
 		for _, n := range frontier {
-			rows, err := r.e.Store.DB().QueryContext(ctx, `SELECT derived_type, derived_id, source_type, source_id, relation
+			rows, err := r.db().QueryContext(ctx, `SELECT derived_type, derived_id, source_type, source_id, relation
 				FROM provenance WHERE namespace = ? AND derived_type = ? AND derived_id = ?
 				AND relation NOT IN (?,?,?) ORDER BY source_type, source_id, relation`,
 				ns, string(n.typ), n.id, core.RelMentions, core.RelSupersedes, core.RelDuplicateOf)

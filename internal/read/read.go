@@ -15,6 +15,7 @@ import (
 
 	"github.com/felipemarts/chanda-mcp/internal/core"
 	"github.com/felipemarts/chanda-mcp/internal/env"
+	"github.com/felipemarts/chanda-mcp/internal/store"
 )
 
 // Utility gives the per-record utility in [0,1] and the namespace's λ
@@ -23,6 +24,13 @@ import (
 type Utility interface {
 	Scores(ctx context.Context, ns string, ids []string) (map[string]float64, error)
 	Lambda(ctx context.Context, ns string) (float64, error)
+}
+
+// Term gives the learned term of read step 7 for each candidate: the score
+// of the promoted model (decision 0070). Ids missing from the map use
+// NeutralUtility. It is only asked when λ > 0.
+type Term interface {
+	Terms(ctx context.Context, ns string, cs []Candidate) (map[string]float64, error)
 }
 
 // Learned is the learned ranker in shadow mode: its score is logged with
@@ -36,7 +44,8 @@ type Deps struct {
 	Embedder    core.Embedder    // query embedding; RoleEmbedder.EmbedQuery used when available
 	VectorIndex core.VectorIndex // nearest neighbours; nil → keyword only
 	Reranker    core.Reranker    // nil or cfg.Read.RerankEnabled=false → step skipped
-	Utility     Utility          // nil → λ = 0
+	Utility     Utility          // nil → λ = 0 and no utility feature
+	Term        Term             // learned term of step 7; nil → λ = 0
 	Learned     Learned          // nil → no shadow score
 }
 
@@ -45,6 +54,20 @@ type Reader struct {
 	e       *env.Env
 	deps    Deps
 	cfgHash string
+
+	// Read-only scoring (Score): queries go to q when set, nothing is
+	// logged and λ may be fixed by the caller.
+	q         store.Queryer
+	scoreOnly bool
+	lambdaFix *float64
+}
+
+// db is where the read path queries: the scoring queryer, else the store.
+func (r *Reader) db() store.Queryer {
+	if r.q != nil {
+		return r.q
+	}
+	return r.e.Store.DB()
 }
 
 // New returns a Reader over e with the given optional dependencies.
@@ -79,8 +102,9 @@ type Scores struct {
 	Evidence    *float64 `json:"evidence,omitempty"`  // max(lexical, semantic) evidence in [0,1]
 	Relevance   *float64 `json:"relevance,omitempty"` // normalized to [0,1]; the cut uses this
 	Utility     *float64 `json:"utility,omitempty"`
-	Learned     *float64 `json:"learned,omitempty"` // shadow only
-	Final       *float64 `json:"final,omitempty"`   // (1−λ)·relevance + λ·utility
+	Learned     *float64 `json:"learned,omitempty"` // shadow score of the newest model
+	Term        *float64 `json:"term,omitempty"`    // learned term of the promoted model (only when λ > 0)
+	Final       *float64 `json:"final,omitempty"`   // relevance when λ = 0, else (1−λ)·relevance + λ·term
 }
 
 // Candidate is what the learned ranker sees (features of one candidate).
