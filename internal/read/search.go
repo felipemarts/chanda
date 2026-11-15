@@ -316,7 +316,7 @@ func (r *Reader) run(ctx context.Context, q request) (*result, error) {
 	}
 
 	// 9. Diversify and respect the budget. 10. Assemble.
-	if err := r.selectItems(ctx, q, res, alive); err != nil {
+	if err := r.selectItems(ctx, q, res, alive, terms); err != nil {
 		return nil, err
 	}
 
@@ -358,14 +358,21 @@ func (r *Reader) run(ctx context.Context, q request) (*result, error) {
 
 // selectItems walks candidates in final order applying, per item: the
 // search limit; for context, the inherited instruction_like exclusion; at
-// most read.max_per_document items per source document; and, for context,
-// the token budget (truncating an item only when at least
-// read.context_min_item_tokens remain).
-func (r *Reader) selectItems(ctx context.Context, q request, res *result, alive []*cand) error {
-	perDoc := map[string]int{}
-	maxPerDoc := r.e.Cfg.Read.MaxPerDocument
+// most read.max_per_document items per source document (in context,
+// read.context_max_per_document when set); for context, at most
+// read.context_max_per_session raw excerpts per session when set; and, for
+// context, the per-item cap read.context_item_max_tokens when set and the
+// token budget (shortening an item only when at least
+// read.context_min_item_tokens remain), both by read.context_truncate
+// (decision 0137). The order is never changed: an item that does not fit
+// is shortened or skipped, and the walk goes on.
+func (r *Reader) selectItems(ctx context.Context, q request, res *result, alive []*cand, terms []string) error {
+	rc := r.e.Cfg.Read
+	perDoc, perSession := map[string]int{}, map[string]int{}
+	maxPerDoc, maxPerSession := rc.MaxPerDocument, 0
 	used := 0
 	if q.mode == ModeContext {
+		maxPerDoc, maxPerSession = rc.ContextPerDocument(), rc.ContextMaxPerSession
 		used = estimateTokens(contextHeader(res.retrievalID)) + estimateTokens(contextFooter)
 	}
 	for _, c := range alive {
@@ -385,13 +392,30 @@ func (r *Reader) selectItems(ctx context.Context, q request, res *result, alive 
 			c.dropped = dropDiversity
 			continue
 		}
+		sessionKey := ""
+		if maxPerSession > 0 && c.rec.typ == core.RecEvent {
+			sessionKey = c.rec.sessionID
+		}
+		if sessionKey != "" && perSession[sessionKey] >= maxPerSession {
+			c.dropped = dropSession
+			continue
+		}
 		if q.mode == ModeContext {
-			remaining := q.budget - used
-			block := renderItem(it)
-			cost := estimateTokens(block)
-			if cost > remaining {
+			if rc.ContextShowRole && it.Type == core.RecEvent {
+				it.role = c.rec.role
+			}
+			full := it // shortening always starts from the whole text
+			cost := estimateTokens(renderItem(it))
+			if itemMax := rc.ContextItemMaxTokens; itemMax > 0 && cost > itemMax {
 				var ok bool
-				if it, cost, ok = truncateToFit(it, remaining, r.e.Cfg.Read.ContextMinItemTokens); !ok {
+				if it, cost, ok = shortenItem(full, itemMax, rc.ContextMinItemTokens, rc.BestWindow(), terms); !ok {
+					c.dropped = dropBudget
+					continue
+				}
+			}
+			if remaining := q.budget - used; cost > remaining {
+				var ok bool
+				if it, cost, ok = shortenItem(full, remaining, rc.ContextMinItemTokens, rc.BestWindow(), terms); !ok {
 					c.dropped = dropBudget
 					continue
 				}
@@ -399,6 +423,9 @@ func (r *Reader) selectItems(ctx context.Context, q request, res *result, alive 
 			used += cost
 		}
 		perDoc[docKey]++
+		if sessionKey != "" {
+			perSession[sessionKey]++
+		}
 		res.items = append(res.items, it)
 	}
 	if q.mode == ModeContext && len(res.items) == 0 {

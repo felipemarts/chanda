@@ -25,6 +25,7 @@ type record struct {
 	// events
 	sourceID, docID, retiredAt, sessionID string
 	headingPath                           string // document chunks: "H1 > H2"
+	role                                  string // log_session turns: user, assistant, system, tool (decision 0137)
 	docVersion, ordinal                   sql.NullInt64
 	// facts; validFrom also for events (the date given when written, "" if none)
 	subject, predicate, validFrom, validTo string
@@ -113,7 +114,8 @@ func (r *Reader) loadRecords(ctx context.Context, ns string, byType map[core.Rec
 			switch typ {
 			case core.RecEvent:
 				q = `SELECT id, namespace, kind, content, trust_zone, flags, source_id, COALESCE(doc_id,''), doc_version, ordinal,
-					COALESCE(retired_at,''), COALESCE(session_id,''), recorded_at, COALESCE(heading_path,''), COALESCE(valid_from,'') FROM events`
+					COALESCE(retired_at,''), COALESCE(session_id,''), recorded_at, COALESCE(heading_path,''), COALESCE(valid_from,''),
+					COALESCE(role,'') FROM events`
 			case core.RecFact:
 				q = `SELECT id, namespace, subject, predicate, text, status, trust_zone, valid_from, COALESCE(valid_to,''), recorded_at FROM facts`
 			case core.RecPage:
@@ -130,7 +132,8 @@ func (r *Reader) loadRecords(ctx context.Context, ns string, byType map[core.Rec
 				switch typ {
 				case core.RecEvent:
 					err = rows.Scan(&rec.id, &rec.ns, &rec.kind, &rec.text, &zone, &flags, &rec.sourceID, &rec.docID,
-						&rec.docVersion, &rec.ordinal, &rec.retiredAt, &rec.sessionID, &rec.ts, &rec.headingPath, &rec.validFrom)
+						&rec.docVersion, &rec.ordinal, &rec.retiredAt, &rec.sessionID, &rec.ts, &rec.headingPath, &rec.validFrom,
+						&rec.role)
 				case core.RecFact:
 					err = rows.Scan(&rec.id, &rec.ns, &rec.subject, &rec.predicate, &rec.text, &rec.status, &zone,
 						&rec.validFrom, &rec.validTo, &rec.ts)
@@ -315,6 +318,7 @@ const (
 	dropCut         = "below_relevance"
 	dropEvidence    = "no_evidence"
 	dropDiversity   = "max_per_document"
+	dropSession     = "max_per_session" // context: read.context_max_per_session (decision 0137)
 	dropBudget      = "budget"
 	dropLimit       = "limit"
 )

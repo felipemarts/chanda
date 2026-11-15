@@ -41,8 +41,8 @@ func (f *fx) doc(ns, id, src, uri string, version int) {
 }
 
 type ev struct {
-	ID, NS, Source, Kind, Content, Zone, Flags, Retired, RecordedAt, DocID, SessionID string
-	DocVersion, Ordinal                                                               int
+	ID, NS, Source, Kind, Content, Zone, Flags, Retired, RecordedAt, DocID, SessionID, Role string
+	DocVersion, Ordinal                                                                     int
 }
 
 func (f *fx) event(e ev) {
@@ -56,7 +56,7 @@ func (f *fx) event(e ev) {
 	if e.RecordedAt == "" {
 		e.RecordedAt = t0
 	}
-	var doc, docV, ord, retired, sess any
+	var doc, docV, ord, retired, sess, role any
 	if e.DocID != "" {
 		doc, docV, ord = e.DocID, e.DocVersion, e.Ordinal
 	}
@@ -66,9 +66,12 @@ func (f *fx) event(e ev) {
 	if e.SessionID != "" {
 		sess, ord = e.SessionID, e.Ordinal
 	}
-	f.exec(`INSERT INTO events(id,namespace,source_id,kind,content,content_hash,trust_zone,actor,recorded_at,doc_id,doc_version,ordinal,session_id,flags,retired_at)
-		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-		e.ID, e.NS, e.Source, e.Kind, e.Content, "h-"+e.ID, e.Zone, "test", e.RecordedAt, doc, docV, ord, sess, e.Flags, retired)
+	if e.Role != "" {
+		role = e.Role
+	}
+	f.exec(`INSERT INTO events(id,namespace,source_id,kind,content,content_hash,trust_zone,actor,recorded_at,doc_id,doc_version,ordinal,session_id,flags,retired_at,role)
+		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+		e.ID, e.NS, e.Source, e.Kind, e.Content, "h-"+e.ID, e.Zone, "test", e.RecordedAt, doc, docV, ord, sess, e.Flags, retired, role)
 }
 
 type fc struct {

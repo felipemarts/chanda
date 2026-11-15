@@ -29,7 +29,8 @@ func sanitize(s string) string { return tagRe.ReplaceAllString(s, "&lt;$1") }
 // label is the bracketed header line of an item. Facts carry their
 // validity; raw excerpts their date (valid_from, "date:") or, without one,
 // when Chanda recorded them ("recorded:"); pages when they were last updated
-// ("updated:").
+// ("updated:"). A session turn shows who spoke ("role: user") when
+// read.context_show_role set its role (decision 0137).
 func label(it Item) string {
 	var b strings.Builder
 	b.WriteString("[")
@@ -44,7 +45,11 @@ func label(it Item) string {
 	default:
 		b.WriteString("excerpt")
 	}
-	b.WriteString(" " + it.ID + " | zone: " + string(it.Zone))
+	b.WriteString(" " + it.ID)
+	if it.role != "" {
+		b.WriteString(" | role: " + sanitize(it.role))
+	}
+	b.WriteString(" | zone: " + string(it.Zone))
 	if it.Type == core.RecFact {
 		b.WriteString(" | valid from " + it.ValidFrom)
 		if it.ValidTo != "" {

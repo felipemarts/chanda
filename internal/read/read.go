@@ -161,4 +161,5 @@ type Item struct {
 	Origin     Origin          `json:"origin"`
 	Scores     Scores          `json:"scores"`
 	namespace  string
+	role       string // speaker of a session turn, shown in the context label with read.context_show_role
 }
