@@ -34,7 +34,23 @@ func renderReport(r *Result) string {
 		b.WriteByte('\n')
 	}
 
-	if len(r.Phases) == 2 {
+	if len(r.Phases) == 2 && c.Guided != nil {
+		g := c.Guided
+		b.WriteString("\n## Phase 2 (guided digest)\n\n")
+		if r.Gate.Reverted {
+			b.WriteString("Everything below was staged and then discarded by the gate.\n\n")
+		}
+		fmt.Fprintf(&b, "- Digest: %s\n", g.Digest)
+		fmt.Fprintf(&b, "- Candidate groups: %d; groups after merging: %d\n", g.CandidateGroups, g.Groups)
+		fmt.Fprintf(&b, "- Groups digested: %d; skipped (already digested): %d; left for the next run: %d\n",
+			g.GroupsDigested, g.GroupsSkipped, g.GroupsLeft)
+		fmt.Fprintf(&b, "- Lines written: %d\n", g.LinesWritten)
+		fmt.Fprintf(&b, "- Lines discarded: %s\n", actions(g.LinesDiscarded))
+		list(&b, "Fichas created", g.Fichas)
+		list(&b, "Page items added", c.PageItemsAdded)
+		fmt.Fprintf(&b, "- Invalid LLM answers discarded (no retry): %d\n", c.InvalidAnswers)
+		fmt.Fprintf(&b, "- LLM errors: %d\n", c.LLMErrors)
+	} else if len(r.Phases) == 2 {
 		b.WriteString("\n## Phase 2\n\n")
 		if r.Gate.Reverted {
 			b.WriteString("Everything below was staged and then discarded by the gate.\n\n")

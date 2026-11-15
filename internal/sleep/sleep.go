@@ -215,6 +215,10 @@ type Counts struct {
 	LessonsSkipped   int            `json:"lessons_skipped"`
 	InvalidAnswers   int            `json:"invalid_answers"`
 	LLMErrors        int            `json:"llm_errors"`
+
+	// Guided is what the guided digest did (sleep.mode guided, decision
+	// 0142); nil, and absent from the JSON, in uniform mode.
+	Guided *GuidedCounts `json:"guided,omitempty"`
 }
 
 // Gate is the outcome of the evaluation gate.
@@ -474,6 +478,9 @@ func sortCounts(c *Counts) {
 			*l = []string{}
 		}
 		sort.Strings(*l)
+	}
+	if c.Guided != nil {
+		sort.Strings(c.Guided.Fichas)
 	}
 }
 
