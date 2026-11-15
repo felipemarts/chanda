@@ -114,3 +114,11 @@ is answered from the store.
 - Seven DeepSeek calls ended with "connection reset by peer". The clients
   retried them, and every Mem0 question reports 0 extraction errors.
 - Total spend: US$4.278, in 4,951 calls. Results are in `REPORT.md`.
+
+## Phase 1 with e5, 500 questions (done)
+
+12:25 to 11:52 the next day (UTC). There was a single attempt on the final
+build, with no kill and no error; the embedding cache carried over the
+earlier attempts. Recall@10 / MRR: BM25 95.6 / 0.928, plain RAG 97.9 /
+0.946, Chanda 98.3 / 0.946. Results are in `phase1-e5.md`, and REPORT.md
+was updated.
