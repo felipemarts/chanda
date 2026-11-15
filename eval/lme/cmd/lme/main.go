@@ -6,6 +6,7 @@
 //	lme sample -seed 42 -n 60 -out ../sample.json
 //	lme retrieve -embedder hash [-sample ../sample.json -limit 20] [-conds bm25,rag,chanda]
 //	lme contexts -cond B|D|E -sample ../sample.json -embedder hash -out FILE.jsonl [-chanda-set key=value ...]
+//	lme evidence -in FILE.jsonl [-in FILE2.jsonl ...] [-json OUT]   turn-level evidence recall
 //	lme embedserve -embedder hash|e5 -addr 127.0.0.1:8089
 //	lme chanda serve --config chanda.yaml      the chanda CLI with the caching provider "lme-cached"
 //
@@ -55,7 +56,7 @@ func main() {
 
 func run(ctx context.Context, args []string) int {
 	if len(args) == 0 {
-		fmt.Fprintln(os.Stderr, "usage: lme fetch|stats|sample|retrieve|contexts|embedserve|chanda ...")
+		fmt.Fprintln(os.Stderr, "usage: lme fetch|stats|sample|retrieve|contexts|evidence|embedserve|chanda ...")
 		return 2
 	}
 	var err error
@@ -76,6 +77,8 @@ func run(ctx context.Context, args []string) int {
 		err = cmdRetrieve(ctx, args[1:])
 	case "contexts":
 		err = cmdContexts(ctx, args[1:])
+	case "evidence":
+		err = cmdEvidence(args[1:])
 	case "embedserve":
 		err = cmdEmbedServe(ctx, args[1:])
 	default:
@@ -480,6 +483,55 @@ func cmdContexts(ctx context.Context, args []string) error {
 		return err
 	}
 	fmt.Printf("wrote %s: %d lines\n", *out, len(lines))
+	return nil
+}
+
+// repeated is a repeatable string flag.
+type repeated []string
+
+func (r *repeated) String() string     { return strings.Join(*r, ",") }
+func (r *repeated) Set(s string) error { *r = append(*r, s); return nil }
+
+func cmdEvidence(args []string) error {
+	fs := flag.NewFlagSet("evidence", flag.ContinueOnError)
+	var ins repeated
+	fs.Var(&ins, "in", "contexts JSONL file (repeatable); every later file is paired with the first")
+	jsonOut := fs.String("json", "", "also write the report as JSON to this file (- for stdout instead of the table)")
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	ins = append(ins, fs.Args()...)
+	if len(ins) == 0 {
+		return fmt.Errorf("-in is required")
+	}
+	rows := make([][]*lme.EvidenceRow, len(ins))
+	var files []*lme.EvidenceFile
+	for i, p := range ins {
+		r, err := lme.ReadEvidenceRows(p)
+		if err != nil {
+			return err
+		}
+		rows[i] = r
+		files = append(files, lme.SummarizeEvidence(p, r))
+	}
+	var pairs []*lme.EvidencePair
+	for i := 1; i < len(ins); i++ {
+		pairs = append(pairs, lme.PairEvidence(ins[0], rows[0], ins[i], rows[i]))
+	}
+	rep := map[string]any{
+		"files": files, "pairs": pairs,
+		"rule": fmt.Sprintf("an evidence turn reaches the block when a contiguous prefix of at least %.0f%% of its non-whitespace runes is present (eval/lme/lme/evidence.go)", 100*lme.EvidenceMinCoverage),
+	}
+	if *jsonOut == "-" {
+		b, _ := json.MarshalIndent(rep, "", "  ")
+		fmt.Println(string(b))
+		return nil
+	}
+	fmt.Print(lme.EvidenceMarkdown(files, pairs))
+	if *jsonOut != "" {
+		b, _ := json.MarshalIndent(rep, "", "  ")
+		return os.WriteFile(*jsonOut, append(b, '\n'), 0o644)
+	}
 	return nil
 }
 
