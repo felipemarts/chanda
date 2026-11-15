@@ -62,6 +62,13 @@ facts:
 
 read:
   context_default_tokens: 800
+  # Context selection knobs (decision 0137); the defaults keep the block as
+  # it always was and are under study (eval/selection/PROTOCOL.md):
+  # context_item_max_tokens: 0      # cap per item block, label included; 0 = off
+  # context_truncate: head          # head or best_window (sentences that best match the query)
+  # context_max_per_document: 0     # 0 = read.max_per_document; -1 = no limit
+  # context_max_per_session: 0      # raw excerpts per session (log_session turns); 0 = off
+  # context_show_role: false        # "role: user" in the label of a session turn
 
 embed:
   provider: hash                # or hugot (chanda-hugot only):
