@@ -121,6 +121,51 @@ type ReadConfig struct {
 	// before "@" ("e5-small" for "e5-small@hugot0.8.6+simd"). Calibrated on
 	// the training split with "chanda eval -calibrate C3".
 	EvidenceFloors map[string]EvidenceFloor `yaml:"evidence_floors"`
+
+	// Context-mode selection knobs (decision 0137). Each default keeps the
+	// block exactly as it was before them; the defaults are left for the
+	// selection study (eval/selection/PROTOCOL.md) to decide. omitempty keeps
+	// the configuration hash of a file that does not set them unchanged.
+	//
+	// ContextItemMaxTokens: an item whose rendered block (label included)
+	// would cost more is shortened to fit it; 0 = no per-item cap.
+	ContextItemMaxTokens int `yaml:"context_item_max_tokens,omitempty"`
+	// ContextTruncate is how an item is shortened, for the per-item cap and
+	// for the last item that only partly fits the budget: "head" (or empty,
+	// the default) keeps the start; "best_window" keeps the contiguous run
+	// of sentences that best matches the query terms.
+	ContextTruncate string `yaml:"context_truncate,omitempty"`
+	// ContextMaxPerDocument is the per-document limit in context mode:
+	// 0 = read.max_per_document, -1 = no limit. Session turns carry no
+	// document, so neither limit applies to them.
+	ContextMaxPerDocument int `yaml:"context_max_per_document,omitempty"`
+	// ContextMaxPerSession: at most this many raw excerpts of one session
+	// (events.session_id) in a context block; 0 = no limit.
+	ContextMaxPerSession int `yaml:"context_max_per_session,omitempty"`
+	// ContextShowRole adds the speaker role of a session turn to its label
+	// ("role: user").
+	ContextShowRole bool `yaml:"context_show_role,omitempty"`
+}
+
+// Values of read.context_truncate.
+const (
+	TruncateHead       = "head"
+	TruncateBestWindow = "best_window"
+)
+
+// BestWindow reports whether context items are shortened by best_window.
+func (r ReadConfig) BestWindow() bool { return r.ContextTruncate == TruncateBestWindow }
+
+// ContextPerDocument is the per-document item limit in context mode; 0
+// means no limit.
+func (r ReadConfig) ContextPerDocument() int {
+	switch {
+	case r.ContextMaxPerDocument < 0:
+		return 0
+	case r.ContextMaxPerDocument > 0:
+		return r.ContextMaxPerDocument
+	}
+	return r.MaxPerDocument
 }
 
 // EvidenceFloor is the evidence a context item needs for one embedding
@@ -332,6 +377,9 @@ func (c *Config) Validate() error {
 	if c.Read.ContextDefaultTokens > c.Read.ContextMaxTokens {
 		return fmt.Errorf("read.context_default_tokens > context_max_tokens")
 	}
+	if err := c.Read.validateContext(); err != nil {
+		return err
+	}
 	if c.Ranking.LambdaMax < 0 || c.Ranking.LambdaMax > 1 {
 		return fmt.Errorf("ranking.lambda_max must be in [0,1]")
 	}
@@ -353,6 +401,28 @@ func (c *Config) Validate() error {
 	return nil
 }
 
+// validateContext checks the context-mode selection knobs (decision 0137).
+func (r ReadConfig) validateContext() error {
+	switch r.ContextTruncate {
+	case "", TruncateHead, TruncateBestWindow:
+	default:
+		return fmt.Errorf("read.context_truncate must be head or best_window, not %q", r.ContextTruncate)
+	}
+	if r.ContextItemMaxTokens < 0 {
+		return fmt.Errorf("read.context_item_max_tokens must be >= 0")
+	}
+	if r.ContextItemMaxTokens > 0 && r.ContextItemMaxTokens < r.ContextMinItemTokens {
+		return fmt.Errorf("read.context_item_max_tokens must be 0 or >= read.context_min_item_tokens (%d)", r.ContextMinItemTokens)
+	}
+	if r.ContextMaxPerDocument < -1 {
+		return fmt.Errorf("read.context_max_per_document must be >= -1")
+	}
+	if r.ContextMaxPerSession < 0 {
+		return fmt.Errorf("read.context_max_per_session must be >= 0")
+	}
+	return nil
+}
+
 // Hash is the configuration hash required in evaluation reports. It covers
 // what decides behaviour, not where files live or how the server listens:
 // db_path, sleep.snapshot_dir, write.ingest_roots, mcp.http_addr,
@@ -363,6 +433,9 @@ func (c *Config) Hash() string {
 	cp := *c
 	cp.DBPath, cp.Sleep.SnapshotDir, cp.Write.IngestRoots, cp.MCP.HTTPAddr = "", "", nil, ""
 	cp.MCP.HTTPTokenEnv, cp.Store = "", StoreConfig{}
+	if cp.Read.ContextTruncate == TruncateHead {
+		cp.Read.ContextTruncate = "" // the default, spelled out
+	}
 	b, _ := yaml.Marshal(&cp)
 	h := sha256.Sum256(b)
 	return hex.EncodeToString(h[:8])
