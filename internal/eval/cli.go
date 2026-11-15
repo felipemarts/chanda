@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"os"
 	"runtime/debug"
 	"sort"
 	"strings"
@@ -89,6 +90,7 @@ func (c CLI) Main(args []string, stdout io.Writer) int {
 	}
 	version := fs.String("version", defVersion, "Chanda version recorded in the report")
 	calibrate := fs.String("calibrate", "", "instead of a report: calibrate the evidence floors of the context cut with this system (e.g. C3) on the training split, print them and exit")
+	calDump := fs.String("calibrate-dump", "", "with -calibrate: also write every candidate judged for each training question to this JSONL file")
 	if err := fs.Parse(args); err != nil {
 		return 2
 	}
@@ -132,7 +134,7 @@ func (c CLI) Main(args []string, stdout io.Writer) int {
 		if !ok {
 			return fail(2, fmt.Errorf("unknown system %q (known: %s)", *calibrate, strings.Join(names, ", ")))
 		}
-		if err := calibrateWith(ctx, stdout, f, fe, ds, *budget); err != nil {
+		if err := calibrateWith(ctx, stdout, f, fe, ds, *budget, *calDump); err != nil {
 			return fail(1, err)
 		}
 		return 0
@@ -216,7 +218,7 @@ func buildVersion() string {
 // then the near-duplicate and vector merge thresholds of the embedding
 // model (CalibrateNearDupRule, CalibrateMerge, decisions 0125 and 0138),
 // and prints them.
-func calibrateWith(ctx context.Context, w io.Writer, f Factory, fe FactoryEnv, ds *Dataset, budget int) error {
+func calibrateWith(ctx context.Context, w io.Writer, f Factory, fe FactoryEnv, ds *Dataset, budget int, dumpPath string) error {
 	sys, err := f(ctx, fe)
 	if err != nil {
 		return err
@@ -239,7 +241,16 @@ func calibrateWith(ctx context.Context, w io.Writer, f Factory, fe FactoryEnv, d
 	if budget <= 0 {
 		budget = fe.Config.Read.ContextDefaultTokens
 	}
-	cal, err := CalibrateEvidence(ctx, p, ds, budget)
+	var dump io.Writer
+	if dumpPath != "" {
+		f, err := os.Create(dumpPath)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		dump = f
+	}
+	cal, err := CalibrateEvidenceDump(ctx, p, ds, budget, dump)
 	if err != nil {
 		return err
 	}

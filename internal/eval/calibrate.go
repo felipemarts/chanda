@@ -2,6 +2,7 @@ package eval
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"math"
@@ -18,6 +19,11 @@ type EvidenceCandidate struct {
 	Coverage  float64
 	Cosine    float64
 	HasCosine bool
+	BM25      float64
+	HasBM25   bool
+	// Features are the other numbers the read path logged for the candidate
+	// (relevance, kw_rank, vec_rank, delivered, ...), for analysis dumps.
+	Features map[string]float64
 }
 
 // EvidenceProber is implemented by a system whose read path cuts by
@@ -89,6 +95,38 @@ type SignalSummary struct {
 // when coverage or cosine reaches its floor (decision 0020): either signal
 // suffices on its own.
 func CalibrateEvidence(ctx context.Context, p EvidenceProber, ds *Dataset, budget int) (Calibration, error) {
+	return CalibrateEvidenceDump(ctx, p, ds, budget, nil)
+}
+
+// evidenceDump is one line of a calibration dump: a training question and
+// every candidate its read judged, in the read path's final order.
+type evidenceDump struct {
+	ID         string          `json:"id"`
+	Question   string          `json:"question"`
+	Tag        string          `json:"tag"`
+	Answerable bool            `json:"answerable"`
+	Answers    []string        `json:"answers,omitempty"`
+	Candidates []dumpCandidate `json:"candidates"`
+}
+
+type dumpCandidate struct {
+	ID        string             `json:"id"`
+	DocID     string             `json:"doc_id"`
+	Gold      bool               `json:"gold"`
+	Answer    bool               `json:"answer"` // the text contains one of the question's answers
+	Tokens    int                `json:"tokens"`
+	Coverage  float64            `json:"coverage"`
+	Cosine    *float64           `json:"cosine"`
+	BM25      *float64           `json:"bm25"`
+	Features  map[string]float64 `json:"features"`
+	TextStart string             `json:"text"`
+}
+
+// CalibrateEvidenceDump is CalibrateEvidence that also writes, when dump is
+// not nil, one JSON line per training question with every judged candidate
+// and its logged features (chanda eval -calibrate C3 -calibrate-dump FILE),
+// so other signals of the cut can be studied on the training split.
+func CalibrateEvidenceDump(ctx context.Context, p EvidenceProber, ds *Dataset, budget int, dump io.Writer) (Calibration, error) {
 	cal := Calibration{System: p.Name(), ByTag: map[string]TagCalibration{}}
 	if d, ok := p.(Describer); ok {
 		cal.ModelID = d.Info().EmbeddingModel
@@ -119,6 +157,30 @@ func CalibrateEvidence(ctx context.Context, p EvidenceProber, ds *Dataset, budge
 			}
 		}
 		qs = append(qs, x)
+		if dump != nil {
+			d := evidenceDump{ID: q.ID, Question: q.Question, Tag: x.tag, Answerable: x.answerable, Answers: q.Answers, Candidates: []dumpCandidate{}}
+			for i, c := range cs {
+				dc := dumpCandidate{ID: c.ID, DocID: c.DocID, Gold: x.gold[i], Tokens: CountTokens(c.Text), Coverage: c.Coverage,
+					Features: c.Features, TextStart: clip(c.Text, 160)}
+				for _, a := range q.Answers {
+					dc.Answer = dc.Answer || strings.Contains(Normalize(c.Text), Normalize(a))
+				}
+				if c.HasCosine {
+					dc.Cosine = &cs[i].Cosine
+				}
+				if c.HasBM25 {
+					dc.BM25 = &cs[i].BM25
+				}
+				d.Candidates = append(d.Candidates, dc)
+			}
+			b, err := json.Marshal(d)
+			if err != nil {
+				return cal, err
+			}
+			if _, err := fmt.Fprintf(dump, "%s\n", b); err != nil {
+				return cal, err
+			}
+		}
 	}
 	return chooseFloors(cal, qs)
 }

@@ -46,6 +46,7 @@ func (s *System) Evidence(ctx context.Context, q eval.Query, budget int) ([]eval
 	var cands []struct {
 		ID       string             `json:"id"`
 		Cosine   *float64           `json:"cosine"`
+		BM25     *float64           `json:"bm25"`
 		Features map[string]float64 `json:"features"`
 	}
 	if err := json.Unmarshal([]byte(raw), &cands); err != nil {
@@ -67,7 +68,10 @@ func (s *System) Evidence(ctx context.Context, q eval.Query, budget int) ([]eval
 		if !judged || !known {
 			continue
 		}
-		ec := eval.EvidenceCandidate{Retrieved: r, Coverage: cov}
+		ec := eval.EvidenceCandidate{Retrieved: r, Coverage: cov, Features: c.Features}
+		if c.BM25 != nil {
+			ec.BM25, ec.HasBM25 = *c.BM25, true
+		}
 		if c.Cosine != nil {
 			ec.Cosine, ec.HasCosine = *c.Cosine, true
 		}
