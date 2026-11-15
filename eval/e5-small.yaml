@@ -8,9 +8,14 @@
 # model_path is relative to the working directory; point it (or a symlink)
 # at the model files. The e5-small values of read.evidence_floors
 # (decision 0124), write.near_dup_thresholds and sleep.merge_similarities
-# (decision 0125) are built into the defaults and selected by model_id
-# below; recalibrate all three with
+# (decision 0125) and write.near_dup_lexical (decision 0138) are built into
+# the defaults and selected by model_id below; recalibrate them with
 #   ./bin/chanda-hugot eval -config eval/e5-small.yaml -dataset eval/data/synthetic-pt -calibrate C3
+#
+# Without loading e5 in this process (one e5 process at a time): run the
+# same commands through eval/lme, `lme chanda eval ...`, with embed.provider
+# lme-cached and LME_EMBED_INNER=e5 LME_EMBED_URL=<embed server> (eval/lme
+# README); the reports in eval/reports/latest-e5.* were produced that way.
 embed:
   provider: hugot
   model_id: e5-small@hugot0.8.6+simd

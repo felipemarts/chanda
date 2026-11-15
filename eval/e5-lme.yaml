@@ -1,0 +1,17 @@
+# e5-small through the eval/lme harness, embedding over HTTP from one
+# running embed server instead of loading the model in this process (the
+# 8 GB machine holds one e5 process). Same model id as eval/e5-small.yaml,
+# so the same per-model values apply. Run from the repository root:
+#
+#   (cd eval/lme && GOEXPERIMENT=simd go build -o bin/lme ./cmd/lme)
+#   eval/lme/bin/lme embedserve -embedder e5 -e5-dir DIR -addr 127.0.0.1:8089 &
+#   LME_EMBED_INNER=e5 LME_EMBED_URL=http://127.0.0.1:8089 \
+#     eval/lme/bin/lme chanda eval -config eval/e5-lme.yaml \
+#       -dataset eval/data/synthetic-pt -out eval/reports -name latest-e5
+#
+# Add LME_EMBED_CACHE=FILE to cache vectors on the client side, and
+# "-calibrate C3" to calibrate instead of writing a report.
+embed:
+  provider: lme-cached
+  model_id: e5-small@hugot0.8.6+simd
+  dim: 384
