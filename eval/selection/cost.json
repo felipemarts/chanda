@@ -1,0 +1,83 @@
+{
+  "cap_usd": 3,
+  "spent_usd": 0.7186352819999988,
+  "updated_at": "2026-11-15T20:29:35.346802Z",
+  "price_source": "https://api-docs.deepseek.com/quick_start/pricing (read 2026-11-14); USD per 1M tokens; peak = 01:00-04:00 and 06:00-10:00 UTC Mon-Fri (Chinese public holidays are off-peak upstream but treated as peak here)",
+  "total": {
+    "calls": 2924,
+    "errors": 5,
+    "refused": 0,
+    "rejected": 0,
+    "prompt_tokens": 3521948,
+    "cache_hit_tokens": 4094,
+    "cache_miss_tokens": 3517854,
+    "completion_tokens": 315700,
+    "reasoning_tokens": 0,
+    "cost_usd": 0.7171103819999988,
+    "unverified_usd": 0.0015249,
+    "replayed": 4,
+    "saved_usd": 0.0001344
+  },
+  "by_tag": {
+    "B-judge": {
+      "calls": 444,
+      "errors": 2,
+      "refused": 0,
+      "rejected": 0,
+      "prompt_tokens": 160439,
+      "cache_hit_tokens": 1280,
+      "cache_miss_tokens": 159159,
+      "completion_tokens": 440,
+      "reasoning_tokens": 0,
+      "cost_usd": 0.024141689999999976,
+      "unverified_usd": 0.0009431999999999999,
+      "replayed": 0,
+      "saved_usd": 0
+    },
+    "B-reader": {
+      "calls": 440,
+      "errors": 0,
+      "refused": 0,
+      "rejected": 0,
+      "prompt_tokens": 822297,
+      "cache_hit_tokens": 0,
+      "cache_miss_tokens": 822297,
+      "completion_tokens": 95911,
+      "reasoning_tokens": 0,
+      "cost_usd": 0.18089115000000014,
+      "unverified_usd": 0,
+      "replayed": 0,
+      "saved_usd": 0
+    },
+    "D-judge": {
+      "calls": 1020,
+      "errors": 3,
+      "refused": 0,
+      "rejected": 0,
+      "prompt_tokens": 366812,
+      "cache_hit_tokens": 2814,
+      "cache_miss_tokens": 363998,
+      "completion_tokens": 1016,
+      "reasoning_tokens": 0,
+      "cost_usd": 0.05521774200000004,
+      "unverified_usd": 0.0005817,
+      "replayed": 4,
+      "saved_usd": 0.0001344
+    },
+    "D-reader": {
+      "calls": 1020,
+      "errors": 0,
+      "refused": 0,
+      "rejected": 0,
+      "prompt_tokens": 2172400,
+      "cache_hit_tokens": 0,
+      "cache_miss_tokens": 2172400,
+      "completion_tokens": 218333,
+      "reasoning_tokens": 0,
+      "cost_usd": 0.4568598000000003,
+      "unverified_usd": 0,
+      "replayed": 0,
+      "saved_usd": 0
+    }
+  }
+}

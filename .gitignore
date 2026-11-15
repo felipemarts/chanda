@@ -20,3 +20,6 @@
 /eval/lme/py/.pytest_cache/
 /eval/lme/llmstore/
 /eval/cost.json.lock
+/eval/selection/cost.json.lock
+/eval/selection/holdout/*.contexts.jsonl
+/eval/selection/holdout/llm-*/*.answers.jsonl

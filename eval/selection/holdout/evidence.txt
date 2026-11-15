@@ -1,0 +1,55 @@
+## /Users/felipemarts/Documents/devel/chanda-mcp/eval/selection/holdout/B.contexts.jsonl (condition B, 300 questions)
+
+| type | n scored | turn recall | full recall | items | tokens/item | assistant tokens | truncated items |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| knowledge-update | 44 | 82.2 | 68.2 | 15.4 | 124.9 | 78.3 | 54.5 |
+| multi-session | 76 | 79.8 | 61.8 | 15.2 | 125.1 | 74.4 | 48.8 |
+| single-session-assistant | 33 | 97.0 | 97.0 | 17.7 | 106.7 | 81.0 | 41.4 |
+| single-session-preference | 18 | 60.2 | 55.6 | 15.7 | 120.2 | 82.3 | 57.1 |
+| single-session-user | 39 | 80.8 | 79.5 | 14.7 | 130.1 | 80.2 | 51.9 |
+| temporal-reasoning | 79 | 70.1 | 60.8 | 15.4 | 123.0 | 72.1 | 48.8 |
+| all | 289 | 78.4 | 68.5 | 15.5 | 122.4 | 76.4 | 49.6 |
+
+## /Users/felipemarts/Documents/devel/chanda-mcp/eval/selection/holdout/D.contexts.jsonl (condition D, 300 questions)
+
+chanda-set: read.context_item_max_tokens=0 read.context_truncate=head read.context_item_cap_after=0
+chanda config hash: 16caf460be90746c
+
+| type | n scored | turn recall | full recall | items | tokens/item | assistant tokens | truncated items |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| knowledge-update | 44 | 88.3 | 79.5 | 7.7 | 249.6 | 80.1 | 11.8 |
+| multi-session | 76 | 69.8 | 47.4 | 7.3 | 262.6 | 79.7 | 11.9 |
+| single-session-assistant | 33 | 100.0 | 100.0 | 9.1 | 211.4 | 86.0 | 8.3 |
+| single-session-preference | 18 | 54.6 | 38.9 | 8.3 | 232.2 | 78.9 | 10.7 |
+| single-session-user | 39 | 92.3 | 92.3 | 6.6 | 289.2 | 86.3 | 13.6 |
+| temporal-reasoning | 79 | 72.8 | 63.3 | 7.1 | 271.1 | 77.9 | 12.5 |
+| all | 289 | 79.0 | 68.2 | 7.5 | 256.8 | 80.8 | 11.7 |
+
+## /Users/felipemarts/Documents/devel/chanda-mcp/eval/selection/holdout/D2.contexts.jsonl (condition D, 300 questions)
+
+chanda config hash: fb55961138acd36b
+
+| type | n scored | turn recall | full recall | items | tokens/item | assistant tokens | truncated items |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| knowledge-update | 44 | 90.2 | 79.5 | 15.7 | 121.5 | 64.4 | 51.6 |
+| multi-session | 76 | 80.0 | 61.8 | 14.7 | 129.9 | 67.5 | 50.7 |
+| single-session-assistant | 33 | 90.9 | 90.9 | 15.3 | 125.3 | 75.7 | 46.8 |
+| single-session-preference | 18 | 56.5 | 44.4 | 14.9 | 127.9 | 64.4 | 42.0 |
+| single-session-user | 39 | 100.0 | 100.0 | 13.7 | 136.6 | 75.7 | 54.9 |
+| temporal-reasoning | 79 | 78.9 | 73.4 | 14.3 | 133.6 | 63.9 | 48.7 |
+| all | 289 | 83.7 | 75.1 | 14.7 | 129.7 | 67.9 | 49.8 |
+
+## Paired: A = /Users/felipemarts/Documents/devel/chanda-mcp/eval/selection/holdout/B.contexts.jsonl, B = /Users/felipemarts/Documents/devel/chanda-mcp/eval/selection/holdout/D.contexts.jsonl
+
+289 questions scored in both (only in A: 0, only in B: 0). Mean turn recall A 78.4, B 79.0; higher in A 51, in B 48.
+Full recall: both 165, neither 59, A only 33, B only 32 (exact sign test p = 1).
+A full, B not: gpt4_98f46fc6 6ade9755 2311e44b gpt4_93159ced 1cea1afa 099778bb 67e0d0f2 b46e15ee 2ebe6c92 6613b389 37f165cf afdc33df eeda8a6d 9bbe84a2 7405e8b1 d23cf73b 1da05512 71017277 7024f17c e25c3b8d 09d032c9 1f2b8d4f 35a27287 dfde3500 36b9f61e 4f54b7c9 a346bb18 27016adc gpt4_c27434e8 bc149d6b gpt4_d12ceb0e gpt4_e061b84g a1cc6108
+B full, A not: gpt4_2487a7cb 6b168ec8 5a4f22c0 ec81a493 4dfccbf7 59524333 078150f1 3b6f954b gpt4_d31cdae3 5e1b23de 10e09553 dc439ea3 681a1674 e47becba 3c1045c8 ce6d2d27 06db6396 gpt4_fa19884d e6041065 57f827a0 gpt4_8279ba02 3a704032 gpt4_468eb064 d01c6aa8 58ef2f1c 993da5e2 89941a93 gpt4_5438fa52 gpt4_e05b82a6 4100d0a0 89941a94 e61a7584
+
+## Paired: A = /Users/felipemarts/Documents/devel/chanda-mcp/eval/selection/holdout/B.contexts.jsonl, B = /Users/felipemarts/Documents/devel/chanda-mcp/eval/selection/holdout/D2.contexts.jsonl
+
+289 questions scored in both (only in A: 0, only in B: 0). Mean turn recall A 78.4, B 83.7; higher in A 31, in B 54.
+Full recall: both 177, neither 51, A only 21, B only 40 (exact sign test p = 0.0204).
+A full, B not: gpt4_372c3eed gpt4_93159ced 1cea1afa e66b632c eaca4986 eeda8a6d 9bbe84a2 d23cf73b 1da05512 71017277 7024f17c 09d032c9 35a27287 dfde3500 cc539528 f9e8c073 3249768e bc149d6b gpt4_d12ceb0e gpt4_e061b84g a1cc6108
+B full, A not: gpt4_2487a7cb 6b168ec8 5a4f22c0 ec81a493 a3332713 4dfccbf7 59524333 3b6f954b gpt4_d31cdae3 5e1b23de 10e09553 dc439ea3 681a1674 e47becba 3c1045c8 ce6d2d27 06db6396 3ba21379 gpt4_fa19884d e6041065 57f827a0 gpt4_8279ba02 3a704032 gpt4_b4a80587 gpt4_468eb064 gpt4_1e4a8aeb 5d3d2817 d01c6aa8 58ef2f1c 993da5e2 dad224aa 89941a93 gpt4_5438fa52 75499fd8 gpt4_e05b82a6 4100d0a0 28dc39ac 89941a94 cc6d1ec1 e61a7584
+

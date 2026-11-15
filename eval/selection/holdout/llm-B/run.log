@@ -1,0 +1,4 @@
+300 questions, 0 already answered, 300 to do; tag B-reader
+wrote /Users/felipemarts/Documents/devel/chanda-mcp/eval/selection/holdout/llm-B/B.answers.jsonl; failures 0
+300 answers, 300 to judge; tag B-judge
+wrote /Users/felipemarts/Documents/devel/chanda-mcp/eval/selection/holdout/llm-B/B.jsonl; failures 0
