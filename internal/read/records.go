@@ -321,6 +321,9 @@ const (
 	dropSession     = "max_per_session" // context: read.context_max_per_session (decision 0137)
 	dropBudget      = "budget"
 	dropLimit       = "limit"
+	// context: a fact or page that did not fit under read.context_derived_max_share
+	// or the room kept for the protected raw excerpts (decision 0143)
+	dropDerivedShare = "derived_share"
 )
 
 // ruleFilter applies BASE.md read step 4 to one record and returns "" when
