@@ -5,7 +5,7 @@
 //	lme stats [-json FILE]                     dataset statistics (DATASET.md)
 //	lme sample -seed 42 -n 60 -out ../sample.json
 //	lme retrieve -embedder hash [-sample ../sample.json -limit 20] [-conds bm25,rag,chanda]
-//	lme contexts -cond B|D|E -sample ../sample.json -embedder hash -out FILE.jsonl
+//	lme contexts -cond B|D|E -sample ../sample.json -embedder hash -out FILE.jsonl [-chanda-set key=value ...]
 //	lme embedserve -embedder hash|e5 -addr 127.0.0.1:8089
 //	lme chanda serve --config chanda.yaml      the chanda CLI with the caching provider "lme-cached"
 //
@@ -412,6 +412,14 @@ func cmdContexts(ctx context.Context, args []string) error {
 	sleepTokens := fs.Int("sleep-budget-tokens", 0, "E: LLM token ceiling per sleep_run (0: Chanda's default, 200000)")
 	sleepEvents := fs.Int("sleep-budget-events", 0, "E: events ceiling per sleep_run (0: Chanda's default, 500)")
 	allowLLM := fs.Bool("allow-llm", false, "E: confirm that LLM calls may be made")
+	var sets []lme.Override
+	fs.Func("chanda-set", "D/E: override a Chanda configuration key in the per-question chanda.yaml, key=value (dotted key, YAML value; repeatable)", func(s string) error {
+		ov, err := lme.ParseOverride(s)
+		if err == nil {
+			sets = append(sets, ov)
+		}
+		return err
+	})
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -421,17 +429,37 @@ func cmdContexts(ctx context.Context, args []string) error {
 	if *cond == lme.CondE && !*allowLLM {
 		return fmt.Errorf("condition E calls the LLM through sleep_run: pass -allow-llm (and -llm-url, -llm-model)")
 	}
+	if len(sets) > 0 && *cond != lme.CondD && *cond != lme.CondE {
+		return fmt.Errorf("-chanda-set applies to conditions D and E only")
+	}
 	o, err := c.options("contexts-" + *cond)
 	if err != nil {
 		return err
 	}
 	o.Chanda.LLMURL, o.Chanda.LLMModel, o.Chanda.LLMKeyEnv = *llmURL, *llmModel, *llmKey
 	o.Chanda.SleepBudget = chanda.SleepBudget{Tokens: *sleepTokens, Events: *sleepEvents}
+	o.Chanda.Set = sets
 	emb, err := lme.OpenEmbedder(ctx, o.Embed)
 	if err != nil {
 		return err
 	}
 	defer emb.Close()
+	if *cond != lme.CondB {
+		// Fail before any question if an override names an unknown key or
+		// has the wrong type: Chanda's own loader, on the config a server
+		// would get (E's admin profile and LLM endpoint included).
+		co := o.Chanda
+		co.Admin = *cond == lme.CondE
+		text, err := co.Config(filepath.Join(o.WorkDir, "check"), emb.ModelID(), emb.Dim())
+		if err != nil {
+			return err
+		}
+		h, err := lme.CheckChandaConfig(text)
+		if err != nil {
+			return fmt.Errorf("chanda configuration with -chanda-set: %w", err)
+		}
+		log.Printf("chanda config hash %s, overrides %v", h, lme.OverrideStrings(sets))
+	}
 	lines, err := lme.Contexts(ctx, o, emb, *cond)
 	if err != nil {
 		return err

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -53,7 +54,11 @@ type ContextLine struct {
 	Items            int           `json:"items"`
 	Sleep            any           `json:"sleep,omitempty"`    // E: the sleep_run output
 	SleepMS          float64       `json:"sleep_ms,omitempty"` // E
-	Err              string        `json:"error,omitempty"`
+	// D/E: the -chanda-set overrides (key=value, in order) and Chanda's
+	// configuration hash of the chanda.yaml the server ran with.
+	ChandaSet        []string `json:"chanda_set,omitempty"`
+	ChandaConfigHash string   `json:"chanda_config_hash,omitempty"`
+	Err              string   `json:"error,omitempty"`
 }
 
 // Contexts produces one ContextLine per selected question for cond.
@@ -189,6 +194,12 @@ func contextChanda(ctx context.Context, o *RunOptions, emb *Cached, q *Question,
 	}
 	l.EvidenceTurnMatches = MatchEvidenceChanda(q, out.Items, out.Text, in.TurnEvent)
 	l.ContextItems = ChandaContextItems(q, out.Items, out.Text, in.EventTurns)
+	l.ChandaSet = OverrideStrings(co.Set)
+	if b, err := os.ReadFile(filepath.Join(dir, "chanda.yaml")); err == nil {
+		if h, err := CheckChandaConfig(string(b)); err == nil {
+			l.ChandaConfigHash = h
+		}
+	}
 	srv.Close()
 	closed = true
 	l.DBBytes = DiskBytes(srv.DBPath)

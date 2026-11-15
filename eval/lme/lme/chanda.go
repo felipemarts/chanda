@@ -30,6 +30,9 @@ type ChandaOptions struct {
 	// SleepBudget caps each sleep_run (zero: Chanda's sleep.budget_tokens
 	// and sleep.budget_events defaults, 200,000 tokens and 500 events).
 	SleepBudget chanda.SleepBudget
+	// Set overrides configuration keys on top of ConfigYAML ("lme contexts
+	// -chanda-set key=value"), in order.
+	Set []Override
 }
 
 // ChandaServer is a real chanda MCP server over stdio with its own database.
@@ -70,13 +73,22 @@ func (o ChandaOptions) ConfigYAML(dir string, modelID string, dim int) string {
 	return b.String()
 }
 
+// Config is ConfigYAML with the overrides of o.Set applied.
+func (o ChandaOptions) Config(dir string, modelID string, dim int) (string, error) {
+	return ApplyOverrides(o.ConfigYAML(dir, modelID, dim), o.Set)
+}
+
 // StartChanda writes dir/chanda.yaml and starts the server.
 func StartChanda(ctx context.Context, o ChandaOptions, dir, modelID string, dim int) (*ChandaServer, error) {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return nil, err
 	}
+	text, err := o.Config(dir, modelID, dim)
+	if err != nil {
+		return nil, err
+	}
 	cfg := filepath.Join(dir, "chanda.yaml")
-	if err := os.WriteFile(cfg, []byte(o.ConfigYAML(dir, modelID, dim)), 0o644); err != nil {
+	if err := os.WriteFile(cfg, []byte(text), 0o644); err != nil {
 		return nil, err
 	}
 	logf, err := os.Create(filepath.Join(dir, "server.log"))

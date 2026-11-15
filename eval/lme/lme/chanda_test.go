@@ -99,16 +99,37 @@ func TestPhase1AndContextDOverMCP(t *testing.T) {
 	for _, it := range l.ContextItems {
 		sum += it.Tokens
 	}
-	if sum >= l.ContextTokens {
-		t.Fatalf("D items tokens %d of %d", sum, l.ContextTokens)
+	if sum >= l.ContextTokens || l.ChandaConfigHash == "" || l.ChandaSet != nil {
+		t.Fatalf("D items tokens %d of %d, hash %q, set %v", sum, l.ContextTokens, l.ChandaConfigHash, l.ChandaSet)
 	}
 	lb, err := Contexts(t.Context(), o, emb, CondB)
 	if err != nil || !strings.Contains(lb[0].Context, "Session Date: 2023/05/22 (Mon) 09:23") {
 		t.Fatalf("B %v %+v", err, lb)
 	}
-	if b := lb[0]; b.EvidenceTurns != 1 || b.EvidenceTurnsInContext != 1 || len(b.ContextItems) == 0 {
+	if b := lb[0]; b.EvidenceTurns != 1 || b.EvidenceTurnsInContext != 1 || len(b.ContextItems) == 0 || b.ChandaConfigHash != "" {
 		t.Fatalf("B turn evidence %+v", b)
 	}
+
+	// -chanda-set: recorded on the line and in the hash; an unknown key
+	// stops the server.
+	ov, err := ParseOverride("read.max_per_document=1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	o.Chanda.Set = []Override{ov}
+	ls, err := Contexts(t.Context(), o, emb, CondD)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if s := ls[0]; len(s.ChandaSet) != 1 || s.ChandaSet[0] != "read.max_per_document=1" || s.ChandaConfigHash == "" || s.ChandaConfigHash == l.ChandaConfigHash {
+		t.Fatalf("override line %+v (base hash %s)", s, l.ChandaConfigHash)
+	}
+	ov, _ = ParseOverride("read.no_such_key=1")
+	o.Chanda.Set = []Override{ov}
+	if _, err := Contexts(t.Context(), o, emb, CondD); err == nil {
+		t.Fatal("unknown key: want an error")
+	}
+	o.Chanda.Set = nil
 	o.Chanda.LLMURL = ""
 	if _, err := Contexts(t.Context(), o, emb, CondE); err == nil || !strings.Contains(err.Error(), "LLM endpoint") {
 		t.Fatalf("E without endpoint: %v", err)

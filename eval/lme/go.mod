@@ -6,6 +6,7 @@ require (
 	github.com/felipemarts/chanda-mcp v0.0.0
 	github.com/felipemarts/chanda-mcp/embedders/hugot v0.0.0
 	github.com/modelcontextprotocol/go-sdk v1.8.0
+	gopkg.in/yaml.v3 v3.0.1
 	modernc.org/sqlite v1.62.0
 )
 
@@ -42,7 +43,6 @@ require (
 	golang.org/x/text v0.44.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/klog/v2 v2.140.0 // indirect
 	modernc.org/libc v1.80.1 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
