@@ -7,6 +7,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"math"
 	"os"
 	"strings"
 
@@ -170,6 +171,49 @@ type ReadConfig struct {
 	// ContextShowRole adds the speaker role of a session turn to its label
 	// ("role: user").
 	ContextShowRole bool `yaml:"context_show_role,omitempty"`
+
+	// Derived share of the block (decision 0143), context mode only; off
+	// by default, and omitempty keeps the configuration hash unchanged.
+	//
+	// ContextDerivedMaxShare: derived items (facts and pages) together may
+	// take at most floor(share × budget) rendered tokens of the block.
+	// Range [0, 1]; 0 = off.
+	ContextDerivedMaxShare float64 `yaml:"context_derived_max_share,omitempty"`
+	// ContextProtectRaw: with the share on, the N best-ranked raw excerpts
+	// that pass the other filters are never displaced by a derived item.
+	// 0 = DefaultContextProtectRaw, -1 = protect none.
+	ContextProtectRaw int `yaml:"context_protect_raw,omitempty"`
+}
+
+// DefaultContextProtectRaw is read.context_protect_raw when the derived
+// share is on and the key is 0 (decision 0143).
+const DefaultContextProtectRaw = 2
+
+// DerivedShareOn reports whether read.context_derived_max_share is set.
+func (r ReadConfig) DerivedShareOn() bool { return r.ContextDerivedMaxShare > 0 }
+
+// DerivedShareTokens is the most rendered tokens derived items may take
+// in a block of budget tokens: floor(share × budget), or budget when the
+// share is off. A tiny epsilon keeps floor from losing a token to the
+// binary representation (0.29 × 100 is 28.999…).
+func (r ReadConfig) DerivedShareTokens(budget int) int {
+	if !r.DerivedShareOn() {
+		return budget
+	}
+	return int(math.Floor(r.ContextDerivedMaxShare*float64(budget) + 1e-9))
+}
+
+// ProtectRaw is the number of best-ranked raw excerpts protected from
+// derived items: 0 when the share is off or context_protect_raw is -1,
+// DefaultContextProtectRaw when it is 0, else its value.
+func (r ReadConfig) ProtectRaw() int {
+	switch {
+	case !r.DerivedShareOn() || r.ContextProtectRaw < 0:
+		return 0
+	case r.ContextProtectRaw == 0:
+		return DefaultContextProtectRaw
+	}
+	return r.ContextProtectRaw
 }
 
 // Values of read.context_truncate.
@@ -439,7 +483,8 @@ func (c *Config) Validate() error {
 	return nil
 }
 
-// validateContext checks the context-mode selection knobs (decision 0137).
+// validateContext checks the context-mode selection knobs (decisions 0137
+// and 0143).
 func (r ReadConfig) validateContext() error {
 	switch r.ContextTruncate {
 	case "", TruncateHead, TruncateBestWindow:
@@ -460,6 +505,12 @@ func (r ReadConfig) validateContext() error {
 	}
 	if r.ContextMaxPerSession < 0 {
 		return fmt.Errorf("read.context_max_per_session must be >= 0")
+	}
+	if !(r.ContextDerivedMaxShare >= 0 && r.ContextDerivedMaxShare <= 1) { // also rejects NaN
+		return fmt.Errorf("read.context_derived_max_share must be in [0,1]")
+	}
+	if r.ContextProtectRaw < -1 {
+		return fmt.Errorf("read.context_protect_raw must be >= -1")
 	}
 	return nil
 }
