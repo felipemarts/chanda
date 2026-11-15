@@ -80,6 +80,7 @@ type Event struct {
 	Ordinal     *int
 	HeadingPath string
 	SessionID   string
+	Role        string   // log_session turns: the turn's role (user, assistant, system, tool); "" otherwise
 	Flags       []string // sorted
 	RetiredAt   string
 }
@@ -303,11 +304,11 @@ func (w *Writer) createEvent(ctx context.Context, tx *sql.Tx, ev *Event, rules [
 	ev.ID = w.e.IDs.For(core.RecEvent)
 	if _, err := tx.ExecContext(ctx,
 		`INSERT INTO events(id, namespace, source_id, kind, content, content_hash, trust_zone, actor, recorded_at,
-		                    valid_from, doc_id, doc_version, ordinal, heading_path, session_id, flags)
-		 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+		                    valid_from, doc_id, doc_version, ordinal, heading_path, session_id, flags, role)
+		 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
 		ev.ID, ev.Namespace, ev.SourceID, string(ev.Kind), ev.Content, ev.ContentHash, string(ev.TrustZone),
 		ev.Actor, ev.RecordedAt, nullStr(ev.ValidFrom), nullStr(ev.DocID), nullInt(ev.DocVersion),
-		nullInt(ev.Ordinal), nullStr(ev.HeadingPath), nullStr(ev.SessionID), strings.Join(ev.Flags, ",")); err != nil {
+		nullInt(ev.Ordinal), nullStr(ev.HeadingPath), nullStr(ev.SessionID), strings.Join(ev.Flags, ","), nullStr(ev.Role)); err != nil {
 		return 0, err
 	}
 	if _, err := tx.ExecContext(ctx,
@@ -344,14 +345,14 @@ func (w *Writer) createEvent(ctx context.Context, tx *sql.Tx, ev *Event, rules [
 func LoadEvent(ctx context.Context, q store.Queryer, id string) (Event, error) {
 	var ev Event
 	var kind, zone, flags string
-	var validFrom, docID, heading, session, retired sql.NullString
+	var validFrom, docID, heading, session, retired, role sql.NullString
 	var docVersion, ordinal sql.NullInt64
 	err := q.QueryRowContext(ctx,
 		`SELECT id, namespace, source_id, kind, content, content_hash, trust_zone, actor, recorded_at,
-		        valid_from, doc_id, doc_version, ordinal, heading_path, session_id, flags, retired_at
+		        valid_from, doc_id, doc_version, ordinal, heading_path, session_id, flags, retired_at, role
 		 FROM events WHERE id = ?`, id).
 		Scan(&ev.ID, &ev.Namespace, &ev.SourceID, &kind, &ev.Content, &ev.ContentHash, &zone, &ev.Actor,
-			&ev.RecordedAt, &validFrom, &docID, &docVersion, &ordinal, &heading, &session, &flags, &retired)
+			&ev.RecordedAt, &validFrom, &docID, &docVersion, &ordinal, &heading, &session, &flags, &retired, &role)
 	if errors.Is(err, sql.ErrNoRows) {
 		return ev, core.Errf(core.CodeNotFound, "event %s not found", id)
 	}
@@ -359,8 +360,8 @@ func LoadEvent(ctx context.Context, q store.Queryer, id string) (Event, error) {
 		return ev, coreErr(err)
 	}
 	ev.Kind, ev.TrustZone = core.EventKind(kind), core.Zone(zone)
-	ev.ValidFrom, ev.DocID, ev.HeadingPath, ev.SessionID, ev.RetiredAt =
-		validFrom.String, docID.String, heading.String, session.String, retired.String
+	ev.ValidFrom, ev.DocID, ev.HeadingPath, ev.SessionID, ev.RetiredAt, ev.Role =
+		validFrom.String, docID.String, heading.String, session.String, retired.String, role.String
 	if docVersion.Valid {
 		v := int(docVersion.Int64)
 		ev.DocVersion = &v

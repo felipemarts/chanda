@@ -27,17 +27,22 @@ func TestLogSession_ZonesByChannel(t *testing.T) {
 		kind  core.EventKind
 		zone  core.Zone
 		instr bool
+		role  string // decision 0137: the turn's role is kept
 	}{
-		{core.EventTurn, core.ZoneInternal, false},
-		{core.EventTurn, core.ZoneInternal, false},
-		{core.EventToolResult, core.ZoneExternal, true},
+		{core.EventTurn, core.ZoneInternal, false, RoleUser},
+		{core.EventTurn, core.ZoneInternal, false, RoleAssistant},
+		{core.EventToolResult, core.ZoneExternal, true, RoleTool},
 	}
 	for i, wt := range want {
 		ev := load(t, e, r.Turns[i].ID)
 		if ev.Kind != wt.kind || ev.TrustZone != wt.zone || has(ev.Flags, core.FlagInstructionLike) != wt.instr ||
-			ev.SessionID != "sess-1" || *ev.Ordinal != i {
+			ev.SessionID != "sess-1" || *ev.Ordinal != i || ev.Role != wt.role {
 			t.Fatalf("turn %d: %+v", i, ev)
 		}
+	}
+	// The role is part of the immutable raw log.
+	if _, err := e.Store.DB().Exec(`UPDATE events SET role = 'assistant' WHERE id = ?`, r.Turns[0].ID); err == nil {
+		t.Fatal("events.role must be immutable")
 	}
 	if n := count(t, e, `SELECT count(*) FROM sources WHERE (kind = 'session' AND uri = 'sess-1' AND trust_zone = 'internal')
 	                     OR (kind = 'tool' AND uri = 'tool:web_search' AND trust_zone = 'external')`); n != 2 {

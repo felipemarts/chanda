@@ -41,7 +41,8 @@ type SessionResult struct {
 // assistant and system turns come from the session source (kind session,
 // uri = sessionID, zone internal) as events of kind turn; tool turns come from
 // a tool source (kind tool, uri "tool:<ToolName>", zone external) as events
-// of kind tool_result, so instruction-like tool output is marked.
+// of kind tool_result, so instruction-like tool output is marked. Every
+// event keeps the turn's role in events.role (decision 0137).
 //
 // The ordinal of each event is the turn's index in turns. A turn already
 // logged for this session at the same index with the same content is a
@@ -145,7 +146,7 @@ func (w *Writer) LogSessionWith(ctx context.Context, in SessionInput) (SessionRe
 			ev := Event{
 				Namespace: ns, SourceID: src.id, Kind: p.evKind, Content: p.adm.Content, ContentHash: p.adm.Hash,
 				TrustZone: zone, Actor: actor, RecordedAt: now, ValidFrom: p.ts, Ordinal: intp(i),
-				SessionID: sessionID, Flags: p.adm.Flags,
+				SessionID: sessionID, Role: turns[i].Role, Flags: p.adm.Flags,
 			}
 			aid, err := w.createEvent(ctx, tx, &ev, p.adm.InstructionRules, nil)
 			if err != nil {
