@@ -301,6 +301,22 @@ did not beat plain RAG or Mem0 here. The defensible message is narrow:
 - Its main measured weakness is the selection of turns for the context
   block.
 
+## Follow-up: selection study (2026-11-15)
+
+The defect of section 4 was fixed and measured on new questions, under a
+pre-registered protocol (`eval/selection/PROTOCOL.md`, `RESULTS.md`). The
+settings were chosen on 140 tuning questions (decision 0141: cap items at
+150 tokens by best_window, except the two best ranked), then run once on
+300 held-out questions:
+
+- plain RAG 77.7%;
+- old selection 78.0%;
+- **new selection 82.7%**.
+
+The new selection beats the old one (24 against 10, p = 0.024). Against
+plain RAG the difference favours Chanda (35 against 20) but misses the
+pre-registered bar (p = 0.058). Mem0 was not run on those questions.
+
 ## Files
 
 - `raw/<cond>.jsonl`: one line per question and condition, with the

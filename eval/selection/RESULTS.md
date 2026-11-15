@@ -73,9 +73,8 @@ answered from the call store.
 
 - One run per condition; automatic judge; English conversational data;
   one reader model.
-- The held-out set is easier for nobody in particular, but it is harder
-  than the tuning set: plain RAG got 88.6% on tuning and 77.7% here.
-  Compare conditions within a set, not across sets.
+- The held-out set is harder than the tuning set: plain RAG got 88.6% on
+  tuning and 77.7% here. Compare conditions within a set, not across sets.
 - Mem0 was not run on these questions (cost). The battery's Mem0 result,
   88.3% on 60 questions, is not comparable to these numbers.
 - D runs on the same build as D2, which includes the lexical near-duplicate
