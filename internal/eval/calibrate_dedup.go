@@ -218,10 +218,57 @@ type dupPair struct {
 
 // CalibrateNearDup chooses write.near_dup_threshold for emb (decision 0125).
 func CalibrateNearDup(ctx context.Context, emb core.Embedder, ds *Dataset, maxChunkChars int, current float64) (ThresholdCalibration, error) {
+	r, _, err := CalibrateNearDupRule(ctx, emb, ds, maxChunkChars, current)
+	return r, err
+}
+
+// LexicalCalibration is the lexical path of the near-duplicate guard
+// (write.near_dup_lexical, decision 0138) chosen for one model on the
+// calibration pairs of CalibrateNearDup.
+type LexicalCalibration struct {
+	ModelID       string  `json:"model_id"`
+	Threshold     float64 `json:"threshold"` // the plain write.near_dup_threshold it is combined with
+	MaxAddedWords int     `json:"max_added_words"`
+	MinCosine     float64 `json:"min_cosine"`
+	Rule          string  `json:"rule"` // below_positives | above_negatives
+	// PosAddedMax is the most words a positive adds to its paragraph (among
+	// positives that repeat every word of it); NegAddedMin the fewest words
+	// one text of a negative pair adds to the other when it repeats every
+	// word of it (-1: no negative pair does).
+	PosAddedMax int `json:"pos_added_max"`
+	NegAddedMin int `json:"neg_added_min"`
+	// On the lexical path at the chosen max_added_words.
+	EligiblePos int `json:"eligible_pos"`
+	EligibleNeg int `json:"eligible_neg"`
+	// The combined rule (plain threshold or lexical path).
+	Positives int      `json:"positives"`
+	Negatives int      `json:"negatives"`
+	Missed    int      `json:"missed"`
+	FalseHits int      `json:"false_hits"`
+	TopNeg    []string `json:"top_negatives"` // the closest negatives on the lexical path
+}
+
+// CalibrateNearDupRule chooses write.near_dup_threshold (decision 0125) and
+// the lexical path write.near_dup_lexical (decision 0138) for emb, from the
+// same corpus pairs. The lexical path's rule, stated before its values were
+// chosen:
+//
+//   - max_added_words: positives here are paragraphs with words appended or
+//     with case or punctuation changed, so each one repeats every word of its
+//     paragraph; the cap is the middle (rounded down) between the most words
+//     a positive adds and the fewest words a negative adds when one of its
+//     texts repeats every word of the other, kept below the latter; with no
+//     such negative, the most words a positive adds;
+//   - min_cosine: the strictest four-decimal floor that every positive on the
+//     lexical path passes (cosine > floor), if no negative on the lexical
+//     path (either text taken as the newer) passes it; otherwise the lowest
+//     four-decimal floor no such negative passes, and the misses are
+//     reported (a hidden distinct record is worse than a missed duplicate).
+func CalibrateNearDupRule(ctx context.Context, emb core.Embedder, ds *Dataset, maxChunkChars int, current float64) (ThresholdCalibration, LexicalCalibration, error) {
 	paras, pos, neg := nearDupPairs(ds, maxChunkChars)
 	pv, err := embedAll(ctx, emb, paras)
 	if err != nil {
-		return ThresholdCalibration{}, err
+		return ThresholdCalibration{}, LexicalCalibration{}, err
 	}
 	dups := make([]string, len(pos))
 	for i, p := range pos {
@@ -229,7 +276,7 @@ func CalibrateNearDup(ctx context.Context, emb core.Embedder, ds *Dataset, maxCh
 	}
 	dv, err := embedAll(ctx, emb, dups)
 	if err != nil {
-		return ThresholdCalibration{}, err
+		return ThresholdCalibration{}, LexicalCalibration{}, err
 	}
 	var ps, ns []float64
 	for i, p := range pos {
@@ -251,7 +298,107 @@ func CalibrateNearDup(ctx context.Context, emb core.Embedder, ds *Dataset, maxCh
 	for _, s := range top[:min(3, len(top))] {
 		r.TopNeg = append(r.TopNeg, fmt.Sprintf("%s: %q / %q", fmtNum(s.v), clip(paras[s.a], 70), clip(paras[s.b], 70)))
 	}
-	return r, nil
+
+	posAdd := make([]int, len(pos)) // -1: does not repeat every word of its paragraph
+	for i, p := range pos {
+		if n, ok := dedup.Added(paras[p.para], p.dup); ok {
+			posAdd[i] = n
+		} else {
+			posAdd[i] = -1
+		}
+	}
+	negAdd := make([]int, len(neg)) // fewest words added over both orders, -1 if neither order
+	for i, n := range neg {
+		negAdd[i] = -1
+		for _, o := range [][2]int{{n[0], n[1]}, {n[1], n[0]}} {
+			if k, ok := dedup.Added(paras[o[0]], paras[o[1]]); ok && (negAdd[i] < 0 || k < negAdd[i]) {
+				negAdd[i] = k
+			}
+		}
+	}
+	lx := chooseLexical(ps, posAdd, ns, negAdd, r.Chosen)
+	lx.ModelID = emb.ModelID()
+	var ltop []scored
+	for i, n := range neg {
+		if negAdd[i] >= 0 && negAdd[i] <= lx.MaxAddedWords {
+			ltop = append(ltop, scored{ns[i], n[0], n[1]})
+		}
+	}
+	sort.SliceStable(ltop, func(i, j int) bool { return ltop[i].v > ltop[j].v })
+	for _, s := range ltop[:min(3, len(ltop))] {
+		lx.TopNeg = append(lx.TopNeg, fmt.Sprintf("%s: %q / %q", fmtNum(s.v), clip(paras[s.a], 70), clip(paras[s.b], 70)))
+	}
+	return r, lx, nil
+}
+
+// chooseLexical applies the lexical rule of CalibrateNearDupRule. ps/ns are
+// the cosines of the positive and negative pairs; posAdd/negAdd the words
+// added on the lexical path (-1: not on it); threshold the plain threshold.
+func chooseLexical(ps []float64, posAdd []int, ns []float64, negAdd []int, threshold float64) LexicalCalibration {
+	lx := LexicalCalibration{Threshold: threshold, Positives: len(ps), Negatives: len(ns), NegAddedMin: -1}
+	for _, k := range posAdd {
+		lx.PosAddedMax = max(lx.PosAddedMax, k)
+	}
+	for _, k := range negAdd {
+		if k >= 0 && (lx.NegAddedMin < 0 || k < lx.NegAddedMin) {
+			lx.NegAddedMin = k
+		}
+	}
+	lx.MaxAddedWords = lx.PosAddedMax
+	if lx.NegAddedMin >= 0 {
+		lx.MaxAddedWords = min((lx.PosAddedMax+lx.NegAddedMin)/2, lx.NegAddedMin-1)
+	}
+	on := func(k int) bool { return k >= 0 && k <= lx.MaxAddedWords }
+	minPos, negMax := math.Inf(1), math.Inf(-1)
+	for i, v := range ps {
+		if on(posAdd[i]) {
+			lx.EligiblePos++
+			minPos = math.Min(minPos, v)
+		}
+	}
+	for i, v := range ns {
+		if on(negAdd[i]) {
+			lx.EligibleNeg++
+			negMax = math.Max(negMax, v)
+		}
+	}
+	t := math.Floor(minPos*1e4) / 1e4
+	if !(minPos > t) {
+		t = round4(t - 1e-4)
+	}
+	lx.Rule = "below_positives"
+	if lx.EligiblePos == 0 {
+		t = 1
+	}
+	// The cap is below the fewest words a nested negative adds, so no
+	// negative is on the path by construction; the guard stays in case
+	// the cap rule changes.
+	if negMax > t {
+		t = math.Ceil(negMax*1e4) / 1e4
+		lx.Rule = "above_negatives"
+	}
+	lx.MinCosine = math.Min(t, 1)
+	for i, v := range ps {
+		if !(v > threshold) && !(on(posAdd[i]) && v > lx.MinCosine) {
+			lx.Missed++
+		}
+	}
+	for i, v := range ns {
+		if v > threshold || (on(negAdd[i]) && v > lx.MinCosine) {
+			lx.FalseHits++
+		}
+	}
+	return lx
+}
+
+// WriteLexical prints one lexical-path calibration.
+func WriteLexical(w io.Writer, c LexicalCalibration) {
+	fmt.Fprintf(w, "write.near_dup_lexical for %s (decision 0138): max_added_words %d, min_cosine %s (%s)\n", c.ModelID, c.MaxAddedWords, fmtNum(c.MinCosine), c.Rule)
+	fmt.Fprintf(w, "  words added: positives up to %d, negatives from %d; on the lexical path: %d positives, %d negatives\n", c.PosAddedMax, c.NegAddedMin, c.EligiblePos, c.EligibleNeg)
+	fmt.Fprintf(w, "  with near_dup_threshold %s: %d of %d positives missed, %d of %d negatives passing\n", fmtNum(c.Threshold), c.Missed, c.Positives, c.FalseHits, c.Negatives)
+	for _, t := range c.TopNeg {
+		fmt.Fprintf(w, "  closest negative on the lexical path %s\n", t)
+	}
 }
 
 // EntityName is one entity of an ingested system, for CalibrateMerge.

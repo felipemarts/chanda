@@ -214,7 +214,8 @@ func buildVersion() string {
 // calibrateWith builds one system, ingests the corpus, calibrates the
 // evidence floors on the training split (CalibrateEvidence, decision 0124),
 // then the near-duplicate and vector merge thresholds of the embedding
-// model (CalibrateNearDup, CalibrateMerge, decision 0125), and prints them.
+// model (CalibrateNearDupRule, CalibrateMerge, decisions 0125 and 0138),
+// and prints them.
 func calibrateWith(ctx context.Context, w io.Writer, f Factory, fe FactoryEnv, ds *Dataset, budget int) error {
 	sys, err := f(ctx, fe)
 	if err != nil {
@@ -243,11 +244,12 @@ func calibrateWith(ctx context.Context, w io.Writer, f Factory, fe FactoryEnv, d
 		return err
 	}
 	WriteCalibration(w, cal)
-	nd, err := CalibrateNearDup(ctx, fe.Embedder, ds, fe.Config.Write.MaxChunkChars, fe.Config.Write.NearDupThreshold)
+	nd, lx, err := CalibrateNearDupRule(ctx, fe.Embedder, ds, fe.Config.Write.MaxChunkChars, fe.Config.Write.NearDupThreshold)
 	if err != nil {
 		return err
 	}
 	WriteThreshold(w, nd)
+	WriteLexical(w, lx)
 	if el, ok := sys.(EntityLister); ok {
 		ents, err := el.EntityNames(ctx)
 		if err != nil {

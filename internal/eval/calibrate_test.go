@@ -98,3 +98,27 @@ func TestChooseThreshold(t *testing.T) {
 		t.Fatalf("above negatives: %+v", r)
 	}
 }
+
+// Decision 0138: the lexical path's word cap is the middle between the most
+// words a positive adds and the fewest a lexically nested negative adds,
+// kept below the latter; its floor the strictest that keeps every positive
+// on the path.
+func TestChooseLexical(t *testing.T) {
+	ps := []float64{0.95, 0.93, 0.991, 0.9288}
+	posAdd := []int{1, 2, 0, -1} // the last one substitutes a word: never on the path
+	ns := []float64{0.97, 0.94, 0.99}
+	negAdd := []int{-1, 5, -1}
+	lx := chooseLexical(ps, posAdd, ns, negAdd, 0.99)
+	if lx.MaxAddedWords != 3 || lx.MinCosine != 0.9299 || lx.Rule != "below_positives" || lx.EligiblePos != 3 || lx.EligibleNeg != 0 {
+		t.Fatalf("cap and floor: %+v", lx)
+	}
+	if lx.Missed != 1 || lx.FalseHits != 0 {
+		t.Fatalf("combined: %+v", lx)
+	}
+	// A nested negative that adds as few words as a positive lowers the cap
+	// below it: the positive adding 2 words leaves the path and is missed.
+	lx = chooseLexical(ps, posAdd, ns, []int{-1, 2, -1}, 0.99)
+	if lx.MaxAddedWords != 1 || lx.MinCosine != 0.9499 || lx.EligibleNeg != 0 || lx.Missed != 2 || lx.FalseHits != 0 {
+		t.Fatalf("lowered cap: %+v", lx)
+	}
+}

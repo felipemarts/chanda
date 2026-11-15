@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/felipemarts/chanda-mcp/internal/audit"
@@ -46,6 +47,50 @@ func TestNearDuplicateGuard(t *testing.T) {
 					Signature(c.a, c.aliases...), Signature(c.b, c.aliases...))
 			}
 		})
+	}
+}
+
+// Decision 0138: the lexical path collapses a newer text that repeats every
+// word of the older one and adds at most MaxAddedWords, above a cosine floor
+// lower than the plain threshold; the signature still decides.
+func TestLexicalPath(t *testing.T) {
+	const thr = 0.98
+	lex := Lexical{MaxAddedWords: 3, MinCosine: 0.9}
+	base := "A reunião de planejamento acontece toda segunda-feira na sala 4."
+	cases := []struct {
+		name         string
+		newer, older string
+		cosine       float64
+		lex          Lexical
+		want         bool
+		reason       string
+	}{
+		{"a reminder word appended", base + " Lembrete.", base, 0.93, lex, true, ReasonNearDuplicate},
+		{"case, spacing and punctuation only", "a  reunião de planejamento acontece toda segunda feira na sala 4", base, 0.95, lex, true, ReasonNearDuplicate},
+		{"three words appended", base + " Até mais, obrigado.", base, 0.93, lex, true, ReasonNearDuplicate},
+		{"four words appended", base + " Até mais, muito obrigado.", base, 0.93, lex, false, ReasonBelowThreshold},
+		{"one word substituted", strings.Replace(base, "segunda", "terça", 1), base, 0.97, lex, false, ReasonBelowThreshold},
+		{"the newer text drops a word of the older", strings.Replace(base, " de planejamento", "", 1), base, 0.95, lex, false, ReasonBelowThreshold},
+		{"at the floor is not above it", base + " Lembrete.", base, 0.9, lex, false, ReasonBelowThreshold},
+		{"the plain threshold still applies alone", strings.Replace(base, "segunda", "terça", 1), base, 0.99, lex, true, ReasonNearDuplicate},
+		{"off: plain rule only", base + " Lembrete.", base, 0.93, Lexical{}, false, ReasonBelowThreshold},
+		{"signature still decides: a number appended", base + " Sala 5.", base, 0.95, lex, false, ReasonNumbersDiffer},
+		{"signature still decides: a negation appended", base + " Não.", base, 0.95, lex, false, ReasonNegationDiffers},
+		{"signature still decides: an entity appended", base + " Com a Ana.", base, 0.95, lex, false, ReasonEntitiesDiffer},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			got, reason := IsNearDuplicateOf(c.newer, c.older, c.cosine, thr, c.lex)
+			if got != c.want || reason != c.reason {
+				t.Fatalf("got %v %s want %v %s", got, reason, c.want, c.reason)
+			}
+		})
+	}
+	if n, ok := Added("a b a", "A, b; a c!"); !ok || n != 1 {
+		t.Fatalf("Added = %d %v, want 1 true", n, ok)
+	}
+	if _, ok := Added("a a b", "a b c"); ok {
+		t.Fatal("words are counted with repetition")
 	}
 }
 

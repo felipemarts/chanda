@@ -86,9 +86,11 @@ const maxMatchTerms = 32
 // FTS5 BM25 over the new event's text, queried through tx (the single
 // connection forbids ExactIndex.Search inside a transaction). The new text
 // and the candidates are embedded in memory with the configured Embedder;
-// the most similar candidate that dedup.IsNearDuplicate accepts (cosine
-// above write.near_dup_threshold and identical numbers, dates, entities and
-// negations) receives the duplicate_of edge new -> older.
+// the most similar candidate that dedup.IsNearDuplicateOf accepts (cosine
+// above write.near_dup_threshold, or above the model's write.near_dup_lexical
+// floor when the new text repeats the candidate's words and adds only a few,
+// decision 0138; and identical numbers, dates, entities and negations)
+// receives the duplicate_of edge new -> older.
 func (a *App) markNearDuplicate(ctx context.Context, tx *sql.Tx, ev write.Event) error {
 	n := a.e.Cfg.Write.NearDupCandidates
 	expr := matchAny(ev.Content)
@@ -113,10 +115,13 @@ func (a *App) markNearDuplicate(ctx context.Context, tx *sql.Tx, ev write.Event)
 	if err != nil {
 		return core.Wrap(core.CodeInternal, err, "near-duplicate embedding")
 	}
+	model := a.emb.ModelID()
+	l := a.e.Cfg.Write.Lexical(model)
+	lex := dedup.Lexical{MaxAddedWords: l.MaxAddedWords, MinCosine: l.MinCosine}
 	best, bestCos := -1, 0.0
 	for i := range ids {
 		cos := dot(vecs[0], vecs[i+1])
-		if ok, _ := dedup.IsNearDuplicate(ev.Content, texts[i], cos, a.e.Cfg.Write.NearDup(a.emb.ModelID())); !ok {
+		if ok, _ := dedup.IsNearDuplicateOf(ev.Content, texts[i], cos, a.e.Cfg.Write.NearDup(model), lex); !ok {
 			continue
 		}
 		if best < 0 || cos > bestCos || (cos == bestCos && ids[i] < ids[best]) {

@@ -2,7 +2,9 @@
 // "Near-duplicate guard").
 //
 // Two records are near-duplicates only if their cosine similarity exceeds
-// the threshold (cfg.Write.NearDupThreshold, default 0.95) and their
+// the threshold (cfg.Write.NearDupThreshold, default 0.95; or, on the
+// lexical path of decision 0138, a lower per-model floor when the newer
+// text repeats every word of the older one and adds only a few) and their
 // signatures — numbers, dates, entities and negation markers, after
 // normalization — are identical. "The price is 10" and "the price is 12"
 // are similar and are not duplicates; "O preço é 10" and "O preço não é 10"
@@ -194,6 +196,64 @@ func IsNearDuplicate(a, b string, cosine, threshold float64, aliases ...string) 
 		return false, ReasonBelowThreshold
 	}
 	return Signature(a, aliases...).Compare(Signature(b, aliases...))
+}
+
+// Lexical is the second path of the guard (decision 0138): a newer text
+// that repeats every word of an older one and adds at most MaxAddedWords
+// words is a near-duplicate when its cosine is above MinCosine (lower than
+// the plain threshold) and the signatures are identical. The zero value
+// (MinCosine 0) turns the path off.
+type Lexical struct {
+	MaxAddedWords int
+	MinCosine     float64
+}
+
+// On reports whether the lexical path is enabled.
+func (l Lexical) On() bool { return l.MinCosine > 0 }
+
+// Words returns the words of text as the lexical path compares them:
+// lowercase, accents stripped, split at anything that is not a letter or a
+// digit (norm.Alias), so letter case, spacing and punctuation do not count.
+func Words(text string) []string { return strings.Fields(norm.Alias(text)) }
+
+// Added reports whether newer contains every word of older, counted with
+// repetition, and how many words newer has on top of them.
+func Added(older, newer string) (int, bool) {
+	count := map[string]int{}
+	for _, w := range Words(newer) {
+		count[w]++
+	}
+	for _, w := range Words(older) {
+		if count[w] == 0 {
+			return 0, false
+		}
+		count[w]--
+	}
+	added := 0
+	for _, n := range count {
+		added += n
+	}
+	return added, true
+}
+
+// Extends reports whether newer contains every word of older, counted with
+// repetition, and at most maxAdded words more. Nothing older says is then
+// missing from newer, which is the record the read path keeps when it
+// collapses the two (the most recent one).
+func Extends(older, newer string, maxAdded int) bool {
+	n, ok := Added(older, newer)
+	return ok && n <= maxAdded
+}
+
+// IsNearDuplicateOf decides whether newer is a near-duplicate of older: the
+// plain rule (cosine > threshold), or the lexical path when it is on
+// (cosine > lex.MinCosine and newer extends older by at most
+// lex.MaxAddedWords words); either way the signatures must be identical.
+func IsNearDuplicateOf(newer, older string, cosine, threshold float64, lex Lexical, aliases ...string) (bool, string) {
+	if !(cosine > threshold) && !(lex.On() && cosine > lex.MinCosine && Extends(older, newer, lex.MaxAddedWords)) {
+		return false, ReasonBelowThreshold
+	}
+	return Signature(newer, aliases...).Compare(Signature(older, aliases...))
 }
 
 // Guard writes duplicate_of edges.

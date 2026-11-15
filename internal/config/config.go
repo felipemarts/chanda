@@ -59,6 +59,26 @@ type WriteConfig struct {
 	// When the file does not set near_dup_threshold, Load (and Default)
 	// resolve it from this map for embed.model_id.
 	NearDupThresholds map[string]float64 `yaml:"near_dup_thresholds"`
+	// NearDupLexical is the lexical path of the near-duplicate guard per
+	// embedding model (decision 0138), keyed like near_dup_thresholds: a
+	// newer text that repeats every word of an older one and adds at most
+	// max_added_words is a near-duplicate above min_cosine (signatures
+	// still identical). A model without an entry has the plain rule only.
+	NearDupLexical map[string]NearDupLexical `yaml:"near_dup_lexical"`
+}
+
+// NearDupLexical configures the lexical path of the near-duplicate guard
+// for one embedding model. min_cosine 0 turns it off.
+type NearDupLexical struct {
+	MaxAddedWords int     `yaml:"max_added_words"`
+	MinCosine     float64 `yaml:"min_cosine"`
+}
+
+// Lexical returns the lexical path of the near-duplicate guard for an
+// embedding model: the entry of NearDupLexical for the model id, else for
+// its family, else the zero value (off).
+func (w WriteConfig) Lexical(modelID string) NearDupLexical {
+	return perModel(w.NearDupLexical, modelID, NearDupLexical{})
 }
 
 // DefaultNearDupThreshold is write.near_dup_threshold for a model without an
@@ -303,6 +323,11 @@ func defaults() *Config {
 			Extractors: []ExtractorConfig{{Name: "header", Kind: "header"}},
 			// Calibrated on corpus pairs of synthetic-pt (decision 0125).
 			NearDupThresholds: map[string]float64{"hash-v1-256": 0.937, "e5-small": 0.9875},
+			// Lexical path, calibrated on the same pairs (decision 0138).
+			NearDupLexical: map[string]NearDupLexical{
+				"hash-v1-256": {MaxAddedWords: 3, MinCosine: 0.8693},
+				"e5-small":    {MaxAddedWords: 3, MinCosine: 0.9288},
+			},
 		},
 		Read: ReadConfig{
 			KeywordTopK: 50, VectorTopK: 50, RRFK: 60, RerankTopN: 30, RerankEnabled: false,
@@ -388,6 +413,11 @@ func (c *Config) Validate() error {
 	}
 	if c.Write.NearDupCandidates < 0 {
 		return fmt.Errorf("write.near_dup_candidates must be >= 0")
+	}
+	for k, l := range c.Write.NearDupLexical {
+		if l.MinCosine < 0 || l.MinCosine > 1 || l.MaxAddedWords < 0 {
+			return fmt.Errorf("write.near_dup_lexical[%q]: min_cosine must be in [0,1] and max_added_words >= 0", k)
+		}
 	}
 	switch c.MCP.MaxZone {
 	case "external", "internal":

@@ -77,6 +77,34 @@ func TestNearDuplicateGuard(t *testing.T) {
 	verifyOK(t, a)
 }
 
+// Decision 0138: a short record repeated with a courtesy sentence appended
+// falls below the hash model's plain threshold; the lexical path collapses
+// it, and turning the path off restores the plain rule.
+func TestNearDuplicateLexicalPath(t *testing.T) {
+	const base = "Backup do servidor de arquivos toda sexta."
+	for _, on := range []bool{true, false} {
+		a, _ := newApp(t, func(c *config.Config) {
+			if !on {
+				c.Write.NearDupLexical = nil
+			}
+		})
+		first := must(a.Remember(agent, chanda.RememberInput{Content: base}))
+		second := must(a.Remember(agent, chanda.RememberInput{Content: base + " Obrigado, até mais."}))
+		swapped := must(a.Remember(agent, chanda.RememberInput{Content: "Backup do servidor de arquivos toda quinta."}))
+		want := chanda.ActionCreated
+		if on {
+			want = chanda.ActionNearDuplicate
+		}
+		if second.Action != want || (on && !slices.Equal(second.Related, []string{first.ID})) {
+			t.Fatalf("lexical path %v: %+v, want %s", on, second.WriteResult, want)
+		}
+		if swapped.Action != chanda.ActionCreated {
+			t.Fatalf("lexical path %v: a substituted word was collapsed: %+v", on, swapped.WriteResult)
+		}
+		verifyOK(t, a)
+	}
+}
+
 // BASE.md "Decision table for facts", through assert_fact.
 func TestAssertFactDecisionTable(t *testing.T) {
 	a, fc := newApp(t, nil)
