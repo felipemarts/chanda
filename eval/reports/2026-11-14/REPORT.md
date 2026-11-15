@@ -63,11 +63,16 @@ Retrieval without an LLM (phase 1), session-level recall@10 / MRR:
 
 | | BM25 | plain RAG | Chanda `search` |
 | --- | --- | --- | --- |
+| **e5, all 500 questions (470 scored)** | 95.6 / 0.928 | 97.9 / 0.946 | **98.3** / 0.946 |
 | e5, 60-question sample (54 scored) | 96.2 / 0.910 | 99.1 / 0.939 | 98.0 / 0.941 |
 | hash embedder, all 500 questions (470 scored) | 95.6 / 0.928 | 82.7 / 0.739 | 93.4 / 0.880 |
 
-The e5 run over all 500 questions was still running when this report was
-written. It goes to `phase1-e5.md` when done. The hash row makes plain RAG
+With e5 over all 500 questions (`phase1-e5.md`), Chanda's search matches
+plain RAG: recall@10 is 98.3 against 97.9 and MRR is equal. Search ranks the
+evidence session in the top 10 for 98% of the questions, so the accuracy
+gap in section 1 comes from what goes into the 2,000-token block, not from
+retrieval (section 4). Search latency over MCP in that run: p50 64 ms, p95
+134 ms (busy machine). The hash row makes plain RAG
 look weak because hash vectors carry no meaning; the battery uses e5.
 
 ## 2. Targets of the specification (BASE.md, Evaluation)
@@ -86,7 +91,7 @@ judged without an LLM (`eval/reports/latest.md` for hash,
 | Abstention: precision of an empty pre-context | 95% | **0** (1 empty) / **undefined** (0 empty) | **no** |
 | Learning: C5 over C4 with no gate regression | positive, no regression | +0.003 nDCG with −0.33 gate / 0 | **no** |
 | Determinism: identical databases in two runs | 100% | 100% / 100% | yes |
-| Phase 3: C1 matches or beats B2 on recall@10 | ≥ B2 | LongMemEval e5 sample: 98.0 against 99.1 | **no** (inside noise) |
+| Phase 3: C1 matches or beats B2 on recall@10 | ≥ B2 | LongMemEval e5, 500 questions: 98.3 against 97.9 (sample of 60: 98.0 against 99.1) | yes on 500 (difference inside noise) |
 | Comparison with Mem0 in the same environment | report it, losses included | Mem0 88.3% against Chanda 78.3% | done; Chanda loses |
 | Final answer with a hand-checked sample | hand check | `eval/review.csv` written, **not hand-checked yet** | **no** |
 
@@ -102,10 +107,9 @@ delivered.
   right that Mem0 missed; Mem0 got 6 right that D missed: 4 temporal
   and 2 multi-session. The sign test gives
   p = 0.031, but the Wilson intervals overlap (section 7).
-- **Against plain RAG, it did not win.** 78.3% against 81.7%. On the same
-  embedder plain RAG also retrieved slightly better (recall@10 99.1 against
-  98.0). With e5, the advantage over plain RAG measured on the synthetic set
-  does not show up here.
+- **Against plain RAG, it did not win.** 78.3% against 81.7%, although its
+  search retrieves as well as plain RAG (recall@10 98.3 against 97.9 over
+  500 questions). The loss happens in the selection of the context block.
 - **Temporal reasoning was the weakest type:** 10/16, against 12/16 for RAG
   and 14/16 for Mem0. Sleep made it worse (9/16).
 - **Sleep did not pay.** E cost US$1.63 in LLM calls, about 93 s of extra
@@ -228,8 +232,6 @@ changes ranking or selection.
   Mem0's ingest time was the most affected (three shards in parallel).
 - **E's sleep budget.** 25 of 60 runs stopped at the default token budget
   (200,000).
-- **Phase 1 with e5 over all 500 questions** was not finished when this
-  report was written.
 - **The reader is one model.** Results may differ with a stronger reader,
   which would use long contexts better.
 
@@ -260,7 +262,13 @@ directly.
    temporal update and determinism. The three failures are abstention.
    *Caveat:* synthetic scenarios with the hash embedder.
 6. **"Search over MCP answers in 44 ms p50 / 66 ms p95 on a 3.6 MB
-   database of about 490 turns."** Measured. *Caveat:* a busy 8 GB laptop.
+   database of about 490 turns"** (64 / 134 ms in the 500-question
+   retrieval run). Measured. *Caveat:* a busy 8 GB laptop.
+7. **"Chanda's search retrieves the evidence as well as plain RAG with the
+   same embedder."** recall@10 98.3 against 97.9 and MRR 0.946 for both,
+   over 470 questions. *Caveat:* this is equality, not superiority; the
+   difference is far inside the noise. Retrieval does not explain Chanda's
+   lower accuracy.
 
 ## What the data does not support
 
@@ -300,8 +308,8 @@ did not beat plain RAG or Mem0 here. The defensible message is narrow:
   reader output.
 - `eval/review.csv`: one row per question, with every condition's answer
   and verdict.
-- `phase0.md`, `phase1-hash.md/.json`. `phase1-e5-60.md/.json` (e5, the
-  60-question sample); all 500 questions with e5 to follow.
+- `phase0.md`, `phase1-hash.md/.json`, `phase1-e5.md/.json` (e5, 500
+  questions), `phase1-e5-60.md/.json` (e5, the 60-question sample).
 - `phase4-summary.json`, `phase4-report.txt`, `smoke-*`.
 - `error-analysis-D.md`, `RUNLOG.md`.
 - `eval/cost.json`, `eval/llm_calls.jsonl`, `eval/versions.txt`,
