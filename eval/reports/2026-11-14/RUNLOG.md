@@ -122,3 +122,15 @@ build, with no kill and no error; the embedding cache carried over the
 earlier attempts. Recall@10 / MRR: BM25 95.6 / 0.928, plain RAG 97.9 /
 0.946, Chanda 98.3 / 0.946. Results are in `phase1-e5.md`, and REPORT.md
 was updated.
+
+## Reusable dataset for later tests (local, git-ignored)
+
+| What | Where | Size | What it saves |
+| --- | --- | --- | --- |
+| LLM calls of the full run (request and response) | `eval/lme/llmstore/` | 4080 entries, 61 MB | paid calls: `lmeproxy -store eval/lme/llmstore -replay` answers identical requests at no cost (Mem0 extraction, condition A, the judge for identical answers, Chanda sleep for an identical database) |
+| e5 embeddings: every turn, chunk and question of LongMemEval S | `eval/lme/work/embcache.sqlite` | 2.1 GB | about 8 h of e5 on this machine; keyed by (model_id, role, sha256(text)) |
+| Contexts per condition and question | `eval/lme/py/work/ctx/*.jsonl` (also inside `raw/`) | 4 MB | re-running the readers or the judge needs no retrieval |
+| Answers and verdicts | `eval/reports/2026-11-14/raw/` (committed) | 5 MB | comparison baseline for later runs |
+
+Not stored: the request and response bodies of the smoke run's first pass,
+from before the store existed (their results are in `raw/`).
