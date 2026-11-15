@@ -2,8 +2,8 @@
   "schema": "chanda-eval-report/v1",
   "name": "latest-e5",
   "date": "2026-11-15",
-  "chanda_version": "eval-lme-freeze-17-g5579bf1",
-  "config_hash": "319e444fd445c188",
+  "chanda_version": "v0.0.0-20261115194407-d7b7e8eb1ef7+dirty",
+  "config_hash": "b24a9559c739b6e3",
   "embedding_model_id": "e5-small@hugot0.8.6+simd",
   "reader_model": "n/a (retrieval-only; no LLM reader or judge)",
   "hardware": {
@@ -730,9 +730,9 @@
       "info": {
         "description": "Chanda: hybrid fusion (FTS5 BM25 + vectors, RRF), no reranker, no structured facts.",
         "embedding_model": "e5-small@hugot0.8.6+simd",
-        "config_hash": "25f5c6a4ac8648cd"
+        "config_hash": "efb8ee24346dba8b"
       },
-      "size_bytes": 13021184,
+      "size_bytes": 13033472,
       "overall": {
         "questions": 305,
         "answerable": 270,
@@ -746,7 +746,7 @@
         "abstention_precision": null,
         "abstention_recall": 0,
         "empty_rate": 0,
-        "tokens_mean": 260.9803,
+        "tokens_mean": 260.7967,
         "tokens_p50": 265,
         "tokens_p95": 304,
         "budget_violations": 0
@@ -765,7 +765,7 @@
           "abstention_precision": null,
           "abstention_recall": 0,
           "empty_rate": 0,
-          "tokens_mean": 268.5143,
+          "tokens_mean": 268.4,
           "tokens_p50": 276,
           "tokens_p95": 311,
           "budget_violations": 0
@@ -783,7 +783,7 @@
           "abstention_precision": null,
           "abstention_recall": null,
           "empty_rate": 0,
-          "tokens_mean": 275.0435,
+          "tokens_mean": 274.8696,
           "tokens_p50": 281,
           "tokens_p95": 305,
           "budget_violations": 0
@@ -819,7 +819,7 @@
           "abstention_precision": null,
           "abstention_recall": null,
           "empty_rate": 0,
-          "tokens_mean": 265.3333,
+          "tokens_mean": 265.2273,
           "tokens_p50": 266,
           "tokens_p95": 310,
           "budget_violations": 0
@@ -837,9 +837,9 @@
           "abstention_precision": null,
           "abstention_recall": null,
           "empty_rate": 0,
-          "tokens_mean": 267.4419,
+          "tokens_mean": 267.2558,
           "tokens_p50": 268,
-          "tokens_p95": 303,
+          "tokens_p95": 301,
           "budget_violations": 0
         },
         "session": {
@@ -855,7 +855,7 @@
           "abstention_precision": null,
           "abstention_recall": null,
           "empty_rate": 0,
-          "tokens_mean": 247.0667,
+          "tokens_mean": 246.7667,
           "tokens_p50": 250,
           "tokens_p95": 279,
           "budget_violations": 0
@@ -873,9 +873,9 @@
           "abstention_precision": null,
           "abstention_recall": null,
           "empty_rate": 0,
-          "tokens_mean": 229,
+          "tokens_mean": 228.7925,
           "tokens_p50": 227,
-          "tokens_p95": 276,
+          "tokens_p95": 277,
           "budget_violations": 0
         },
         "update": {
@@ -891,7 +891,7 @@
           "abstention_precision": null,
           "abstention_recall": null,
           "empty_rate": 0,
-          "tokens_mean": 270.2188,
+          "tokens_mean": 269.9531,
           "tokens_p50": 269,
           "tokens_p95": 307,
           "budget_violations": 0
@@ -903,9 +903,9 @@
       "info": {
         "description": "C2 + structured facts with temporal validity (header and kv_table extractors, assert_fact). Runs WITHOUT the reranker (none configured), so it is C1 + the stages above.",
         "embedding_model": "e5-small@hugot0.8.6+simd",
-        "config_hash": "1bd311e72ad84087"
+        "config_hash": "17d89e083dfb3084"
       },
-      "size_bytes": 16670720,
+      "size_bytes": 16687104,
       "overall": {
         "questions": 305,
         "answerable": 270,
@@ -919,7 +919,7 @@
         "abstention_precision": null,
         "abstention_recall": 0,
         "empty_rate": 0,
-        "tokens_mean": 223.0885,
+        "tokens_mean": 222.6754,
         "tokens_p50": 222,
         "tokens_p95": 279,
         "budget_violations": 0
@@ -938,7 +938,7 @@
           "abstention_precision": null,
           "abstention_recall": 0,
           "empty_rate": 0,
-          "tokens_mean": 225.2286,
+          "tokens_mean": 225,
           "tokens_p50": 240,
           "tokens_p95": 287,
           "budget_violations": 0
@@ -956,8 +956,8 @@
           "abstention_precision": null,
           "abstention_recall": null,
           "empty_rate": 0,
-          "tokens_mean": 249.9565,
-          "tokens_p50": 251,
+          "tokens_mean": 249.7391,
+          "tokens_p50": 250,
           "tokens_p95": 279,
           "budget_violations": 0
         },
@@ -992,9 +992,9 @@
           "abstention_precision": null,
           "abstention_recall": null,
           "empty_rate": 0,
-          "tokens_mean": 242.6818,
-          "tokens_p50": 250,
-          "tokens_p95": 287,
+          "tokens_mean": 242.6212,
+          "tokens_p50": 248,
+          "tokens_p95": 286,
           "budget_violations": 0
         },
         "plain": {
@@ -1010,8 +1010,8 @@
           "abstention_precision": null,
           "abstention_recall": null,
           "empty_rate": 0,
-          "tokens_mean": 211.0233,
-          "tokens_p50": 209,
+          "tokens_mean": 209.9651,
+          "tokens_p50": 208,
           "tokens_p95": 254,
           "budget_violations": 0
         },
@@ -1028,7 +1028,7 @@
           "abstention_precision": null,
           "abstention_recall": null,
           "empty_rate": 0,
-          "tokens_mean": 232.2333,
+          "tokens_mean": 232.1667,
           "tokens_p50": 224,
           "tokens_p95": 285,
           "budget_violations": 0
@@ -1046,7 +1046,7 @@
           "abstention_precision": null,
           "abstention_recall": null,
           "empty_rate": 0,
-          "tokens_mean": 199.7925,
+          "tokens_mean": 199.6981,
           "tokens_p50": 196,
           "tokens_p95": 261,
           "budget_violations": 0
@@ -1064,8 +1064,8 @@
           "abstention_precision": null,
           "abstention_recall": null,
           "empty_rate": 0,
-          "tokens_mean": 235.3125,
-          "tokens_p50": 236,
+          "tokens_mean": 234.9531,
+          "tokens_p50": 237,
           "tokens_p95": 281,
           "budget_violations": 0
         }
@@ -1076,9 +1076,9 @@
       "info": {
         "description": "C3 + a sleep run after ingestion. Runs WITHOUT the reranker (none configured), so it is C1 + the stages above. No LLM provider is configured: sleep runs phase 1 (maintenance) only. Sleep run: phases [1], status completed.",
         "embedding_model": "e5-small@hugot0.8.6+simd",
-        "config_hash": "1bd311e72ad84087"
+        "config_hash": "17d89e083dfb3084"
       },
-      "size_bytes": 16674816,
+      "size_bytes": 16691200,
       "overall": {
         "questions": 305,
         "answerable": 270,
@@ -1092,7 +1092,7 @@
         "abstention_precision": null,
         "abstention_recall": 0,
         "empty_rate": 0,
-        "tokens_mean": 223.0885,
+        "tokens_mean": 222.6754,
         "tokens_p50": 222,
         "tokens_p95": 279,
         "budget_violations": 0
@@ -1111,7 +1111,7 @@
           "abstention_precision": null,
           "abstention_recall": 0,
           "empty_rate": 0,
-          "tokens_mean": 225.2286,
+          "tokens_mean": 225,
           "tokens_p50": 240,
           "tokens_p95": 287,
           "budget_violations": 0
@@ -1129,8 +1129,8 @@
           "abstention_precision": null,
           "abstention_recall": null,
           "empty_rate": 0,
-          "tokens_mean": 249.9565,
-          "tokens_p50": 251,
+          "tokens_mean": 249.7391,
+          "tokens_p50": 250,
           "tokens_p95": 279,
           "budget_violations": 0
         },
@@ -1165,9 +1165,9 @@
           "abstention_precision": null,
           "abstention_recall": null,
           "empty_rate": 0,
-          "tokens_mean": 242.6818,
-          "tokens_p50": 250,
-          "tokens_p95": 287,
+          "tokens_mean": 242.6212,
+          "tokens_p50": 248,
+          "tokens_p95": 286,
           "budget_violations": 0
         },
         "plain": {
@@ -1183,8 +1183,8 @@
           "abstention_precision": null,
           "abstention_recall": null,
           "empty_rate": 0,
-          "tokens_mean": 211.0233,
-          "tokens_p50": 209,
+          "tokens_mean": 209.9651,
+          "tokens_p50": 208,
           "tokens_p95": 254,
           "budget_violations": 0
         },
@@ -1201,7 +1201,7 @@
           "abstention_precision": null,
           "abstention_recall": null,
           "empty_rate": 0,
-          "tokens_mean": 232.2333,
+          "tokens_mean": 232.1667,
           "tokens_p50": 224,
           "tokens_p95": 285,
           "budget_violations": 0
@@ -1219,7 +1219,7 @@
           "abstention_precision": null,
           "abstention_recall": null,
           "empty_rate": 0,
-          "tokens_mean": 199.7925,
+          "tokens_mean": 199.6981,
           "tokens_p50": 196,
           "tokens_p95": 261,
           "budget_violations": 0
@@ -1237,8 +1237,8 @@
           "abstention_precision": null,
           "abstention_recall": null,
           "empty_rate": 0,
-          "tokens_mean": 235.3125,
-          "tokens_p50": 236,
+          "tokens_mean": 234.9531,
+          "tokens_p50": 237,
           "tokens_p95": 281,
           "budget_violations": 0
         }
@@ -1249,9 +1249,9 @@
       "info": {
         "description": "C4 + learned ranking from a simulated task sequence. Runs WITHOUT the reranker (none configured), so it is C1 + the stages above. No LLM provider is configured: sleep runs phase 1 (maintenance) only. Learning: the gate split is approved as the gate set, then 3 passes over the training split (outcome +1 with the delivered records that hit a gold span as used_ids, -1 with none), then a sleep run trains and may promote a ranker. Sleep run: phases [1], status completed. Sleep run: phases [1], status completed. After 447 tasks (288 positive) and 33 gate questions, no ranker model was promoted (lambda 0; Ranker: trained mdl_01M5GFG8GWYGPSSN6JWCCKYH8A, evaluated mdl_01M5GFG8GWYGPSSN6JWCCKYH8A, passed false, promoted false, baseline 63.73, learned 63.50, lambda 0.00 (gate_failed)): ranking equals C4.",
         "embedding_model": "e5-small@hugot0.8.6+simd",
-        "config_hash": "1bd311e72ad84087"
+        "config_hash": "17d89e083dfb3084"
       },
-      "size_bytes": 34463744,
+      "size_bytes": 34480128,
       "overall": {
         "questions": 305,
         "answerable": 270,
@@ -1265,7 +1265,7 @@
         "abstention_precision": null,
         "abstention_recall": 0,
         "empty_rate": 0,
-        "tokens_mean": 223.0885,
+        "tokens_mean": 222.6754,
         "tokens_p50": 222,
         "tokens_p95": 279,
         "budget_violations": 0
@@ -1284,7 +1284,7 @@
           "abstention_precision": null,
           "abstention_recall": 0,
           "empty_rate": 0,
-          "tokens_mean": 225.2286,
+          "tokens_mean": 225,
           "tokens_p50": 240,
           "tokens_p95": 287,
           "budget_violations": 0
@@ -1302,8 +1302,8 @@
           "abstention_precision": null,
           "abstention_recall": null,
           "empty_rate": 0,
-          "tokens_mean": 249.9565,
-          "tokens_p50": 251,
+          "tokens_mean": 249.7391,
+          "tokens_p50": 250,
           "tokens_p95": 279,
           "budget_violations": 0
         },
@@ -1338,9 +1338,9 @@
           "abstention_precision": null,
           "abstention_recall": null,
           "empty_rate": 0,
-          "tokens_mean": 242.6818,
-          "tokens_p50": 250,
-          "tokens_p95": 287,
+          "tokens_mean": 242.6212,
+          "tokens_p50": 248,
+          "tokens_p95": 286,
           "budget_violations": 0
         },
         "plain": {
@@ -1356,8 +1356,8 @@
           "abstention_precision": null,
           "abstention_recall": null,
           "empty_rate": 0,
-          "tokens_mean": 211.0233,
-          "tokens_p50": 209,
+          "tokens_mean": 209.9651,
+          "tokens_p50": 208,
           "tokens_p95": 254,
           "budget_violations": 0
         },
@@ -1374,7 +1374,7 @@
           "abstention_precision": null,
           "abstention_recall": null,
           "empty_rate": 0,
-          "tokens_mean": 232.2333,
+          "tokens_mean": 232.1667,
           "tokens_p50": 224,
           "tokens_p95": 285,
           "budget_violations": 0
@@ -1392,7 +1392,7 @@
           "abstention_precision": null,
           "abstention_recall": null,
           "empty_rate": 0,
-          "tokens_mean": 199.7925,
+          "tokens_mean": 199.6981,
           "tokens_p50": 196,
           "tokens_p95": 261,
           "budget_violations": 0
@@ -1410,8 +1410,8 @@
           "abstention_precision": null,
           "abstention_recall": null,
           "empty_rate": 0,
-          "tokens_mean": 235.3125,
-          "tokens_p50": 236,
+          "tokens_mean": 234.9531,
+          "tokens_p50": 237,
           "tokens_p95": 281,
           "budget_violations": 0
         }
@@ -2981,7 +2981,7 @@
     {
       "system": "B0",
       "ingest_items": 197,
-      "ingest_total_ms": 0.064,
+      "ingest_total_ms": 0.026,
       "ingest_p50_ms": 0,
       "ingest_p95_ms": 0.001,
       "flush_ms": 0,
@@ -2993,86 +2993,86 @@
     {
       "system": "B1",
       "ingest_items": 197,
-      "ingest_total_ms": 58.726,
-      "ingest_p50_ms": 0.206,
-      "ingest_p95_ms": 0.862,
+      "ingest_total_ms": 16.314,
+      "ingest_p50_ms": 0.055,
+      "ingest_p95_ms": 0.251,
       "flush_ms": 0,
       "train_ms": 0,
-      "retrieve_mean_ms": 1.643,
-      "retrieve_p50_ms": 1.415,
-      "retrieve_p95_ms": 3.197
+      "retrieve_mean_ms": 0.403,
+      "retrieve_p50_ms": 0.348,
+      "retrieve_p95_ms": 0.739
     },
     {
       "system": "B2",
       "ingest_items": 197,
-      "ingest_total_ms": 272.97,
-      "ingest_p50_ms": 0.537,
-      "ingest_p95_ms": 5.529,
+      "ingest_total_ms": 1270.272,
+      "ingest_p50_ms": 4.473,
+      "ingest_p95_ms": 23.691,
       "flush_ms": 0,
       "train_ms": 0,
-      "retrieve_mean_ms": 2.357,
-      "retrieve_p50_ms": 2.074,
-      "retrieve_p95_ms": 4.413
+      "retrieve_mean_ms": 1.506,
+      "retrieve_p50_ms": 1.436,
+      "retrieve_p95_ms": 2.294
     },
     {
       "system": "B3",
       "ingest_items": 197,
-      "ingest_total_ms": 7.579,
-      "ingest_p50_ms": 0.022,
-      "ingest_p95_ms": 0.121,
+      "ingest_total_ms": 2.715,
+      "ingest_p50_ms": 0.009,
+      "ingest_p95_ms": 0.037,
       "flush_ms": 0,
       "train_ms": 0,
-      "retrieve_mean_ms": 0.175,
-      "retrieve_p50_ms": 0.155,
-      "retrieve_p95_ms": 0.231
+      "retrieve_mean_ms": 0.061,
+      "retrieve_p50_ms": 0.05,
+      "retrieve_p95_ms": 0.138
     },
     {
       "system": "C1",
       "ingest_items": 197,
-      "ingest_total_ms": 8756.907,
-      "ingest_p50_ms": 31.642,
-      "ingest_p95_ms": 89.513,
-      "flush_ms": 667.847,
-      "train_ms": 0.049,
-      "retrieve_mean_ms": 13.22,
-      "retrieve_p50_ms": 12.248,
-      "retrieve_p95_ms": 22.58
+      "ingest_total_ms": 4742.813,
+      "ingest_p50_ms": 14.985,
+      "ingest_p95_ms": 52.111,
+      "flush_ms": 461.477,
+      "train_ms": 0.053,
+      "retrieve_mean_ms": 9.831,
+      "retrieve_p50_ms": 7.523,
+      "retrieve_p95_ms": 25.511
     },
     {
       "system": "C3",
       "ingest_items": 197,
-      "ingest_total_ms": 7902.196,
-      "ingest_p50_ms": 29.934,
-      "ingest_p95_ms": 91.396,
-      "flush_ms": 669.626,
-      "train_ms": 0.049,
-      "retrieve_mean_ms": 34.675,
-      "retrieve_p50_ms": 30.909,
-      "retrieve_p95_ms": 67.214
+      "ingest_total_ms": 5611.717,
+      "ingest_p50_ms": 15.84,
+      "ingest_p95_ms": 53.248,
+      "flush_ms": 1516.947,
+      "train_ms": 0.022,
+      "retrieve_mean_ms": 10.677,
+      "retrieve_p50_ms": 9.692,
+      "retrieve_p95_ms": 16.397
     },
     {
       "system": "C4",
       "ingest_items": 197,
-      "ingest_total_ms": 7880.318,
-      "ingest_p50_ms": 29.012,
-      "ingest_p95_ms": 88.077,
-      "flush_ms": 647.332,
-      "train_ms": 0.06,
-      "retrieve_mean_ms": 40.949,
-      "retrieve_p50_ms": 34.712,
-      "retrieve_p95_ms": 83.402
+      "ingest_total_ms": 4988.191,
+      "ingest_p50_ms": 13.95,
+      "ingest_p95_ms": 50.236,
+      "flush_ms": 1423.768,
+      "train_ms": 0.014,
+      "retrieve_mean_ms": 9.778,
+      "retrieve_p50_ms": 8.813,
+      "retrieve_p95_ms": 14.344
     },
     {
       "system": "C5",
       "ingest_items": 197,
-      "ingest_total_ms": 12279.827,
-      "ingest_p50_ms": 40.092,
-      "ingest_p95_ms": 159.67,
-      "flush_ms": 606.473,
-      "train_ms": 29162.267,
-      "retrieve_mean_ms": 38.659,
-      "retrieve_p50_ms": 32.588,
-      "retrieve_p95_ms": 74.557
+      "ingest_total_ms": 3278.648,
+      "ingest_p50_ms": 11.454,
+      "ingest_p95_ms": 30.648,
+      "flush_ms": 634.621,
+      "train_ms": 7406.409,
+      "retrieve_mean_ms": 12.2,
+      "retrieve_p50_ms": 9.5,
+      "retrieve_p95_ms": 22.86
     }
   ]
 }
