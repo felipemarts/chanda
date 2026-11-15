@@ -1,0 +1,12 @@
+| type | B |
+|---|---|
+| **total** | 88.6% [82.2, 92.8] (124/140) |
+| abstention | 87.5% [52.9, 97.8] (7/8) |
+| knowledge-update | 90.9% [72.2, 97.5] (20/22) |
+| multi-session | 78.4% [62.8, 88.6] (29/37) |
+| single-session-assistant | 100.0% [80.6, 100.0] (16/16) |
+| single-session-preference | 100.0% [67.6, 100.0] (8/8) |
+| single-session-user | 100.0% [83.9, 100.0] (20/20) |
+| temporal-reasoning | 83.8% [68.9, 92.3] (31/37) |
+
+Accuracy with Wilson 95% interval (correct/n).

@@ -340,6 +340,9 @@ func defaults() *Config {
 			ContextDefaultTokens: 800, ContextMaxTokens: 1500,
 			MinTermCoverage: 0.5, CoverageTermCap: 4, MinCosine: 0.5, MaxQueryTerms: 32,
 			SearchMaxLimit: 100, ContextMinItemTokens: 40,
+			// Decision 0141 (selection study, tuning set): cap items at 150
+			// tokens by best_window, except the two best ranked.
+			ContextItemMaxTokens: 150, ContextTruncate: TruncateBestWindow, ContextItemCapAfter: 2,
 			// Calibrated on the training split of synthetic-pt (decision 0124).
 			EvidenceFloors: map[string]EvidenceFloor{
 				"hash-v1-256": {MinTermCoverage: 0.25, MinCosine: 0.2359},

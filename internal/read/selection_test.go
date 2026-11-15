@@ -60,11 +60,13 @@ func convo(f *fx, ns string) {
 
 const convoQuery = "Which venue did I book for the launch party?"
 
-// With every new read key at its default, the context block is exactly what
-// it was before decision 0137 (golden captured before the knobs existed).
+// With the selection keys at their values before decision 0141 (no cap, head
+// truncation), the context block is exactly what it was before decision 0137
+// (golden captured before the knobs existed).
 func TestContextDefaultsUnchangedGolden(t *testing.T) {
 	f := newFx(t)
 	convo(f, "ns")
+	f.e.Cfg.Read.ContextItemMaxTokens, f.e.Cfg.Read.ContextTruncate, f.e.Cfg.Read.ContextItemCapAfter = 0, config.TruncateHead, 0
 	r := New(f.e, Deps{})
 	for _, c := range []struct {
 		budget int
@@ -106,7 +108,7 @@ func contextWith(t *testing.T, budget int, set func(rc *config.ReadConfig)) Cont
 // (the same items lead as without the cap).
 func TestContextItemMaxTokens(t *testing.T) {
 	for _, mode := range []string{config.TruncateHead, config.TruncateBestWindow} {
-		res := contextWith(t, 0, func(rc *config.ReadConfig) { rc.ContextItemMaxTokens, rc.ContextTruncate = 80, mode })
+		res := contextWith(t, 0, func(rc *config.ReadConfig) { rc.ContextItemMaxTokens, rc.ContextTruncate, rc.ContextItemCapAfter = 80, mode, 0 })
 		if len(res.Items) == 0 || res.TokensUsed != estimateTokens(res.Text) {
 			t.Fatalf("%s: %+v", mode, res)
 		}
@@ -124,9 +126,11 @@ func TestContextItemMaxTokens(t *testing.T) {
 		}
 	}
 	// best_window keeps the sentence with the booked venue; head does not.
-	head := contextWith(t, 0, func(rc *config.ReadConfig) { rc.ContextItemMaxTokens = 80 })
+	head := contextWith(t, 0, func(rc *config.ReadConfig) {
+		rc.ContextItemMaxTokens, rc.ContextTruncate, rc.ContextItemCapAfter = 80, config.TruncateHead, 0
+	})
 	best := contextWith(t, 0, func(rc *config.ReadConfig) {
-		rc.ContextItemMaxTokens, rc.ContextTruncate = 80, config.TruncateBestWindow
+		rc.ContextItemMaxTokens, rc.ContextTruncate, rc.ContextItemCapAfter = 80, config.TruncateBestWindow, 0
 	})
 	hi, bi := find(head.Items, "evt_s2_1"), find(best.Items, "evt_s2_1")
 	if hi == nil || bi == nil || strings.Contains(hi.Text, "venue kitchen") || !strings.Contains(bi.Text, "venue kitchen rules.") ||
@@ -138,7 +142,7 @@ func TestContextItemMaxTokens(t *testing.T) {
 // read.context_item_cap_after exempts the best-ranked items from the cap:
 // they keep their whole text, every later item is capped.
 func TestContextItemCapAfter(t *testing.T) {
-	capped := contextWith(t, 0, func(rc *config.ReadConfig) { rc.ContextItemMaxTokens = 80 })
+	capped := contextWith(t, 0, func(rc *config.ReadConfig) { rc.ContextItemMaxTokens, rc.ContextItemCapAfter = 80, 0 })
 	after := contextWith(t, 0, func(rc *config.ReadConfig) { rc.ContextItemMaxTokens, rc.ContextItemCapAfter = 80, 1 })
 	top := find(after.Items, "evt_s2_1")
 	if c := find(capped.Items, "evt_s2_1"); c == nil || !c.Truncated {

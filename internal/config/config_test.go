@@ -91,24 +91,27 @@ func TestHashIgnoresFileLocations(t *testing.T) {
 // them, and a configuration that leaves them unset hashes as before (the
 // hash of committed evaluation reports, eval/reports/latest.json; it moved
 // from 84f1f46535aa2347 to 3cc17014d76d162e with the lexical near-duplicate
-// default of decision 0138, not with these knobs).
+// default of decision 0138, not with these knobs, then to 4dd590544d868b15
+// with the selection defaults of decision 0141).
 func TestContextKnobsDefaultsAndHash(t *testing.T) {
 	c := config.Default()
-	if c.Read.ContextItemMaxTokens != 0 || c.Read.ContextTruncate != "" || c.Read.ContextMaxPerDocument != 0 ||
-		c.Read.ContextMaxPerSession != 0 || c.Read.ContextShowRole || c.Read.BestWindow() {
+	// Decision 0141 set the item cap defaults; the other knobs stay off.
+	if c.Read.ContextItemMaxTokens != 150 || c.Read.ContextTruncate != config.TruncateBestWindow || c.Read.ContextItemCapAfter != 2 ||
+		c.Read.ContextMaxPerDocument != 0 || c.Read.ContextMaxPerSession != 0 || c.Read.ContextShowRole || !c.Read.BestWindow() {
 		t.Fatalf("defaults: %+v", c.Read)
 	}
-	if got := c.Hash(); got != "3cc17014d76d162e" {
+	if got := c.Hash(); got != "4dd590544d868b15" {
 		t.Fatalf("default configuration hash changed: %s", got)
 	}
-	head := config.Default()
-	head.Read.ContextTruncate = config.TruncateHead
-	if head.Hash() != c.Hash() {
-		t.Fatal("an explicit head is the default and must hash the same")
+	head, empty := config.Default(), config.Default()
+	head.Read.ContextTruncate, empty.Read.ContextTruncate = config.TruncateHead, ""
+	if head.Hash() != empty.Hash() || head.Hash() == c.Hash() {
+		t.Fatal("head and empty are the same mode, and differ from the best_window default")
 	}
 	for _, mut := range []func(*config.Config){
 		func(c *config.Config) { c.Read.ContextItemMaxTokens = 120 },
-		func(c *config.Config) { c.Read.ContextTruncate = config.TruncateBestWindow },
+		func(c *config.Config) { c.Read.ContextTruncate = config.TruncateHead },
+		func(c *config.Config) { c.Read.ContextItemCapAfter = 0 },
 		func(c *config.Config) { c.Read.ContextMaxPerDocument = 5 },
 		func(c *config.Config) { c.Read.ContextMaxPerSession = 2 },
 		func(c *config.Config) { c.Read.ContextShowRole = true },

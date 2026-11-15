@@ -1,0 +1,143 @@
+## out/tune/B.jsonl (condition B, 140 questions)
+
+| type | n scored | turn recall | full recall | items | tokens/item | assistant tokens | truncated items |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| knowledge-update | 20 | 95.8 | 90.0 | 16.1 | 118.4 | 74.4 | 48.3 |
+| multi-session | 34 | 85.3 | 73.5 | 15.1 | 125.7 | 73.6 | 47.1 |
+| single-session-assistant | 16 | 100.0 | 100.0 | 17.6 | 106.8 | 75.5 | 41.6 |
+| single-session-preference | 8 | 68.8 | 62.5 | 14.2 | 133.6 | 87.3 | 65.8 |
+| single-session-user | 18 | 100.0 | 100.0 | 17.2 | 109.9 | 71.0 | 45.0 |
+| temporal-reasoning | 37 | 81.1 | 73.0 | 15.1 | 126.1 | 73.4 | 47.9 |
+| all | 133 | 88.5 | 82.0 | 15.8 | 120.3 | 74.4 | 47.5 |
+
+## out/tune/V0f.jsonl (condition D, 140 questions)
+
+chanda config hash: 16caf460be90746c
+
+| type | n scored | turn recall | full recall | items | tokens/item | assistant tokens | truncated items |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| knowledge-update | 20 | 95.0 | 90.0 | 8.3 | 230.4 | 77.5 | 11.4 |
+| multi-session | 34 | 63.6 | 44.1 | 7.9 | 244.9 | 76.8 | 12.4 |
+| single-session-assistant | 16 | 100.0 | 100.0 | 9.1 | 212.0 | 79.0 | 9.0 |
+| single-session-preference | 8 | 62.5 | 62.5 | 7.2 | 264.9 | 83.7 | 10.3 |
+| single-session-user | 18 | 100.0 | 100.0 | 7.6 | 252.2 | 81.4 | 10.2 |
+| temporal-reasoning | 37 | 86.0 | 78.4 | 7.6 | 252.2 | 77.3 | 11.7 |
+| all | 133 | 83.8 | 75.9 | 7.9 | 242.1 | 78.3 | 11.2 |
+
+## out/tune/V11.jsonl (condition D, 140 questions)
+
+chanda-set: read.context_item_max_tokens=150 read.context_truncate=best_window read.context_item_cap_after=1
+chanda config hash: a8e624187eb90b5f
+
+| type | n scored | turn recall | full recall | items | tokens/item | assistant tokens | truncated items |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| knowledge-update | 20 | 92.5 | 90.0 | 16.5 | 115.6 | 63.0 | 54.8 |
+| multi-session | 34 | 73.1 | 55.9 | 15.3 | 125.1 | 66.1 | 56.7 |
+| single-session-assistant | 16 | 87.5 | 87.5 | 15.9 | 120.5 | 66.3 | 47.2 |
+| single-session-preference | 8 | 81.2 | 75.0 | 17.6 | 108.7 | 64.4 | 45.4 |
+| single-session-user | 18 | 97.2 | 94.4 | 16.6 | 112.0 | 66.6 | 54.5 |
+| temporal-reasoning | 37 | 90.5 | 86.5 | 16.1 | 119.2 | 58.6 | 49.5 |
+| all | 133 | 86.4 | 79.7 | 16.1 | 118.5 | 63.5 | 52.2 |
+
+## out/tune/V7.jsonl (condition D, 140 questions)
+
+chanda-set: read.context_item_max_tokens=150 read.context_truncate=best_window read.context_item_cap_after=2
+chanda config hash: fb55961138acd36b
+
+| type | n scored | turn recall | full recall | items | tokens/item | assistant tokens | truncated items |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| knowledge-update | 20 | 95.0 | 90.0 | 15.8 | 120.5 | 64.4 | 51.7 |
+| multi-session | 34 | 71.0 | 52.9 | 14.7 | 130.3 | 67.0 | 53.6 |
+| single-session-assistant | 16 | 87.5 | 87.5 | 14.8 | 129.3 | 68.9 | 43.5 |
+| single-session-preference | 8 | 81.2 | 75.0 | 15.8 | 121.3 | 68.6 | 42.1 |
+| single-session-user | 18 | 100.0 | 100.0 | 15.5 | 121.0 | 68.4 | 50.9 |
+| temporal-reasoning | 37 | 90.5 | 86.5 | 15.3 | 125.1 | 60.6 | 47.7 |
+| all | 133 | 86.6 | 79.7 | 15.2 | 125.3 | 65.3 | 49.4 |
+
+## out/tune/V8.jsonl (condition D, 140 questions)
+
+chanda-set: read.context_item_max_tokens=150 read.context_truncate=best_window read.context_item_cap_after=3
+chanda config hash: 23ed010e7ddf44a3
+
+| type | n scored | turn recall | full recall | items | tokens/item | assistant tokens | truncated items |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| knowledge-update | 20 | 95.0 | 90.0 | 15.2 | 125.8 | 66.3 | 49.7 |
+| multi-session | 34 | 69.0 | 52.9 | 13.0 | 146.7 | 70.2 | 48.5 |
+| single-session-assistant | 16 | 87.5 | 87.5 | 14.2 | 135.0 | 70.4 | 42.3 |
+| single-session-preference | 8 | 81.2 | 75.0 | 15.2 | 125.3 | 68.6 | 39.3 |
+| single-session-user | 18 | 100.0 | 100.0 | 14.1 | 134.5 | 69.8 | 46.1 |
+| temporal-reasoning | 37 | 91.9 | 89.2 | 14.1 | 135.8 | 63.3 | 44.4 |
+| all | 133 | 86.4 | 80.5 | 14.1 | 135.8 | 67.6 | 45.9 |
+
+## out/tune/V9.jsonl (condition D, 140 questions)
+
+chanda-set: read.context_item_max_tokens=200 read.context_truncate=best_window read.context_item_cap_after=2
+chanda config hash: 1948bd2946a16e3a
+
+| type | n scored | turn recall | full recall | items | tokens/item | assistant tokens | truncated items |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| knowledge-update | 20 | 95.0 | 90.0 | 13.2 | 145.2 | 68.2 | 47.3 |
+| multi-session | 34 | 69.0 | 50.0 | 12.3 | 155.3 | 71.8 | 49.9 |
+| single-session-assistant | 16 | 87.5 | 87.5 | 12.6 | 151.7 | 73.3 | 37.6 |
+| single-session-preference | 8 | 68.8 | 62.5 | 13.4 | 143.5 | 72.2 | 41.1 |
+| single-session-user | 18 | 100.0 | 100.0 | 13.2 | 144.6 | 71.8 | 45.8 |
+| temporal-reasoning | 37 | 91.4 | 89.2 | 12.9 | 148.2 | 65.5 | 43.2 |
+| all | 133 | 85.6 | 78.9 | 12.8 | 149.1 | 69.7 | 45.0 |
+
+## out/tune/V10.jsonl (condition D, 140 questions)
+
+chanda-set: read.context_item_max_tokens=150 read.context_truncate=best_window read.context_item_cap_after=2 read.context_show_role=true
+chanda config hash: 2ec5a55cd1350422
+
+| type | n scored | turn recall | full recall | items | tokens/item | assistant tokens | truncated items |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| knowledge-update | 20 | 95.0 | 90.0 | 15.8 | 121.6 | 63.9 | 53.3 |
+| multi-session | 34 | 70.3 | 50.0 | 14.6 | 131.6 | 66.7 | 54.3 |
+| single-session-assistant | 16 | 87.5 | 87.5 | 14.4 | 132.2 | 68.3 | 43.3 |
+| single-session-preference | 8 | 81.2 | 75.0 | 15.6 | 122.3 | 67.4 | 42.4 |
+| single-session-user | 18 | 100.0 | 100.0 | 15.3 | 122.4 | 67.7 | 52.5 |
+| temporal-reasoning | 37 | 89.6 | 86.5 | 15.0 | 127.6 | 60.5 | 47.7 |
+| all | 133 | 86.1 | 78.9 | 15.0 | 127.1 | 64.9 | 50.1 |
+
+## Paired: A = out/tune/B.jsonl, B = out/tune/V0f.jsonl
+
+133 questions scored in both (only in A: 0, only in B: 0). Mean turn recall A 88.5, B 83.8; higher in A 23, in B 9.
+Full recall: both 92, neither 15, A only 17, B only 9 (exact sign test p = 0.169).
+A full, B not: a08a253f 51c32626 gpt4_88806d6e 6cb6f249 d851d5ba a4996e51 a9f6b44c d682f1a2 0edc2aef efc3f7c2 8e91e7d9 gpt4_2f91af09 gpt4_5501fe77 41698283 b9cfe692 gpt4_d84a3211 945e3d21
+B full, A not: gpt4_7ca326fa gpt4_fe651585_abs 9ea5eabc c2ac3c61 75832dbd gpt4_b5700ca0 8fb83627 f35224e0 f0853d11
+
+## Paired: A = out/tune/B.jsonl, B = out/tune/V11.jsonl
+
+133 questions scored in both (only in A: 0, only in B: 0). Mean turn recall A 88.5, B 86.4; higher in A 19, in B 11.
+Full recall: both 95, neither 13, A only 14, B only 11 (exact sign test p = 0.69).
+A full, B not: a08a253f 51c32626 c4f10528 gpt4_cd90e484 a9f6b44c d682f1a2 efc3f7c2 8e91e7d9 gpt4_5501fe77 41698283 8e9d538c gpt4_d84a3211 e8a79c70 945e3d21
+B full, A not: gpt4_213fd887 gpt4_21adecb5 gpt4_7ca326fa gpt4_fe651585_abs 9ea5eabc c2ac3c61 75832dbd gpt4_b5700ca0 8fb83627 f35224e0 f0853d11
+
+## Paired: A = out/tune/B.jsonl, B = out/tune/V7.jsonl
+
+133 questions scored in both (only in A: 0, only in B: 0). Mean turn recall A 88.5, B 86.6; higher in A 19, in B 11.
+Full recall: both 95, neither 13, A only 14, B only 11 (exact sign test p = 0.69).
+A full, B not: a08a253f 51c32626 c4f10528 gpt4_cd90e484 6cb6f249 a9f6b44c d682f1a2 efc3f7c2 8e91e7d9 gpt4_5501fe77 41698283 gpt4_d84a3211 e8a79c70 945e3d21
+B full, A not: gpt4_213fd887 gpt4_21adecb5 gpt4_7ca326fa gpt4_fe651585_abs 9ea5eabc c2ac3c61 75832dbd gpt4_b5700ca0 8fb83627 f35224e0 f0853d11
+
+## Paired: A = out/tune/B.jsonl, B = out/tune/V8.jsonl
+
+133 questions scored in both (only in A: 0, only in B: 0). Mean turn recall A 88.5, B 86.4; higher in A 18, in B 11.
+Full recall: both 96, neither 13, A only 13, B only 11 (exact sign test p = 0.839).
+A full, B not: a08a253f 51c32626 c4f10528 6cb6f249 a9f6b44c d682f1a2 efc3f7c2 8e91e7d9 gpt4_5501fe77 41698283 gpt4_d84a3211 e8a79c70 945e3d21
+B full, A not: gpt4_213fd887 gpt4_21adecb5 gpt4_7ca326fa gpt4_fe651585_abs 9ea5eabc c2ac3c61 75832dbd gpt4_b5700ca0 8fb83627 f35224e0 f0853d11
+
+## Paired: A = out/tune/B.jsonl, B = out/tune/V9.jsonl
+
+133 questions scored in both (only in A: 0, only in B: 0). Mean turn recall A 88.5, B 85.6; higher in A 20, in B 11.
+Full recall: both 94, neither 13, A only 15, B only 11 (exact sign test p = 0.557).
+A full, B not: a08a253f 51c32626 c4f10528 6cb6f249 d851d5ba a9f6b44c d682f1a2 0edc2aef efc3f7c2 8e91e7d9 gpt4_5501fe77 41698283 gpt4_d84a3211 e8a79c70 945e3d21
+B full, A not: gpt4_213fd887 gpt4_21adecb5 gpt4_7ca326fa gpt4_fe651585_abs 9ea5eabc c2ac3c61 75832dbd gpt4_b5700ca0 8fb83627 f35224e0 f0853d11
+
+## Paired: A = out/tune/B.jsonl, B = out/tune/V10.jsonl
+
+133 questions scored in both (only in A: 0, only in B: 0). Mean turn recall A 88.5, B 86.1; higher in A 21, in B 11.
+Full recall: both 94, neither 13, A only 15, B only 11 (exact sign test p = 0.557).
+A full, B not: a08a253f 51c32626 c4f10528 gpt4_cd90e484 6cb6f249 d851d5ba a9f6b44c d682f1a2 efc3f7c2 8e91e7d9 gpt4_5501fe77 41698283 gpt4_d84a3211 e8a79c70 945e3d21
+B full, A not: gpt4_213fd887 gpt4_21adecb5 gpt4_7ca326fa gpt4_fe651585_abs 9ea5eabc c2ac3c61 75832dbd gpt4_b5700ca0 8fb83627 f35224e0 f0853d11
+
