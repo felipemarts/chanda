@@ -19,4 +19,13 @@
 //
 // The check-only run fails when any scenario fails, when the two runs
 // differ, or when the committed files differ from what the run produced.
+//
+// The default run uses the built-in hash embedder. With -lme and
+// -embed-url (decision 0139) every chanda process runs as "lme chanda ..."
+// (eval/lme, built from this tree with GOEXPERIMENT=simd) with the
+// lme-cached provider embedding through a running e5 embed server, and the
+// results go to results-e5.json and results-e5.md:
+//
+//	go test ./eval/scenarios/ -run TestScenarios -args \
+//	    -lme $PWD/eval/lme/bin/lme -embed-url http://127.0.0.1:8089 [-update]
 package scenarios

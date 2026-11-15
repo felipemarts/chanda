@@ -21,8 +21,34 @@ import (
 	"github.com/felipemarts/chanda-mcp/pkg/chanda"
 )
 
-// chandaBin is the chanda binary built from ./cmd/chanda by TestMain.
+// chandaBin is the chanda binary built from ./cmd/chanda by TestMain, or,
+// in e5 mode (-lme), the lme harness binary, which runs the chanda CLI as
+// "lme chanda ..." with the lme-cached embedding provider (decision 0139).
 var chandaBin string
+
+// e5 mode: chandaPrefix goes before every chanda command ("chanda" for
+// lme) and chandaEnv is added to its environment (the lme-cached provider
+// reads the embed server's URL from it). Both are empty in the default run.
+var (
+	chandaPrefix []string
+	chandaEnv    []string
+)
+
+// e5ModelID and e5Dim are the embed settings of the e5 mode: the model the
+// embed server must serve (lme-cached refuses another one).
+const (
+	e5ModelID = "e5-small@hugot0.8.6+simd"
+	e5Dim     = 384
+)
+
+// chandaCommand returns the command that runs one chanda command.
+func chandaCommand(args ...string) *exec.Cmd {
+	cmd := exec.Command(chandaBin, append(append([]string{}, chandaPrefix...), args...)...)
+	if len(chandaEnv) > 0 {
+		cmd.Env = append(os.Environ(), chandaEnv...)
+	}
+	return cmd
+}
 
 // buildChanda compiles ./cmd/chanda into dir and returns the binary path.
 func buildChanda(dir string) (string, error) {
@@ -94,6 +120,10 @@ func newS(dir string) (*S, error) {
 // writeConfig writes chanda.yaml. maxZone is the channel's zone ceiling
 // (mcp.max_zone). The sleep scheduler is off so nothing runs on its own.
 func (s *S) writeConfig(maxZone string) error {
+	embed := "embed:\n  poll_interval_ms: 50\n"
+	if len(chandaEnv) > 0 {
+		embed += fmt.Sprintf("  provider: lme-cached\n  model_id: %q\n  dim: %d\n", e5ModelID, e5Dim)
+	}
 	cfg := fmt.Sprintf(`db_path: %q
 namespace: scen
 id_seed: scenarios
@@ -102,14 +132,12 @@ write:
   extractors:
     - {name: header, kind: header}
     - {name: tables, kind: kv_table}
-embed:
-  poll_interval_ms: 50
-sleep:
+%ssleep:
   scheduler: false
 mcp:
   actor: scenario-agent
   max_zone: %s
-`, s.db, s.docs, maxZone)
+`, s.db, s.docs, embed, maxZone)
 	return os.WriteFile(s.cfg, []byte(cfg), 0o644)
 }
 
@@ -145,7 +173,7 @@ func (s *S) start(profiles string) {
 		s.failf("server already running")
 	}
 	s.stderr = &bytes.Buffer{}
-	cmd := exec.Command(chandaBin, "serve", "--config", s.cfg, "--profiles", profiles)
+	cmd := chandaCommand("serve", "--config", s.cfg, "--profiles", profiles)
 	cmd.Stderr = s.stderr
 	cmd.Dir = s.dir
 	tr := &sdk.CommandTransport{Command: cmd, TerminateDuration: 10 * time.Second}
@@ -311,7 +339,7 @@ func (s *S) cli(args ...string) (chanda.Envelope, json.RawMessage) {
 		s.failf("cli while the server runs")
 	}
 	full := append([]string{args[0], "--config", s.cfg}, args[1:]...)
-	cmd := exec.Command(chandaBin, full...)
+	cmd := chandaCommand(full...)
 	cmd.Dir = s.dir
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout, cmd.Stderr = &stdout, &stderr

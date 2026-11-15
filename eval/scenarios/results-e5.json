@@ -1,0 +1,1329 @@
+{
+  "suite": "phase 5 scenarios (eval/scenarios)",
+  "server": "lme chanda serve over MCP stdio (the chanda CLI of eval/lme, built from this tree); lme chanda for person actions",
+  "embedder": "e5 (e5-small@hugot0.8.6+simd) through the lme-cached provider and one lme embed server, no client cache",
+  "llm": "none",
+  "runs": 2,
+  "deterministic": true,
+  "total": 15,
+  "passed": 13,
+  "failed": 2,
+  "failed_ids": [
+    "I1",
+    "A2"
+  ],
+  "scenarios": [
+    {
+      "id": "F1",
+      "area": "forget",
+      "description": "Forget a document (scope document, MCP admin): its chunks, the facts extracted from it and their vectors leave every search, context, get, the FTS index, the embeddings table and the raw bytes of the database, WAL and SHM files.",
+      "steps": [
+        "start chanda serve (profiles read, standard, admin)",
+        "write docs/orvalho.md (header facts with marker zintelmarq, a paragraph with marker vexalornqat) and docs/manual.md (control), ingest the folder over MCP, flush",
+        "before forget: search and context find both markers; collect the ids of the records holding them",
+        "stop the server; scan the raw files and a copy of the database before forget (positive controls)",
+        "forget scope document (the document uri returned by ingest) over MCP, dry run first",
+        "scan chanda.db, chanda.db-wal and chanda.db-shm as raw bytes while the server still runs",
+        "after the server exits: scan the raw files again and inspect a copy of the database",
+        "restart the server; search, context, get and timeline for the markers"
+      ],
+      "checks": [
+        {
+          "name": "before forget: context queries that return a marker",
+          "expected": "2",
+          "measured": "2",
+          "pass": true
+        },
+        {
+          "name": "before forget: records holding the markers (events and facts)",
+          "expected": "\u003e= 3 (2 chunks, \u003e= 1 fact)",
+          "measured": "4",
+          "pass": true
+        },
+        {
+          "name": "before forget: markers present in the raw files (scanner positive control)",
+          "expected": "\u003e 0 occurrences",
+          "measured": "14",
+          "pass": true
+        },
+        {
+          "name": "before forget: embeddings rows of the records holding the markers (vector positive control)",
+          "expected": "\u003e 0",
+          "measured": "4 rows for 4 records",
+          "pass": true
+        },
+        {
+          "name": "before forget: markers in the FTS5 vocabulary (index positive control)",
+          "expected": "\u003e 0 terms",
+          "measured": "3",
+          "pass": true
+        },
+        {
+          "name": "forget call succeeds",
+          "expected": "ok",
+          "measured": "ok",
+          "pass": true
+        },
+        {
+          "name": "dry run planned the same root events as the real run",
+          "expected": "true",
+          "measured": "true",
+          "pass": true
+        },
+        {
+          "name": "forget's own verification report (Chanda self-check, not relied on)",
+          "expected": "true",
+          "measured": "true",
+          "pass": true
+        },
+        {
+          "name": "forget removed the document's events and facts",
+          "expected": "events \u003e= 2, facts \u003e= 2",
+          "measured": "events 2, facts 2",
+          "pass": true
+        },
+        {
+          "name": "live raw byte scan (db, wal, shm) for the markers",
+          "expected": "none (files absent: none)",
+          "measured": "none (files absent: none)",
+          "pass": true
+        },
+        {
+          "name": "raw byte scan after exit (db, wal, shm) for the markers",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "files present after exit (WAL and SHM are removed on a clean close)",
+          "expected": "chanda.db",
+          "measured": "chanda.db",
+          "pass": true
+        },
+        {
+          "name": "control record still in the raw file",
+          "expected": "\u003e 0 occurrences",
+          "measured": "3",
+          "pass": true
+        },
+        {
+          "name": "tables whose rows hold a marker (every column, every table, FTS shadow tables included)",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "markers in the FTS5 vocabulary",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "embeddings rows of the forgotten records",
+          "expected": "0",
+          "measured": "0",
+          "pass": true
+        },
+        {
+          "name": "rows of any table keyed by a forgotten id (events, facts, embeddings, embed_queue, provenance)",
+          "expected": "0",
+          "measured": "0",
+          "pass": true
+        },
+        {
+          "name": "search (default) items holding a marker",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "search (include_history) items holding a marker",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "search items with a forgotten id",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "context blocks holding a marker (pre-forget queries and the markers themselves)",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "get on each forgotten id",
+          "expected": "not_found for all 4",
+          "measured": "not_found for 4",
+          "pass": true
+        },
+        {
+          "name": "control record still found by search",
+          "expected": "true",
+          "measured": "true",
+          "pass": true
+        },
+        {
+          "name": "timeline of the document's subject",
+          "expected": "not_found or no entries",
+          "measured": "not_found, 0 entries",
+          "pass": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "F2",
+      "area": "forget",
+      "description": "Forget an entity (scope entity, MCP admin): its facts and their assertion events leave every read path, the index, the vectors and the raw bytes.",
+      "steps": [
+        "start chanda serve (profiles read, standard, admin)",
+        "assert_fact about entity \"Quorrin Belvasque\": email, phone, address (marker tamborvex); a control fact about another entity; flush",
+        "before forget: collect the ids of every record holding a marker (facts and their assertion events)",
+        "stop the server; scan the raw files and a copy of the database before forget (positive controls)",
+        "forget scope entity \"Quorrin Belvasque\" over MCP, dry run first",
+        "scan chanda.db, chanda.db-wal and chanda.db-shm as raw bytes while the server still runs",
+        "after the server exits: scan the raw files again and inspect a copy of the database",
+        "restart the server; search, context, get and timeline for the markers"
+      ],
+      "checks": [
+        {
+          "name": "before forget: active facts of the entity",
+          "expected": "3",
+          "measured": "3",
+          "pass": true
+        },
+        {
+          "name": "before forget: context queries that return the entity's facts",
+          "expected": "2",
+          "measured": "2",
+          "pass": true
+        },
+        {
+          "name": "before forget: markers present in the raw files (scanner positive control)",
+          "expected": "\u003e 0 occurrences",
+          "measured": "40",
+          "pass": true
+        },
+        {
+          "name": "before forget: embeddings rows of the records holding the markers (vector positive control)",
+          "expected": "\u003e 0",
+          "measured": "6 rows for 6 records",
+          "pass": true
+        },
+        {
+          "name": "before forget: markers in the FTS5 vocabulary (index positive control)",
+          "expected": "\u003e 0 terms",
+          "measured": "4",
+          "pass": true
+        },
+        {
+          "name": "forget call succeeds",
+          "expected": "ok",
+          "measured": "ok",
+          "pass": true
+        },
+        {
+          "name": "dry run planned the same root events as the real run",
+          "expected": "true",
+          "measured": "true",
+          "pass": true
+        },
+        {
+          "name": "forget's own verification report (Chanda self-check, not relied on)",
+          "expected": "true",
+          "measured": "true",
+          "pass": true
+        },
+        {
+          "name": "forget removed the entity's facts",
+          "expected": "facts = 3",
+          "measured": "facts 3, events 3",
+          "pass": true
+        },
+        {
+          "name": "live raw byte scan (db, wal, shm) for the markers",
+          "expected": "none (files absent: none)",
+          "measured": "none (files absent: none)",
+          "pass": true
+        },
+        {
+          "name": "raw byte scan after exit (db, wal, shm) for the markers",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "files present after exit (WAL and SHM are removed on a clean close)",
+          "expected": "chanda.db",
+          "measured": "chanda.db",
+          "pass": true
+        },
+        {
+          "name": "control record still in the raw file",
+          "expected": "\u003e 0 occurrences",
+          "measured": "8",
+          "pass": true
+        },
+        {
+          "name": "tables whose rows hold a marker (every column, every table, FTS shadow tables included)",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "markers in the FTS5 vocabulary",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "embeddings rows of the forgotten records",
+          "expected": "0",
+          "measured": "0",
+          "pass": true
+        },
+        {
+          "name": "rows of any table keyed by a forgotten id (events, facts, embeddings, embed_queue, provenance)",
+          "expected": "0",
+          "measured": "0",
+          "pass": true
+        },
+        {
+          "name": "search (default) items holding a marker",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "search (include_history) items holding a marker",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "search items with a forgotten id",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "context blocks holding a marker (pre-forget queries and the markers themselves)",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "get on each forgotten id",
+          "expected": "not_found for all 6",
+          "measured": "not_found for 6",
+          "pass": true
+        },
+        {
+          "name": "control record still found by search",
+          "expected": "true",
+          "measured": "true",
+          "pass": true
+        },
+        {
+          "name": "timeline of the entity",
+          "expected": "not_found or no entries",
+          "measured": "not_found, 0 entries",
+          "pass": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "F3",
+      "area": "forget",
+      "description": "Forget an entity also removes a free-text statement that names it (BASE.md scope entity; decision 0050: entity scope resolves to the events that mention the entity).",
+      "steps": [
+        "start chanda serve (profiles read, standard, admin)",
+        "assert_fact job_title about entity \"Ysolde Karvenni\"; remember a free-text statement naming her (marker drovanquiz); a control statement; flush",
+        "stop the server; scan the raw files and a copy of the database before forget (positive controls)",
+        "forget scope entity \"Ysolde Karvenni\" over MCP, dry run first",
+        "scan chanda.db, chanda.db-wal and chanda.db-shm as raw bytes while the server still runs",
+        "after the server exits: scan the raw files again and inspect a copy of the database",
+        "restart the server; search, context, get and timeline for the markers"
+      ],
+      "checks": [
+        {
+          "name": "before forget: search finds the statement naming the entity",
+          "expected": "true",
+          "measured": "true",
+          "pass": true
+        },
+        {
+          "name": "before forget: markers present in the raw files (scanner positive control)",
+          "expected": "\u003e 0 occurrences",
+          "measured": "3",
+          "pass": true
+        },
+        {
+          "name": "before forget: embeddings rows of the records holding the markers (vector positive control)",
+          "expected": "\u003e 0",
+          "measured": "2 rows for 2 records",
+          "pass": true
+        },
+        {
+          "name": "before forget: markers in the FTS5 vocabulary (index positive control)",
+          "expected": "\u003e 0 terms",
+          "measured": "1",
+          "pass": true
+        },
+        {
+          "name": "forget call succeeds",
+          "expected": "ok",
+          "measured": "ok",
+          "pass": true
+        },
+        {
+          "name": "dry run planned the same root events as the real run",
+          "expected": "true",
+          "measured": "true",
+          "pass": true
+        },
+        {
+          "name": "forget's own verification report (Chanda self-check, not relied on)",
+          "expected": "true",
+          "measured": "true",
+          "pass": true
+        },
+        {
+          "name": "live raw byte scan (db, wal, shm) for the markers",
+          "expected": "none (files absent: none)",
+          "measured": "none (files absent: none)",
+          "pass": true
+        },
+        {
+          "name": "raw byte scan after exit (db, wal, shm) for the markers",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "files present after exit (WAL and SHM are removed on a clean close)",
+          "expected": "chanda.db",
+          "measured": "chanda.db",
+          "pass": true
+        },
+        {
+          "name": "control record still in the raw file",
+          "expected": "\u003e 0 occurrences",
+          "measured": "3",
+          "pass": true
+        },
+        {
+          "name": "tables whose rows hold a marker (every column, every table, FTS shadow tables included)",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "markers in the FTS5 vocabulary",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "embeddings rows of the forgotten records",
+          "expected": "0",
+          "measured": "0",
+          "pass": true
+        },
+        {
+          "name": "rows of any table keyed by a forgotten id (events, facts, embeddings, embed_queue, provenance)",
+          "expected": "0",
+          "measured": "0",
+          "pass": true
+        },
+        {
+          "name": "search (default) items holding a marker",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "search (include_history) items holding a marker",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "search items with a forgotten id",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "context blocks holding a marker (pre-forget queries and the markers themselves)",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "get on each forgotten id",
+          "expected": "not_found for all 2",
+          "measured": "not_found for 2",
+          "pass": true
+        },
+        {
+          "name": "control record still found by search",
+          "expected": "true",
+          "measured": "true",
+          "pass": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "F4",
+      "area": "forget",
+      "description": "Forget by search match through the CLI (a person, server down): statement, session turns and the derived fact naming the keyword leave every read path, the vectors and the raw bytes.",
+      "steps": [
+        "start chanda serve (profiles read, standard)",
+        "remember, log_session (user and assistant turns) and assert_fact, all naming marker kravellinth; a control statement; flush",
+        "stop the server; scan the raw files and a copy of the database before forget (positive controls)",
+        "chanda forget --kind search --query kravellinth (CLI, human actor) with the server down, dry run first",
+        "start the server again (no query yet)",
+        "scan chanda.db, chanda.db-wal and chanda.db-shm as raw bytes while the server still runs",
+        "after the server exits: scan the raw files again and inspect a copy of the database",
+        "restart the server; search, context, get and timeline for the markers"
+      ],
+      "checks": [
+        {
+          "name": "before forget: records holding the marker",
+          "expected": "\u003e= 4 (statement, 2 turns, fact)",
+          "measured": "4",
+          "pass": true
+        },
+        {
+          "name": "before forget: markers present in the raw files (scanner positive control)",
+          "expected": "\u003e 0 occurrences",
+          "measured": "20",
+          "pass": true
+        },
+        {
+          "name": "before forget: embeddings rows of the records holding the markers (vector positive control)",
+          "expected": "\u003e 0",
+          "measured": "4 rows for 4 records",
+          "pass": true
+        },
+        {
+          "name": "before forget: markers in the FTS5 vocabulary (index positive control)",
+          "expected": "\u003e 0 terms",
+          "measured": "2",
+          "pass": true
+        },
+        {
+          "name": "CLI forget succeeds",
+          "expected": "ok",
+          "measured": "ok",
+          "pass": true
+        },
+        {
+          "name": "forget's own verification report (Chanda self-check, not relied on)",
+          "expected": "true",
+          "measured": "true",
+          "pass": true
+        },
+        {
+          "name": "forget removed the matching events and the derived fact",
+          "expected": "events \u003e= 4, facts \u003e= 1",
+          "measured": "events 4, facts 1",
+          "pass": true
+        },
+        {
+          "name": "live raw byte scan (db, wal, shm) for the markers",
+          "expected": "none (files absent: none)",
+          "measured": "none (files absent: none)",
+          "pass": true
+        },
+        {
+          "name": "raw byte scan after exit (db, wal, shm) for the markers",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "files present after exit (WAL and SHM are removed on a clean close)",
+          "expected": "chanda.db",
+          "measured": "chanda.db",
+          "pass": true
+        },
+        {
+          "name": "control record still in the raw file",
+          "expected": "\u003e 0 occurrences",
+          "measured": "3",
+          "pass": true
+        },
+        {
+          "name": "tables whose rows hold a marker (every column, every table, FTS shadow tables included)",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "markers in the FTS5 vocabulary",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "embeddings rows of the forgotten records",
+          "expected": "0",
+          "measured": "0",
+          "pass": true
+        },
+        {
+          "name": "rows of any table keyed by a forgotten id (events, facts, embeddings, embed_queue, provenance)",
+          "expected": "0",
+          "measured": "0",
+          "pass": true
+        },
+        {
+          "name": "search (default) items holding a marker",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "search (include_history) items holding a marker",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "search items with a forgotten id",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "context blocks holding a marker (pre-forget queries and the markers themselves)",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "get on each forgotten id",
+          "expected": "not_found for all 4",
+          "measured": "not_found for 4",
+          "pass": true
+        },
+        {
+          "name": "control record still found by search",
+          "expected": "true",
+          "measured": "true",
+          "pass": true
+        },
+        {
+          "name": "timeline of the fact's subject",
+          "expected": "not_found or no entries",
+          "measured": "not_found, 0 entries",
+          "pass": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "U1",
+      "area": "document update",
+      "description": "Re-ingest a changed document: facts extracted from removed or changed passages stop being active, and context and search no longer return them as current.",
+      "steps": [
+        "start chanda serve (profiles read, standard)",
+        "ingest docs/contratos.md v1 over MCP (header facts for Contrato Tarvos and Contrato Quimera, a Quimera paragraph with marker vexorbital); flush",
+        "rewrite the file as v2 (Quimera section removed, Tarvos payment term 30 -\u003e 45 dias) and ingest it again; flush",
+        "check fact status through timeline",
+        "context and search for the removed and the changed passages"
+      ],
+      "checks": [
+        {
+          "name": "v1 ingest",
+          "expected": "created, 3 chunks",
+          "measured": "created, 3 chunks",
+          "pass": true
+        },
+        {
+          "name": "v1: active facts of Contrato Quimera",
+          "expected": "[12 por cento Helixtravon SA]",
+          "measured": "[12 por cento Helixtravon SA]",
+          "pass": true
+        },
+        {
+          "name": "v1: context answers the Quimera question (control)",
+          "expected": "true",
+          "measured": "true",
+          "pass": true
+        },
+        {
+          "name": "v2 ingest: action, version, chunks added/kept/retired",
+          "expected": "updated v2 +1 =0 -3",
+          "measured": "updated v2 +1 =0 -3",
+          "pass": true
+        },
+        {
+          "name": "v2 ingest: facts marked stale_source",
+          "expected": "\u003e= 3 (Quimera fornecedor, multa; Tarvos prazo 30)",
+          "measured": "3",
+          "pass": true
+        },
+        {
+          "name": "Contrato Quimera: active facts",
+          "expected": "[]",
+          "measured": "[]",
+          "pass": true
+        },
+        {
+          "name": "Contrato Quimera: timeline",
+          "expected": "fornecedor=Helixtravon SA[stale_source,internal]; multa_rescisoria=12 por cento[stale_source,internal]",
+          "measured": "fornecedor=Helixtravon SA[stale_source,internal]; multa_rescisoria=12 por cento[stale_source,internal]",
+          "pass": true
+        },
+        {
+          "name": "Contrato Tarvos: active prazo_de_pagamento",
+          "expected": "[45 dias]",
+          "measured": "[45 dias]",
+          "pass": true
+        },
+        {
+          "name": "Contrato Tarvos: active fornecedor (unchanged line, still in the document)",
+          "expected": "[Borealis Ltda]",
+          "measured": "[Borealis Ltda]",
+          "pass": true
+        },
+        {
+          "name": "context returning text of the removed passages",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "search (default) items holding text of the removed passages",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "context for the changed passage: has 45 dias / has 30 dias",
+          "expected": "true/false",
+          "measured": "true/false",
+          "pass": true
+        },
+        {
+          "name": "search items holding the old term (30 dias)",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "I1",
+      "area": "injection",
+      "description": "A tool turn (external zone) carrying a prompt injection is marked instruction_like, never appears in the pre-context, and appears in search only with its zone and mark.",
+      "steps": [
+        "start chanda serve (profiles read, standard)",
+        "log_session: a user turn, a tool turn (web_fetch) whose text holds a prompt injection, an assistant turn; flush",
+        "context for three requests about the proxy"
+      ],
+      "checks": [
+        {
+          "name": "tool turn write flags",
+          "expected": "[instruction_like]",
+          "measured": "[instruction_like]",
+          "pass": true
+        },
+        {
+          "name": "search: the tool turn item (zone and mark)",
+          "expected": "event/external/instruction_like",
+          "measured": "event/external/instruction_like",
+          "pass": true
+        },
+        {
+          "name": "search: the user and assistant turns' zone",
+          "expected": "internal,internal",
+          "measured": "internal,internal",
+          "pass": true
+        },
+        {
+          "name": "context: non-empty blocks (the internal turns answer the first two)",
+          "expected": "2",
+          "measured": "3",
+          "pass": false
+        },
+        {
+          "name": "context: every block delimited, with the not-instructions notice",
+          "expected": "true",
+          "measured": "true",
+          "pass": true
+        },
+        {
+          "name": "context: injection text or instruction_like items in the pre-context",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "context: zone labelling violations",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        }
+      ],
+      "status": "FAIL"
+    },
+    {
+      "id": "I2",
+      "area": "injection",
+      "description": "A web page ingested as kind web (external zone) cannot override an internal fact extracted from a document: its conflicting fact is quarantined, its instruction paragraph is excluded and its other text is only a labelled quotation.",
+      "steps": [
+        "start chanda serve (profiles read, standard)",
+        "ingest docs/politica.md (kind document, internal): header facts status = vigente (single-valued predicate) and prazo_de_reembolso = 45 dias (multi-valued: not declared single)",
+        "ingest docs/zentoria-web.md as kind web (uri https://example.com/zentoria): conflicting header facts status = revogada and prazo_de_reembolso = 90 dias, an instruction paragraph, a plain paragraph with marker quorventil; flush",
+        "context: refund question, and a question about the blog post"
+      ],
+      "checks": [
+        {
+          "name": "ingest actions (internal, web)",
+          "expected": "created,created",
+          "measured": "created,created",
+          "pass": true
+        },
+        {
+          "name": "status (single-valued): active values",
+          "expected": "[vigente]",
+          "measured": "[vigente]",
+          "pass": true
+        },
+        {
+          "name": "status (single-valued): timeline",
+          "expected": "status=vigente[active,internal]; status=revogada[quarantined,external]",
+          "measured": "status=vigente[active,internal]; status=revogada[quarantined,external]",
+          "pass": true
+        },
+        {
+          "name": "prazo_de_reembolso (multi-valued): timeline (the external value may coexist, but only with the external zone)",
+          "expected": "prazo_de_reembolso=45 dias[active,internal]; prazo_de_reembolso=90 dias[active,external]",
+          "measured": "prazo_de_reembolso=45 dias[active,internal]; prazo_de_reembolso=90 dias[active,external]",
+          "pass": true
+        },
+        {
+          "name": "search: items holding the instruction paragraph",
+          "expected": "\u003e= 1, every one external and instruction_like",
+          "measured": "2, not external+instruction_like: none",
+          "pass": true
+        },
+        {
+          "name": "search: the plain web paragraph (zone and mark)",
+          "expected": "event/external/",
+          "measured": "event/external/",
+          "pass": true
+        },
+        {
+          "name": "context: delimited, with the not-instructions notice",
+          "expected": "true",
+          "measured": "true",
+          "pass": true
+        },
+        {
+          "name": "context: zone labelling violations",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "context: trusted fact blocks with 45 dias",
+          "expected": "\u003e= 1",
+          "measured": "1",
+          "pass": true
+        },
+        {
+          "name": "context (status question): zone labelling violations",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "context (status question): trusted fact blocks with vigente",
+          "expected": "\u003e= 1",
+          "measured": "1",
+          "pass": true
+        },
+        {
+          "name": "context (status question): trusted fact blocks with revogada",
+          "expected": "0",
+          "measured": "0",
+          "pass": true
+        },
+        {
+          "name": "context (status question): where revogada appears",
+          "expected": "only external-quoted or nowhere",
+          "measured": "only external-quoted or nowhere",
+          "pass": true
+        },
+        {
+          "name": "context: trusted fact blocks with 90 dias",
+          "expected": "0",
+          "measured": "0",
+          "pass": true
+        },
+        {
+          "name": "context: where 90 dias appears",
+          "expected": "only external-quoted or nowhere",
+          "measured": "only external-quoted or nowhere",
+          "pass": true
+        },
+        {
+          "name": "context: instruction paragraph",
+          "expected": "absent",
+          "measured": "absent",
+          "pass": true
+        },
+        {
+          "name": "context (blog question): zone labelling violations",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "context (blog question): where quorventil appears",
+          "expected": "external-quoted",
+          "measured": "external-quoted",
+          "pass": true
+        },
+        {
+          "name": "context (blog question): instruction paragraph",
+          "expected": "absent",
+          "measured": "absent",
+          "pass": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "I3",
+      "area": "injection",
+      "description": "External channels cannot assert a trusted fact: assert_fact from a tool source or from an external-ceiling server is quarantined against an internal fact, a fresh external fact keeps the external zone and is quoted, and a non-human channel cannot write the user zone.",
+      "steps": [
+        "start chanda serve (agent channel: profiles read, standard; mcp.max_zone internal)",
+        "assert_fact Repositorio Atlasvane owner = alice (default source: the session, internal)",
+        "assert_fact owner = mallory with source kind tool (uri crm-sync), a later date",
+        "assert_fact Servidor Brimstal ip_address = 10.0.0.66 with source kind web (fresh subject)",
+        "assert_fact Servidor Brimstal owner = trent with source kind user_statement from the agent (non-human) channel",
+        "restart as an external relay channel (mcp.max_zone external): remember a statement and assert owner = mallory with the default source",
+        "back on the agent channel: timeline and context for the repository owner"
+      ],
+      "checks": [
+        {
+          "name": "internal owner assertion",
+          "expected": "created",
+          "measured": "created",
+          "pass": true
+        },
+        {
+          "name": "tool-sourced conflicting assertion",
+          "expected": "quarantined",
+          "measured": "quarantined",
+          "pass": true
+        },
+        {
+          "name": "Servidor Brimstal facts (zone set by the channel, not the caller)",
+          "expected": "ip_address=10.0.0.66[active,external]; owner=trent[active,internal]",
+          "measured": "ip_address=10.0.0.66[active,external]; owner=trent[active,internal]",
+          "pass": true
+        },
+        {
+          "name": "relay owner assertion: not active (quarantined, or confirming the already quarantined mallory fact)",
+          "expected": "quarantined, or confirmed with the quarantined fact's id",
+          "measured": "confirmed (same id as the quarantined fact)",
+          "pass": true
+        },
+        {
+          "name": "relay statement zone",
+          "expected": "external",
+          "measured": "external",
+          "pass": true
+        },
+        {
+          "name": "owner: active values",
+          "expected": "[alice]",
+          "measured": "[alice]",
+          "pass": true
+        },
+        {
+          "name": "owner: mallory entries that are not quarantined/external",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "context: delimited, with the not-instructions notice",
+          "expected": "true",
+          "measured": "true",
+          "pass": true
+        },
+        {
+          "name": "context: zone labelling violations",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "context: trusted fact blocks with alice",
+          "expected": "\u003e= 1",
+          "measured": "1",
+          "pass": true
+        },
+        {
+          "name": "context: trusted fact blocks with mallory",
+          "expected": "0",
+          "measured": "0",
+          "pass": true
+        },
+        {
+          "name": "context: where mallory appears",
+          "expected": "only external-quoted or nowhere",
+          "measured": "only external-quoted or nowhere",
+          "pass": true
+        },
+        {
+          "name": "context (external fact): where 10.0.0.66 appears",
+          "expected": "external-quoted",
+          "measured": "external-quoted",
+          "pass": true
+        },
+        {
+          "name": "context (external fact): zone labelling violations",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "I4",
+      "area": "injection",
+      "description": "External text cannot declare its own zone or break out of the pre-context block: fake labels and a closing tag inside the content stay quoted and escaped.",
+      "steps": [
+        "start chanda serve (profiles read, standard)",
+        "remember with source kind web: a closing \u003c/chanda-context\u003e tag, a fake trusted fact label claiming zone user, the claim (marker glimvartoq) and a fake opening tag; flush"
+      ],
+      "checks": [
+        {
+          "name": "stored zone (set by the channel, whatever the text claims)",
+          "expected": "external",
+          "measured": "external",
+          "pass": true
+        },
+        {
+          "name": "context: exactly one opening and one closing tag, notice present",
+          "expected": "true",
+          "measured": "true",
+          "pass": true
+        },
+        {
+          "name": "context: zone labelling violations",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "context: where the claim (glimvartoq) appears",
+          "expected": "external-quoted",
+          "measured": "external-quoted",
+          "pass": true
+        },
+        {
+          "name": "context: where the fake label appears",
+          "expected": "external-quoted",
+          "measured": "external-quoted",
+          "pass": true
+        },
+        {
+          "name": "context: blocks labelled zone user",
+          "expected": "0",
+          "measured": "0",
+          "pass": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "T1",
+      "area": "temporal",
+      "description": "A single-valued predicate with an old and a new value: context and search as of now return only the new value as current; as_of in the past returns the old value; history only on request.",
+      "steps": [
+        "start chanda serve (profiles read, standard)",
+        "assert_fact Ana Lindqvar job_title = Gerente de Vendas (valid_from 2025-02-01), then = Diretora Comercial (valid_from 2026-03-01); flush",
+        "context as of now for three phrasings",
+        "search as of now, without and with include_history",
+        "as_of 2025-06-01: context and search"
+      ],
+      "checks": [
+        {
+          "name": "write actions",
+          "expected": "created,superseded",
+          "measured": "created,superseded",
+          "pass": true
+        },
+        {
+          "name": "context now: queries where the new value is missing or the old one present",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "search (default): items holding the old value",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "search (default): items holding the new value",
+          "expected": "fact/internal/active \"Ana Lindqvar job_title: Diretora Comercial\"",
+          "measured": "fact/internal/active \"Ana Lindqvar job_title: Diretora Comercial\"",
+          "pass": true
+        },
+        {
+          "name": "search (include_history): the old value as history",
+          "expected": "superseded, valid_to 2026-03-01T00:00:00.000000000Z",
+          "measured": "superseded, valid_to 2026-03-01T00:00:00.000000000Z",
+          "pass": true
+        },
+        {
+          "name": "context as_of 2025-06-01: old/new present",
+          "expected": "true/false",
+          "measured": "true/false",
+          "pass": true
+        },
+        {
+          "name": "search as_of 2025-06-01 (facts): values returned",
+          "expected": "[\"Ana Lindqvar job_title: Gerente de Vendas\"]",
+          "measured": "[\"Ana Lindqvar job_title: Gerente de Vendas\"]",
+          "pass": true
+        },
+        {
+          "name": "context as_of 2024-06-01 (before any value): either value present",
+          "expected": "false/false",
+          "measured": "false/false",
+          "pass": true
+        },
+        {
+          "name": "timeline",
+          "expected": "job_title=Gerente de Vendas[superseded,internal]; job_title=Diretora Comercial[active,internal]",
+          "measured": "job_title=Gerente de Vendas[superseded,internal]; job_title=Diretora Comercial[active,internal]",
+          "pass": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "T2",
+      "area": "temporal",
+      "description": "An older value asserted after the current one is stored as closed history and does not displace the current value.",
+      "steps": [
+        "start chanda serve (profiles read, standard)",
+        "assert_fact Loja Pinheval address = Rua Nova 200 (valid_from 2026-05-01), then = Rua Velha 10 (valid_from 2024-01-01, learned later); flush"
+      ],
+      "checks": [
+        {
+          "name": "write actions",
+          "expected": "created,history",
+          "measured": "created,history",
+          "pass": true
+        },
+        {
+          "name": "active address",
+          "expected": "[Rua Nova 200]",
+          "measured": "[Rua Nova 200]",
+          "pass": true
+        },
+        {
+          "name": "context now: new/old present",
+          "expected": "true/false",
+          "measured": "true/false",
+          "pass": true
+        },
+        {
+          "name": "search (default): items holding the old value",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "context as_of 2025-01-01: old/new present",
+          "expected": "true/false",
+          "measured": "true/false",
+          "pass": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "D1",
+      "area": "dedup",
+      "description": "Free-text records that differ only in a number, a negation, a date or an entity are kept as distinct records; an exact duplicate is collapsed into the existing record.",
+      "steps": [
+        "start chanda serve (profiles read, standard)",
+        "remember, in one session, in order: \"o preço é 10\", \"o preço é 12\", \"O preço do plano Básico é 10 reais por mês.\", \"O preço do plano Básico é 12 reais por mês.\", \"O preço do plano Básico não é 10 reais por mês.\", \"O preço do plano Básico é 10 reais por mês desde 2026-03-01.\", \"O preço do plano Básico é 10 reais por mês desde 2026-04-01.\", \"O preço do plano Premium é 10 reais por mês.\", \"O preço do plano Básico é 10 reais por mês.\", \"o preço é 10\"; flush"
+      ],
+      "checks": [
+        {
+          "name": "write actions",
+          "expected": "o preço é 10=created, o preço é 12=created, base=created, number changed=created, negation=created, date A=created, date B=created, entity changed=created, exact duplicate of base=duplicate, exact duplicate of o preço é 10=duplicate",
+          "measured": "o preço é 10=created, o preço é 12=created, base=created, number changed=created, negation=created, date A=created, date B=created, entity changed=created, exact duplicate of base=duplicate, exact duplicate of o preço é 10=duplicate",
+          "pass": true
+        },
+        {
+          "name": "exact duplicates return the existing record's id",
+          "expected": "true",
+          "measured": "true",
+          "pass": true
+        },
+        {
+          "name": "distinct records among the 8 non-duplicate writes",
+          "expected": "8",
+          "measured": "8",
+          "pass": true
+        },
+        {
+          "name": "search: non-duplicate records not returned (collapsed or lost)",
+          "expected": "none",
+          "measured": "none",
+          "pass": true
+        },
+        {
+          "name": "search: items with the base text (duplicate collapsed)",
+          "expected": "1",
+          "measured": "1",
+          "pass": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "D2",
+      "area": "dedup",
+      "description": "Facts: a different value is never collapsed (multi-valued coexist, single-valued supersede with history kept); the same value again only confirms the existing fact.",
+      "steps": [
+        "start chanda serve (profiles read, standard)",
+        "assert_fact Plano Basico preco_promocional (not declared single: multi) = 10, = 12, = 10 again",
+        "assert_fact Plano Basico current_price (single) = 10 (2026-01-01), = 12 (2026-02-01), = 12 again (2026-02-15)"
+      ],
+      "checks": [
+        {
+          "name": "multi-valued: write actions",
+          "expected": "created,coexist,confirmed",
+          "measured": "created,coexist,confirmed",
+          "pass": true
+        },
+        {
+          "name": "multi-valued: the confirmation returns the first fact's id",
+          "expected": "true",
+          "measured": "true",
+          "pass": true
+        },
+        {
+          "name": "single-valued: write actions",
+          "expected": "created,superseded,confirmed",
+          "measured": "created,superseded,confirmed",
+          "pass": true
+        },
+        {
+          "name": "timeline (both values kept as records)",
+          "expected": "current_price=10[superseded,internal]; current_price=12[active,internal]; preco_promocional=10[active,internal]; preco_promocional=12[active,internal]",
+          "measured": "current_price=10[superseded,internal]; current_price=12[active,internal]; preco_promocional=10[active,internal]; preco_promocional=12[active,internal]",
+          "pass": true
+        },
+        {
+          "name": "context: promotional prices 10 and 12 both present",
+          "expected": "true/true",
+          "measured": "true/true",
+          "pass": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "A1",
+      "area": "abstention",
+      "description": "Off-topic queries over a small corpus return an empty pre-context with reason no_relevant_memory; a relevant query (control) does not.",
+      "steps": [
+        "start chanda serve (profiles read, standard)",
+        "remember a four-statement corpus (deploys on Tuesdays, coffee machine on Fridays, 45-day refunds, VPN with MFA); flush",
+        "context for three off-topic queries, then a relevant control query"
+      ],
+      "checks": [
+        {
+          "name": "context \"Qual e a capital da Mongolia?\": text / items / reason",
+          "expected": "empty / 0 / no_relevant_memory",
+          "measured": "empty / 0 / no_relevant_memory",
+          "pass": true
+        },
+        {
+          "name": "context \"how do I renew my passport\": text / items / reason",
+          "expected": "empty / 0 / no_relevant_memory",
+          "measured": "empty / 0 / no_relevant_memory",
+          "pass": true
+        },
+        {
+          "name": "context \"receita de bolo de cenoura com cobertura de chocolate\": text / items / reason",
+          "expected": "empty / 0 / no_relevant_memory",
+          "measured": "empty / 0 / no_relevant_memory",
+          "pass": true
+        },
+        {
+          "name": "control: context for a question the corpus answers (non-empty, holds the answer)",
+          "expected": "non-empty, true",
+          "measured": "non-empty, true",
+          "pass": true
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "id": "A2",
+      "area": "abstention",
+      "description": "Near-topic queries that share words with the corpus but have no answer in it return an empty pre-context.",
+      "steps": [
+        "start chanda serve (profiles read, standard)",
+        "remember a four-statement corpus (deploys on Tuesdays, coffee machine on Fridays, 45-day refunds, VPN with MFA); flush",
+        "context for three near-topic queries without an answer in the corpus, then a relevant control query"
+      ],
+      "checks": [
+        {
+          "name": "context \"Quem aprova os deploys no cluster de staging em Frankfurt?\": text / items / reason",
+          "expected": "empty / 0 / no_relevant_memory",
+          "measured": "499 chars / 1 / ",
+          "pass": false
+        },
+        {
+          "name": "context \"Qual e o horario de limpeza da maquina de lavar louca?\": text / items / reason",
+          "expected": "empty / 0 / no_relevant_memory",
+          "measured": "690 chars / 2 / ",
+          "pass": false
+        },
+        {
+          "name": "context \"Qual o telefone do suporte da VPN?\": text / items / reason",
+          "expected": "empty / 0 / no_relevant_memory",
+          "measured": "484 chars / 1 / ",
+          "pass": false
+        },
+        {
+          "name": "control: context for a question the corpus answers (non-empty, holds the answer)",
+          "expected": "non-empty, true",
+          "measured": "non-empty, true",
+          "pass": true
+        }
+      ],
+      "status": "FAIL"
+    }
+  ]
+}
