@@ -89,14 +89,16 @@ func TestHashIgnoresFileLocations(t *testing.T) {
 
 // Decision 0137: the context selection knobs default to the behaviour before
 // them, and a configuration that leaves them unset hashes as before (the
-// hash of committed evaluation reports, eval/reports/latest.json).
+// hash of committed evaluation reports, eval/reports/latest.json; it moved
+// from 84f1f46535aa2347 to 3cc17014d76d162e with the lexical near-duplicate
+// default of decision 0138, not with these knobs).
 func TestContextKnobsDefaultsAndHash(t *testing.T) {
 	c := config.Default()
 	if c.Read.ContextItemMaxTokens != 0 || c.Read.ContextTruncate != "" || c.Read.ContextMaxPerDocument != 0 ||
 		c.Read.ContextMaxPerSession != 0 || c.Read.ContextShowRole || c.Read.BestWindow() {
 		t.Fatalf("defaults: %+v", c.Read)
 	}
-	if got := c.Hash(); got != "84f1f46535aa2347" {
+	if got := c.Hash(); got != "3cc17014d76d162e" {
 		t.Fatalf("default configuration hash changed: %s", got)
 	}
 	head := config.Default()
