@@ -35,16 +35,25 @@ type ContextLine struct {
 	// Gold, for error analysis only: never put it in a prompt.
 	GoldEvidenceSessionIDs []string `json:"gold_evidence_session_ids"`
 	EvidenceRecall         *float64 `json:"evidence_recall_in_context,omitempty"`
-	IngestSeconds          float64  `json:"ingest_seconds"`
-	RetrievalMS            float64  `json:"retrieval_latency_ms"`
-	DBBytes                int64    `json:"db_bytes"` // B: chunk text + vectors; D/E: Chanda .db + -wal + -shm
-	EmbedModel             string   `json:"embed_model"`
-	ChandaTokensUsed       int      `json:"chanda_tokens_used,omitempty"`
-	Reason                 string   `json:"reason,omitempty"`
-	Items                  int      `json:"items"`
-	Sleep                  any      `json:"sleep,omitempty"`    // E: the sleep_run output
-	SleepMS                float64  `json:"sleep_ms,omitempty"` // E
-	Err                    string   `json:"error,omitempty"`
+	// Turn-level evidence recall (evidence.go has the matching rule): the
+	// has_answer turns, how many reached the block, their ratio (null when
+	// the question has none) and each turn's match.
+	EvidenceTurns          int            `json:"evidence_turns"`
+	EvidenceTurnsInContext int            `json:"evidence_turns_in_context"`
+	EvidenceTurnRecall     *float64       `json:"evidence_turn_recall"`
+	EvidenceTurnMatches    []EvidenceTurn `json:"evidence_turn_matches,omitempty"`
+	// ContextItems: one entry per block item (Chanda) or turn piece (RAG).
+	ContextItems     []ContextItem `json:"context_items"`
+	IngestSeconds    float64       `json:"ingest_seconds"`
+	RetrievalMS      float64       `json:"retrieval_latency_ms"`
+	DBBytes          int64         `json:"db_bytes"` // B: chunk text + vectors; D/E: Chanda .db + -wal + -shm
+	EmbedModel       string        `json:"embed_model"`
+	ChandaTokensUsed int           `json:"chanda_tokens_used,omitempty"`
+	Reason           string        `json:"reason,omitempty"`
+	Items            int           `json:"items"`
+	Sleep            any           `json:"sleep,omitempty"`    // E: the sleep_run output
+	SleepMS          float64       `json:"sleep_ms,omitempty"` // E
+	Err              string        `json:"error,omitempty"`
 }
 
 // Contexts produces one ContextLine per selected question for cond.
@@ -71,6 +80,10 @@ func Contexts(ctx context.Context, o *RunOptions, emb *Cached, cond string) ([]*
 			return nil, err
 		}
 		l.ContextTokens = Tokens(l.Context)
+		l.EvidenceTurns, l.EvidenceTurnsInContext, l.EvidenceTurnRecall = EvidenceCounts(l.EvidenceTurnMatches)
+		if l.ContextItems == nil {
+			l.ContextItems = []ContextItem{}
+		}
 		if !l.Abstention && len(q.AnswerSessionIDs) > 0 {
 			r := recallOf(l.RetrievedSessionIDs, q.AnswerSessionIDs)
 			l.EvidenceRecall = &r
@@ -90,6 +103,8 @@ func contextB(ctx context.Context, o *RunOptions, emb *Cached, q *Question, l *C
 	}
 	l.Context, l.IngestSeconds, l.RetrievalMS, l.Items = g.Context, g.EmbedMS/1000, g.SearchMS, len(g.Selected)
 	l.RetrievedSessionIDs = sessionIDs(q, g.InBudget)
+	l.EvidenceTurnMatches = MatchEvidenceRAG(q, g.Chunks, g.Selected)
+	l.ContextItems = RAGContextItems(q, g.Chunks, g.Selected)
 	for _, c := range g.Chunks {
 		l.DBBytes += int64(len(c.Text)) + int64(4*emb.Dim())
 	}
@@ -172,6 +187,8 @@ func contextChanda(ctx context.Context, o *RunOptions, emb *Cached, q *Question,
 	if l.RetrievedSessionIDs == nil {
 		l.RetrievedSessionIDs = []string{}
 	}
+	l.EvidenceTurnMatches = MatchEvidenceChanda(q, out.Items, out.Text, in.TurnEvent)
+	l.ContextItems = ChandaContextItems(q, out.Items, out.Text, in.EventTurns)
 	srv.Close()
 	closed = true
 	l.DBBytes = DiskBytes(srv.DBPath)

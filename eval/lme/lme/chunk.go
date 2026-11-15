@@ -15,6 +15,15 @@ type Chunk struct {
 	Session int    // index in the question's haystack
 	Ordinal int    // position within the session's chunks
 	Text    string // "user: ...\nassistant: ..." lines
+	Pieces  []Piece
+}
+
+// Piece is one line of a chunk: a whole turn line, or one part of a turn
+// line that was cut because it was longer than the chunk size.
+type Piece struct {
+	Turn  int    // turn index within the session
+	Text  string // the line as it appears in Chunk.Text ("role: ..." for the first part)
+	Whole bool   // the piece is the turn's whole line
 }
 
 // TurnLine renders a turn as the chunk text shows it.
@@ -27,15 +36,17 @@ func TurnLine(t Turn) string { return t.Role + ": " + strings.TrimSpace(t.Conten
 func ChunkSession(session int, turns []Turn, maxChars int) []Chunk {
 	var out []Chunk
 	var cur []string
+	var pieces []Piece
 	curLen := 0
 	emit := func() {
 		if len(cur) > 0 {
-			out = append(out, Chunk{Session: session, Ordinal: len(out), Text: strings.Join(cur, "\n")})
-			cur, curLen = nil, 0
+			out = append(out, Chunk{Session: session, Ordinal: len(out), Text: strings.Join(cur, "\n"), Pieces: pieces})
+			cur, pieces, curLen = nil, nil, 0
 		}
 	}
-	for _, t := range turns {
-		for _, piece := range splitLong(TurnLine(t), maxChars) {
+	for ti, t := range turns {
+		parts := splitLong(TurnLine(t), maxChars)
+		for _, piece := range parts {
 			n := utf8.RuneCountInString(piece)
 			if curLen > 0 && curLen+1+n > maxChars {
 				emit()
@@ -44,6 +55,7 @@ func ChunkSession(session int, turns []Turn, maxChars int) []Chunk {
 				curLen++
 			}
 			cur = append(cur, piece)
+			pieces = append(pieces, Piece{Turn: ti, Text: piece, Whole: len(parts) == 1})
 			curLen += n
 		}
 	}

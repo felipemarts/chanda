@@ -87,9 +87,27 @@ func TestPhase1AndContextDOverMCP(t *testing.T) {
 	if len(l.RetrievedSessionIDs) == 0 || l.RetrievedSessionIDs[0] != "answer_a1" || l.EvidenceRecall == nil || *l.EvidenceRecall != 1 {
 		t.Fatalf("D sessions %+v", l)
 	}
+	// Turn-level evidence: q1 has one has_answer turn (session 1, turn 0).
+	if l.EvidenceTurns != 1 || l.EvidenceTurnsInContext != 1 || l.EvidenceTurnRecall == nil || *l.EvidenceTurnRecall != 1 ||
+		len(l.EvidenceTurnMatches) != 1 || l.EvidenceTurnMatches[0].By != MatchByID || l.EvidenceTurnMatches[0].Session != 1 {
+		t.Fatalf("D turn evidence %+v", l)
+	}
+	if len(l.ContextItems) != l.Items || l.ContextItems[0].Session < 0 || l.ContextItems[0].Role == "" || l.ContextItems[0].Tokens == 0 {
+		t.Fatalf("D context items %+v", l.ContextItems)
+	}
+	sum := 0
+	for _, it := range l.ContextItems {
+		sum += it.Tokens
+	}
+	if sum >= l.ContextTokens {
+		t.Fatalf("D items tokens %d of %d", sum, l.ContextTokens)
+	}
 	lb, err := Contexts(t.Context(), o, emb, CondB)
 	if err != nil || !strings.Contains(lb[0].Context, "Session Date: 2023/05/22 (Mon) 09:23") {
 		t.Fatalf("B %v %+v", err, lb)
+	}
+	if b := lb[0]; b.EvidenceTurns != 1 || b.EvidenceTurnsInContext != 1 || len(b.ContextItems) == 0 {
+		t.Fatalf("B turn evidence %+v", b)
 	}
 	o.Chanda.LLMURL = ""
 	if _, err := Contexts(t.Context(), o, emb, CondE); err == nil || !strings.Contains(err.Error(), "LLM endpoint") {

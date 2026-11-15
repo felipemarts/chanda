@@ -153,7 +153,9 @@ func ChandaSessionID(i int) string { return fmt.Sprintf("s%03d", i) }
 
 // Ingested maps Chanda record ids back to haystack session indexes.
 type Ingested struct {
-	EventSessions map[string][]int // event id -> haystack session indexes (a duplicate id may serve several)
+	EventSessions map[string][]int     // event id -> haystack session indexes (a duplicate id may serve several)
+	TurnEvent     map[TurnKey]string   // (session, turn) -> event id log_session returned ("" when rejected)
+	EventTurns    map[string][]TurnKey // event id -> the turns it was returned for
 	Turns         int
 	Created       int
 	Duplicates    int
@@ -168,7 +170,8 @@ type Ingested struct {
 // chronological order (211 of the 500 S haystacks are not sorted by date,
 // although the README says they are) and flushes the index.
 func (c *ChandaServer) IngestQuestion(ctx context.Context, q *Question) (*Ingested, error) {
-	in := &Ingested{EventSessions: map[string][]int{}, RejectReasons: map[string]int{}}
+	in := &Ingested{EventSessions: map[string][]int{}, TurnEvent: map[TurnKey]string{}, EventTurns: map[string][]TurnKey{},
+		RejectReasons: map[string]int{}}
 	start := time.Now()
 	for _, i := range ChronologicalOrder(q) {
 		sess := q.HaystackSessions[i]
@@ -199,6 +202,11 @@ func (c *ChandaServer) IngestQuestion(ctx context.Context, q *Question) (*Ingest
 			}
 			if tr.ID != "" && !containsInt(in.EventSessions[tr.ID], i) {
 				in.EventSessions[tr.ID] = append(in.EventSessions[tr.ID], i)
+			}
+			if tr.ID != "" && tr.Ordinal >= 0 && tr.Ordinal < len(sess) {
+				k := TurnKey{i, tr.Ordinal}
+				in.TurnEvent[k] = tr.ID
+				in.EventTurns[tr.ID] = append(in.EventTurns[tr.ID], k)
 			}
 		}
 	}

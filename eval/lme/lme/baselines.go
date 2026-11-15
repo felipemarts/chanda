@@ -214,19 +214,7 @@ func FillBudget(q *Question, chunks []Chunk, cands []int, budget int) ([]int, st
 // Chunks of one session are listed in order; non-adjacent chunks of the same
 // session are separated by a "..." line.
 func RenderChunks(q *Question, chunks []Chunk, sel []int) string {
-	s := append([]int(nil), sel...)
-	sort.Slice(s, func(a, b int) bool {
-		ca, cb := chunks[s[a]], chunks[s[b]]
-		if ca.Session != cb.Session {
-			da, _ := ParseDate(q.HaystackDates[ca.Session])
-			db, _ := ParseDate(q.HaystackDates[cb.Session])
-			if !da.Equal(db) {
-				return da.Before(db)
-			}
-			return ca.Session < cb.Session
-		}
-		return ca.Ordinal < cb.Ordinal
-	})
+	s := renderOrder(q, chunks, sel)
 	var b strings.Builder
 	n := 0
 	for i, ci := range s {
@@ -241,4 +229,23 @@ func RenderChunks(q *Question, chunks []Chunk, sel []int) string {
 		b.WriteString("\n")
 	}
 	return b.String()
+}
+
+// renderOrder is the chunk order of RenderChunks: sessions by date (ties by
+// haystack index), chunks of a session in order.
+func renderOrder(q *Question, chunks []Chunk, sel []int) []int {
+	s := append([]int(nil), sel...)
+	sort.Slice(s, func(a, b int) bool {
+		ca, cb := chunks[s[a]], chunks[s[b]]
+		if ca.Session != cb.Session {
+			da, _ := ParseDate(q.HaystackDates[ca.Session])
+			db, _ := ParseDate(q.HaystackDates[cb.Session])
+			if !da.Equal(db) {
+				return da.Before(db)
+			}
+			return ca.Session < cb.Session
+		}
+		return ca.Ordinal < cb.Ordinal
+	})
+	return s
 }
