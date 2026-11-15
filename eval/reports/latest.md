@@ -3,8 +3,8 @@
 | Field | Value |
 | --- | --- |
 | Date | 2026-11-15 |
-| Chanda version | eval-lme-freeze-17-g5579bf1 |
-| Configuration hash | `3cc17014d76d162e` |
+| Chanda version | selection-freeze |
+| Configuration hash | `4dd590544d868b15` |
 | Embedding model_id | `hash-v1-256` |
 | Reader model | n/a (retrieval-only; no LLM reader or judge) |
 | Hardware | darwin/arm64, 8 CPUs, Apple M1 |
@@ -23,10 +23,10 @@ Questions by tag: abstention 35, dedup 23, injection 7, paraphrase 66, plain 86,
 | B1 | n/a | BM25 (SQLite FTS5, unicode61 remove_diacritics 2) over raw chunks of every item and version. |
 | B2 | hash-v1-256 | Plain RAG: raw chunks of every item and version, exact cosine top-k. |
 | B3 | n/a | Full context: all 1006 raw chunks (17627 tokens) when they fit the budget, else the most recent chunks that fit; truncated in 305 of 305 queries. |
-| C1 | hash-v1-256 | Chanda: hybrid fusion (FTS5 BM25 + vectors, RRF), no reranker, no structured facts. Config hash `6df740d09c43d18a`. |
-| C3 | hash-v1-256 | C2 + structured facts with temporal validity (header and kv_table extractors, assert_fact). Runs WITHOUT the reranker (none configured), so it is C1 + the stages above. Config hash `e8bd9be926a0573d`. |
-| C4 | hash-v1-256 | C3 + a sleep run after ingestion. Runs WITHOUT the reranker (none configured), so it is C1 + the stages above. No LLM provider is configured: sleep runs phase 1 (maintenance) only. Sleep run: phases [1], status completed. Config hash `e8bd9be926a0573d`. |
-| C5 | hash-v1-256 | C4 + learned ranking from a simulated task sequence. Runs WITHOUT the reranker (none configured), so it is C1 + the stages above. No LLM provider is configured: sleep runs phase 1 (maintenance) only. Learning: the gate split is approved as the gate set, then 3 passes over the training split (outcome +1 with the delivered records that hit a gold span as used_ids, -1 with none), then a sleep run trains and may promote a ranker. Sleep run: phases [1], status completed. Sleep run: phases [1], status completed. After 447 tasks (270 positive) and 33 gate questions: active model mdl_01M5GFG8GWYGPSSN6JWCCKYH8A, lambda 0.05 (Ranker: trained mdl_01M5GFG8GWYGPSSN6JWCCKYH8A, evaluated mdl_01M5GFG8GWYGPSSN6JWCCKYH8A, passed true, promoted true, baseline 62.67, learned 63.70, lambda 0.05). Config hash `e8bd9be926a0573d`. |
+| C1 | hash-v1-256 | Chanda: hybrid fusion (FTS5 BM25 + vectors, RRF), no reranker, no structured facts. Config hash `a106548247449ec8`. |
+| C3 | hash-v1-256 | C2 + structured facts with temporal validity (header and kv_table extractors, assert_fact). Runs WITHOUT the reranker (none configured), so it is C1 + the stages above. Config hash `f599c60330a8b5e5`. |
+| C4 | hash-v1-256 | C3 + a sleep run after ingestion. Runs WITHOUT the reranker (none configured), so it is C1 + the stages above. No LLM provider is configured: sleep runs phase 1 (maintenance) only. Sleep run: phases [1], status completed. Config hash `f599c60330a8b5e5`. |
+| C5 | hash-v1-256 | C4 + learned ranking from a simulated task sequence. Runs WITHOUT the reranker (none configured), so it is C1 + the stages above. No LLM provider is configured: sleep runs phase 1 (maintenance) only. Learning: the gate split is approved as the gate set, then 3 passes over the training split (outcome +1 with the delivered records that hit a gold span as used_ids, -1 with none), then a sleep run trains and may promote a ranker. Sleep run: phases [1], status completed. Sleep run: phases [1], status completed. After 447 tasks (270 positive) and 33 gate questions: active model mdl_01M5GFG8GWYGPSSN6JWCCKYH8A, lambda 0.05 (Ranker: trained mdl_01M5GFG8GWYGPSSN6JWCCKYH8A, evaluated mdl_01M5GFG8GWYGPSSN6JWCCKYH8A, passed true, promoted true, baseline 62.67, learned 63.70, lambda 0.05). Config hash `f599c60330a8b5e5`. |
 | C2 | - | **Not available in this run**: C2 not run: no cross-encoder reranker is configured in this binary (the chanda binary has none; chanda-hugot loads one from embed.reranker_model_path), so the reranking stage cannot run |
 
 ## Overall, side by side
@@ -45,10 +45,10 @@ Retrieval metrics are means over answerable questions; the best value of each ro
 | abstention precision | 0.1148 | **0.125** | n/a | n/a | 0 | 0 | 0 | 0 |
 | abstention recall | **1** | 0.0286 | 0 | 0 | 0 | 0 | 0 | 0 |
 | empty results | 1 | 0.0262 | 0 | 0 | 0.0098 | 0.0033 | 0.0033 | 0.0033 |
-| context tokens per query (mean) | 0 | 620.5049 | 789.3475 | 798 | 248.6 | 218.8197 | 218.8197 | 219.4197 |
+| context tokens per query (mean) | 0 | 620.5049 | 789.3475 | 798 | 248.4525 | 218.5607 | 218.5607 | 219.2 |
 | context tokens per query (p50 / p95) | 0 / 0 | 785 / 799 | 795 / 800 | 798 / 798 | 256 / 297 | 225 / 284 | 225 / 284 | 225 / 284 |
 | budget violations | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| index size (bytes) | n/a | 192512 | 1101177 | n/a | 12570624 | 15831040 | 15835136 | 34136064 |
+| index size (bytes) | n/a | 192512 | 1101177 | n/a | 12582912 | 15847424 | 15851520 | 34152448 |
 
 ## By tag: recall@10
 
@@ -150,11 +150,11 @@ Measured with the wall clock on the hardware above; excluded from determinism ch
 
 | System | Ingest items | Ingest total | Ingest p50 | Ingest p95 | Flush | Train | Retrieve mean | Retrieve p50 | Retrieve p95 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| B0 | 197 | 0.063 | 0.000 | 0.001 | 0.000 | 0.000 | 0.000 | 0.000 | 0.001 |
-| B1 | 197 | 40.263 | 0.144 | 0.532 | 0.000 | 0.000 | 1.256 | 1.081 | 2.420 |
-| B2 | 197 | 126.264 | 0.403 | 1.732 | 0.000 | 0.000 | 1.287 | 1.186 | 1.970 |
-| B3 | 197 | 8.142 | 0.023 | 0.120 | 0.000 | 0.000 | 0.172 | 0.152 | 0.232 |
-| C1 | 197 | 8916.669 | 34.694 | 91.000 | 302.331 | 0.035 | 13.945 | 11.333 | 28.726 |
-| C3 | 197 | 8256.947 | 29.090 | 102.454 | 565.898 | 0.093 | 29.753 | 23.826 | 65.327 |
-| C4 | 197 | 8479.044 | 32.073 | 117.189 | 492.369 | 0.032 | 31.859 | 27.601 | 58.765 |
-| C5 | 197 | 12096.149 | 45.657 | 152.527 | 540.559 | 29611.056 | 40.022 | 34.963 | 80.485 |
+| B0 | 197 | 0.122 | 0.000 | 0.001 | 0.000 | 0.000 | 0.000 | 0.000 | 0.001 |
+| B1 | 197 | 23.403 | 0.081 | 0.332 | 0.000 | 0.000 | 0.590 | 0.506 | 1.034 |
+| B2 | 197 | 60.622 | 0.243 | 0.697 | 0.000 | 0.000 | 0.730 | 0.719 | 0.787 |
+| B3 | 197 | 3.846 | 0.013 | 0.054 | 0.000 | 0.000 | 0.084 | 0.079 | 0.092 |
+| C1 | 197 | 4312.521 | 15.399 | 57.638 | 182.916 | 0.024 | 5.854 | 5.085 | 8.994 |
+| C3 | 197 | 3606.587 | 14.351 | 37.867 | 206.707 | 0.023 | 15.864 | 11.614 | 29.237 |
+| C4 | 197 | 3577.987 | 13.833 | 39.369 | 232.805 | 0.020 | 12.351 | 10.406 | 20.980 |
+| C5 | 197 | 3574.455 | 13.680 | 39.917 | 222.928 | 9673.056 | 13.209 | 10.976 | 21.432 |
