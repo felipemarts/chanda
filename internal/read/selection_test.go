@@ -135,6 +135,32 @@ func TestContextItemMaxTokens(t *testing.T) {
 	}
 }
 
+// read.context_item_cap_after exempts the best-ranked items from the cap:
+// they keep their whole text, every later item is capped.
+func TestContextItemCapAfter(t *testing.T) {
+	capped := contextWith(t, 0, func(rc *config.ReadConfig) { rc.ContextItemMaxTokens = 80 })
+	after := contextWith(t, 0, func(rc *config.ReadConfig) { rc.ContextItemMaxTokens, rc.ContextItemCapAfter = 80, 1 })
+	top := find(after.Items, "evt_s2_1")
+	if c := find(capped.Items, "evt_s2_1"); c == nil || !c.Truncated {
+		t.Fatalf("the top item should be capped without the exemption: %+v", c)
+	}
+	if top == nil || top.Truncated {
+		t.Fatalf("the top item should keep its whole text: %+v", top)
+	}
+	over := 0
+	for _, it := range after.Items {
+		if estimateTokens(renderItem(it)) > 80 {
+			over++
+		}
+	}
+	if over != 1 {
+		t.Errorf("exactly the exempt item may exceed the cap, got %d: %v", over, ids(after.Items))
+	}
+	if after.TokensUsed != estimateTokens(after.Text) || after.TokensUsed > 800 {
+		t.Errorf("budget: %d", after.TokensUsed)
+	}
+}
+
 // read.context_truncate also governs the last item that only partly fits.
 func TestContextBestWindowForLastItem(t *testing.T) {
 	res := contextWith(t, 300, func(rc *config.ReadConfig) { rc.ContextTruncate = config.TruncateBestWindow })

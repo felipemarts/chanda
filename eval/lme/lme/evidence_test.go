@@ -181,3 +181,18 @@ func TestChandaContextItems(t *testing.T) {
 		t.Errorf("unmapped %+v", got[0])
 	}
 }
+
+// Labels with a speaker role (read.context_show_role) are segmented too.
+func TestBlockSegmentsWithRoleLabels(t *testing.T) {
+	block := "<chanda-context retrieval_id=\"r\">\nheader\n" +
+		"\n[excerpt evt_A | role: user | zone: internal | date: 2023-01-01 | source: s1]\nI planted 12 tomato saplings.\n" +
+		"\n[excerpt evt_B | role: assistant | zone: internal | date: 2023-01-01 | source: s1 | truncated]\nGreat, here are tips…\n" +
+		"</chanda-context>\n"
+	seg, trunc := BlockSegments(block, []chanda.Item{{ID: "evt_A"}, {ID: "evt_B"}})
+	if !strings.Contains(seg["evt_A"], "12 tomato saplings") || !strings.Contains(seg["evt_B"], "here are tips") {
+		t.Fatalf("segments: %q", seg)
+	}
+	if trunc["evt_A"] || !trunc["evt_B"] {
+		t.Fatalf("truncated: %v", trunc)
+	}
+}

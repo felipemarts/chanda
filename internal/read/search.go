@@ -406,7 +406,7 @@ func (r *Reader) selectItems(ctx context.Context, q request, res *result, alive 
 			}
 			full := it // shortening always starts from the whole text
 			cost := estimateTokens(renderItem(it))
-			if itemMax := rc.ContextItemMaxTokens; itemMax > 0 && cost > itemMax {
+			if itemMax := rc.ContextItemMaxTokens; itemMax > 0 && len(res.items) >= rc.ContextItemCapAfter && cost > itemMax {
 				var ok bool
 				if it, cost, ok = shortenItem(full, itemMax, rc.ContextMinItemTokens, rc.BestWindow(), terms); !ok {
 					c.dropped = dropBudget

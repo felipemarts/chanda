@@ -150,6 +150,11 @@ type ReadConfig struct {
 	// ContextItemMaxTokens: an item whose rendered block (label included)
 	// would cost more is shortened to fit it; 0 = no per-item cap.
 	ContextItemMaxTokens int `yaml:"context_item_max_tokens,omitempty"`
+	// ContextItemCapAfter: the first N items of the block (the best ranked)
+	// are exempt from context_item_max_tokens and keep their whole text
+	// (budget permitting); the cap applies from item N+1. 0 = cap every
+	// item.
+	ContextItemCapAfter int `yaml:"context_item_cap_after,omitempty"`
 	// ContextTruncate is how an item is shortened, for the per-item cap and
 	// for the last item that only partly fits the budget: "head" (or empty,
 	// the default) keeps the start; "best_window" keeps the contiguous run
@@ -443,6 +448,9 @@ func (r ReadConfig) validateContext() error {
 	}
 	if r.ContextItemMaxTokens > 0 && r.ContextItemMaxTokens < r.ContextMinItemTokens {
 		return fmt.Errorf("read.context_item_max_tokens must be 0 or >= read.context_min_item_tokens (%d)", r.ContextMinItemTokens)
+	}
+	if r.ContextItemCapAfter < 0 {
+		return fmt.Errorf("read.context_item_cap_after must be >= 0")
 	}
 	if r.ContextMaxPerDocument < -1 {
 		return fmt.Errorf("read.context_max_per_document must be >= -1")

@@ -215,7 +215,7 @@ func RAGContextItems(q *Question, chunks []Chunk, selected []int) []ContextItem 
 // BlockSegments splits a rendered Chanda context block into the rendered
 // text of each item (label line, content, the newlines around them),
 // keyed by item id, and reports which labels say "truncated". An item
-// renders as "\n[<kind> <id> | zone: ...]\n<content>\n"; its segment runs
+// renders as "\n[<kind> <id> | (role: ... | )zone: ...]\n<content>\n"; its segment runs
 // from that leading newline to the next item's, or to the block footer.
 func BlockSegments(block string, items []chanda.Item) (seg map[string]string, truncated map[string]bool) {
 	seg, truncated = map[string]string{}, map[string]bool{}
@@ -260,7 +260,7 @@ func BlockSegments(block string, items []chanda.Item) (seg map[string]string, tr
 
 // labelIndex finds the "\n[" that opens the label line of item id.
 func labelIndex(block, id string) int {
-	needle := " " + id + " | zone: "
+	needle := " " + id + " | " // "| zone: " or, with read.context_show_role, "| role: "
 	off := 0
 	for {
 		j := strings.Index(block[off:], needle)

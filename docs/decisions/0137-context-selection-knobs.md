@@ -103,3 +103,15 @@ splits that join back; the per-document override in context only; the
 per-session limit; the role label; search unaffected; determinism.
 `internal/config`: defaults, hash, validation. `internal/write`: the role
 is stored and immutable. `eval/scenarios` results are unchanged.
+
+## Addendum: `context_item_cap_after`
+
+Added after the first tuning grid of the selection study, which ran on the
+tuning set only. A cap on every item cut the evidence out of long assistant
+replies: single-session-assistant turn recall fell from 100 to 25. At the same
+time it raised multi-session, temporal and preference recall.
+`read.context_item_cap_after = N` exempts the first N items selected (the
+best ranked) from `context_item_max_tokens`: they keep their whole text,
+budget permitting. Default 0, which caps every item. Validated `>= 0`.
+Test: `TestContextItemCapAfter`.
+
