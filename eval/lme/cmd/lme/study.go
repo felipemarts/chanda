@@ -23,7 +23,7 @@ import (
 
 const studyUsage = `usage: lme study <step> [flags]
 
-  ingest     -db DIR (-locomo FILE -conv ID | -data FILE -question QID)
+  ingest     -db DIR (-locomo FILE -conv ID | -data FILE -question QID | -suite pairs.json -pair ID)
   ask        -db DIR -out FILE.jsonl [-split FILE -half use|test|all] [-condition LABEL] [-limit N]
   outcome    -db DIR -ask FILE.jsonl -answers FILE.jsonl [-out FILE.jsonl]
   copy       -from DIR -to DIR
@@ -32,7 +32,10 @@ const studyUsage = `usage: lme study <step> [flags]
   fichas     -db DIR [-out FILE.json]        pages and items of a closed database (read-only)
   leakcheck  -db DIR [-split FILE] [-before-test] [-out FILE.json]
              -protocol learn -db DIR -split FILE [-key-table NAME] [-out FILE.json]   (eval/learn/PROTOCOL.md)
+             -protocol conflicts -db DIR [-out FILE.json]   before the directory's question is asked (eval/conflicts/PROTOCOL.md)
   keys       -db DIR -action rebuild|stats|reset|enable|disable [-out FILE.json]   admin tool learned_keys (decision 0145)
+  conflicts  -db DIR -action scan|stats|list|reset [-details] [-min-cosine X] [-write] [-out FILE.json]
+             admin tool conflicts (decision 0148); prints the tool's output as returned
   check      [-set k=v ...] [-admin] [-llm-url URL]   validate a configuration; prints its hash
 
 Common: -embedder hash|e5 -embed-url URL -e5-dir DIR -cache auto|off|FILE -budget 2000
@@ -63,6 +66,8 @@ func cmdStudy(ctx context.Context, args []string) error {
 		return studyLeak(ctx, rest)
 	case "keys":
 		return studyKeys(ctx, rest)
+	case "conflicts":
+		return studyConflicts(ctx, rest)
 	case "check":
 		return studyCheck(ctx, rest)
 	case "help", "-h", "--help":
@@ -199,6 +204,8 @@ func studyIngest(ctx context.Context, args []string) error {
 	conv := fs.String("conv", "", "LoCoMo sample_id (e.g. conv-30)")
 	data := fs.String("data", "", "LongMemEval file (longmemeval_s_cleaned.json)")
 	qid := fs.String("question", "", "LongMemEval question id")
+	suite := fs.String("suite", "", "conflict suite pairs.json (eval/conflicts/suite)")
+	pair := fs.String("pair", "", "suite pair id (u01 ... c20)")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -237,6 +244,19 @@ func studyIngest(ctx context.Context, args []string) error {
 		if err := lme.StudyIngestLocomo(ctx, o, dir, c, m); err != nil {
 			return err
 		}
+	case *suite != "" && *pair != "" && *data == "" && *locomo == "":
+		p, err := filepath.Abs(*suite)
+		if err != nil {
+			return err
+		}
+		sp, sum, err := lme.LoadSuitePair(p, *pair)
+		if err != nil {
+			return err
+		}
+		m.Dataset, m.DatasetSHA256 = p, sum
+		if err := lme.StudyIngestPair(ctx, o, dir, sp, m); err != nil {
+			return err
+		}
 	case *data != "" && *qid != "" && *locomo == "":
 		p, err := filepath.Abs(*data)
 		if err != nil {
@@ -254,7 +274,7 @@ func studyIngest(ctx context.Context, args []string) error {
 			return err
 		}
 	default:
-		return fmt.Errorf("give -locomo FILE -conv ID, or -data FILE -question QID")
+		return fmt.Errorf("give -locomo FILE -conv ID, -data FILE -question QID, or -suite FILE -pair ID")
 	}
 	fmt.Printf("ingested %s: %d turns mapped to events\n", dir, len(m.Turns))
 	return nil
@@ -304,6 +324,8 @@ func studyQuestions(m *lme.StudyMeta, splitPath, half string, limit int) ([]lme.
 			return nil, err
 		}
 		qs = []lme.StudyQuestion{lme.LMEStudyQuestion(q)}
+	case lme.SourceSuite:
+		return nil, fmt.Errorf("a conflict suite directory has no question")
 	default:
 		return nil, fmt.Errorf("unknown study source %q", m.Source)
 	}
@@ -615,7 +637,8 @@ func studyLeak(ctx context.Context, args []string) error {
 	split := fs.String("split", "", "LoCoMo split (gold answers of both halves; test questions)")
 	beforeTest := fs.Bool("before-test", false, "the test half has not been asked yet: its questions must not be in the retrievals")
 	out := fs.String("out", "", "JSON report")
-	protocol := fs.String("protocol", "sleep", "sleep (eval/sleep/PROTOCOL.md) or learn (eval/learn/PROTOCOL.md, always before the test half)")
+	protocol := fs.String("protocol", "sleep", "sleep (eval/sleep/PROTOCOL.md), learn (eval/learn/PROTOCOL.md, always before the test half) "+
+		"or conflicts (eval/conflicts/PROTOCOL.md, always before the question is asked)")
 	keyTable := fs.String("key-table", "", "learn: the learned-keys table (default: detected)")
 	if err := fs.Parse(args); err != nil {
 		return err
@@ -638,8 +661,13 @@ func studyLeak(ctx context.Context, args []string) error {
 		}
 	case "learn":
 		return studyLeakLearn(ctx, *db, qs, *keyTable, *out)
+	case "conflicts":
+		if *keyTable != "" || *split != "" || *beforeTest {
+			return fmt.Errorf("-protocol conflicts takes -db and -out only")
+		}
+		return studyLeakConflicts(ctx, *db, qs, *out)
 	default:
-		return fmt.Errorf("-protocol %q: want sleep or learn", *protocol)
+		return fmt.Errorf("-protocol %q: want sleep, learn or conflicts", *protocol)
 	}
 	var golds, forbidden []string
 	for _, q := range qs {
@@ -701,6 +729,72 @@ func studyLeakLearn(ctx context.Context, db string, qs []lme.StudyQuestion, keyT
 	if !r.OK {
 		return fmt.Errorf("leak check failed for %s: %s (see the report)", db, strings.Join(r.Failures, "; "))
 	}
+	return nil
+}
+
+// studyLeakConflicts is leakcheck -protocol conflicts: the directory's
+// question and gold answer, before the question is asked.
+func studyLeakConflicts(ctx context.Context, db string, qs []lme.StudyQuestion, out string) error {
+	r, err := lme.StudyLeakCheckConflicts(ctx, db, qs)
+	if err != nil {
+		return err
+	}
+	if out != "" {
+		if err := writeJSON(out, r); err != nil {
+			return err
+		}
+	}
+	fmt.Printf("leakcheck conflicts %s: ok=%t values=%d retrievals=%d question-hits=%d gold-hits=%d (golds checked %d, too short %d) judge=%d\n",
+		db, r.OK, r.ValuesScanned, r.Retrievals, len(r.QuestionHits), len(r.GoldHits), r.GoldsChecked, r.GoldsTooShort, len(r.JudgeOutput))
+	if !r.OK {
+		return fmt.Errorf("leak check failed for %s: %s (see the report)", db, strings.Join(r.Failures, "; "))
+	}
+	return nil
+}
+
+// studyConflicts is the conflicts admin step (decision 0148).
+func studyConflicts(ctx context.Context, args []string) error {
+	fs := flag.NewFlagSet("study conflicts", flag.ContinueOnError)
+	var f studyFlags
+	f.register(fs, true)
+	action := fs.String("action", "", "scan, stats, list or reset")
+	var a lme.ConflictsArgs
+	fs.BoolVar(&a.Write, "write", false, "scan: write the queue (default: counts only)")
+	fs.BoolVar(&a.Details, "details", false, "scan: return the candidate pairs and the near-duplicate refusals")
+	fs.Float64Var(&a.MinCosine, "min-cosine", 0, "scan: similarity floor (0: the configuration's sleep.conflicts.min_cosine)")
+	out := fs.String("out", "", "result JSON (the tool's output as returned, with the step's metadata)")
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	if err := lme.CheckConflictsAction(*action, a); err != nil {
+		return err
+	}
+	dir, err := f.dir()
+	if err != nil {
+		return err
+	}
+	m, err := lme.ReadStudyMeta(dir)
+	if err != nil {
+		return err
+	}
+	o, emb, err := f.options(ctx)
+	if err != nil {
+		return err
+	}
+	defer emb.Close()
+	if err := checkMeta(m, emb); err != nil {
+		return err
+	}
+	res, err := lme.StudyConflicts(ctx, o, dir, *action, a)
+	if err != nil {
+		return err
+	}
+	if *out != "" {
+		if err := writeJSON(*out, res); err != nil {
+			return err
+		}
+	}
+	fmt.Println(string(res.Output))
 	return nil
 }
 

@@ -467,10 +467,15 @@ type StudyAskLine struct {
 	RetrievalMS float64 `json:"retrieval_ms"`
 	// KeyCandidates: logged candidates with features.key_rank > 0 (decision
 	// 0145), delivered or not; 0 when keys are off.
-	KeyCandidates int      `json:"key_candidates,omitempty"`
-	ChandaSet     []string `json:"chanda_set,omitempty"`
-	ConfigHash    string   `json:"chanda_config_hash,omitempty"`
-	DB            string   `json:"db,omitempty"`
+	KeyCandidates int `json:"key_candidates,omitempty"`
+	// DropReasons counts the logged candidates by their drop reason;
+	// DroppedSuperseded lists those dropped as "superseded" (decision 0148:
+	// the old side of an active supersession), in log order.
+	DropReasons       map[string]int `json:"drop_reasons,omitempty"`
+	DroppedSuperseded []string       `json:"dropped_superseded,omitempty"`
+	ChandaSet         []string       `json:"chanda_set,omitempty"`
+	ConfigHash        string         `json:"chanda_config_hash,omitempty"`
+	DB                string         `json:"db,omitempty"`
 }
 
 // evTurn is an evidence turn to look for: its key, text and event id.
@@ -609,16 +614,20 @@ func StudyAsk(ctx context.Context, o *StudyOptions, dir, cond string, qs []Study
 	if err := srv.Close(); err != nil {
 		return nil, err
 	}
-	if err := annotateKeyRanks(ctx, dir, lines); err != nil {
+	if err := annotateRetrievalLog(ctx, dir, lines); err != nil {
 		return nil, err
 	}
 	return lines, m.Write(dir)
 }
 
-// annotateKeyRanks reads each line's retrieval log back from the closed
-// database and copies features.key_rank (decision 0145) onto the delivered
-// items. Without keys every rank is 0 and the lines are unchanged.
-func annotateKeyRanks(ctx context.Context, dir string, lines []*StudyAskLine) error {
+// DropSuperseded is the drop reason of a superseded record (decision 0148).
+const DropSuperseded = "superseded"
+
+// annotateRetrievalLog reads each line's retrieval log back from the closed
+// database, copies features.key_rank (decision 0145) onto the delivered
+// items, and counts the drop reasons (DropSuperseded ids listed). Without
+// keys every rank is 0; with nothing dropped the lines are unchanged.
+func annotateRetrievalLog(ctx context.Context, dir string, lines []*StudyAskLine) error {
 	db, err := openRO(filepath.Join(dir, "chanda.db"))
 	if err != nil {
 		return err
@@ -635,6 +644,7 @@ func annotateKeyRanks(ctx context.Context, dir string, lines []*StudyAskLine) er
 		var cands []struct {
 			ID       string             `json:"id"`
 			Features map[string]float64 `json:"features"`
+			Dropped  string             `json:"dropped"`
 		}
 		if err := json.Unmarshal([]byte(raw), &cands); err != nil {
 			return fmt.Errorf("%s: retrieval %s candidates: %w", l.QuestionID, l.RetrievalID, err)
@@ -644,6 +654,15 @@ func annotateKeyRanks(ctx context.Context, dir string, lines []*StudyAskLine) er
 			if k := int(c.Features["key_rank"]); k > 0 {
 				l.KeyCandidates++
 				rank[c.ID] = k
+			}
+			if c.Dropped != "" {
+				if l.DropReasons == nil {
+					l.DropReasons = map[string]int{}
+				}
+				l.DropReasons[c.Dropped]++
+				if c.Dropped == DropSuperseded {
+					l.DroppedSuperseded = append(l.DroppedSuperseded, c.ID)
+				}
 			}
 		}
 		for i := range l.Items {

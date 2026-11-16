@@ -13,10 +13,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"time"
 	"unicode"
-
-	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // ---------------------------------------------------------------------------
@@ -33,15 +30,7 @@ var ErrNoKeysTool = errors.New("this Chanda build has no admin tool " + ToolLear
 	" (decision 0145, learned query keys, is not implemented on this branch yet)")
 
 // StudyKeysResult is the saved result of a keys step.
-type StudyKeysResult struct {
-	DB         string          `json:"db"`
-	Action     string          `json:"action"`
-	ChandaSet  []string        `json:"chanda_set,omitempty"`
-	ConfigHash string          `json:"chanda_config_hash"`
-	At         string          `json:"at"`
-	WallMS     float64         `json:"wall_ms"`
-	Output     json.RawMessage `json:"output"` // the tool's data exactly as returned over MCP
-}
+type StudyKeysResult = StudyAdminResult
 
 // CheckKeysAction refuses an action the tool does not have.
 func CheckKeysAction(action string) error {
@@ -61,46 +50,7 @@ func StudyKeys(ctx context.Context, o *StudyOptions, dir, action string) (*Study
 	if err := CheckKeysAction(action); err != nil {
 		return nil, err
 	}
-	m, err := ReadStudyMeta(dir)
-	if err != nil {
-		return nil, err
-	}
-	so := *o
-	so.Chanda.LLMURL = ""
-	srv, h, err := so.start(ctx, dir, m, true)
-	if err != nil {
-		return nil, err
-	}
-	defer srv.Close()
-	ok, err := srv.HasTool(ctx, ToolLearnedKeys)
-	if err != nil {
-		return nil, err
-	}
-	if !ok {
-		return nil, fmt.Errorf("%s: %w", dir, ErrNoKeysTool)
-	}
-	res := &StudyKeysResult{DB: dir, Action: action, ChandaSet: OverrideStrings(o.Chanda.Set), ConfigHash: h}
-	start := time.Now()
-	var raw json.RawMessage
-	if err := srv.Call(ctx, ToolLearnedKeys, map[string]any{"action": action}, &raw); err != nil {
-		return nil, err
-	}
-	res.WallMS = ms(time.Since(start))
-	res.At = start.UTC().Format(time.RFC3339)
-	res.Output = raw
-	if action == "rebuild" {
-		var f struct {
-			Complete bool `json:"complete"`
-		}
-		if err := srv.Call(ctx, chanda.ToolFlush, chanda.FlushInput{}, &f); err != nil {
-			return nil, err
-		}
-	}
-	m.addStep(StudyStep{Step: "keys", Set: OverrideStrings(o.Chanda.Set), ConfigHash: h, Detail: fmt.Sprintf("%s: %.300s", action, raw)})
-	if err := srv.Close(); err != nil {
-		return nil, err
-	}
-	return res, m.Write(dir)
+	return studyAdmin(ctx, o, dir, "keys", ToolLearnedKeys, map[string]any{"action": action}, ErrNoKeysTool, action == "rebuild")
 }
 
 // ---------------------------------------------------------------------------
@@ -458,90 +408,38 @@ func LeakCheckLearnDB(ctx context.Context, db *sql.DB, in LearnLeakInput) (*Lear
 	}
 
 	// Generic scan of every text value.
-	for _, t := range ts {
-		if t.virtual {
-			r.Skipped = append(r.Skipped, t.name+" (virtual)")
-			continue
-		}
-		if v := shadowOf(t.name, virtuals); v != "" {
-			r.Skipped = append(r.Skipped, t.name+" (shadow of "+v+")")
-			continue
-		}
-		if len(t.cols) == 0 {
-			continue
-		}
-		idExpr := "rowid"
-		if t.hasID {
-			idExpr = "id"
-		}
-		cols := make([]string, len(t.cols))
-		for i, c := range t.cols {
-			cols[i] = quoteIdent(c)
-		}
-		q := "SELECT CAST(" + idExpr + " AS TEXT), " + strings.Join(cols, ", ") + " FROM " + quoteIdent(t.name)
-		if t.name == "events" {
-			q += " WHERE kind IS NOT 'turn'"
-			r.Skipped = append(r.Skipped, "events rows of kind turn (the ingested turns)")
-		}
-		rows, err := db.QueryContext(ctx, q)
-		if err != nil && idExpr == "rowid" { // WITHOUT ROWID table
-			q = strings.Replace(q, "CAST(rowid AS TEXT)", "''", 1)
-			rows, err = db.QueryContext(ctx, q)
-		}
-		if err != nil {
-			return nil, fmt.Errorf("scan %s: %w", t.name, err)
-		}
-		r.Scanned = append(r.Scanned, t.name+"("+strings.Join(t.cols, ",")+")")
-		vals := make([]any, len(t.cols)+1)
-		ptrs := make([]any, len(vals))
-		for i := range vals {
-			ptrs[i] = &vals[i]
-		}
-		for rows.Next() {
-			if err := rows.Scan(ptrs...); err != nil {
-				rows.Close()
-				return nil, err
+	if err := scanTextValues(ctx, db, ts, virtuals, &r.Scanned, &r.Skipped, func(table, col, id string, leaves []string) {
+		r.ValuesScanned++
+		for _, x := range leaves {
+			if reJudgeWords.MatchString(x) {
+				r.JudgeOutput = append(r.JudgeOutput, LeakHit{Table: table, Column: col, Row: id, Match: reJudgeWords.FindString(x)})
 			}
-			id, _ := vals[0].(string)
-			for ci, c := range t.cols {
-				s, ok := vals[ci+1].(string)
-				if !ok || s == "" {
-					continue
+			nv := normWords(x)
+			for _, nd := range tests {
+				if ok, via := match(nd, nv); ok {
+					h := LeakHit{Table: table, Column: col, Row: id, Match: nd.text, Via: via}
+					if via == "" {
+						r.TestQuestionIn = append(r.TestQuestionIn, h)
+					} else {
+						r.TestQuestionInUse = append(r.TestQuestionInUse, h)
+					}
 				}
-				r.ValuesScanned++
-				for _, x := range textsOf(s) {
-					if reJudgeWords.MatchString(x) {
-						r.JudgeOutput = append(r.JudgeOutput, LeakHit{Table: t.name, Column: c, Row: id, Match: reJudgeWords.FindString(x)})
-					}
-					nv := normWords(x)
-					for _, nd := range tests {
-						if ok, via := match(nd, nv); ok {
-							h := LeakHit{Table: t.name, Column: c, Row: id, Match: nd.text, Via: via}
-							if via == "" {
-								r.TestQuestionIn = append(r.TestQuestionIn, h)
-							} else {
-								r.TestQuestionInUse = append(r.TestQuestionInUse, h)
-							}
-						}
-					}
-					if goldTables[t.name] {
-						for _, nd := range golds {
-							if ok, via := match(nd, nv); ok {
-								h := LeakHit{Table: t.name, Column: c, Row: id, Match: nd.text, Via: via}
-								if via == "" {
-									r.GoldHits = append(r.GoldHits, h)
-								} else {
-									r.GoldInUseQuestion = append(r.GoldInUseQuestion, h)
-								}
-							}
+			}
+			if goldTables[table] {
+				for _, nd := range golds {
+					if ok, via := match(nd, nv); ok {
+						h := LeakHit{Table: table, Column: col, Row: id, Match: nd.text, Via: via}
+						if via == "" {
+							r.GoldHits = append(r.GoldHits, h)
+						} else {
+							r.GoldInUseQuestion = append(r.GoldInUseQuestion, h)
 						}
 					}
 				}
 			}
 		}
-		if err := rows.Close(); err != nil {
-			return nil, err
-		}
+	}); err != nil {
+		return nil, err
 	}
 
 	// Retrieval queries and key texts must be use-half questions.
@@ -655,4 +553,72 @@ func LeakCheckLearnDB(ctx context.Context, db *sql.DB, in LearnLeakInput) (*Lear
 	}
 	r.OK = len(r.Failures) == 0
 	return r, nil
+}
+
+// scanTextValues calls visit for every non-empty string value of every ordinary table of db: FTS virtual tables
+// and their shadow tables are copies of other tables and are skipped, and
+// so are the events rows of kind 'turn' (the ingested turns). The scanned
+// tables (with their columns) and the skipped ones are appended to scanned
+// and skipped. visit is called once per value with the row id (id, else
+// rowid, else "") and the value's text leaves.
+func scanTextValues(ctx context.Context, db *sql.DB, ts []tableInfo, virtuals []string, scanned, skipped *[]string,
+	visit func(table, col, id string, leaves []string)) error {
+	for _, t := range ts {
+		if t.virtual {
+			*skipped = append(*skipped, t.name+" (virtual)")
+			continue
+		}
+		if v := shadowOf(t.name, virtuals); v != "" {
+			*skipped = append(*skipped, t.name+" (shadow of "+v+")")
+			continue
+		}
+		if len(t.cols) == 0 {
+			continue
+		}
+		idExpr := "rowid"
+		if t.hasID {
+			idExpr = "id"
+		}
+		cols := make([]string, len(t.cols))
+		for i, c := range t.cols {
+			cols[i] = quoteIdent(c)
+		}
+		q := "SELECT CAST(" + idExpr + " AS TEXT), " + strings.Join(cols, ", ") + " FROM " + quoteIdent(t.name)
+		if t.name == "events" {
+			q += " WHERE kind IS NOT 'turn'"
+			*skipped = append(*skipped, "events rows of kind turn (the ingested turns)")
+		}
+		rows, err := db.QueryContext(ctx, q)
+		if err != nil && idExpr == "rowid" { // WITHOUT ROWID table
+			q = strings.Replace(q, "CAST(rowid AS TEXT)", "''", 1)
+			rows, err = db.QueryContext(ctx, q)
+		}
+		if err != nil {
+			return fmt.Errorf("scan %s: %w", t.name, err)
+		}
+		*scanned = append(*scanned, t.name+"("+strings.Join(t.cols, ",")+")")
+		vals := make([]any, len(t.cols)+1)
+		ptrs := make([]any, len(vals))
+		for i := range vals {
+			ptrs[i] = &vals[i]
+		}
+		for rows.Next() {
+			if err := rows.Scan(ptrs...); err != nil {
+				rows.Close()
+				return err
+			}
+			id, _ := vals[0].(string)
+			for ci, c := range t.cols {
+				s, ok := vals[ci+1].(string)
+				if !ok || s == "" {
+					continue
+				}
+				visit(t.name, c, id, textsOf(s))
+			}
+		}
+		if err := rows.Close(); err != nil {
+			return err
+		}
+	}
+	return nil
 }
