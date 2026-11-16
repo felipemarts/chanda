@@ -4,8 +4,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 func TestShadowModeLogsButDoesNotChangeOrder(t *testing.T) {

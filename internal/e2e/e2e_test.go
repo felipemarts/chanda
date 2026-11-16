@@ -15,11 +15,11 @@ import (
 
 	sdk "github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"github.com/felipemarts/chanda-mcp/internal/app"
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/internal/env"
-	"github.com/felipemarts/chanda-mcp/internal/mcp"
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/internal/app"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/internal/env"
+	"github.com/felipemarts/chanda/internal/mcp"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // world is one App with three MCP channels:

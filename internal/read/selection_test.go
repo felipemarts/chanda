@@ -7,8 +7,8 @@ import (
 	"testing"
 	"unicode/utf8"
 
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 // filler is a long assistant-style reply: n sentences that mention the
@@ -108,7 +108,9 @@ func contextWith(t *testing.T, budget int, set func(rc *config.ReadConfig)) Cont
 // (the same items lead as without the cap).
 func TestContextItemMaxTokens(t *testing.T) {
 	for _, mode := range []string{config.TruncateHead, config.TruncateBestWindow} {
-		res := contextWith(t, 0, func(rc *config.ReadConfig) { rc.ContextItemMaxTokens, rc.ContextTruncate, rc.ContextItemCapAfter = 80, mode, 0 })
+		res := contextWith(t, 0, func(rc *config.ReadConfig) {
+			rc.ContextItemMaxTokens, rc.ContextTruncate, rc.ContextItemCapAfter = 80, mode, 0
+		})
 		if len(res.Items) == 0 || res.TokensUsed != estimateTokens(res.Text) {
 			t.Fatalf("%s: %+v", mode, res)
 		}

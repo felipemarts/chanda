@@ -1,9 +1,9 @@
 package embed
 
 import (
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/pkg/chanda/embedreg"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/pkg/chanda/embedreg"
 )
 
 // Provider names accepted in embed.provider.

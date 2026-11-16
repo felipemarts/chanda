@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 // Query is one evaluation question as a system sees it: no answer key, no tags.

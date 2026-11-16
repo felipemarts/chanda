@@ -8,8 +8,8 @@ import (
 	"sort"
 	"time"
 
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 // FeatureNames is the stage-2 input, in vector order (BASE.md "Stage 2"),

@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 type step struct {

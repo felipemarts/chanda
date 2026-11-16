@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // The sleep study (eval/sleep/PROTOCOL.md, eval/sleep/README.md): steps on a

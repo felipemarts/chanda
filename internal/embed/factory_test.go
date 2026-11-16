@@ -3,8 +3,8 @@ package embed
 import (
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 func TestNewFromConfig(t *testing.T) {

@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/pkg/chanda/embedreg"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/pkg/chanda/embedreg"
 )
 
 func TestModelIDRecordsModelEngineAndFlavour(t *testing.T) {

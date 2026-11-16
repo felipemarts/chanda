@@ -5,8 +5,8 @@ import (
 	"math"
 	"sort"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/keys"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/keys"
 )
 
 // Learned query keys on the read path (decision 0145).

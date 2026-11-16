@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 func TestQueryTermsStripStopwordsAndFold(t *testing.T) {

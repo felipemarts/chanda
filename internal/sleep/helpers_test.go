@@ -7,11 +7,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/felipemarts/chanda-mcp/internal/audit"
-	"github.com/felipemarts/chanda-mcp/internal/clock"
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/env"
-	"github.com/felipemarts/chanda-mcp/internal/store"
+	"github.com/felipemarts/chanda/internal/audit"
+	"github.com/felipemarts/chanda/internal/clock"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/env"
+	"github.com/felipemarts/chanda/internal/store"
 )
 
 const ns = "ns"

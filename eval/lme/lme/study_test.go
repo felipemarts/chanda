@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 func studyTestOptions(t *testing.T, sets ...string) *StudyOptions {

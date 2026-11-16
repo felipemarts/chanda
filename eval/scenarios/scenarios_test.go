@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // scenarios is the phase 5 set, in report order.

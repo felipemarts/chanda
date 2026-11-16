@@ -7,9 +7,9 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/facts/norm"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/facts/norm"
 )
 
 // Extractor kinds (cfg.Write.Extractors[].Kind).

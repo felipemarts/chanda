@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 // record is the metadata of an event, fact or page needed by the read path.

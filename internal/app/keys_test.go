@@ -5,9 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/audit"
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/internal/audit"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // keysScenario writes three records, asks a question whose words appear

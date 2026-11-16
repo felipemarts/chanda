@@ -21,7 +21,7 @@ Hermes at a time.
 1. Install the `chanda` binary and check it: `chanda version`.
 
    ```sh
-   CGO_ENABLED=0 go install github.com/felipemarts/chanda-mcp/cmd/chanda@latest
+   CGO_ENABLED=0 go install github.com/felipemarts/chanda/cmd/chanda@latest
    # or, from a clone: go build -o ~/.local/bin/chanda ./cmd/chanda
    ```
 

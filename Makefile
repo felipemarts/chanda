@@ -13,7 +13,7 @@
 #   make release   static binaries for linux/darwin/windows (amd64, arm64) + SHA256SUMS in dist/
 
 VERSION   ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
-LDFLAGS   := -X github.com/felipemarts/chanda-mcp/internal/cli.Version=$(VERSION)
+LDFLAGS   := -X github.com/felipemarts/chanda/internal/cli.Version=$(VERSION)
 EVAL_ARGS ?=
 
 export CGO_ENABLED = 0

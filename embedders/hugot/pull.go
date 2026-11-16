@@ -9,7 +9,7 @@ import (
 
 	khugot "github.com/knights-analytics/hugot"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 // Pull downloads model name from Hugging Face into dir and writes its

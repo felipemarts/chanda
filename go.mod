@@ -1,4 +1,4 @@
-module github.com/felipemarts/chanda-mcp
+module github.com/felipemarts/chanda
 
 go 1.26.2
 

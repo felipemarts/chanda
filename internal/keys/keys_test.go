@@ -8,13 +8,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/audit"
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/env"
-	"github.com/felipemarts/chanda-mcp/internal/keys"
-	"github.com/felipemarts/chanda-mcp/internal/prov"
-	"github.com/felipemarts/chanda-mcp/internal/rank"
+	"github.com/felipemarts/chanda/internal/audit"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/env"
+	"github.com/felipemarts/chanda/internal/keys"
+	"github.com/felipemarts/chanda/internal/prov"
+	"github.com/felipemarts/chanda/internal/rank"
 )
 
 var bg = context.Background()

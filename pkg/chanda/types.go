@@ -19,7 +19,7 @@ package chanda
 import (
 	"context"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 // Zone is a trust zone: "external" < "internal" < "user".

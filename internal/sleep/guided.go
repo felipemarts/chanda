@@ -10,10 +10,10 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/llm"
-	"github.com/felipemarts/chanda-mcp/internal/window"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/llm"
+	"github.com/felipemarts/chanda/internal/window"
 )
 
 // Guided sleep (docs/decisions/0142-usage-guided-sleep.md). With

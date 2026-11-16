@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 func TestCoverageRule(t *testing.T) {

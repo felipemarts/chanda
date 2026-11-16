@@ -8,10 +8,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/env"
-	"github.com/felipemarts/chanda-mcp/internal/forget"
-	"github.com/felipemarts/chanda-mcp/internal/prov/provtest"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/env"
+	"github.com/felipemarts/chanda/internal/forget"
+	"github.com/felipemarts/chanda/internal/prov/provtest"
 )
 
 // mentionCorpus seeds one entity, "Ysolde Karvenni", created after every

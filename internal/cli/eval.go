@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/embed"
-	"github.com/felipemarts/chanda-mcp/internal/eval"
-	"github.com/felipemarts/chanda-mcp/internal/eval/coresys"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/embed"
+	"github.com/felipemarts/chanda/internal/eval"
+	"github.com/felipemarts/chanda/internal/eval/coresys"
 )
 
 // NewReranker builds the cross-encoder the evaluation gives C2..C5 from the

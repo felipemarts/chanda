@@ -7,9 +7,9 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/felipemarts/chanda-mcp/internal/app"
-	"github.com/felipemarts/chanda-mcp/internal/sleep"
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/internal/app"
+	"github.com/felipemarts/chanda/internal/sleep"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // gater is the review surface of the gate set and of learned ranking,

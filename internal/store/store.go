@@ -21,7 +21,7 @@ import (
 
 	_ "modernc.org/sqlite"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 //go:embed migrations/*.sql

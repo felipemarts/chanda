@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/internal/sleep"
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/internal/sleep"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // Decision 0142 on the wired App: retrievals logged by the real read path

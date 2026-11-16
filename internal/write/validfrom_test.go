@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 // BASE.md "valid_from uses, in this order: the date given in the call, ...":

@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/felipemarts/chanda-mcp/internal/eval"
+	"github.com/felipemarts/chanda/internal/eval"
 )
 
 func main() {

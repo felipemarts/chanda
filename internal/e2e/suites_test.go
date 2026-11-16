@@ -9,8 +9,8 @@ import (
 
 	sdk "github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"github.com/felipemarts/chanda-mcp/internal/app"
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/internal/app"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // Phase 6, injection suite (BASE.md: external content that becomes guidance

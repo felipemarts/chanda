@@ -1,10 +1,10 @@
-module github.com/felipemarts/chanda-mcp/eval/lme
+module github.com/felipemarts/chanda/eval/lme
 
 go 1.27.0
 
 require (
-	github.com/felipemarts/chanda-mcp v0.0.0
-	github.com/felipemarts/chanda-mcp/embedders/hugot v0.0.0
+	github.com/felipemarts/chanda v0.0.0
+	github.com/felipemarts/chanda/embedders/hugot v0.0.0
 	github.com/modelcontextprotocol/go-sdk v1.8.0
 	gopkg.in/yaml.v3 v3.0.1
 	modernc.org/sqlite v1.62.0
@@ -51,8 +51,8 @@ require (
 
 replace (
 	// The main module and the hugot embedder, from this repository.
-	github.com/felipemarts/chanda-mcp => ../..
-	github.com/felipemarts/chanda-mcp/embedders/hugot => ../../embedders/hugot
+	github.com/felipemarts/chanda => ../..
+	github.com/felipemarts/chanda/embedders/hugot => ../../embedders/hugot
 	// Replace directives of a dependency are not inherited: repeat the
 	// patched tokenizer the hugot module uses (its PATCH.md).
 	github.com/gomlx/go-huggingface => ../../embedders/hugot/third_party/go-huggingface-patched

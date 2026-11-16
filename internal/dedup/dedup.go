@@ -37,10 +37,10 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/felipemarts/chanda-mcp/internal/audit"
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/env"
-	"github.com/felipemarts/chanda-mcp/internal/facts/norm"
+	"github.com/felipemarts/chanda/internal/audit"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/env"
+	"github.com/felipemarts/chanda/internal/facts/norm"
 )
 
 // Sig is the part of a text that must match exactly for two similar texts

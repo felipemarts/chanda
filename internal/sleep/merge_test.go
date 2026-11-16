@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/audit"
+	"github.com/felipemarts/chanda/internal/audit"
 )
 
 // Decision table for facts, applied when an entity merge is accepted: two

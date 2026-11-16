@@ -10,9 +10,9 @@ import (
 	"github.com/gomlx/go-huggingface/tokenizers/hftokenizer"
 	"golang.org/x/text/unicode/norm"
 
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/embed"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/embed"
 )
 
 var embedderModels = []string{"e5-small", "paraphrase-minilm-l12"}

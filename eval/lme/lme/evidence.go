@@ -6,7 +6,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // Turn-level evidence recall in the context block (eval/selection/PROTOCOL.md,

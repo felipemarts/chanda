@@ -9,7 +9,7 @@ import (
 
 	_ "modernc.org/sqlite" // FTS5-enabled pure-Go SQLite for the BM25 baseline
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 // ---------------------------------------------------------------------------

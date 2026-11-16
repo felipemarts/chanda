@@ -9,10 +9,10 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/prov"
-	"github.com/felipemarts/chanda-mcp/internal/store"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/prov"
+	"github.com/felipemarts/chanda/internal/store"
 )
 
 // Removed lists the ids of every row forget deletes, by kind. Ids are not

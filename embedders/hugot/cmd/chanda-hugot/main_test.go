@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/embedders/hugot"
+	"github.com/felipemarts/chanda/embedders/hugot"
 )
 
 func runCLI(args ...string) (code int, stdout, stderr string) {

@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/config"
+	"github.com/felipemarts/chanda/internal/config"
 )
 
 // Decision 0142: sleep.mode and sleep.guided.* default to the old sleep,

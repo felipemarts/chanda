@@ -12,8 +12,8 @@ import (
 
 	sdk "github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 func testConfig(profiles ...string) *config.Config {

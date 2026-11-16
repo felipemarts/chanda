@@ -22,9 +22,9 @@ import (
 	"database/sql"
 	"sync"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/env"
-	"github.com/felipemarts/chanda-mcp/internal/store"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/env"
+	"github.com/felipemarts/chanda/internal/store"
 )
 
 // Ranker owns the learning tables: outcomes, utility, flags, rank_state and

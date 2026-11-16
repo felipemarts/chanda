@@ -18,5 +18,5 @@ if ! diff -r "${TMPDIR:-/tmp}/chanda-synthetic-check" eval/data/synthetic-pt >/d
 	echo "eval/data/synthetic-pt differs from its generator; run: make dataset" >&2
 	exit 1
 fi
-go build -ldflags "-X github.com/felipemarts/chanda-mcp/internal/cli.Version=$version" -o bin/chanda ./cmd/chanda
+go build -ldflags "-X github.com/felipemarts/chanda/internal/cli.Version=$version" -o bin/chanda ./cmd/chanda
 ./bin/chanda eval -dataset eval/data/synthetic-pt -out eval/reports -name latest "$@"

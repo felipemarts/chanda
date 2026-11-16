@@ -8,9 +8,9 @@ import (
 	"math"
 	"time"
 
-	"github.com/felipemarts/chanda-mcp/internal/audit"
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/keys"
+	"github.com/felipemarts/chanda/internal/audit"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/keys"
 )
 
 // SignalTaskOutcome is the only outcomes.signal written today.

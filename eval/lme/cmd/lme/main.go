@@ -35,10 +35,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/felipemarts/chanda-mcp/embedders/hugot"
-	"github.com/felipemarts/chanda-mcp/eval/lme/lme"
-	"github.com/felipemarts/chanda-mcp/internal/cli"
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/embedders/hugot"
+	"github.com/felipemarts/chanda/eval/lme/lme"
+	"github.com/felipemarts/chanda/internal/cli"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 const (

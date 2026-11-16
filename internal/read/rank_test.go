@@ -5,7 +5,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 func near(a, b float64) bool { return math.Abs(a-b) < 1e-9 }

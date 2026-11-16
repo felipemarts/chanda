@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/eval"
+	"github.com/felipemarts/chanda/internal/eval"
 )
 
 // The temporal suite names each delivered record that carries a superseded

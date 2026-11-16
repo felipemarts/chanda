@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/felipemarts/chanda-mcp/internal/clock"
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/internal/store"
+	"github.com/felipemarts/chanda/internal/clock"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/internal/store"
 )
 
 // TestEpoch is the start instant of every test clock.

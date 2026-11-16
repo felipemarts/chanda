@@ -11,7 +11,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/felipemarts/chanda-mcp/internal/env"
+	"github.com/felipemarts/chanda/internal/env"
 )
 
 // Probe names.

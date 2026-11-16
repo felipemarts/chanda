@@ -6,7 +6,7 @@ file is how we build it. If the two disagree, BASE.md wins unless a record in
 
 ## Build
 
-- Go 1.26, module `github.com/felipemarts/chanda-mcp`, always `CGO_ENABLED=0`.
+- Go 1.26, module `github.com/felipemarts/chanda`, always `CGO_ENABLED=0`.
 - `go vet ./...`, `gofmt -l .` empty and `go test ./...` must pass before every commit.
 - No network at read or write time. Tests never touch the network.
 

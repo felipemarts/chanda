@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/felipemarts/chanda-mcp/internal/eval"
+	"github.com/felipemarts/chanda/internal/eval"
 )
 
 // TemporalSuite is eval.TemporalSuite plus, for a C system, one diagnostic

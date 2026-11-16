@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/env"
+	"github.com/felipemarts/chanda/internal/env"
 )
 
 // "Chunks that disappeared receive retired_at, and the facts derived from them

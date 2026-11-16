@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/felipemarts/chanda-mcp/internal/eval"
+	"github.com/felipemarts/chanda/internal/eval"
 )
 
 // EntityNames lists the live entities of the namespace with their types,

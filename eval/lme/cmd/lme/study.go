@@ -17,8 +17,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/felipemarts/chanda-mcp/eval/lme/lme"
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/eval/lme/lme"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 const studyUsage = `usage: lme study <step> [flags]

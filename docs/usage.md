@@ -9,7 +9,7 @@ a configured server, then through the day-to-day commands.
 Requirements: Go 1.26 (see `go.mod`) and `git`. Nothing else.
 
 ```sh
-git clone https://github.com/felipemarts/chanda-mcp && cd chanda-mcp
+git clone https://github.com/felipemarts/chanda && cd chanda
 make build            # bin/chanda, version stamped from git describe
 make test             # go test ./...
 bin/chanda version

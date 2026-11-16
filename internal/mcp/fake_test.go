@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // call is one invocation seen by fakeAPI.

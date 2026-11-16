@@ -6,12 +6,12 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/dedup"
-	"github.com/felipemarts/chanda-mcp/internal/facts"
-	"github.com/felipemarts/chanda-mcp/internal/rank"
-	"github.com/felipemarts/chanda-mcp/internal/read"
-	"github.com/felipemarts/chanda-mcp/internal/write"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/dedup"
+	"github.com/felipemarts/chanda/internal/facts"
+	"github.com/felipemarts/chanda/internal/rank"
+	"github.com/felipemarts/chanda/internal/read"
+	"github.com/felipemarts/chanda/internal/write"
 )
 
 // afterEvent is the write-path hook chain (BASE.md write steps 7 to 10, in

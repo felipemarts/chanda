@@ -4,7 +4,7 @@ import (
 	"context"
 	"sort"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 // plainEmb embeds every text as [1,0].

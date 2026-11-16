@@ -3,7 +3,7 @@ package read
 import (
 	"context"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 // vectorEnabled reports whether the vector list can be produced.

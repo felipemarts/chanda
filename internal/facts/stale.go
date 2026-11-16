@@ -6,8 +6,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/felipemarts/chanda-mcp/internal/audit"
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/audit"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 const inBatch = 500

@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/audit"
-	"github.com/felipemarts/chanda-mcp/internal/env"
+	"github.com/felipemarts/chanda/internal/audit"
+	"github.com/felipemarts/chanda/internal/env"
 )
 
 func TestChainVerifies(t *testing.T) {

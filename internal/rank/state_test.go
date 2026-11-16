@@ -8,8 +8,8 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/audit"
-	"github.com/felipemarts/chanda-mcp/internal/config"
+	"github.com/felipemarts/chanda/internal/audit"
+	"github.com/felipemarts/chanda/internal/config"
 )
 
 func TestUtilityOnlyEntersAfterMinExposures(t *testing.T) {

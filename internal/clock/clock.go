@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 // System is the wall clock, truncated to microseconds for stable storage.

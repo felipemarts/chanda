@@ -9,7 +9,7 @@ import (
 	"github.com/knights-analytics/hugot/pipelines"
 	"golang.org/x/text/unicode/norm"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 // Reranker is a cross-encoder (core.Reranker) over a local ONNX model,

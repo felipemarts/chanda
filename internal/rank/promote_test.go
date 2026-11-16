@@ -5,9 +5,9 @@ import (
 	"math"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/audit"
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/internal/env"
+	"github.com/felipemarts/chanda/internal/audit"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/internal/env"
 )
 
 func insertModel(t *testing.T, e *env.Env, id, status, created string) {

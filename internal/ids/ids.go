@@ -13,7 +13,7 @@ import (
 
 	"github.com/oklog/ulid/v2"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 type Generator struct {

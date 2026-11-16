@@ -8,7 +8,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/felipemarts/chanda-mcp/internal/config"
+	"github.com/felipemarts/chanda/internal/config"
 )
 
 // Override sets one Chanda configuration key in the per-question

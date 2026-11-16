@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 // Policy decides when sleep runs on its own (BASE.md "When it runs").

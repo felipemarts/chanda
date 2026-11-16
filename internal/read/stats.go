@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 // Stats summarizes one namespace.

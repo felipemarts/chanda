@@ -3,7 +3,7 @@ package write
 import (
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 // BASE.md step 2 for sessions: session turns are internal; tool results are

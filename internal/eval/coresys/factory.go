@@ -6,11 +6,11 @@ import (
 	"slices"
 	"time"
 
-	"github.com/felipemarts/chanda-mcp/internal/app"
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/eval"
-	"github.com/felipemarts/chanda-mcp/internal/sleep"
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/internal/app"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/eval"
+	"github.com/felipemarts/chanda/internal/sleep"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // Factories returns the C1..C5 factories (app.Options per decision 0094).

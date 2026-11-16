@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/felipemarts/chanda-mcp/internal/audit"
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/audit"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 // SetEnabled is the per-namespace runtime toggle of learned ranking (the

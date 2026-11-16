@@ -1,9 +1,9 @@
-module github.com/felipemarts/chanda-mcp/embedders/hugot
+module github.com/felipemarts/chanda/embedders/hugot
 
 go 1.27.0
 
 require (
-	github.com/felipemarts/chanda-mcp v0.0.0
+	github.com/felipemarts/chanda v0.0.0
 	github.com/gomlx/go-huggingface v0.4.32
 	github.com/knights-analytics/hugot v0.8.6
 	golang.org/x/text v0.44.0
@@ -50,7 +50,7 @@ require (
 
 replace (
 	// The main module, from this repository (decision 0033).
-	github.com/felipemarts/chanda-mcp => ../..
+	github.com/felipemarts/chanda => ../..
 	// Unigram tokenizer fixed to Viterbi; see third_party/go-huggingface-patched/PATCH.md.
 	github.com/gomlx/go-huggingface => ./third_party/go-huggingface-patched
 )

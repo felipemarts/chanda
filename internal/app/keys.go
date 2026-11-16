@@ -4,9 +4,9 @@ import (
 	"context"
 	"strings"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/keys"
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/keys"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // LearnedKeys is the admin control of the learned query keys (decision

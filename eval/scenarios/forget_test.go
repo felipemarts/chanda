@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // Forget scenarios. Each one writes content carrying distinctive marker

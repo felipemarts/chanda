@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/facts"
-	"github.com/felipemarts/chanda-mcp/internal/read"
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/facts"
+	"github.com/felipemarts/chanda/internal/read"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // dateOnly is the layout of a bare date.

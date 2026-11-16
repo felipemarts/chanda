@@ -6,9 +6,9 @@ import (
 	"encoding/json"
 	"math"
 
-	"github.com/felipemarts/chanda-mcp/internal/audit"
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/store"
+	"github.com/felipemarts/chanda/internal/audit"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/store"
 )
 
 // Example is one training row: a delivered candidate of a retrieval that

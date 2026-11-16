@@ -6,9 +6,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/store"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/store"
 )
 
 // urow mirrors one utility row: a Beta(alpha, beta) distribution of the

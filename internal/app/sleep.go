@@ -5,14 +5,14 @@ import (
 	"database/sql"
 	"os"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/facts"
-	"github.com/felipemarts/chanda-mcp/internal/llm"
-	"github.com/felipemarts/chanda-mcp/internal/prov"
-	"github.com/felipemarts/chanda-mcp/internal/rank"
-	"github.com/felipemarts/chanda-mcp/internal/sleep"
-	"github.com/felipemarts/chanda-mcp/internal/store"
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/facts"
+	"github.com/felipemarts/chanda/internal/llm"
+	"github.com/felipemarts/chanda/internal/prov"
+	"github.com/felipemarts/chanda/internal/rank"
+	"github.com/felipemarts/chanda/internal/sleep"
+	"github.com/felipemarts/chanda/internal/store"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // newSleeper wires sleep (decision 0092): the LLM from Options or config,

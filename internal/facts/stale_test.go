@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 func TestDocumentUpdate_FactsFromRetiredChunksBecomeStale(t *testing.T) {

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/env"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/env"
 )
 
 func serviceWith(t *testing.T, exts ...config.ExtractorConfig) (*Service, *env.Env) {

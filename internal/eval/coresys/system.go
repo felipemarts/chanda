@@ -22,14 +22,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/felipemarts/chanda-mcp/internal/app"
-	"github.com/felipemarts/chanda-mcp/internal/clock"
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/env"
-	"github.com/felipemarts/chanda-mcp/internal/eval"
-	"github.com/felipemarts/chanda-mcp/internal/store"
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/internal/app"
+	"github.com/felipemarts/chanda/internal/clock"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/env"
+	"github.com/felipemarts/chanda/internal/eval"
+	"github.com/felipemarts/chanda/internal/store"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // Namespace is the namespace every evaluation system writes to.

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 // SearchInput is the free read (BASE.md mode "search").

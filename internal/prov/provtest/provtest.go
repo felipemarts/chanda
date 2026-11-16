@@ -9,7 +9,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/env"
+	"github.com/felipemarts/chanda/internal/env"
 )
 
 // T is the fixed timestamp used for created_at columns.

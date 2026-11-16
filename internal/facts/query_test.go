@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 func at(d string) time.Time {

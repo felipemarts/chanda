@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/cli"
+	"github.com/felipemarts/chanda/internal/cli"
 )
 
 // runChandaForTest is "lme chanda" inside the test binary (see TestMain).

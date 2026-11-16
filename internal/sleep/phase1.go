@@ -6,8 +6,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/felipemarts/chanda-mcp/internal/audit"
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/audit"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 // phase1 is deterministic maintenance (BASE.md "Phase 1"). The snapshot is

@@ -3,7 +3,7 @@ package rank
 import (
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/config"
+	"github.com/felipemarts/chanda/internal/config"
 )
 
 // Decision 0146: a fixed λ applies the stage-1 utility without a model.

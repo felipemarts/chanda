@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
-	"github.com/felipemarts/chanda-mcp/pkg/chanda/local"
+	"github.com/felipemarts/chanda/pkg/chanda"
+	"github.com/felipemarts/chanda/pkg/chanda/local"
 )
 
 // BASE.md: the same core is exposed through an importable Go package.

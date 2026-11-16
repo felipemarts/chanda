@@ -11,9 +11,9 @@ import (
 
 	"golang.org/x/text/unicode/norm"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/prov"
-	"github.com/felipemarts/chanda-mcp/internal/store"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/prov"
+	"github.com/felipemarts/chanda/internal/store"
 )
 
 // Entity mention rule (decision 0130). The entity scope finds the records

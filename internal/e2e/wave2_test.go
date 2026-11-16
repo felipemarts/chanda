@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // Temporal correctness of raw excerpts (decision 0093): a document chunk

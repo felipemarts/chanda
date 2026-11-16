@@ -7,8 +7,8 @@ import (
 	"sort"
 	"time"
 
-	"github.com/felipemarts/chanda-mcp/internal/audit"
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/audit"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 // ActRetrieve is the audit action for a logged query (the retrievals row is

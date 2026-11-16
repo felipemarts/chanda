@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // Context conditions for phases 3/4.

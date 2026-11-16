@@ -8,10 +8,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/forget"
-	"github.com/felipemarts/chanda-mcp/internal/prov"
-	"github.com/felipemarts/chanda-mcp/internal/prov/provtest"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/forget"
+	"github.com/felipemarts/chanda/internal/prov"
+	"github.com/felipemarts/chanda/internal/prov/provtest"
 )
 
 func probe(v *forget.Verification, name string) forget.Probe {

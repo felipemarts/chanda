@@ -1,6 +1,6 @@
 package read
 
-import "github.com/felipemarts/chanda-mcp/internal/window"
+import "github.com/felipemarts/chanda/internal/window"
 
 // Shortening a context item (decision 0137). read.context_truncate picks
 // how: "head" keeps the start of the text (truncateToFit, the behaviour

@@ -5,8 +5,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/llm"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/llm"
 )
 
 var (

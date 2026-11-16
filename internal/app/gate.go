@@ -11,13 +11,13 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/felipemarts/chanda-mcp/internal/audit"
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/rank"
-	"github.com/felipemarts/chanda-mcp/internal/read"
-	"github.com/felipemarts/chanda-mcp/internal/sleep"
-	"github.com/felipemarts/chanda-mcp/internal/store"
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/internal/audit"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/rank"
+	"github.com/felipemarts/chanda/internal/read"
+	"github.com/felipemarts/chanda/internal/sleep"
+	"github.com/felipemarts/chanda/internal/store"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // The gate set (decisions 0061 and 0092): approved gate_questions scored

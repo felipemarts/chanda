@@ -18,8 +18,8 @@ import (
 
 	sdk "github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // recAPI records the last call; everything it does not override is Unwired.

@@ -3,7 +3,7 @@ package app
 import (
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // Decision 0062: an accepted merge sets entities.merged_into and moves the

@@ -17,9 +17,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/llm"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/llm"
 )
 
 // Saturday 2026-11-14 12:00 UTC: off-peak. Monday 2026-11-16 02:00 UTC: peak.

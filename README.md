@@ -1,4 +1,6 @@
-# Chanda
+# Chanda: local memory for AI agents
+
+**Agent memory** · MCP server · RAG
 
 **Long-term memory for AI agents that never needs an LLM to build it.**
 
@@ -15,6 +17,38 @@ and reading uses full-text search, vectors, rules and a small ranking. An LLM
 is optional and only used offline. The result is memory that is fast, cheap
 and reproducible, and that can say exactly where every answer came from.
 
+## Why "Chanda"
+
+The name comes from Chanda, a character in the series *Pantheon*: a
+digitised intelligence that is restarted every day. His work moves forward
+because it is saved in files, but he starts from zero every morning,
+without remembering what he learned. Today's AI agents are in the same
+situation: every session starts blank, and what makes progress is the
+files, not the agent. This project is an attempt to change that. It gives an
+agent a memory reliable enough to work continuously for months and, over
+time, to grow in its role.
+
+## How it works
+
+Chanda keeps every conversation and document exactly as it arrived, in a
+log that is never edited. It organises that material with rules instead of
+asking an LLM what to remember. When a piece of information changes, the
+old one is not deleted: it gets an end date and the new one takes effect.
+Contradictions in free text are detected by rules, and an LLM can be
+called during sleep to decide those pairs.
+
+To answer, Chanda searches by keyword and by meaning, drops what has been
+superseded, and assembles a short context of many small excerpts instead of
+a few long ones. That assembly is what explains the results. On
+LongMemEval, Chanda's context held the complete evidence more often than a
+plain RAG's, and its accuracy came out higher on public benchmarks.
+
+No LLM takes part in writing, so memory is built in seconds and at no
+cost, and the same input always produces the same result. Every record
+keeps its origin, its author and its trust level. That lets several agents
+share one memory, lets searches be filtered by source, and lets a piece of
+information be erased together with everything derived from it.
+
 ## Highlights
 
 | | |
@@ -24,9 +58,12 @@ and reproducible, and that can say exactly where every answer came from.
 | **Ahead of plain RAG on two benchmarks** | On LongMemEval, 300 questions never used for tuning: **82.7%** against 77.7%. On LoCoMo, 584 questions from 7 conversations never seen before the freeze: **67.3%** against 64.7%. Same embedder, reader, judge and 2,000-token budget in both. |
 | **A measured gain from the new context selection** | **+4.7 points** over the previous selection on the 300 held-out LongMemEval questions (78.0% → 82.7%; p = 0.024, pre-registered). |
 | **Search that finds the evidence** | **98.3%** session recall@10 over all 500 LongMemEval S questions. Plain RAG gets 97.9% and BM25 95.6%. With the built-in hash embedder and no neural model at all, it still gets 93.4%, against 82.7% for plain RAG. |
+| **More of the evidence in the context** | On the 300 held-out LongMemEval questions, the context block held every evidence turn for **75.1%** of questions, against 68.5% for plain RAG (paired p = 0.020, measured without an LLM). |
+| **Sleep that only adjudicates** | Sleep uses an LLM only to decide contradictions that rules detect automatically. |
+| **Compartmentalised, shareable memory** | Memory can be shared between agents, and every record carries its origin, access level, date and trust. |
 | **Forgetting you can verify** | `forget` deletes in cascade, then proves the content is gone from every read path, the full-text index, the vectors and the raw bytes of the database, WAL and SHM files (scenarios F1–F4). |
 | **Deterministic** | The same database and query give the same answer. The scenario suite is byte-identical across runs. |
-| **Four published studies, negatives included** | Every claim above comes from a study in [`eval/`](eval/), with three protocols pre-registered and committed before their test runs. The results that did not hold up are published too. |
+| **Four published studies, negatives included** | Every number above comes from a study in [`eval/`](eval/), with three protocols pre-registered and committed before their test runs. The results that did not hold up are published too. |
 
 The numbers come from [`eval/selection/RESULTS.md`](eval/selection/RESULTS.md),
 [`eval/learn/RESULTS.md`](eval/learn/RESULTS.md) and
@@ -176,7 +213,7 @@ In stdio mode stdout carries only MCP frames; logs go to stderr.
 ### Go
 
 ```go
-api, closeFn, err := local.Open(ctx, "chanda.yaml") // github.com/felipemarts/chanda-mcp/pkg/chanda/local
+api, closeFn, err := local.Open(ctx, "chanda.yaml") // github.com/felipemarts/chanda/pkg/chanda/local
 defer closeFn()
 ctx = chanda.WithActor(ctx, chanda.Actor{Name: "my-agent"})
 pre, err := api.Context(ctx, chanda.ContextInput{Query: userRequest})

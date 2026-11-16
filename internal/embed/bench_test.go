@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/env"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/env"
 )
 
 // Run: CGO_ENABLED=0 go test ./internal/embed -run '^$' -bench Search -benchtime 300x

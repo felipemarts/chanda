@@ -3,7 +3,7 @@ package llm_test
 import (
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/llm"
+	"github.com/felipemarts/chanda/internal/llm"
 )
 
 const verdictSchema = `{

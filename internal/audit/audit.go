@@ -19,8 +19,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/store"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/store"
 )
 
 const Genesis = "0000000000000000000000000000000000000000000000000000000000000000"

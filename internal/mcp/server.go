@@ -26,8 +26,8 @@ import (
 	"github.com/google/jsonschema-go/jsonschema"
 	sdk "github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // HTTPPath is where the Streamable HTTP endpoint is mounted.

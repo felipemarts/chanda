@@ -4,7 +4,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/config"
+	"github.com/felipemarts/chanda/internal/config"
 )
 
 // Decision 0145: the learned-keys knobs are off by default, zero means the

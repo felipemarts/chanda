@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/env"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/env"
 )
 
 // roleSpy is a RoleEmbedder whose query role gives a different vector, so

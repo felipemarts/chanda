@@ -12,10 +12,10 @@ import (
 
 	_ "modernc.org/sqlite"
 
-	"github.com/felipemarts/chanda-mcp/embedders/hugot"
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/embed"
-	"github.com/felipemarts/chanda-mcp/pkg/chanda/embedreg"
+	"github.com/felipemarts/chanda/embedders/hugot"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/embed"
+	"github.com/felipemarts/chanda/pkg/chanda/embedreg"
 )
 
 // HashDim is the dimension of Chanda's default hash embedder (model id

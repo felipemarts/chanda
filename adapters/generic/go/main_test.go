@@ -9,9 +9,9 @@ import (
 
 	sdk "github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/internal/mcp"
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/internal/mcp"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 const block = "<memory>\n- [fct_A] Orion deadline is 2026-12-01\n</memory>"

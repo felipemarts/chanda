@@ -18,7 +18,7 @@ import (
 	sdk "github.com/modelcontextprotocol/go-sdk/mcp"
 	_ "modernc.org/sqlite" // independent reader of the database copy
 
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // chandaBin is the chanda binary built from ./cmd/chanda by TestMain, or,

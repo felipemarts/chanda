@@ -6,7 +6,7 @@ import (
 	"hash/fnv"
 	"math"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 // LocalEmbedder is a tiny deterministic embedder for the harness: signed

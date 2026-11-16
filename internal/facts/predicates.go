@@ -6,9 +6,9 @@ import (
 	"errors"
 	"sort"
 
-	"github.com/felipemarts/chanda-mcp/internal/audit"
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/facts/norm"
+	"github.com/felipemarts/chanda/internal/audit"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/facts/norm"
 )
 
 // singlePredicates returns the configured single predicates, normalized,

@@ -6,7 +6,7 @@ import (
 	"testing"
 	"unicode/utf8"
 
-	"github.com/felipemarts/chanda-mcp/internal/write/normalize"
+	"github.com/felipemarts/chanda/internal/write/normalize"
 )
 
 type ch struct{ text, path string }

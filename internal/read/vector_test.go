@@ -3,7 +3,7 @@ package read
 import (
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 // BASE.md read step 3: the query embedding is computed on CPU; top K nearest neighbours.

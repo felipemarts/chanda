@@ -4,8 +4,8 @@ Follows 0006. The real embedder needs Go 1.27 and a patched go-huggingface,
 which the main module must not inherit.
 
 - `embedders/hugot` is its own module,
-  `github.com/felipemarts/chanda-mcp/embedders/hugot` (go 1.27.0), with
-  `replace github.com/felipemarts/chanda-mcp => ../..` and
+  `github.com/felipemarts/chanda/embedders/hugot` (go 1.27.0), with
+  `replace github.com/felipemarts/chanda => ../..` and
   `replace github.com/gomlx/go-huggingface => ./third_party/go-huggingface-patched`
   (upstream v0.4.32 trimmed to the packages hugot imports, Apache-2.0 licence
   kept, change described in its `PATCH.md`). The nested `go.mod` keeps it out

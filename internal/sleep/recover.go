@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/felipemarts/chanda-mcp/internal/audit"
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/audit"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 // RecoverStale marks as failed every run still "running" that started more

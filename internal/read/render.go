@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 // The pre-context is delivered in a delimited block that states it is

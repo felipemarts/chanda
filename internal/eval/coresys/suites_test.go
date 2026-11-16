@@ -3,7 +3,7 @@ package coresys
 import (
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/eval"
+	"github.com/felipemarts/chanda/internal/eval"
 )
 
 // The core suites run on the real core and publish their measurements; on

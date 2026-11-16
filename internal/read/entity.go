@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/facts/norm"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/facts/norm"
 )
 
 // maxAliasWords bounds the query n-grams looked up as entity aliases.

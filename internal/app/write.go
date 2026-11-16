@@ -6,10 +6,10 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/facts"
-	"github.com/felipemarts/chanda-mcp/internal/write"
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/facts"
+	"github.com/felipemarts/chanda/internal/write"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // Reasons added by the App.

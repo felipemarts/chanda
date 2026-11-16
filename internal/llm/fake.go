@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 // FakeResponse is one scripted answer. With Err set, the call fails with it

@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/audit"
-	"github.com/felipemarts/chanda-mcp/internal/prov"
-	"github.com/felipemarts/chanda-mcp/internal/prov/provtest"
+	"github.com/felipemarts/chanda/internal/audit"
+	"github.com/felipemarts/chanda/internal/prov"
+	"github.com/felipemarts/chanda/internal/prov/provtest"
 )
 
 // BASE.md "Integrity rules": every fact, page and vector has at least one path

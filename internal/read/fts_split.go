@@ -9,7 +9,7 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/felipemarts/chanda-mcp/internal/store"
+	"github.com/felipemarts/chanda/internal/store"
 )
 
 // Exact keyword top-k with common terms set aside (decision 0122).

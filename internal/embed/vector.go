@@ -9,7 +9,7 @@ import (
 	"encoding/binary"
 	"math"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 // Encode serializes vec as little-endian float32, the embeddings.vector format.

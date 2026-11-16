@@ -12,9 +12,9 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/eval"
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/eval"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // Register attaches the suites that need a live core to r. Each suite builds

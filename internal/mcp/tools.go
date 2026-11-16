@@ -3,7 +3,7 @@ package mcp
 import (
 	"slices"
 
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // Profile groups tools (BASE.md "MCP interface and agent integration"). An

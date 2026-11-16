@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/config"
+	"github.com/felipemarts/chanda/internal/config"
 )
 
 // gateEvaluator scores held-out queries (never logged, so never trained on)

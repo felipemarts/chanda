@@ -3,9 +3,9 @@ package forget
 import (
 	"context"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/prov"
-	"github.com/felipemarts/chanda-mcp/internal/store"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/prov"
+	"github.com/felipemarts/chanda/internal/store"
 )
 
 // Scope kinds (BASE.md "Forgetting": record id, document or source, entity,

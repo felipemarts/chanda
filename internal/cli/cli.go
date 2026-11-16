@@ -29,15 +29,15 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/felipemarts/chanda-mcp/internal/app"
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/internal/mcp"
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/internal/app"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/internal/mcp"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // Version is the version the binary reports. The Makefile stamps it with
 //
-//	-ldflags "-X github.com/felipemarts/chanda-mcp/internal/cli.Version=$(git describe)"
+//	-ldflags "-X github.com/felipemarts/chanda/internal/cli.Version=$(git describe)"
 var Version = "dev"
 
 // CLI holds the hooks a binary may replace. Start from Default.

@@ -7,10 +7,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/forget"
-	"github.com/felipemarts/chanda-mcp/internal/llm"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/forget"
+	"github.com/felipemarts/chanda/internal/llm"
 )
 
 // turn inserts a session turn with its role, session, ordinal and valid_from

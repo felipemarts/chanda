@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/keys"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/keys"
 )
 
 // key seeds a learned key (and the retrieval it came from) pointing to the

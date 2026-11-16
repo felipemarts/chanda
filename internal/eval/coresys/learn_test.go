@@ -5,9 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/eval"
-	"github.com/felipemarts/chanda-mcp/internal/sleep"
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/internal/eval"
+	"github.com/felipemarts/chanda/internal/sleep"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // The gate key cites the records that are evidence for the gold units

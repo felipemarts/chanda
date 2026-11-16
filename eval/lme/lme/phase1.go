@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 // Phase 1 condition names.

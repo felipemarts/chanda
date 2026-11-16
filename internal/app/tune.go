@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/env"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/env"
 )
 
 // tuneStore sizes the connection's page cache and memory map from

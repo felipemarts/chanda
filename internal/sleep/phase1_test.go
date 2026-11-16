@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/felipemarts/chanda-mcp/internal/audit"
+	"github.com/felipemarts/chanda/internal/audit"
 )
 
 // BASE.md: "Without a provider, Chanda works in full, only without free-text

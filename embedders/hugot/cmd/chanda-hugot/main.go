@@ -25,10 +25,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/felipemarts/chanda-mcp/embedders/hugot"
-	"github.com/felipemarts/chanda-mcp/internal/cli"
-	"github.com/felipemarts/chanda-mcp/internal/config"
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/embedders/hugot"
+	"github.com/felipemarts/chanda/internal/cli"
+	"github.com/felipemarts/chanda/internal/config"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 var version = "dev"

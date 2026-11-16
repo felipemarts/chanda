@@ -3,7 +3,7 @@ version: 0.1.0
 description: "Chanda: local long-term memory over MCP. Pre-context on the first turn, memory tools, session log and outcome."
 external_dependencies:
   - name: chanda
-    install: "CGO_ENABLED=0 go install github.com/felipemarts/chanda-mcp/cmd/chanda@latest"
+    install: "CGO_ENABLED=0 go install github.com/felipemarts/chanda/cmd/chanda@latest"
     check: "chanda version"
 python_dependencies:
   - "mcp>=2.3.0,<3"

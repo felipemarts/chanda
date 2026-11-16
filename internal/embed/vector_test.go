@@ -5,7 +5,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda/internal/core"
 )
 
 // BASE.md data model: embeddings.vector is little-endian float32 x dim.

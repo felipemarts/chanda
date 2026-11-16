@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/felipemarts/chanda-mcp/internal/env"
+	"github.com/felipemarts/chanda/internal/env"
 )
 
 // fx seeds the tables the read path reads with direct SQL, so the tests do

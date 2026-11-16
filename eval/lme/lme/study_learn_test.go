@@ -137,28 +137,40 @@ func TestLeakCheckLearnStops(t *testing.T) {
 	}{
 		{"test question in a page", "test question text in the database",
 			[]string{`UPDATE pages SET body = 'Q: When did Bruno move to Porto? A: soon'`},
-			func(r *LearnLeakReport) bool { return len(r.TestQuestionIn) == 1 && r.TestQuestionIn[0].Table == "pages" }},
+			func(r *LearnLeakReport) bool {
+				return len(r.TestQuestionIn) == 1 && r.TestQuestionIn[0].Table == "pages"
+			}},
 		{"test question in a non-turn event", "test question text in the database",
 			[]string{`INSERT INTO events VALUES ('evt_3', 'statement', 'when did bruno move to porto')`},
 			func(r *LearnLeakReport) bool { return len(r.TestQuestionIn) == 1 && r.TestQuestionIn[0].Row == "evt_3" }},
 		{"test question in a JSON value", "test question text in the database",
 			[]string{`UPDATE retrievals SET params = '{"note":"When did Bruno move to Porto?"}' WHERE id = 'ret_2'`},
-			func(r *LearnLeakReport) bool { return len(r.TestQuestionIn) == 1 && r.TestQuestionIn[0].Column == "params" }},
+			func(r *LearnLeakReport) bool {
+				return len(r.TestQuestionIn) == 1 && r.TestQuestionIn[0].Column == "params"
+			}},
 		{"test question as a retrieval query", "retrieval query that is not a use-half question",
 			[]string{`INSERT INTO retrievals VALUES ('ret_3', 'When did Bruno move to Porto?', '{}', '[]', '[]')`},
 			func(r *LearnLeakReport) bool { return len(r.RetrievalsNotUse) == 1 && len(r.TestQuestionIn) == 1 }},
 		{"key text not a use question", "key text that is not a use-half question",
 			[]string{`INSERT INTO learned_keys VALUES ('key_2', 'evt_2', 'ret_2', 'Where does Bruno live?')`},
-			func(r *LearnLeakReport) bool { return len(r.KeysNotUse) == 1 && strings.HasPrefix(r.KeysNotUse[0], "key_2: ") }},
+			func(r *LearnLeakReport) bool {
+				return len(r.KeysNotUse) == 1 && strings.HasPrefix(r.KeysNotUse[0], "key_2: ")
+			}},
 		{"outcome value", "outcome not",
 			[]string{`UPDATE outcomes SET value = 0.5 WHERE id = 'out_2'`},
-			func(r *LearnLeakReport) bool { return len(r.BadOutcomes) == 1 && strings.Contains(r.BadOutcomes[0], "value 0.5") }},
+			func(r *LearnLeakReport) bool {
+				return len(r.BadOutcomes) == 1 && strings.Contains(r.BadOutcomes[0], "value 0.5")
+			}},
 		{"used id not delivered", "outcome not",
 			[]string{`UPDATE outcomes SET used_ids = '["evt_1"]' WHERE id = 'out_2'`},
-			func(r *LearnLeakReport) bool { return len(r.BadOutcomes) == 1 && strings.Contains(r.BadOutcomes[0], "evt_1 not delivered") }},
+			func(r *LearnLeakReport) bool {
+				return len(r.BadOutcomes) == 1 && strings.Contains(r.BadOutcomes[0], "evt_1 not delivered")
+			}},
 		{"outcome of a missing retrieval", "outcome not",
 			[]string{`INSERT INTO outcomes VALUES ('out_3', 'ret_9', 1, '[]', 'agent')`},
-			func(r *LearnLeakReport) bool { return len(r.BadOutcomes) == 1 && strings.Contains(r.BadOutcomes[0], "missing") }},
+			func(r *LearnLeakReport) bool {
+				return len(r.BadOutcomes) == 1 && strings.Contains(r.BadOutcomes[0], "missing")
+			}},
 		{"judge word", "judge output",
 			[]string{`INSERT INTO audit_log (action, details) VALUES ('flag', '{"reason":"WRONG"}')`},
 			func(r *LearnLeakReport) bool { return len(r.JudgeOutput) == 1 && r.JudgeOutput[0].Match == "WRONG" }},

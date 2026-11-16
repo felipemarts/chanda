@@ -9,12 +9,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/felipemarts/chanda-mcp/internal/core"
-	"github.com/felipemarts/chanda-mcp/internal/eval"
-	"github.com/felipemarts/chanda-mcp/internal/llm"
-	"github.com/felipemarts/chanda-mcp/internal/read"
-	"github.com/felipemarts/chanda-mcp/internal/sleep"
-	"github.com/felipemarts/chanda-mcp/pkg/chanda"
+	"github.com/felipemarts/chanda/internal/core"
+	"github.com/felipemarts/chanda/internal/eval"
+	"github.com/felipemarts/chanda/internal/llm"
+	"github.com/felipemarts/chanda/internal/read"
+	"github.com/felipemarts/chanda/internal/sleep"
+	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
 var (
