@@ -118,9 +118,11 @@ func (a *App) markNearDuplicate(ctx context.Context, tx *sql.Tx, ev write.Event)
 	model := a.emb.ModelID()
 	l := a.e.Cfg.Write.Lexical(model)
 	lex := dedup.Lexical{MaxAddedWords: l.MaxAddedWords, MinCosine: l.MinCosine}
+	cosines := make([]float64, len(ids))
 	best, bestCos := -1, 0.0
 	for i := range ids {
 		cos := dot(vecs[0], vecs[i+1])
+		cosines[i] = cos
 		if ok, _ := dedup.IsNearDuplicateOf(ev.Content, texts[i], cos, a.e.Cfg.Write.NearDup(model), lex); !ok {
 			continue
 		}
@@ -128,11 +130,15 @@ func (a *App) markNearDuplicate(ctx context.Context, tx *sql.Tx, ev write.Event)
 			best, bestCos = i, cos
 		}
 	}
-	if best < 0 {
+	if best >= 0 {
+		if _, err := a.guard.Mark(ctx, tx, ev.Namespace, core.RecEvent, ev.ID, core.RecEvent, ids[best]); err != nil {
+			return err
+		}
+	}
+	if !a.e.Cfg.Sleep.Conflicts.On() {
 		return nil
 	}
-	_, err = a.guard.Mark(ctx, tx, ev.Namespace, core.RecEvent, ev.ID, core.RecEvent, ids[best])
-	return err
+	return a.detectConflicts(ctx, tx, ev, ids, texts, cosines)
 }
 
 // dot is the cosine of two L2-normalized vectors, summed in a fixed order.
