@@ -26,7 +26,10 @@ func (a *App) Outcome(ctx context.Context, in chanda.OutcomeInput) (chanda.Outco
 	for _, n := range r.Notices {
 		c.notice(n)
 	}
-	out := chanda.OutcomeOutput{Meta: c.meta(r.AuditID), OutcomeID: r.ID, Credited: len(r.Credited)}
+	out := chanda.OutcomeOutput{Meta: c.meta(r.AuditID), OutcomeID: r.ID, Credited: len(r.Credited), KeysCreated: r.KeysCreated}
+	if err == nil && r.KeysCreated > 0 {
+		a.indexer.Notify() // the new keys wait in the embedding queue
+	}
 	return out, coded(err)
 }
 
@@ -105,7 +108,7 @@ func (a *App) Forget(ctx context.Context, in chanda.ForgetInput) (chanda.ForgetO
 		PageItems: int64(len(r.PageItems)), Embeddings: int64(rep.Counts["embeddings"]), FTSEntries: int64(rep.Counts["fts_entries"]),
 		Provenance: int64(rep.Counts["provenance_edges"]), Utility: int64(rep.Counts["utility"]),
 		Retrievals: int64(len(r.Retrievals)), Outcomes: int64(len(r.Outcomes)), Snapshots: int64(rep.Snapshots),
-		EntityLinks: int64(len(r.Entities)),
+		EntityLinks: int64(len(r.Entities)), Keys: int64(len(r.Keys)),
 	}
 	if v := rep.Verification; v != nil {
 		out.Verification.Passed = v.OK

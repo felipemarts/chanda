@@ -27,6 +27,7 @@ type Removed struct {
 	Sources    []string `json:"sources"`
 	Retrievals []string `json:"retrievals"`
 	Outcomes   []string `json:"outcomes"`
+	Keys       []string `json:"keys"` // learned query keys (decision 0145)
 }
 
 // plan is everything one forget will do, computed before any deletion.
@@ -46,7 +47,7 @@ type plan struct {
 	vectors []savedVector
 	hashes  []string // content_hash of removed events (tombstone_keeps_hash only)
 	// gone is every removed record id (events, facts, items, pages, entities,
-	// documents, sources, retrievals, outcomes).
+	// documents, sources, retrievals, outcomes, learned keys).
 	gone map[string]bool
 }
 
@@ -181,6 +182,9 @@ func buildPlan(ctx context.Context, q store.Queryer, cfg *config.Config, dbPath,
 		return nil, err
 	}
 	if err := p.planUsage(ctx, q, ns, gone); err != nil {
+		return nil, err
+	}
+	if err := p.planKeys(ctx, q, ns, gone); err != nil {
 		return nil, err
 	}
 	p.gone = gone
@@ -379,6 +383,72 @@ func (p *plan) planUsage(ctx context.Context, q store.Queryer, ns string, gone m
 	for k := range set(p.removed.Retrievals, p.removed.Outcomes) {
 		gone[k] = true
 	}
+	return nil
+}
+
+// planKeys selects the learned keys (decision 0145) that go: keys of a
+// removed record, keys of a removed retrieval, and keys whose text the
+// scope matches: a term found only in removed events or a probe byte
+// string (the rule planUsage applies to query text), a used term of the
+// entity scope (mention rule, over learned_keys_fts), or every term of the
+// search scope. Their vectors join the removed vectors.
+func (p *plan) planKeys(ctx context.Context, q store.Queryer, ns string, gone map[string]bool) error {
+	byText := map[string]bool{}
+	var exprs []string
+	for _, t := range p.scope.used {
+		exprs = append(exprs, t.ftsQuery())
+	}
+	if p.scope.searchExpr != "" {
+		exprs = append(exprs, p.scope.searchExpr)
+	}
+	for _, x := range exprs {
+		hits, err := ids(ctx, q, `SELECT record_id FROM learned_keys_fts WHERE learned_keys_fts MATCH ? AND namespace = ? ORDER BY record_id`, x, ns)
+		if err != nil {
+			return err
+		}
+		for _, h := range hits {
+			byText[h] = true
+		}
+	}
+	rows, err := q.QueryContext(ctx, `SELECT id, record_id, retrieval_id, text FROM learned_keys WHERE namespace = ? ORDER BY id`, ns)
+	if err != nil {
+		return err
+	}
+	type key struct{ id, record, retrieval, text string }
+	var ks []key
+	for rows.Next() {
+		var k key
+		if err := rows.Scan(&k.id, &k.record, &k.retrieval, &k.text); err != nil {
+			rows.Close()
+			return err
+		}
+		ks = append(ks, k)
+	}
+	if err := rows.Close(); err != nil {
+		return err
+	}
+	for _, k := range ks {
+		hit := gone[k.record] || gone[k.retrieval] || byText[k.id]
+		for _, t := range tokens(k.text, 1) {
+			hit = hit || p.distinc[t]
+		}
+		for _, n := range p.needles {
+			hit = hit || strings.Contains(k.text, n.b)
+		}
+		if hit {
+			p.removed.Keys = append(p.removed.Keys, k.id)
+		}
+	}
+	refs := make([]prov.Ref, len(p.removed.Keys))
+	for i, id := range p.removed.Keys {
+		refs[i] = prov.Ref{Type: core.RecKey, ID: id}
+		gone[id] = true
+	}
+	embs, err := prov.EmbeddingsOf(ctx, q, refs)
+	if err != nil {
+		return err
+	}
+	p.embs = append(p.embs, embs...)
 	return nil
 }
 

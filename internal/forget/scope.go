@@ -46,6 +46,9 @@ type resolved struct {
 	terms       []EntityTerm
 	used        []mentionTerm
 	mentions    []Mention
+	// Search scope only: its FTS5 expression (every term), also matched
+	// against learned keys. Content: never stored.
+	searchExpr string
 }
 
 func resolve(ctx context.Context, q store.Queryer, ns string, s Scope) (*resolved, error) {
@@ -207,6 +210,7 @@ func (r *resolved) search(ctx context.Context, q store.Queryer, ns, query string
 	}
 	// The query text is content: the tombstone keeps only its size.
 	r.desc["terms"] = len(tokens(query, 1))
+	r.searchExpr = m
 	evs, err := ids(ctx, q, `SELECT record_id FROM events_fts WHERE events_fts MATCH ? AND namespace = ? ORDER BY record_id`, m, ns)
 	r.roots = append(r.roots, evs...)
 	return err

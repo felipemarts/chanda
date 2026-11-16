@@ -20,14 +20,16 @@ const (
 	ToolSleepRun     = "sleep_run"
 	ToolVerify       = "verify"
 	ToolRankingReset = "ranking_reset"
+	ToolLearnedKeys  = "learned_keys" // decision 0145
 )
 
-// ToolNames lists the 18 tools in BASE.md table order.
+// ToolNames lists the 19 tools in BASE.md table order (learned_keys,
+// decision 0145, after the 18 of BASE.md).
 func ToolNames() []string {
 	return []string{
 		ToolContext, ToolSearch, ToolGet, ToolTimeline, ToolExplain, ToolStats,
 		ToolRemember, ToolAssertFact, ToolIngest, ToolLogSession, ToolOutcome, ToolFlag, ToolFlush,
-		ToolForget, ToolPromote, ToolSleepRun, ToolVerify, ToolRankingReset,
+		ToolForget, ToolPromote, ToolSleepRun, ToolVerify, ToolRankingReset, ToolLearnedKeys,
 	}
 }
 
@@ -343,6 +345,9 @@ type OutcomeOutput struct {
 	Meta
 	OutcomeID string `json:"outcome_id"`
 	Credited  int    `json:"credited" jsonschema:"records whose utility was updated"`
+	// KeysCreated: learned keys this outcome made (decision 0145; only with
+	// write.learned_keys on and value > 0).
+	KeysCreated int `json:"keys_created,omitempty" jsonschema:"learned query keys created by this outcome"`
 }
 
 // FlagInput marks a record as wrong or outdated.
@@ -427,6 +432,7 @@ type RemovedCounts struct {
 	Outcomes     int64 `json:"outcomes"`
 	Snapshots    int64 `json:"snapshots"`
 	EntityLinks  int64 `json:"entity_links"`
+	Keys         int64 `json:"keys" jsonschema:"learned query keys"`
 }
 
 // Probe is one absence check run after deletion.
@@ -541,4 +547,39 @@ type RankingResetOutput struct {
 	UtilityRows int64   `json:"utility_rows"`
 	Models      int64   `json:"models"`
 	Lambda      float64 `json:"lambda" jsonschema:"lambda after the reset (0)"`
+}
+
+// Actions of the learned_keys tool (decision 0145).
+const (
+	KeysEnable  = "enable"  // runtime switch on: reads use keys (with read.learned_keys)
+	KeysDisable = "disable" // runtime switch off: reads ignore keys
+	KeysReset   = "reset"   // delete every key of the namespace
+	KeysRebuild = "rebuild" // create the missing keys of every positive outcome recorded
+	KeysStats   = "stats"   // counts only
+)
+
+// KeysActions lists the learned_keys actions.
+func KeysActions() []string {
+	return []string{KeysEnable, KeysDisable, KeysReset, KeysRebuild, KeysStats}
+}
+
+// LearnedKeysInput controls the learned query keys of a namespace.
+type LearnedKeysInput struct {
+	Namespace string `json:"namespace,omitempty" jsonschema:"memory namespace; omit for the configured default"`
+	Action    string `json:"action" jsonschema:"enable, disable, reset, rebuild or stats"`
+}
+
+// LearnedKeysOutput reports the action and the keys of the namespace after it.
+type LearnedKeysOutput struct {
+	Meta
+	Action   string `json:"action"`
+	Enabled  bool   `json:"enabled" jsonschema:"runtime switch of the namespace after the call"`
+	Keys     int64  `json:"keys" jsonschema:"keys in the namespace after the call"`
+	Records  int64  `json:"records" jsonschema:"distinct records with at least one key"`
+	Embedded int64  `json:"embedded" jsonschema:"keys with a vector; run flush so new keys get theirs"`
+	Pending  int64  `json:"pending" jsonschema:"keys waiting in the embedding queue"`
+	Removed  int64  `json:"removed,omitempty" jsonschema:"reset: keys deleted"`
+	Outcomes int64  `json:"outcomes,omitempty" jsonschema:"rebuild: positive outcomes replayed"`
+	Created  int64  `json:"created,omitempty" jsonschema:"rebuild: keys created"`
+	Existing int64  `json:"existing,omitempty" jsonschema:"rebuild: keys that already existed"`
 }

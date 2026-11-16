@@ -9,6 +9,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 )
@@ -115,6 +116,17 @@ const (
 	RecDocument RecordType = "document"
 )
 
+// Record types that are not records of the memory: they have no entry in
+// the id-prefix table, so get, flag, promote and forget never route to
+// them, and the read path never returns them.
+const (
+	// RecKey is a learned query key (decision 0145): its vector lives in
+	// embeddings under this type, and it appears in provenance edges.
+	RecKey RecordType = "key"
+	// RecRetrieval names a retrievals row in provenance edges (key -> retrieval).
+	RecRetrieval RecordType = "retrieval"
+)
+
 var idPrefix = map[RecordType]string{
 	RecEvent:    "evt",
 	RecFact:     "fct",
@@ -134,9 +146,22 @@ const (
 	PrefixProposal  = "prp"
 	PrefixFlag      = "flg"
 	PrefixModel     = "mdl"
+	PrefixKey       = "key" // learned query key (decision 0145)
 )
 
 func IDPrefix(t RecordType) string { return idPrefix[t] }
+
+// RecordTypes lists the record types of the memory (those with an id
+// prefix), sorted. Learned keys and retrievals are not among them, so a
+// vector search over RecordTypes never returns a key vector.
+func RecordTypes() []RecordType {
+	out := make([]RecordType, 0, len(idPrefix))
+	for t := range idPrefix {
+		out = append(out, t)
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i] < out[j] })
+	return out
+}
 
 // RecordTypeOf returns the record type encoded in an id, or "" if unknown.
 func RecordTypeOf(id string) RecordType {
@@ -182,6 +207,7 @@ const (
 	RelCites       = "cites"        // page/page item -> event
 	RelMentions    = "mentions"     // event/fact -> entity
 	RelEmbeddingOf = "embedding_of" // reserved; embeddings are keyed by record directly
+	RelPointsTo    = "points_to"    // learned key -> the record it finds (decision 0145)
 )
 
 // ---------------------------------------------------------------------------

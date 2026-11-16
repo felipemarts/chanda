@@ -106,7 +106,7 @@ func Forget(ctx context.Context, e *env.Env, ns string, scope Scope, dryRun bool
 func (p *plan) empty() bool {
 	r := p.removed
 	return len(r.Events)+len(r.Facts)+len(r.PageItems)+len(r.Pages)+len(r.Entities)+len(r.Documents)+
-		len(r.Sources)+len(r.Retrievals)+len(r.Outcomes)+len(p.factsKept)+len(p.rebuild) == 0
+		len(r.Sources)+len(r.Retrievals)+len(r.Outcomes)+len(r.Keys)+len(p.factsKept)+len(p.rebuild) == 0
 }
 
 // execIn runs query once per chunk of ids (bound to the single "(%s)" in
@@ -171,7 +171,7 @@ func (p *plan) ftsCount(ctx context.Context, tx *sql.Tx) (int, error) {
 	for _, x := range []struct {
 		table string
 		ids   []string
-	}{{"events_fts", p.removed.Events}, {"facts_fts", p.removed.Facts}, {"pages_fts", p.removed.Pages}} {
+	}{{"events_fts", p.removed.Events}, {"facts_fts", p.removed.Facts}, {"pages_fts", p.removed.Pages}, {"learned_keys_fts", p.removed.Keys}} {
 		k, err := countIn(ctx, tx, `SELECT count(*) FROM `+x.table+` WHERE record_id IN (%s)`, x.ids)
 		if err != nil {
 			return 0, err
@@ -184,7 +184,7 @@ func (p *plan) ftsCount(ctx context.Context, tx *sql.Tx) (int, error) {
 // delete removes every planned row in FK-safe order.
 func (p *plan) delete(ctx context.Context, tx *sql.Tx, e *env.Env, ns string, c map[string]int) error {
 	r := p.removed
-	records := sortedKeys(set(r.Events, r.Facts, r.PageItems, r.Pages, r.Entities))
+	records := sortedKeys(set(r.Events, r.Facts, r.PageItems, r.Pages, r.Entities, r.Keys))
 	all := sortedKeys(p.gone)
 	fts, err := p.ftsCount(ctx, tx)
 	if err != nil {
@@ -196,6 +196,7 @@ func (p *plan) delete(ctx context.Context, tx *sql.Tx, e *env.Env, ns string, c 
 		key, query string
 		ids        []string
 	}{
+		{"keys", `DELETE FROM learned_keys WHERE id IN (%s)`, r.Keys}, // before their retrievals (foreign key)
 		{"outcomes", `DELETE FROM outcomes WHERE id IN (%s)`, r.Outcomes},
 		{"outcomes", `DELETE FROM outcomes WHERE retrieval_id IN (%s)`, r.Retrievals},
 		{"retrievals", `DELETE FROM retrievals WHERE id IN (%s)`, r.Retrievals},
@@ -304,7 +305,7 @@ func (p *plan) tombstone(ctx context.Context, tx *sql.Tx, e *env.Env, ns, actor 
 	counts := map[string]int{
 		"events": len(r.Events), "facts": len(r.Facts), "page_items": len(r.PageItems), "pages": len(r.Pages),
 		"entities": len(r.Entities), "documents": len(r.Documents), "sources": len(r.Sources),
-		"retrievals": len(r.Retrievals), "outcomes": len(r.Outcomes),
+		"retrievals": len(r.Retrievals), "outcomes": len(r.Outcomes), "keys": len(r.Keys),
 	}
 	for k, v := range rep.Counts {
 		if _, ok := counts[k]; !ok {

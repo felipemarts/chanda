@@ -49,7 +49,7 @@ type ToolSpec struct {
 	Idempotent  bool   // repeating the call has no further effect
 }
 
-// Specs returns the 18 tools in BASE.md table order.
+// Specs returns the 19 tools in BASE.md table order (learned_keys last).
 func Specs() []ToolSpec { return slices.Clone(specs) }
 
 // SpecsFor returns the tools of the given profiles, in BASE.md order.
@@ -174,5 +174,12 @@ var specs = []ToolSpec{
 		Name: chanda.ToolRankingReset, Title: "Reset learned ranking", Profile: ProfileAdmin, Destructive: true, Idempotent: true,
 		Description: "Clear the learned-ranking state of the namespace (utility statistics and ranker models); ranking returns " +
 			"to the baseline. Audited." + envelopeNote,
+	},
+	{
+		Name: chanda.ToolLearnedKeys, Title: "Learned query keys", Profile: ProfileAdmin, Destructive: true,
+		Description: "Control the learned query keys of the namespace (past questions that led to a good answer, kept as extra " +
+			"ways to find the records used). action: enable or disable the namespace's switch (reads use keys only when " +
+			"read.learned_keys is also on), reset (delete every key), rebuild (create the missing keys of every positive " +
+			"outcome already recorded; then flush so they get vectors), stats (counts). Audited." + envelopeNote,
 	},
 }

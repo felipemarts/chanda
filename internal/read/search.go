@@ -116,6 +116,7 @@ type request struct {
 	sessionID      string
 	gate           bool
 	actor          string
+	keys           bool // learned keys searched (set by run, decision 0145)
 }
 
 type result struct {
@@ -182,6 +183,7 @@ func (r *Reader) run(ctx context.Context, q request) (*result, error) {
 	}
 	lists := 1
 	var vec []hit
+	var qvec []float32
 	if r.vectorEnabled() {
 		var typeList []core.RecordType
 		for _, t := range []core.RecordType{core.RecEvent, core.RecFact, core.RecPage} {
@@ -189,12 +191,26 @@ func (r *Reader) run(ctx context.Context, q request) (*result, error) {
 				typeList = append(typeList, t)
 			}
 		}
-		vec, err = r.vectorSearch(ctx, q.ns, q.text, typeList)
+		vec, qvec, err = r.vectorSearchVec(ctx, q.ns, q.text, typeList)
 		if err != nil {
 			res.notices = append(res.notices, "vector_search_unavailable")
-			vec = nil
+			vec, qvec = nil, nil
 		} else {
 			lists = 2
+		}
+	}
+	// Learned keys (decision 0145, keys.go): one more list of records.
+	var kmatch []keyMatch
+	if q.keys, err = r.keysActive(ctx, q.ns); err != nil {
+		return nil, err
+	}
+	if q.keys {
+		var vecErr error
+		if kmatch, vecErr, err = r.keySearch(ctx, q.ns, terms, qvec, o.types); err != nil {
+			return nil, err
+		}
+		if vecErr != nil {
+			res.notices = append(res.notices, "learned_keys_vector_unavailable")
 		}
 	}
 
@@ -221,6 +237,10 @@ func (r *Reader) run(ctx context.Context, q request) (*result, error) {
 		if c.vecRank == 0 {
 			c.vecRank, c.cosine, c.hasCos = h.rank, h.score, true
 		}
+	}
+	for _, m := range kmatch {
+		c := get(m.typ, m.id)
+		c.keyRank, c.keyCosine, c.hasKeyCos, c.keyCoverage = m.rank, m.cosine, m.hasCos, m.coverage
 	}
 	byType := map[core.RecordType][]string{}
 	for _, id := range order {
@@ -272,7 +292,11 @@ func (r *Reader) run(ctx context.Context, q request) (*result, error) {
 	}
 
 	// 5. Fuse. 6. Rerank. 7. Utility (and the shadow learned score).
-	fuse(alive, r.e.Cfg.Read.RRFK, lists)
+	if q.keys {
+		fuseKeys(alive, r.e.Cfg.Read.RRFK, lists, r.e.Cfg.Read.KeysWeight())
+	} else {
+		fuse(alive, r.e.Cfg.Read.RRFK, lists)
+	}
 	r.computeEvidence(alive, terms)
 	if err := r.markEntityMatch(ctx, q.ns, q.text, alive); err != nil {
 		return nil, err
@@ -302,7 +326,7 @@ func (r *Reader) run(ctx context.Context, q request) (*result, error) {
 			switch {
 			case c.relevance < r.e.Cfg.Read.RelevanceThreshold:
 				c.dropped = dropCut
-			case !r.hasEvidence(c):
+			case !r.hasEvidence(c) && !r.keyEvidence(c): // a key match counts (decision 0145)
 				c.dropped = dropEvidence
 			default:
 				kept = append(kept, c)
@@ -345,9 +369,13 @@ func (r *Reader) run(ctx context.Context, q request) (*result, error) {
 	for _, id := range order {
 		all = append(all, byID[id])
 	}
-	if err := r.logRetrieval(ctx, q, res, all, now, map[string]any{
+	logExtra := map[string]any{
 		"lambda": lambda, "lists": lists, "reranked": reranked, "terms": len(terms), "as_of": core.FormatTime(o.asOf),
-	}); err != nil {
+	}
+	if q.keys {
+		logExtra["key_records"] = len(kmatch)
+	}
+	if err := r.logRetrieval(ctx, q, res, all, now, logExtra); err != nil {
 		return nil, err
 	}
 	if res.items == nil {

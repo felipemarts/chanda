@@ -95,3 +95,84 @@ Keys are derived records. They are removed when their record is forgotten,
 when their retrieval is removed (forget already removes retrievals whose
 query text, candidates or delivered list touch the scope), and when a
 term or entity scope matches their text. Tests cover each case.
+
+## Implementation notes
+
+Where the rule above leaves a choice, or the code differs from a literal
+reading, the implementation does this:
+
+- **Storage** (migration `0145_learned_keys.sql`). `learned_keys` (id
+  `key_<ULID>`, `core.PrefixKey`), unique on (namespace, record_type,
+  record_id, text), with a foreign key to `retrievals`;
+  `learned_keys_fts`, trigger-maintained like the other FTS tables
+  (`record_id` is the key id); `learned_keys_state` holds the runtime
+  switch per namespace (no row means on). `key` and `retrieval` are
+  record types of provenance edges and vectors only (`core.RecKey`,
+  `core.RecRetrieval`). They have no id-prefix entry, so `get`, `flag`,
+  `promote` and forget's record scope never route to a key. The
+  provenance checker knows both as edge endpoints.
+- **Text.** The key text is the retrieval's `query_text` through write
+  step 1 (`normalize.Text`). The dedupe is on that exact text, so case
+  differences make two keys. Only records of type event, fact or page
+  that exist in the namespace get a key. Other used ids count as
+  `skipped`.
+- **Creation** runs inside the outcome transaction, after the outcome's
+  own audit entry, for the credited ids (used and delivered). One more
+  audit entry, `keys_create` (target: the outcome id), holds counts only:
+  created, existing, skipped. `outcome` returns `keys_created`
+  (omitempty). The App wakes the indexer. Keys are queued under record
+  type `key`. The indexer embeds queued keys with `EmbedQuery` (the
+  passages of the same batch go through `Embed` in one call, as before).
+  A key has a vector only after the queue is drained: `flush` or the
+  background indexer.
+- **Key rank.** A record's key rank is the smallest rank, among its keys,
+  in the vector list or the keyword list of keys, each 1-based over key
+  hits. Two records can share a key rank. The final order still breaks
+  ties by id. Key hits whose record type is outside the search's `types`
+  filter are dropped before they become candidates. Every other rule
+  (namespace, zone, retired, flagged, status) is the rule filter's, and
+  key-only records reach it like any other.
+- **Vector search over records.** Without a type filter the record
+  vector search now passes `core.RecordTypes()` (every record type with
+  an id prefix) instead of no filter, so key vectors never take a slot.
+  With no key vectors in the index the result is identical.
+- **Evidence.** A record's own `coverage`, `cosine` and logged
+  `evidence` do not change. The cut keeps a candidate when its own
+  evidence passes (as before) or its key evidence passes: best key
+  coverage ≥ the model's `MinTermCoverage`, or best query-to-key cosine
+  (vector hits only) ≥ its `MinCosine` (`read.Floors`).
+- **Log.** `features.key_rank` (0 when none), and with a key hit
+  `key_coverage` and `key_cosine` (vector hit only), are logged on every
+  candidate of a read that searched the keys (configuration and switch
+  on). The params then hold `key_records`. A read with keys off logs
+  exactly what it logged before, without `key_rank`. This keeps off reads
+  byte-identical.
+- **Failures.** A failed key vector search adds the notice
+  `learned_keys_vector_unavailable`, and the keyword side still counts.
+  A scoring read inside a transaction (the sleep gate) searches keys by
+  keyword only, as it does for records.
+- **Control.** MCP tool `learned_keys` (admin profile, the 19th tool),
+  input `{namespace?, action}`. The output always carries the counts
+  after the action: `enabled`, `keys`, `records`, `embedded`, `pending`.
+  `reset` adds `removed`. `rebuild` adds `outcomes`, `created` and
+  `existing`. Audit actions: `keys_toggle` (enabled_from, enabled_to),
+  `keys_reset` (keys, embeddings, provenance_edges) and `keys_rebuild`
+  (outcomes, created, existing, skipped). `stats` writes nothing. When
+  `read.learned_keys` is off, every call adds the notice
+  `learned_keys_read_off`. `reset` deletes the vectors, queue rows and
+  edges of the keys and keeps the switch. `rebuild` ignores
+  `write.learned_keys`: it is the explicit path that gives a copied
+  database its keys. It replays outcomes with value > 0 in id order,
+  using used ids ∩ delivered ids of each retrieval. `ranking_reset` does
+  not touch keys. CLI: `chanda keys enable|disable|reset|rebuild|stats`.
+- **Forget.** Keys go when their record goes, when their retrieval goes,
+  or when their text matches. Matching text means a term found only in
+  removed events, or a probe byte string (the rule already applied to
+  retrieval query text), or a used term of the entity scope, or every
+  term of the search scope. The last two are matched over
+  `learned_keys_fts`. Keys are deleted before retrievals (foreign key),
+  with their vectors, queue rows and edges. `learned_keys_fts` is in the
+  scrubbed and probed FTS tables. `removed.keys` (report and API) and
+  `keys` in the tombstone counts are always present, 0 when nothing was
+  removed.
+- **Stats.** The `stats` tool's embedding count includes key vectors.

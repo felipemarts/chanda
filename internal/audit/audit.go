@@ -59,6 +59,12 @@ const (
 	ActMigrate         = "migrate"
 	ActRetrieve        = "retrieve" // a read logged in retrievals (internal/read)
 
+	// Learned query keys (internal/keys, decision 0145).
+	ActKeysCreate  = "keys_create"  // keys made by a positive outcome
+	ActKeysToggle  = "keys_toggle"  // runtime switch of a namespace turned on or off
+	ActKeysReset   = "keys_reset"   // every key of a namespace deleted
+	ActKeysRebuild = "keys_rebuild" // missing keys of recorded positive outcomes created
+
 	// Sleep (internal/sleep) and the gate set.
 	ActMergePropose    = "merge_propose"    // entity merge proposal created (phase 1)
 	ActMergeVerdict    = "merge_verdict"    // merge proposal rejected by a phase-2 verdict
@@ -80,7 +86,8 @@ func Actions() []string {
 	return []string{
 		ActDocumentRetire, ActDocumentVersion, ActDuplicate, ActEmbedBackfill, ActEmbedDropModel, ActEmbedIndex, ActEmbedRemove,
 		ActEntityCreate, ActEntityMerge, ActEventsProcessed, ActFactAdjust, ActFactConfirm, ActFactInsert,
-		ActFactVerdict, ActFlag, ActForget, ActGatePropose, ActGateReview, ActMergePropose, ActMergeVerdict,
+		ActFactVerdict, ActFlag, ActForget, ActGatePropose, ActGateReview,
+		ActKeysCreate, ActKeysRebuild, ActKeysReset, ActKeysToggle, ActMergePropose, ActMergeVerdict,
 		ActMigrate, ActNearDup, ActOutcome, ActPageUpdate, ActPredicate, ActPromote, ActQuarantine,
 		ActRankAdjust, ActRankPromote, ActRankReset, ActRankToggle, ActRetire, ActRetrieve, ActSleepEnd, ActSleepRecover,
 		ActSleepRevert, ActSleepStart, ActSourceCreate, ActStaleSource, ActSupersede, ActWrite,

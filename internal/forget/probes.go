@@ -43,7 +43,7 @@ type Verification struct {
 }
 
 // ftsTables are the full-text indexes, maintained by triggers.
-var ftsTables = []string{"events_fts", "facts_fts", "pages_fts"}
+var ftsTables = []string{"events_fts", "facts_fts", "pages_fts", "learned_keys_fts"}
 
 // scrubFile purges deleted documents from the FTS segments, folds and
 // truncates the WAL, and rebuilds the file so no free page keeps old bytes

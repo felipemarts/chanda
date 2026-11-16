@@ -232,7 +232,7 @@ func TestServeStdioBinary(t *testing.T) {
 		want  int
 	}{
 		{"config profiles", nil, 13},
-		{"flag override", []string{"--profiles", "admin"}, 5},
+		{"flag override", []string{"--profiles", "admin"}, 6},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
@@ -267,7 +267,7 @@ func TestServeStdioBinary(t *testing.T) {
 				}
 				return env
 			}
-			if tc.want == 5 {
+			if tc.want == 6 { // the admin profile
 				if env := call(chanda.ToolVerify, map[string]any{}); env.Data.(map[string]any)["ok"] != true {
 					t.Fatalf("verify: %+v", env)
 				}
@@ -374,7 +374,15 @@ func TestGateAndRankingCommands(t *testing.T) {
 	if code, env = run("ranking", "off"); code != 0 || env.Data.(map[string]any)["enabled"] != false {
 		t.Fatalf("ranking off: %d %+v", code, env)
 	}
-	for _, args := range [][]string{{"gate"}, {"gate", "frob"}, {"gate", "add"}, {"gate", "approve"}, {"ranking"}, {"ranking", "maybe"}} {
+	// Learned keys (decision 0145): the switch and the counts.
+	if code, env = run("keys", "disable"); code != 0 || env.Data.(map[string]any)["enabled"] != false || env.AuditID == 0 {
+		t.Fatalf("keys disable: %d %+v", code, env)
+	}
+	if code, env = run("keys", "stats"); code != 0 || env.Data.(map[string]any)["enabled"] != false || env.Data.(map[string]any)["keys"] != 0.0 {
+		t.Fatalf("keys stats: %d %+v", code, env)
+	}
+	for _, args := range [][]string{{"gate"}, {"gate", "frob"}, {"gate", "add"}, {"gate", "approve"}, {"ranking"}, {"ranking", "maybe"},
+		{"keys"}, {"keys", "frob"}} {
 		if code, _, _ := runCLI(args...); code != 2 {
 			t.Errorf("%v: code %d, want usage error", args, code)
 		}
