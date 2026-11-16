@@ -157,7 +157,10 @@ for conv in $CONVS; do
   if [ ! -f "$out/base.use.outcomes.jsonl" ]; then
     cond_sets base
     "$LME_BIN" study outcome -db "$d/base" -ask "$out/base.use.ask.jsonl" -answers "$out/base.use.answers.jsonl" \
-      "${EMB[@]}" "${COND[@]}" -out "$out/base.use.outcomes.jsonl"
+      "${EMB[@]}" "${COND[@]}" -out "$out/base.use.outcomes.jsonl.part"
+    [ "$(wc -l < "$out/base.use.outcomes.jsonl.part")" -eq "$(wc -l < "$out/base.use.ask.jsonl")" ] ||
+      die "outcomes for $conv incomplete (rerun resumes)"
+    mv "$out/base.use.outcomes.jsonl.part" "$out/base.use.outcomes.jsonl"
   fi
   for c in S0 S1 S2; do
     [ $DRY = 1 ] && [ $c = S2 ] && { log "dry run: S2 (LLM digest) skipped"; continue; }
