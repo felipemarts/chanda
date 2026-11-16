@@ -1,0 +1,262 @@
+11:18:26 building eval/lme/bin/lme and eval/lme/bin/lmeproxy
+11:18:31 == [1] 01493427
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/01493427/base: 487 turns mapped to events
+copied eval/conflicts/work/dev/01493427/base -> eval/conflicts/work/dev/01493427/d2
+2026/11/16 08:19:41 [1/1] D 01493427 tokens=1981 items=16 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/01493427/D2.ask.jsonl.part: 1 lines
+11:19:41 == [2] 22d2cb42
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/22d2cb42/base: 473 turns mapped to events
+copied eval/conflicts/work/dev/22d2cb42/base -> eval/conflicts/work/dev/22d2cb42/d2
+2026/11/16 08:21:34 [1/1] D 22d2cb42 tokens=1995 items=16 sleep=0 evidence 1/1
+wrote eval/conflicts/work/dev/22d2cb42/D2.ask.jsonl.part: 1 lines
+11:21:34 == [3] 2698e78f
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/2698e78f/base: 478 turns mapped to events
+copied eval/conflicts/work/dev/2698e78f/base -> eval/conflicts/work/dev/2698e78f/d2
+2026/11/16 08:22:33 [1/1] D 2698e78f tokens=1962 items=16 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/2698e78f/D2.ask.jsonl.part: 1 lines
+11:22:33 == [4] 2698e78f_abs
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/2698e78f_abs/base: 462 turns mapped to events
+copied eval/conflicts/work/dev/2698e78f_abs/base -> eval/conflicts/work/dev/2698e78f_abs/d2
+2026/11/16 08:23:26 [1/1] D 2698e78f_abs tokens=1967 items=16 sleep=0 evidence 0/0
+wrote eval/conflicts/work/dev/2698e78f_abs/D2.ask.jsonl.part: 1 lines
+11:23:26 == [5] 26bdc477
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/26bdc477/base: 498 turns mapped to events
+copied eval/conflicts/work/dev/26bdc477/base -> eval/conflicts/work/dev/26bdc477/d2
+2026/11/16 08:24:30 [1/1] D 26bdc477 tokens=1993 items=16 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/26bdc477/D2.ask.jsonl.part: 1 lines
+11:24:30 == [6] 41698283
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/41698283/base: 475 turns mapped to events
+copied eval/conflicts/work/dev/41698283/base -> eval/conflicts/work/dev/41698283/d2
+2026/11/16 08:25:27 [1/1] D 41698283 tokens=1970 items=16 sleep=0 evidence 1/2
+wrote eval/conflicts/work/dev/41698283/D2.ask.jsonl.part: 1 lines
+11:25:27 == [7] 4b24c848
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/4b24c848/base: 513 turns mapped to events
+copied eval/conflicts/work/dev/4b24c848/base -> eval/conflicts/work/dev/4b24c848/d2
+2026/11/16 08:26:22 [1/1] D 4b24c848 tokens=1956 items=18 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/4b24c848/D2.ask.jsonl.part: 1 lines
+11:26:22 == [8] 4d6b87c8
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/4d6b87c8/base: 514 turns mapped to events
+copied eval/conflicts/work/dev/4d6b87c8/base -> eval/conflicts/work/dev/4d6b87c8/d2
+2026/11/16 08:27:13 [1/1] D 4d6b87c8 tokens=1968 items=19 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/4d6b87c8/D2.ask.jsonl.part: 1 lines
+11:27:13 == [9] 50635ada
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/50635ada/base: 530 turns mapped to events
+copied eval/conflicts/work/dev/50635ada/base -> eval/conflicts/work/dev/50635ada/d2
+2026/11/16 08:28:08 [1/1] D 50635ada tokens=1982 items=14 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/50635ada/D2.ask.jsonl.part: 1 lines
+11:28:08 == [10] 6071bd76
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/6071bd76/base: 482 turns mapped to events
+copied eval/conflicts/work/dev/6071bd76/base -> eval/conflicts/work/dev/6071bd76/d2
+2026/11/16 08:28:28 [1/1] D 6071bd76 tokens=1980 items=16 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/6071bd76/D2.ask.jsonl.part: 1 lines
+11:28:28 == [11] 6a27ffc2
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/6a27ffc2/base: 493 turns mapped to events
+copied eval/conflicts/work/dev/6a27ffc2/base -> eval/conflicts/work/dev/6a27ffc2/d2
+2026/11/16 08:29:18 [1/1] D 6a27ffc2 tokens=1988 items=16 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/6a27ffc2/D2.ask.jsonl.part: 1 lines
+11:29:18 == [12] 6aeb4375_abs
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/6aeb4375_abs/base: 521 turns mapped to events
+copied eval/conflicts/work/dev/6aeb4375_abs/base -> eval/conflicts/work/dev/6aeb4375_abs/d2
+2026/11/16 08:30:15 [1/1] D 6aeb4375_abs tokens=1978 items=18 sleep=0 evidence 0/0
+wrote eval/conflicts/work/dev/6aeb4375_abs/D2.ask.jsonl.part: 1 lines
+11:30:15 == [13] 7401057b
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/7401057b/base: 446 turns mapped to events
+copied eval/conflicts/work/dev/7401057b/base -> eval/conflicts/work/dev/7401057b/d2
+2026/11/16 08:31:01 [1/1] D 7401057b tokens=1973 items=13 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/7401057b/D2.ask.jsonl.part: 1 lines
+11:31:01 == [14] 7a87bd0c
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/7a87bd0c/base: 506 turns mapped to events
+copied eval/conflicts/work/dev/7a87bd0c/base -> eval/conflicts/work/dev/7a87bd0c/d2
+2026/11/16 08:32:00 [1/1] D 7a87bd0c tokens=1955 items=15 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/7a87bd0c/D2.ask.jsonl.part: 1 lines
+11:32:00 == [15] 8fb83627
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/8fb83627/base: 485 turns mapped to events
+copied eval/conflicts/work/dev/8fb83627/base -> eval/conflicts/work/dev/8fb83627/d2
+2026/11/16 08:32:52 [1/1] D 8fb83627 tokens=1983 items=15 sleep=0 evidence 3/3
+wrote eval/conflicts/work/dev/8fb83627/D2.ask.jsonl.part: 1 lines
+11:32:52 == [16] 945e3d21
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/945e3d21/base: 489 turns mapped to events
+copied eval/conflicts/work/dev/945e3d21/base -> eval/conflicts/work/dev/945e3d21/d2
+2026/11/16 08:33:48 [1/1] D 945e3d21 tokens=1983 items=16 sleep=0 evidence 1/2
+wrote eval/conflicts/work/dev/945e3d21/D2.ask.jsonl.part: 1 lines
+11:33:48 == [17] 9ea5eabc
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/9ea5eabc/base: 537 turns mapped to events
+copied eval/conflicts/work/dev/9ea5eabc/base -> eval/conflicts/work/dev/9ea5eabc/d2
+2026/11/16 08:34:42 [1/1] D 9ea5eabc tokens=1992 items=19 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/9ea5eabc/D2.ask.jsonl.part: 1 lines
+11:34:42 == [18] a2f3aa27
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/a2f3aa27/base: 448 turns mapped to events
+copied eval/conflicts/work/dev/a2f3aa27/base -> eval/conflicts/work/dev/a2f3aa27/d2
+2026/11/16 08:35:36 [1/1] D a2f3aa27 tokens=1983 items=11 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/a2f3aa27/D2.ask.jsonl.part: 1 lines
+11:35:36 == [19] b6019101
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/b6019101/base: 510 turns mapped to events
+copied eval/conflicts/work/dev/b6019101/base -> eval/conflicts/work/dev/b6019101/d2
+2026/11/16 08:36:33 [1/1] D b6019101 tokens=1992 items=14 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/b6019101/D2.ask.jsonl.part: 1 lines
+11:36:33 == [20] c4ea545c
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/c4ea545c/base: 490 turns mapped to events
+copied eval/conflicts/work/dev/c4ea545c/base -> eval/conflicts/work/dev/c4ea545c/d2
+2026/11/16 08:37:31 [1/1] D c4ea545c tokens=1989 items=19 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/c4ea545c/D2.ask.jsonl.part: 1 lines
+11:37:31 == [21] cc5ded98
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/cc5ded98/base: 493 turns mapped to events
+copied eval/conflicts/work/dev/cc5ded98/base -> eval/conflicts/work/dev/cc5ded98/d2
+2026/11/16 08:38:23 [1/1] D cc5ded98 tokens=1981 items=14 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/cc5ded98/D2.ask.jsonl.part: 1 lines
+11:38:23 == [22] d7c942c3
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/d7c942c3/base: 520 turns mapped to events
+copied eval/conflicts/work/dev/d7c942c3/base -> eval/conflicts/work/dev/d7c942c3/d2
+2026/11/16 08:39:18 [1/1] D d7c942c3 tokens=1973 items=18 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/d7c942c3/D2.ask.jsonl.part: 1 lines
+11:39:18 == [23] 0db4c65d
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/0db4c65d/base: 462 turns mapped to events
+copied eval/conflicts/work/dev/0db4c65d/base -> eval/conflicts/work/dev/0db4c65d/d2
+2026/11/16 08:40:10 [1/1] D 0db4c65d tokens=1961 items=16 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/0db4c65d/D2.ask.jsonl.part: 1 lines
+11:40:10 == [24] 0edc2aef
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/0edc2aef/base: 475 turns mapped to events
+copied eval/conflicts/work/dev/0edc2aef/base -> eval/conflicts/work/dev/0edc2aef/d2
+2026/11/16 08:41:06 [1/1] D 0edc2aef tokens=1989 items=22 sleep=0 evidence 1/1
+wrote eval/conflicts/work/dev/0edc2aef/D2.ask.jsonl.part: 1 lines
+11:41:06 == [25] 10d9b85a
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/10d9b85a/base: 466 turns mapped to events
+copied eval/conflicts/work/dev/10d9b85a/base -> eval/conflicts/work/dev/10d9b85a/d2
+2026/11/16 08:42:08 [1/1] D 10d9b85a tokens=1980 items=16 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/10d9b85a/D2.ask.jsonl.part: 1 lines
+11:42:08 == [26] 1192316e
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/1192316e/base: 467 turns mapped to events
+copied eval/conflicts/work/dev/1192316e/base -> eval/conflicts/work/dev/1192316e/d2
+2026/11/16 08:43:04 [1/1] D 1192316e tokens=1995 items=16 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/1192316e/D2.ask.jsonl.part: 1 lines
+11:43:04 == [27] 1903aded
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/1903aded/base: 486 turns mapped to events
+copied eval/conflicts/work/dev/1903aded/base -> eval/conflicts/work/dev/1903aded/d2
+2026/11/16 08:44:00 [1/1] D 1903aded tokens=1974 items=14 sleep=0 evidence 1/1
+wrote eval/conflicts/work/dev/1903aded/D2.ask.jsonl.part: 1 lines
+11:44:00 == [28] 1c0ddc50
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/1c0ddc50/base: 548 turns mapped to events
+copied eval/conflicts/work/dev/1c0ddc50/base -> eval/conflicts/work/dev/1c0ddc50/d2
+2026/11/16 08:45:02 [1/1] D 1c0ddc50 tokens=1965 items=16 sleep=0 evidence 1/2
+wrote eval/conflicts/work/dev/1c0ddc50/D2.ask.jsonl.part: 1 lines
+11:45:02 == [29] 1faac195
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/1faac195/base: 494 turns mapped to events
+copied eval/conflicts/work/dev/1faac195/base -> eval/conflicts/work/dev/1faac195/d2
+2026/11/16 08:45:55 [1/1] D 1faac195 tokens=1838 items=16 sleep=0 evidence 1/1
+wrote eval/conflicts/work/dev/1faac195/D2.ask.jsonl.part: 1 lines
+11:45:55 == [30] 4adc0475
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/4adc0475/base: 490 turns mapped to events
+copied eval/conflicts/work/dev/4adc0475/base -> eval/conflicts/work/dev/4adc0475/d2
+2026/11/16 08:46:51 [1/1] D 4adc0475 tokens=1992 items=17 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/4adc0475/D2.ask.jsonl.part: 1 lines
+11:46:51 == [31] 4bc144e2
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/4bc144e2/base: 530 turns mapped to events
+copied eval/conflicts/work/dev/4bc144e2/base -> eval/conflicts/work/dev/4bc144e2/d2
+2026/11/16 08:47:47 [1/1] D 4bc144e2 tokens=1993 items=12 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/4bc144e2/D2.ask.jsonl.part: 1 lines
+11:47:47 == [32] 60159905
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/60159905/base: 448 turns mapped to events
+copied eval/conflicts/work/dev/60159905/base -> eval/conflicts/work/dev/60159905/d2
+2026/11/16 08:48:42 [1/1] D 60159905 tokens=1994 items=18 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/60159905/D2.ask.jsonl.part: 1 lines
+11:48:42 == [33] 7e00a6cb
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/7e00a6cb/base: 564 turns mapped to events
+copied eval/conflicts/work/dev/7e00a6cb/base -> eval/conflicts/work/dev/7e00a6cb/d2
+2026/11/16 08:49:40 [1/1] D 7e00a6cb tokens=1993 items=17 sleep=0 evidence 1/1
+wrote eval/conflicts/work/dev/7e00a6cb/D2.ask.jsonl.part: 1 lines
+11:49:40 == [34] 8979f9ec
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/8979f9ec/base: 469 turns mapped to events
+copied eval/conflicts/work/dev/8979f9ec/base -> eval/conflicts/work/dev/8979f9ec/d2
+2026/11/16 08:50:39 [1/1] D 8979f9ec tokens=1995 items=14 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/8979f9ec/D2.ask.jsonl.part: 1 lines
+11:50:39 == [35] 8a2466db
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/8a2466db/base: 507 turns mapped to events
+copied eval/conflicts/work/dev/8a2466db/base -> eval/conflicts/work/dev/8a2466db/d2
+2026/11/16 08:51:36 [1/1] D 8a2466db tokens=1994 items=12 sleep=0 evidence 1/1
+wrote eval/conflicts/work/dev/8a2466db/D2.ask.jsonl.part: 1 lines
+11:51:36 == [36] a08a253f
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/a08a253f/base: 559 turns mapped to events
+copied eval/conflicts/work/dev/a08a253f/base -> eval/conflicts/work/dev/a08a253f/d2
+2026/11/16 08:52:01 [1/1] D a08a253f tokens=1974 items=16 sleep=0 evidence 1/2
+wrote eval/conflicts/work/dev/a08a253f/D2.ask.jsonl.part: 1 lines
+11:52:01 == [37] a3045048
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/a3045048/base: 582 turns mapped to events
+copied eval/conflicts/work/dev/a3045048/base -> eval/conflicts/work/dev/a3045048/d2
+2026/11/16 08:53:02 [1/1] D a3045048 tokens=1992 items=17 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/a3045048/D2.ask.jsonl.part: 1 lines
+11:53:02 == [38] b9cfe692
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/b9cfe692/base: 492 turns mapped to events
+copied eval/conflicts/work/dev/b9cfe692/base -> eval/conflicts/work/dev/b9cfe692/d2
+2026/11/16 08:54:03 [1/1] D b9cfe692 tokens=1990 items=14 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/b9cfe692/D2.ask.jsonl.part: 1 lines
+11:54:03 == [39] c2ac3c61
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/c2ac3c61/base: 528 turns mapped to events
+copied eval/conflicts/work/dev/c2ac3c61/base -> eval/conflicts/work/dev/c2ac3c61/d2
+2026/11/16 08:55:00 [1/1] D c2ac3c61 tokens=1994 items=17 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/c2ac3c61/D2.ask.jsonl.part: 1 lines
+11:55:00 == [40] c4f10528
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/c4f10528/base: 485 turns mapped to events
+copied eval/conflicts/work/dev/c4f10528/base -> eval/conflicts/work/dev/c4f10528/d2
+2026/11/16 08:56:06 [1/1] D c4f10528 tokens=1981 items=18 sleep=0 evidence 0/1
+wrote eval/conflicts/work/dev/c4f10528/D2.ask.jsonl.part: 1 lines
+11:56:06 == [41] c8090214
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/c8090214/base: 459 turns mapped to events
+copied eval/conflicts/work/dev/c8090214/base -> eval/conflicts/work/dev/c8090214/d2
+2026/11/16 08:57:03 [1/1] D c8090214 tokens=1994 items=13 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/c8090214/D2.ask.jsonl.part: 1 lines
+11:57:03 == [42] caf03d32
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/caf03d32/base: 489 turns mapped to events
+copied eval/conflicts/work/dev/caf03d32/base -> eval/conflicts/work/dev/caf03d32/d2
+2026/11/16 08:58:02 [1/1] D caf03d32 tokens=1980 items=18 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/caf03d32/D2.ask.jsonl.part: 1 lines
+11:58:02 == [43] d682f1a2
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/d682f1a2/base: 469 turns mapped to events
+copied eval/conflicts/work/dev/d682f1a2/base -> eval/conflicts/work/dev/d682f1a2/d2
+2026/11/16 08:59:00 [1/1] D d682f1a2 tokens=1983 items=17 sleep=0 evidence 2/3
+wrote eval/conflicts/work/dev/d682f1a2/D2.ask.jsonl.part: 1 lines
+11:59:00 == [44] d851d5ba
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/d851d5ba/base: 533 turns mapped to events
+copied eval/conflicts/work/dev/d851d5ba/base -> eval/conflicts/work/dev/d851d5ba/d2
+2026/11/16 09:00:04 [1/1] D d851d5ba tokens=1984 items=16 sleep=0 evidence 4/4
+wrote eval/conflicts/work/dev/d851d5ba/D2.ask.jsonl.part: 1 lines
+12:00:04 == [45] e4e14d04
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/e4e14d04/base: 460 turns mapped to events
+copied eval/conflicts/work/dev/e4e14d04/base -> eval/conflicts/work/dev/e4e14d04/d2
+2026/11/16 09:01:05 [1/1] D e4e14d04 tokens=1981 items=15 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/e4e14d04/D2.ask.jsonl.part: 1 lines
+12:01:05 == [46] e831120c
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/e831120c/base: 481 turns mapped to events
+copied eval/conflicts/work/dev/e831120c/base -> eval/conflicts/work/dev/e831120c/d2
+2026/11/16 09:02:08 [1/1] D e831120c tokens=1988 items=15 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/e831120c/D2.ask.jsonl.part: 1 lines
+12:02:08 == [47] gpt4_6dc9b45b
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/gpt4_6dc9b45b/base: 564 turns mapped to events
+copied eval/conflicts/work/dev/gpt4_6dc9b45b/base -> eval/conflicts/work/dev/gpt4_6dc9b45b/d2
+2026/11/16 09:03:07 [1/1] D gpt4_6dc9b45b tokens=1963 items=9 sleep=0 evidence 1/1
+wrote eval/conflicts/work/dev/gpt4_6dc9b45b/D2.ask.jsonl.part: 1 lines
+12:03:07 == [48] gpt4_7ca326fa
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/gpt4_7ca326fa/base: 516 turns mapped to events
+copied eval/conflicts/work/dev/gpt4_7ca326fa/base -> eval/conflicts/work/dev/gpt4_7ca326fa/d2
+2026/11/16 09:04:11 [1/1] D gpt4_7ca326fa tokens=1984 items=13 sleep=0 evidence 3/3
+wrote eval/conflicts/work/dev/gpt4_7ca326fa/D2.ask.jsonl.part: 1 lines
+12:04:11 == [49] gpt4_7de946e7
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/gpt4_7de946e7/base: 533 turns mapped to events
+copied eval/conflicts/work/dev/gpt4_7de946e7/base -> eval/conflicts/work/dev/gpt4_7de946e7/d2
+2026/11/16 09:05:14 [1/1] D gpt4_7de946e7 tokens=1992 items=16 sleep=0 evidence 2/2
+wrote eval/conflicts/work/dev/gpt4_7de946e7/D2.ask.jsonl.part: 1 lines
+12:05:14 == [50] gpt4_cd90e484
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/gpt4_cd90e484/base: 508 turns mapped to events
+copied eval/conflicts/work/dev/gpt4_cd90e484/base -> eval/conflicts/work/dev/gpt4_cd90e484/d2
+2026/11/16 09:06:20 [1/1] D gpt4_cd90e484 tokens=1988 items=16 sleep=0 evidence 1/2
+wrote eval/conflicts/work/dev/gpt4_cd90e484/D2.ask.jsonl.part: 1 lines
+12:06:20 == [51] gpt4_e072b769
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/gpt4_e072b769/base: 444 turns mapped to events
+copied eval/conflicts/work/dev/gpt4_e072b769/base -> eval/conflicts/work/dev/gpt4_e072b769/d2
+2026/11/16 09:07:19 [1/1] D gpt4_e072b769 tokens=1995 items=14 sleep=0 evidence 1/1
+wrote eval/conflicts/work/dev/gpt4_e072b769/D2.ask.jsonl.part: 1 lines
+12:07:19 == [52] gpt4_fe651585_abs
+ingested /Users/felipemarts/Documents/devel/chanda-mcp/eval/conflicts/work/dev/gpt4_fe651585_abs/base: 491 turns mapped to events
+copied eval/conflicts/work/dev/gpt4_fe651585_abs/base -> eval/conflicts/work/dev/gpt4_fe651585_abs/d2
+2026/11/16 09:08:21 [1/1] D gpt4_fe651585_abs tokens=1995 items=15 sleep=0 evidence 1/1
+wrote eval/conflicts/work/dev/gpt4_fe651585_abs/D2.ask.jsonl.part: 1 lines
+12:08:27 precheck: eval/conflicts/precheck/precheck.md
