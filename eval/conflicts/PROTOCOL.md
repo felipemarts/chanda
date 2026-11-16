@@ -39,9 +39,20 @@ evidence". The rule here (`kuturns.py`) infers it from the session dates:
   `current`, it needs both turns. Every other qualifying question needs the
   current turn.
 
-In the 9 qualifying knowledge-update questions of both splits where the
-gold answer resembles the earlier turn more, the question asks for the
-previous value. The date rule held in every case.
+- When the two sessions fall on the same calendar day, the order is not
+  trusted. Both turns are needed, and the question is left out of the
+  outdated-delivery measure. This applies to 1 development and 2 test
+  questions.
+
+The rule was checked against the 9 qualifying knowledge-update questions,
+in both splits, where the gold answer resembles the earlier turn more:
+
+- 8 ask for the previous value;
+- the ninth is 618f13b2, whose two sessions fall on the same day and whose
+  earlier turn holds the gold value. That case is why the same-day rule
+  exists.
+
+`kuturns.stale_measure` and `kuturns.needed` implement these rules.
 
 ## Conditions
 
@@ -86,7 +97,8 @@ study's rule: a turn reaches the block when 60% of it, as a prefix with
 whitespace removed, is in the block text.
 
 - **Outdated information delivered**: in the qualifying knowledge-update
-  questions that need only the current turn, the number of blocks
+  questions that need only the current turn and whose sessions fall on
+  different days (`stale_measure`), the number of blocks
   containing the outdated turn, in C0 and in C1.
 - **Hidden evidence**: over all 107 questions, the needed evidence turns
   that are in C0's block but missing from C1's because C1 dropped them as

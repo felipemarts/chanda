@@ -6,6 +6,9 @@ evidence"); the rule here infers them from the session dates:
 - a question qualifies when it is not an abstention question and has exactly
   two has_answer turns in sessions with different timestamps;
 - the turn of the earlier session is the OUTDATED one, the later the CURRENT;
+- when the two sessions fall on the same calendar day, the order is not
+  trusted (in 618f13b2 the earlier turn holds the gold value): both turns
+  are needed and the question is left out of the outdated-delivery measure;
 - a question "asks for the old value" when its text matches OLD_RE
   (previous, before, initially, originally, used to, first ...); then the
   outdated turn is the needed evidence (and the current one too when the
@@ -36,6 +39,21 @@ def needed(q):
     if k is None:
         return None
     old, cur = k
+    if same_day(q):
+        return [old, cur]
     if OLD_RE.search(q["question"]):
         return [old, cur] if NOW_RE.search(q["question"]) else [old]
     return [cur]
+
+
+def same_day(q):
+    k = ku_turns(q)
+    return k is not None and q["haystack_dates"][k[0][0]][:10] == q["haystack_dates"][k[1][0]][:10]
+
+
+def stale_measure(q):
+    """True when the question counts in the outdated-delivery measure: it
+    qualifies, needs only the current turn, and its sessions are on
+    different days."""
+    k = ku_turns(q)
+    return k is not None and not same_day(q) and needed(q) == [k[1]]
