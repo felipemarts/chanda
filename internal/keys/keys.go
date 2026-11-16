@@ -105,7 +105,7 @@ func Create(ctx context.Context, q store.Queryer, e *env.Env, ns, retrievalID, q
 			return res, err
 		}
 		for _, edge := range []struct {
-			st core.RecordType
+			st       core.RecordType
 			sid, rel string
 		}{
 			{core.RecRetrieval, retrievalID, core.RelDerivedFrom},

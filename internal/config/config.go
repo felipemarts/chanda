@@ -210,7 +210,9 @@ const (
 )
 
 // KeysWeight is the effective read.learned_keys_weight.
-func (r ReadConfig) KeysWeight() float64 { return orFloat(r.LearnedKeysWeight, DefaultLearnedKeysWeight) }
+func (r ReadConfig) KeysWeight() float64 {
+	return orFloat(r.LearnedKeysWeight, DefaultLearnedKeysWeight)
+}
 
 // KeysTopK is the effective read.learned_keys_top_k.
 func (r ReadConfig) KeysTopK() int { return orInt(r.LearnedKeysTopK, DefaultLearnedKeysTopK) }
