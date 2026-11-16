@@ -1,0 +1,349 @@
+{
+ "db": "/Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/a08a253f/L",
+ "condition": "L",
+ "phases": [
+  1,
+  2
+ ],
+ "budget": {},
+ "llm_url": "http://127.0.0.1:8787/tag/BENCH-L-sleep/v1",
+ "chanda_set": [
+  "read.context_derived_max_share=0.3",
+  "sleep.mode=guided",
+  "sleep.guided.digest=llm"
+ ],
+ "chanda_config_hash": "c3db78736ea446ca",
+ "started_at": "2026-11-16T00:40:43Z",
+ "wall_ms": 3823.992,
+ "attempts": 1,
+ "output": {
+  "cost": {
+   "input_tokens": 3618,
+   "llm_calls": 1,
+   "output_tokens": 624
+  },
+  "created": 0,
+  "merged": 0,
+  "phases": [
+   1,
+   2
+  ],
+  "rejected": 0,
+  "report": "# Sleep run run_01M7GWS5CH0ZSV5TRF308E3M4W\n\n- Namespace: lme\n- Status: completed\n- Phases: 1, 2\n- Budget: 200000 tokens, 500 events\n- Snapshot: /Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/a08a253f/L/snapshots/run_01M7GWS5CH0ZSV5TRF308E3M4W.db\n\n## Phase 1\n\n- Integrity violations: 0\n- Merge proposals (pending): 0\n- Facts marked stale_source: 0\n- Pages rebuilt: 0\n- Gate questions proposed (awaiting a human): 0\n- Ranker: trained none, evaluated none, passed false, promoted false, baseline 0.00, learned 0.00, lambda 0.00 (train_skipped_few_examples, no_model)\n\n## Phase 2 (guided digest)\n\n- Digest: llm\n- Candidate groups: 1; groups after merging: 1\n- Groups digested: 1; skipped (already digested): 0; left for the next run: 0\n- Lines written: 10\n- Lines discarded: none\n- Fichas created: 1 (pg_01M7GWS8RYBN5NCX3MM7TV6ZF2)\n- Page items added: 10 (pgi_01M7GWS8RZ4996KBXZQ01MEE90, pgi_01M7GWS8RZ4996KBXZQ01MEE91, pgi_01M7GWS8RZ4996KBXZQ01MEE92, pgi_01M7GWS8RZ4996KBXZQ01MEE93, pgi_01M7GWS8RZ4996KBXZQ01MEE94, pgi_01M7GWS8RZ4996KBXZQ01MEE95, pgi_01M7GWS8RZ4996KBXZQ01MEE96, pgi_01M7GWS8RZ4996KBXZQ01MEE97, pgi_01M7GWS8RZ4996KBXZQ01MEE98, pgi_01M7GWS8RZ4996KBXZQ01MEE99)\n- Invalid LLM answers discarded (no retry): 0\n- LLM errors: 0\n\n## Gate\n\n- Score before: 0.00, after: 0.00, tolerance: 2.00 points\n- Integrity violations before: 0, after: 0\n- Result: passed; staged changes committed\n\n## Cost\n\n- LLM calls: 1\n- Tokens: 3618 in, 624 out, 4242 total\n\n## Notices\n\n- gate: no approved gate questions; the score measured nothing and only the integrity check guarded this run\n",
+  "run_id": "run_01M7GWS5CH0ZSV5TRF308E3M4W",
+  "status": "completed",
+  "superseded": 0
+ },
+ "run": {
+  "id": "run_01M7GWS5CH0ZSV5TRF308E3M4W",
+  "status": "completed",
+  "started_at": "2026-11-16T00:40:43.665142000Z",
+  "ended_at": "2026-11-16T00:40:47.486915000Z",
+  "phases": [
+   1,
+   2
+  ],
+  "budget": {
+   "tokens": 200000,
+   "events": 500
+  },
+  "inputs": {
+   "actor": "agent",
+   "provider": "openai-compatible:deepseek-flash"
+  },
+  "outputs": {
+   "counts": {
+    "integrity_violations": 0,
+    "merge_proposals": [],
+    "stale_facts": [],
+    "pages_rebuilt": [],
+    "gate_proposed": [],
+    "learning": {
+     "passed": false,
+     "promoted": false,
+     "baseline": 0,
+     "learned": 0,
+     "lambda": 0,
+     "notices": [
+      "train_skipped_few_examples",
+      "no_model"
+     ]
+    },
+    "events_extracted": 0,
+    "events_skipped": [],
+    "fact_actions": {},
+    "candidates_dropped": 0,
+    "verdicts": {},
+    "facts_activated": [],
+    "facts_superseded": [],
+    "facts_history": [],
+    "facts_quarantined": [],
+    "facts_rejected": [],
+    "verdicts_refused": [],
+    "merges_applied": [],
+    "merges_rejected": [],
+    "pages_created": [
+     "pg_01M7GWS8RYBN5NCX3MM7TV6ZF2"
+    ],
+    "page_items_added": [
+     "pgi_01M7GWS8RZ4996KBXZQ01MEE90",
+     "pgi_01M7GWS8RZ4996KBXZQ01MEE91",
+     "pgi_01M7GWS8RZ4996KBXZQ01MEE92",
+     "pgi_01M7GWS8RZ4996KBXZQ01MEE93",
+     "pgi_01M7GWS8RZ4996KBXZQ01MEE94",
+     "pgi_01M7GWS8RZ4996KBXZQ01MEE95",
+     "pgi_01M7GWS8RZ4996KBXZQ01MEE96",
+     "pgi_01M7GWS8RZ4996KBXZQ01MEE97",
+     "pgi_01M7GWS8RZ4996KBXZQ01MEE98",
+     "pgi_01M7GWS8RZ4996KBXZQ01MEE99"
+    ],
+    "lessons_skipped": 0,
+    "invalid_answers": 0,
+    "llm_errors": 0,
+    "guided": {
+     "digest": "llm",
+     "candidate_groups": 1,
+     "groups": 1,
+     "groups_digested": 1,
+     "groups_skipped": 0,
+     "groups_left": 0,
+     "lines_written": 10,
+     "lines_discarded": {},
+     "fichas": [
+      "pg_01M7GWS8RYBN5NCX3MM7TV6ZF2"
+     ]
+    }
+   },
+   "gate": {
+    "ran": true,
+    "before": 0,
+    "after": 0,
+    "tolerance": 2,
+    "violations_before": 0,
+    "violations_after": 0,
+    "reverted": false
+   }
+  },
+  "cost": {
+   "llm_calls": 1,
+   "input_tokens": 3618,
+   "output_tokens": 624
+  },
+  "report": "# Sleep run run_01M7GWS5CH0ZSV5TRF308E3M4W\n\n- Namespace: lme\n- Status: completed\n- Phases: 1, 2\n- Budget: 200000 tokens, 500 events\n- Snapshot: /Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/a08a253f/L/snapshots/run_01M7GWS5CH0ZSV5TRF308E3M4W.db\n\n## Phase 1\n\n- Integrity violations: 0\n- Merge proposals (pending): 0\n- Facts marked stale_source: 0\n- Pages rebuilt: 0\n- Gate questions proposed (awaiting a human): 0\n- Ranker: trained none, evaluated none, passed false, promoted false, baseline 0.00, learned 0.00, lambda 0.00 (train_skipped_few_examples, no_model)\n\n## Phase 2 (guided digest)\n\n- Digest: llm\n- Candidate groups: 1; groups after merging: 1\n- Groups digested: 1; skipped (already digested): 0; left for the next run: 0\n- Lines written: 10\n- Lines discarded: none\n- Fichas created: 1 (pg_01M7GWS8RYBN5NCX3MM7TV6ZF2)\n- Page items added: 10 (pgi_01M7GWS8RZ4996KBXZQ01MEE90, pgi_01M7GWS8RZ4996KBXZQ01MEE91, pgi_01M7GWS8RZ4996KBXZQ01MEE92, pgi_01M7GWS8RZ4996KBXZQ01MEE93, pgi_01M7GWS8RZ4996KBXZQ01MEE94, pgi_01M7GWS8RZ4996KBXZQ01MEE95, pgi_01M7GWS8RZ4996KBXZQ01MEE96, pgi_01M7GWS8RZ4996KBXZQ01MEE97, pgi_01M7GWS8RZ4996KBXZQ01MEE98, pgi_01M7GWS8RZ4996KBXZQ01MEE99)\n- Invalid LLM answers discarded (no retry): 0\n- LLM errors: 0\n\n## Gate\n\n- Score before: 0.00, after: 0.00, tolerance: 2.00 points\n- Integrity violations before: 0, after: 0\n- Result: passed; staged changes committed\n\n## Cost\n\n- LLM calls: 1\n- Tokens: 3618 in, 624 out, 4242 total\n\n## Notices\n\n- gate: no approved gate questions; the score measured nothing and only the integrity check guarded this run\n"
+ },
+ "counts": {
+  "integrity_violations": 0,
+  "merge_proposals": [],
+  "stale_facts": [],
+  "pages_rebuilt": [],
+  "gate_proposed": [],
+  "learning": {
+   "passed": false,
+   "promoted": false,
+   "baseline": 0,
+   "learned": 0,
+   "lambda": 0,
+   "notices": [
+    "train_skipped_few_examples",
+    "no_model"
+   ]
+  },
+  "events_extracted": 0,
+  "events_skipped": [],
+  "fact_actions": {},
+  "candidates_dropped": 0,
+  "verdicts": {},
+  "facts_activated": [],
+  "facts_superseded": [],
+  "facts_history": [],
+  "facts_quarantined": [],
+  "facts_rejected": [],
+  "verdicts_refused": [],
+  "merges_applied": [],
+  "merges_rejected": [],
+  "pages_created": [
+   "pg_01M7GWS8RYBN5NCX3MM7TV6ZF2"
+  ],
+  "page_items_added": [
+   "pgi_01M7GWS8RZ4996KBXZQ01MEE90",
+   "pgi_01M7GWS8RZ4996KBXZQ01MEE91",
+   "pgi_01M7GWS8RZ4996KBXZQ01MEE92",
+   "pgi_01M7GWS8RZ4996KBXZQ01MEE93",
+   "pgi_01M7GWS8RZ4996KBXZQ01MEE94",
+   "pgi_01M7GWS8RZ4996KBXZQ01MEE95",
+   "pgi_01M7GWS8RZ4996KBXZQ01MEE96",
+   "pgi_01M7GWS8RZ4996KBXZQ01MEE97",
+   "pgi_01M7GWS8RZ4996KBXZQ01MEE98",
+   "pgi_01M7GWS8RZ4996KBXZQ01MEE99"
+  ],
+  "lessons_skipped": 0,
+  "invalid_answers": 0,
+  "llm_errors": 0,
+  "guided": {
+   "digest": "llm",
+   "candidate_groups": 1,
+   "groups": 1,
+   "groups_digested": 1,
+   "groups_skipped": 0,
+   "groups_left": 0,
+   "lines_written": 10,
+   "lines_discarded": {},
+   "fichas": [
+    "pg_01M7GWS8RYBN5NCX3MM7TV6ZF2"
+   ]
+  }
+ },
+ "stats_before": {
+  "sources": 53,
+  "documents": 0,
+  "events": 559,
+  "retired_events": 0,
+  "entities": 0,
+  "facts": 0,
+  "active_facts": 0,
+  "quarantined_facts": 0,
+  "pages": 0,
+  "embeddings": 559,
+  "retrievals": 1,
+  "outcomes": 1,
+  "tombstones": 0
+ },
+ "stats_after": {
+  "sources": 53,
+  "documents": 0,
+  "events": 559,
+  "retired_events": 0,
+  "entities": 0,
+  "facts": 0,
+  "active_facts": 0,
+  "quarantined_facts": 0,
+  "pages": 1,
+  "embeddings": 560,
+  "retrievals": 1,
+  "outcomes": 1,
+  "tombstones": 0
+ },
+ "fichas": [
+  {
+   "id": "pg_01M7GWS8RYBN5NCX3MM7TV6ZF2",
+   "kind": "summary",
+   "title": "Digest: fitness, help, here",
+   "status": "active",
+   "zone": "internal",
+   "sleep_run_id": "run_01M7GWS5CH0ZSV5TRF308E3M4W",
+   "body": "2023-05-26 | assistant | evt_01M7GW47ZJE0XY43268KZTFPC5 | Recommended Hot Yoga or Power Yoga given the user's weightlifting background and goals, and said restorative yoga may not be the best fit.\n\n2023-05-26 | assistant | evt_01M7GW488H2NSM3JXA4M3CPBEE | Gave tips for staying motivated and consistent, including SMART goals, a schedule, a workout buddy, tracking progress, mixing it up, rewards and making exercise a habit.\n\n2023-05-27 | user | evt_01M7GW4NCQX9AW17ZY9HVXA7YP | User attends Zumba classes on Tuesdays and Thursdays at 6:30 pm and a weightlifting class on Saturdays at 10 am, and asked for reminders.\n\n2023-05-27 | assistant | evt_01M7GW4NEGVNFFPMYB6M3CM0Y9 | Set reminders for Tuesday 6:30 pm Zumba, Thursday 6:30 pm Zumba and Saturday 10:00 am weightlifting.\n\n2023-05-27 | user | evt_01M7GW4NHFW49NAY4BQDE55YX1 | User asked to also be reminded to log workouts on the fitness app after each class.\n\n2023-05-27 | assistant | evt_01M7GW4NJY0V98G3JJECX3KVWM | Added after-class reminders to log workouts on the fitness app for Tuesday, Thursday and Saturday.\n\n2023-05-27 | user | evt_01M7GW4NQ5H8ZFAVFJ57A4666R | User asked for upbeat song suggestions for a high-energy Zumba playlist.\n\n2023-05-27 | assistant | evt_01M7GW4PAY0NCXYWJXN40G346T | Gave suggestions for tracking progress and setting fitness goals, and listed apps including MyFitnessPal, Fitbit Coach, Strava and Habitica.\n\n2023-05-27 | assistant | evt_01M7GW4PTRKQM3HFRRWP8XCCMP | Suggested specific goals for the Zumba classes and the weightlifting class, and advised communicating goals with Maria and the weightlifting instructor.\n\n2023-05-28 | assistant | evt_01M7GW4Z7H4TFC1PY5VPX5JSG6 | Congratulated the user on a personal best time in a charity 5K run and listed fitness goal options such as a 10K, half-marathon, triathlon, strength training, obstacle course race, trail running and marathon training.",
+   "items": [
+    {
+     "id": "pgi_01M7GWS8RZ4996KBXZQ01MEE90",
+     "ordinal": 1,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWS5CH0ZSV5TRF308E3M4W",
+     "text": "2023-05-26 | assistant | evt_01M7GW47ZJE0XY43268KZTFPC5 | Recommended Hot Yoga or Power Yoga given the user's weightlifting background and goals, and said restorative yoga may not be the best fit.",
+     "cites": [
+      "evt_01M7GW47ZJE0XY43268KZTFPC5"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWS8RZ4996KBXZQ01MEE91",
+     "ordinal": 2,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWS5CH0ZSV5TRF308E3M4W",
+     "text": "2023-05-26 | assistant | evt_01M7GW488H2NSM3JXA4M3CPBEE | Gave tips for staying motivated and consistent, including SMART goals, a schedule, a workout buddy, tracking progress, mixing it up, rewards and making exercise a habit.",
+     "cites": [
+      "evt_01M7GW488H2NSM3JXA4M3CPBEE"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWS8RZ4996KBXZQ01MEE92",
+     "ordinal": 3,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWS5CH0ZSV5TRF308E3M4W",
+     "text": "2023-05-27 | user | evt_01M7GW4NCQX9AW17ZY9HVXA7YP | User attends Zumba classes on Tuesdays and Thursdays at 6:30 pm and a weightlifting class on Saturdays at 10 am, and asked for reminders.",
+     "cites": [
+      "evt_01M7GW4NCQX9AW17ZY9HVXA7YP"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWS8RZ4996KBXZQ01MEE93",
+     "ordinal": 4,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWS5CH0ZSV5TRF308E3M4W",
+     "text": "2023-05-27 | assistant | evt_01M7GW4NEGVNFFPMYB6M3CM0Y9 | Set reminders for Tuesday 6:30 pm Zumba, Thursday 6:30 pm Zumba and Saturday 10:00 am weightlifting.",
+     "cites": [
+      "evt_01M7GW4NEGVNFFPMYB6M3CM0Y9"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWS8RZ4996KBXZQ01MEE94",
+     "ordinal": 5,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWS5CH0ZSV5TRF308E3M4W",
+     "text": "2023-05-27 | user | evt_01M7GW4NHFW49NAY4BQDE55YX1 | User asked to also be reminded to log workouts on the fitness app after each class.",
+     "cites": [
+      "evt_01M7GW4NHFW49NAY4BQDE55YX1"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWS8RZ4996KBXZQ01MEE95",
+     "ordinal": 6,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWS5CH0ZSV5TRF308E3M4W",
+     "text": "2023-05-27 | assistant | evt_01M7GW4NJY0V98G3JJECX3KVWM | Added after-class reminders to log workouts on the fitness app for Tuesday, Thursday and Saturday.",
+     "cites": [
+      "evt_01M7GW4NJY0V98G3JJECX3KVWM"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWS8RZ4996KBXZQ01MEE96",
+     "ordinal": 7,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWS5CH0ZSV5TRF308E3M4W",
+     "text": "2023-05-27 | user | evt_01M7GW4NQ5H8ZFAVFJ57A4666R | User asked for upbeat song suggestions for a high-energy Zumba playlist.",
+     "cites": [
+      "evt_01M7GW4NQ5H8ZFAVFJ57A4666R"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWS8RZ4996KBXZQ01MEE97",
+     "ordinal": 8,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWS5CH0ZSV5TRF308E3M4W",
+     "text": "2023-05-27 | assistant | evt_01M7GW4PAY0NCXYWJXN40G346T | Gave suggestions for tracking progress and setting fitness goals, and listed apps including MyFitnessPal, Fitbit Coach, Strava and Habitica.",
+     "cites": [
+      "evt_01M7GW4PAY0NCXYWJXN40G346T"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWS8RZ4996KBXZQ01MEE98",
+     "ordinal": 9,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWS5CH0ZSV5TRF308E3M4W",
+     "text": "2023-05-27 | assistant | evt_01M7GW4PTRKQM3HFRRWP8XCCMP | Suggested specific goals for the Zumba classes and the weightlifting class, and advised communicating goals with Maria and the weightlifting instructor.",
+     "cites": [
+      "evt_01M7GW4PTRKQM3HFRRWP8XCCMP"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWS8RZ4996KBXZQ01MEE99",
+     "ordinal": 10,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWS5CH0ZSV5TRF308E3M4W",
+     "text": "2023-05-28 | assistant | evt_01M7GW4Z7H4TFC1PY5VPX5JSG6 | Congratulated the user on a personal best time in a charity 5K run and listed fitness goal options such as a 10K, half-marathon, triathlon, strength training, obstacle course race, trail running and marathon training.",
+     "cites": [
+      "evt_01M7GW4Z7H4TFC1PY5VPX5JSG6"
+     ]
+    }
+   ]
+  }
+ ]
+}

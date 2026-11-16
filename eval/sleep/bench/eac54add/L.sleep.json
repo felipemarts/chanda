@@ -1,0 +1,375 @@
+{
+ "db": "/Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/eac54add/L",
+ "condition": "L",
+ "phases": [
+  1,
+  2
+ ],
+ "budget": {},
+ "llm_url": "http://127.0.0.1:8787/tag/BENCH-L-sleep/v1",
+ "chanda_set": [
+  "read.context_derived_max_share=0.3",
+  "sleep.mode=guided",
+  "sleep.guided.digest=llm"
+ ],
+ "chanda_config_hash": "c3db78736ea446ca",
+ "started_at": "2026-11-16T00:41:20Z",
+ "wall_ms": 4063.846,
+ "attempts": 1,
+ "output": {
+  "cost": {
+   "input_tokens": 3113,
+   "llm_calls": 1,
+   "output_tokens": 722
+  },
+  "created": 0,
+  "merged": 0,
+  "phases": [
+   1,
+   2
+  ],
+  "rejected": 0,
+  "report": "# Sleep run run_01M7GWT8Y80ZSV5TRF308E3M4W\n\n- Namespace: lme\n- Status: completed\n- Phases: 1, 2\n- Budget: 200000 tokens, 500 events\n- Snapshot: /Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/eac54add/L/snapshots/run_01M7GWT8Y80ZSV5TRF308E3M4W.db\n\n## Phase 1\n\n- Integrity violations: 0\n- Merge proposals (pending): 0\n- Facts marked stale_source: 0\n- Pages rebuilt: 0\n- Gate questions proposed (awaiting a human): 0\n- Ranker: trained none, evaluated none, passed false, promoted false, baseline 0.00, learned 0.00, lambda 0.00 (train_skipped_few_examples, no_model)\n\n## Phase 2 (guided digest)\n\n- Digest: llm\n- Candidate groups: 1; groups after merging: 1\n- Groups digested: 1; skipped (already digested): 0; left for the next run: 0\n- Lines written: 12\n- Lines discarded: none\n- Fichas created: 1 (pg_01M7GWTCN4BN5NCX3MM7TV6ZF2)\n- Page items added: 12 (pgi_01M7GWTCN54996KBXZQ01MEE90, pgi_01M7GWTCN54996KBXZQ01MEE91, pgi_01M7GWTCN54996KBXZQ01MEE92, pgi_01M7GWTCN54996KBXZQ01MEE93, pgi_01M7GWTCN54996KBXZQ01MEE94, pgi_01M7GWTCN54996KBXZQ01MEE95, pgi_01M7GWTCN54996KBXZQ01MEE96, pgi_01M7GWTCN54996KBXZQ01MEE97, pgi_01M7GWTCN54996KBXZQ01MEE98, pgi_01M7GWTCN54996KBXZQ01MEE99, pgi_01M7GWTCN54996KBXZQ01MEE9A, pgi_01M7GWTCN54996KBXZQ01MEE9B)\n- Invalid LLM answers discarded (no retry): 0\n- LLM errors: 0\n\n## Gate\n\n- Score before: 0.00, after: 0.00, tolerance: 2.00 points\n- Integrity violations before: 0, after: 0\n- Result: passed; staged changes committed\n\n## Cost\n\n- LLM calls: 1\n- Tokens: 3113 in, 722 out, 3835 total\n\n## Notices\n\n- gate: no approved gate questions; the score measured nothing and only the integrity check guarded this run\n",
+  "run_id": "run_01M7GWT8Y80ZSV5TRF308E3M4W",
+  "status": "completed",
+  "superseded": 0
+ },
+ "run": {
+  "id": "run_01M7GWT8Y80ZSV5TRF308E3M4W",
+  "status": "completed",
+  "started_at": "2026-11-16T00:41:20.072788000Z",
+  "ended_at": "2026-11-16T00:41:24.134491000Z",
+  "phases": [
+   1,
+   2
+  ],
+  "budget": {
+   "tokens": 200000,
+   "events": 500
+  },
+  "inputs": {
+   "actor": "agent",
+   "provider": "openai-compatible:deepseek-flash"
+  },
+  "outputs": {
+   "counts": {
+    "integrity_violations": 0,
+    "merge_proposals": [],
+    "stale_facts": [],
+    "pages_rebuilt": [],
+    "gate_proposed": [],
+    "learning": {
+     "passed": false,
+     "promoted": false,
+     "baseline": 0,
+     "learned": 0,
+     "lambda": 0,
+     "notices": [
+      "train_skipped_few_examples",
+      "no_model"
+     ]
+    },
+    "events_extracted": 0,
+    "events_skipped": [],
+    "fact_actions": {},
+    "candidates_dropped": 0,
+    "verdicts": {},
+    "facts_activated": [],
+    "facts_superseded": [],
+    "facts_history": [],
+    "facts_quarantined": [],
+    "facts_rejected": [],
+    "verdicts_refused": [],
+    "merges_applied": [],
+    "merges_rejected": [],
+    "pages_created": [
+     "pg_01M7GWTCN4BN5NCX3MM7TV6ZF2"
+    ],
+    "page_items_added": [
+     "pgi_01M7GWTCN54996KBXZQ01MEE90",
+     "pgi_01M7GWTCN54996KBXZQ01MEE91",
+     "pgi_01M7GWTCN54996KBXZQ01MEE92",
+     "pgi_01M7GWTCN54996KBXZQ01MEE93",
+     "pgi_01M7GWTCN54996KBXZQ01MEE94",
+     "pgi_01M7GWTCN54996KBXZQ01MEE95",
+     "pgi_01M7GWTCN54996KBXZQ01MEE96",
+     "pgi_01M7GWTCN54996KBXZQ01MEE97",
+     "pgi_01M7GWTCN54996KBXZQ01MEE98",
+     "pgi_01M7GWTCN54996KBXZQ01MEE99",
+     "pgi_01M7GWTCN54996KBXZQ01MEE9A",
+     "pgi_01M7GWTCN54996KBXZQ01MEE9B"
+    ],
+    "lessons_skipped": 0,
+    "invalid_answers": 0,
+    "llm_errors": 0,
+    "guided": {
+     "digest": "llm",
+     "candidate_groups": 1,
+     "groups": 1,
+     "groups_digested": 1,
+     "groups_skipped": 0,
+     "groups_left": 0,
+     "lines_written": 12,
+     "lines_discarded": {},
+     "fichas": [
+      "pg_01M7GWTCN4BN5NCX3MM7TV6ZF2"
+     ]
+    }
+   },
+   "gate": {
+    "ran": true,
+    "before": 0,
+    "after": 0,
+    "tolerance": 2,
+    "violations_before": 0,
+    "violations_after": 0,
+    "reverted": false
+   }
+  },
+  "cost": {
+   "llm_calls": 1,
+   "input_tokens": 3113,
+   "output_tokens": 722
+  },
+  "report": "# Sleep run run_01M7GWT8Y80ZSV5TRF308E3M4W\n\n- Namespace: lme\n- Status: completed\n- Phases: 1, 2\n- Budget: 200000 tokens, 500 events\n- Snapshot: /Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/eac54add/L/snapshots/run_01M7GWT8Y80ZSV5TRF308E3M4W.db\n\n## Phase 1\n\n- Integrity violations: 0\n- Merge proposals (pending): 0\n- Facts marked stale_source: 0\n- Pages rebuilt: 0\n- Gate questions proposed (awaiting a human): 0\n- Ranker: trained none, evaluated none, passed false, promoted false, baseline 0.00, learned 0.00, lambda 0.00 (train_skipped_few_examples, no_model)\n\n## Phase 2 (guided digest)\n\n- Digest: llm\n- Candidate groups: 1; groups after merging: 1\n- Groups digested: 1; skipped (already digested): 0; left for the next run: 0\n- Lines written: 12\n- Lines discarded: none\n- Fichas created: 1 (pg_01M7GWTCN4BN5NCX3MM7TV6ZF2)\n- Page items added: 12 (pgi_01M7GWTCN54996KBXZQ01MEE90, pgi_01M7GWTCN54996KBXZQ01MEE91, pgi_01M7GWTCN54996KBXZQ01MEE92, pgi_01M7GWTCN54996KBXZQ01MEE93, pgi_01M7GWTCN54996KBXZQ01MEE94, pgi_01M7GWTCN54996KBXZQ01MEE95, pgi_01M7GWTCN54996KBXZQ01MEE96, pgi_01M7GWTCN54996KBXZQ01MEE97, pgi_01M7GWTCN54996KBXZQ01MEE98, pgi_01M7GWTCN54996KBXZQ01MEE99, pgi_01M7GWTCN54996KBXZQ01MEE9A, pgi_01M7GWTCN54996KBXZQ01MEE9B)\n- Invalid LLM answers discarded (no retry): 0\n- LLM errors: 0\n\n## Gate\n\n- Score before: 0.00, after: 0.00, tolerance: 2.00 points\n- Integrity violations before: 0, after: 0\n- Result: passed; staged changes committed\n\n## Cost\n\n- LLM calls: 1\n- Tokens: 3113 in, 722 out, 3835 total\n\n## Notices\n\n- gate: no approved gate questions; the score measured nothing and only the integrity check guarded this run\n"
+ },
+ "counts": {
+  "integrity_violations": 0,
+  "merge_proposals": [],
+  "stale_facts": [],
+  "pages_rebuilt": [],
+  "gate_proposed": [],
+  "learning": {
+   "passed": false,
+   "promoted": false,
+   "baseline": 0,
+   "learned": 0,
+   "lambda": 0,
+   "notices": [
+    "train_skipped_few_examples",
+    "no_model"
+   ]
+  },
+  "events_extracted": 0,
+  "events_skipped": [],
+  "fact_actions": {},
+  "candidates_dropped": 0,
+  "verdicts": {},
+  "facts_activated": [],
+  "facts_superseded": [],
+  "facts_history": [],
+  "facts_quarantined": [],
+  "facts_rejected": [],
+  "verdicts_refused": [],
+  "merges_applied": [],
+  "merges_rejected": [],
+  "pages_created": [
+   "pg_01M7GWTCN4BN5NCX3MM7TV6ZF2"
+  ],
+  "page_items_added": [
+   "pgi_01M7GWTCN54996KBXZQ01MEE90",
+   "pgi_01M7GWTCN54996KBXZQ01MEE91",
+   "pgi_01M7GWTCN54996KBXZQ01MEE92",
+   "pgi_01M7GWTCN54996KBXZQ01MEE93",
+   "pgi_01M7GWTCN54996KBXZQ01MEE94",
+   "pgi_01M7GWTCN54996KBXZQ01MEE95",
+   "pgi_01M7GWTCN54996KBXZQ01MEE96",
+   "pgi_01M7GWTCN54996KBXZQ01MEE97",
+   "pgi_01M7GWTCN54996KBXZQ01MEE98",
+   "pgi_01M7GWTCN54996KBXZQ01MEE99",
+   "pgi_01M7GWTCN54996KBXZQ01MEE9A",
+   "pgi_01M7GWTCN54996KBXZQ01MEE9B"
+  ],
+  "lessons_skipped": 0,
+  "invalid_answers": 0,
+  "llm_errors": 0,
+  "guided": {
+   "digest": "llm",
+   "candidate_groups": 1,
+   "groups": 1,
+   "groups_digested": 1,
+   "groups_skipped": 0,
+   "groups_left": 0,
+   "lines_written": 12,
+   "lines_discarded": {},
+   "fichas": [
+    "pg_01M7GWTCN4BN5NCX3MM7TV6ZF2"
+   ]
+  }
+ },
+ "stats_before": {
+  "sources": 43,
+  "documents": 0,
+  "events": 476,
+  "retired_events": 0,
+  "entities": 0,
+  "facts": 0,
+  "active_facts": 0,
+  "quarantined_facts": 0,
+  "pages": 0,
+  "embeddings": 476,
+  "retrievals": 1,
+  "outcomes": 1,
+  "tombstones": 0
+ },
+ "stats_after": {
+  "sources": 43,
+  "documents": 0,
+  "events": 476,
+  "retired_events": 0,
+  "entities": 0,
+  "facts": 0,
+  "active_facts": 0,
+  "quarantined_facts": 0,
+  "pages": 1,
+  "embeddings": 477,
+  "retrievals": 1,
+  "outcomes": 1,
+  "tombstones": 0
+ },
+ "fichas": [
+  {
+   "id": "pg_01M7GWTCN4BN5NCX3MM7TV6ZF2",
+   "kind": "summary",
+   "title": "Digest: some, any, time",
+   "status": "active",
+   "zone": "internal",
+   "sleep_run_id": "run_01M7GWT8Y80ZSV5TRF308E3M4W",
+   "body": "2023-01-18 | user | evt_01M7GWD7FNSG9SY1T55TPPNJDN | Recalls spending about an hour two Saturdays ago cleaning bathroom mirrors and windows, which made a big difference.\n\n2023-01-18 | user | evt_01M7GWD7FNSG9SY1T55TPPNJDN | Wants tips for keeping the bathroom organized and clean daily, tied to a flossing habit.\n\n2023-01-18 | user | evt_01M7GWD7RF6KF4JZN6CSW3148W | Has lost about 2 pounds and asks for advice on keeping the bathroom scale clean and accurate.\n\n2023-01-18 | user | evt_01M7GWD7RF6KF4JZN6CSW3148W | Has weighed in every morning since replacing the old scale with a new digital scale from Target about 3 weeks ago.\n\n2023-02-11 | user | evt_01M7GWDSTB6M16W0ASR78KHMSE | Plans to pick up a copy of Azul to play with neighbors at a game night, after enjoying Carcassonne together two weeks ago.\n\n2023-02-16 | assistant | evt_01M7GWE13NFMBHV3XGFPZ2B1B4 | Assistant congratulates the user on starting the day at 6:30 AM and explains the Eisenhower Matrix for prioritizing tasks.\n\n2023-02-16 | assistant | evt_01M7GWE2PWS5DE5R2EPTX3GJVS | Assistant lists tips for focus and avoiding procrastination, including the Pomodoro Technique, scheduling, eliminating distractions, sleep and exercise.\n\n2023-02-22 | assistant | evt_01M7GWEEME97YZCVVN6VHNDZN3 | Assistant summarizes five studies on TV viewing effects in babies and young children, including Christakis et al. (2004) and Linebarger \u0026 Walker (2005).\n\n2023-02-22 | assistant | evt_01M7GWEEXFHGPC93DM7YFK9W98 | Assistant provides links to the five cited articles and notes some may require a subscription or purchase.\n\n2023-02-24 | user | evt_01M7GWEGA34M9KSHW3F3HGAT7J | Has not yet discussed the book because the meeting is later today, and wants to add \"The Power\" to the reading list, currently listening to its audiobook during morning jogs.\n\n2023-03-01 | user | evt_01M7GWF8RHKVBQXQ3JS0PP4EFF | Asks for low-maintenance indoor plant recommendations and reports repotting a spider plant 3 weeks ago, which is doing much better with more room.\n\n2023-03-01 | user | evt_01M7GWF1XB9NZR1YVFKGBTM4NS | Current projects are wrapping up the Johnson account, onboarding a new team and mentoring Alex; the Johnson account deadline is in two weeks.",
+   "items": [
+    {
+     "id": "pgi_01M7GWTCN54996KBXZQ01MEE90",
+     "ordinal": 1,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT8Y80ZSV5TRF308E3M4W",
+     "text": "2023-01-18 | user | evt_01M7GWD7FNSG9SY1T55TPPNJDN | Recalls spending about an hour two Saturdays ago cleaning bathroom mirrors and windows, which made a big difference.",
+     "cites": [
+      "evt_01M7GWD7FNSG9SY1T55TPPNJDN"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWTCN54996KBXZQ01MEE91",
+     "ordinal": 2,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT8Y80ZSV5TRF308E3M4W",
+     "text": "2023-01-18 | user | evt_01M7GWD7FNSG9SY1T55TPPNJDN | Wants tips for keeping the bathroom organized and clean daily, tied to a flossing habit.",
+     "cites": [
+      "evt_01M7GWD7FNSG9SY1T55TPPNJDN"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWTCN54996KBXZQ01MEE92",
+     "ordinal": 3,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT8Y80ZSV5TRF308E3M4W",
+     "text": "2023-01-18 | user | evt_01M7GWD7RF6KF4JZN6CSW3148W | Has lost about 2 pounds and asks for advice on keeping the bathroom scale clean and accurate.",
+     "cites": [
+      "evt_01M7GWD7RF6KF4JZN6CSW3148W"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWTCN54996KBXZQ01MEE93",
+     "ordinal": 4,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT8Y80ZSV5TRF308E3M4W",
+     "text": "2023-01-18 | user | evt_01M7GWD7RF6KF4JZN6CSW3148W | Has weighed in every morning since replacing the old scale with a new digital scale from Target about 3 weeks ago.",
+     "cites": [
+      "evt_01M7GWD7RF6KF4JZN6CSW3148W"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWTCN54996KBXZQ01MEE94",
+     "ordinal": 5,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT8Y80ZSV5TRF308E3M4W",
+     "text": "2023-02-11 | user | evt_01M7GWDSTB6M16W0ASR78KHMSE | Plans to pick up a copy of Azul to play with neighbors at a game night, after enjoying Carcassonne together two weeks ago.",
+     "cites": [
+      "evt_01M7GWDSTB6M16W0ASR78KHMSE"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWTCN54996KBXZQ01MEE95",
+     "ordinal": 6,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT8Y80ZSV5TRF308E3M4W",
+     "text": "2023-02-16 | assistant | evt_01M7GWE13NFMBHV3XGFPZ2B1B4 | Assistant congratulates the user on starting the day at 6:30 AM and explains the Eisenhower Matrix for prioritizing tasks.",
+     "cites": [
+      "evt_01M7GWE13NFMBHV3XGFPZ2B1B4"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWTCN54996KBXZQ01MEE96",
+     "ordinal": 7,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT8Y80ZSV5TRF308E3M4W",
+     "text": "2023-02-16 | assistant | evt_01M7GWE2PWS5DE5R2EPTX3GJVS | Assistant lists tips for focus and avoiding procrastination, including the Pomodoro Technique, scheduling, eliminating distractions, sleep and exercise.",
+     "cites": [
+      "evt_01M7GWE2PWS5DE5R2EPTX3GJVS"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWTCN54996KBXZQ01MEE97",
+     "ordinal": 8,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT8Y80ZSV5TRF308E3M4W",
+     "text": "2023-02-22 | assistant | evt_01M7GWEEME97YZCVVN6VHNDZN3 | Assistant summarizes five studies on TV viewing effects in babies and young children, including Christakis et al. (2004) and Linebarger \u0026 Walker (2005).",
+     "cites": [
+      "evt_01M7GWEEME97YZCVVN6VHNDZN3"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWTCN54996KBXZQ01MEE98",
+     "ordinal": 9,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT8Y80ZSV5TRF308E3M4W",
+     "text": "2023-02-22 | assistant | evt_01M7GWEEXFHGPC93DM7YFK9W98 | Assistant provides links to the five cited articles and notes some may require a subscription or purchase.",
+     "cites": [
+      "evt_01M7GWEEXFHGPC93DM7YFK9W98"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWTCN54996KBXZQ01MEE99",
+     "ordinal": 10,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT8Y80ZSV5TRF308E3M4W",
+     "text": "2023-02-24 | user | evt_01M7GWEGA34M9KSHW3F3HGAT7J | Has not yet discussed the book because the meeting is later today, and wants to add \"The Power\" to the reading list, currently listening to its audiobook during morning jogs.",
+     "cites": [
+      "evt_01M7GWEGA34M9KSHW3F3HGAT7J"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWTCN54996KBXZQ01MEE9A",
+     "ordinal": 11,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT8Y80ZSV5TRF308E3M4W",
+     "text": "2023-03-01 | user | evt_01M7GWF8RHKVBQXQ3JS0PP4EFF | Asks for low-maintenance indoor plant recommendations and reports repotting a spider plant 3 weeks ago, which is doing much better with more room.",
+     "cites": [
+      "evt_01M7GWF8RHKVBQXQ3JS0PP4EFF"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWTCN54996KBXZQ01MEE9B",
+     "ordinal": 12,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT8Y80ZSV5TRF308E3M4W",
+     "text": "2023-03-01 | user | evt_01M7GWF1XB9NZR1YVFKGBTM4NS | Current projects are wrapping up the Johnson account, onboarding a new team and mentoring Alex; the Johnson account deadline is in two weeks.",
+     "cites": [
+      "evt_01M7GWF1XB9NZR1YVFKGBTM4NS"
+     ]
+    }
+   ]
+  }
+ ]
+}

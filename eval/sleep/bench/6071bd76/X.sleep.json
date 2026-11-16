@@ -1,0 +1,348 @@
+{
+ "db": "/Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/6071bd76/X",
+ "condition": "X",
+ "phases": [
+  1,
+  2
+ ],
+ "budget": {},
+ "chanda_set": [
+  "read.context_derived_max_share=0.3",
+  "sleep.mode=guided",
+  "sleep.guided.digest=extractive"
+ ],
+ "chanda_config_hash": "052c307d5730b8ed",
+ "started_at": "2026-11-16T00:41:45Z",
+ "wall_ms": 242.94,
+ "attempts": 1,
+ "output": {
+  "cost": {
+   "input_tokens": 0,
+   "llm_calls": 0,
+   "output_tokens": 0
+  },
+  "created": 0,
+  "merged": 0,
+  "phases": [
+   1,
+   2
+  ],
+  "rejected": 0,
+  "report": "# Sleep run run_01M7GWV2180ZSV5TRF308E3M4W\n\n- Namespace: lme\n- Status: completed\n- Phases: 1, 2\n- Budget: 200000 tokens, 500 events\n- Snapshot: /Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/6071bd76/X/snapshots/run_01M7GWV2180ZSV5TRF308E3M4W.db\n\n## Phase 1\n\n- Integrity violations: 0\n- Merge proposals (pending): 0\n- Facts marked stale_source: 0\n- Pages rebuilt: 0\n- Gate questions proposed (awaiting a human): 0\n- Ranker: trained none, evaluated none, passed false, promoted false, baseline 0.00, learned 0.00, lambda 0.00 (train_skipped_few_examples, no_model)\n\n## Phase 2 (guided digest)\n\n- Digest: extractive\n- Candidate groups: 1; groups after merging: 1\n- Groups digested: 1; skipped (already digested): 0; left for the next run: 0\n- Lines written: 10\n- Lines discarded: none\n- Fichas created: 1 (pg_01M7GWV22KBN5NCX3MM7TV6ZF2)\n- Page items added: 10 (pgi_01M7GWV22M4996KBXZQ01MEE90, pgi_01M7GWV22M4996KBXZQ01MEE91, pgi_01M7GWV22M4996KBXZQ01MEE92, pgi_01M7GWV22M4996KBXZQ01MEE93, pgi_01M7GWV22M4996KBXZQ01MEE94, pgi_01M7GWV22M4996KBXZQ01MEE95, pgi_01M7GWV22M4996KBXZQ01MEE96, pgi_01M7GWV22M4996KBXZQ01MEE97, pgi_01M7GWV22M4996KBXZQ01MEE98, pgi_01M7GWV22M4996KBXZQ01MEE99)\n- Invalid LLM answers discarded (no retry): 0\n- LLM errors: 0\n\n## Gate\n\n- Score before: 0.00, after: 0.00, tolerance: 2.00 points\n- Integrity violations before: 0, after: 0\n- Result: passed; staged changes committed\n\n## Cost\n\n- LLM calls: 0\n- Tokens: 0 in, 0 out, 0 total\n\n## Notices\n\n- gate: no approved gate questions; the score measured nothing and only the integrity check guarded this run\n",
+  "run_id": "run_01M7GWV2180ZSV5TRF308E3M4W",
+  "status": "completed",
+  "superseded": 0
+ },
+ "run": {
+  "id": "run_01M7GWV2180ZSV5TRF308E3M4W",
+  "status": "completed",
+  "started_at": "2026-11-16T00:41:45.768147000Z",
+  "ended_at": "2026-11-16T00:41:46.009242000Z",
+  "phases": [
+   1,
+   2
+  ],
+  "budget": {
+   "tokens": 200000,
+   "events": 500
+  },
+  "inputs": {
+   "actor": "agent",
+   "provider": ""
+  },
+  "outputs": {
+   "counts": {
+    "integrity_violations": 0,
+    "merge_proposals": [],
+    "stale_facts": [],
+    "pages_rebuilt": [],
+    "gate_proposed": [],
+    "learning": {
+     "passed": false,
+     "promoted": false,
+     "baseline": 0,
+     "learned": 0,
+     "lambda": 0,
+     "notices": [
+      "train_skipped_few_examples",
+      "no_model"
+     ]
+    },
+    "events_extracted": 0,
+    "events_skipped": [],
+    "fact_actions": {},
+    "candidates_dropped": 0,
+    "verdicts": {},
+    "facts_activated": [],
+    "facts_superseded": [],
+    "facts_history": [],
+    "facts_quarantined": [],
+    "facts_rejected": [],
+    "verdicts_refused": [],
+    "merges_applied": [],
+    "merges_rejected": [],
+    "pages_created": [
+     "pg_01M7GWV22KBN5NCX3MM7TV6ZF2"
+    ],
+    "page_items_added": [
+     "pgi_01M7GWV22M4996KBXZQ01MEE90",
+     "pgi_01M7GWV22M4996KBXZQ01MEE91",
+     "pgi_01M7GWV22M4996KBXZQ01MEE92",
+     "pgi_01M7GWV22M4996KBXZQ01MEE93",
+     "pgi_01M7GWV22M4996KBXZQ01MEE94",
+     "pgi_01M7GWV22M4996KBXZQ01MEE95",
+     "pgi_01M7GWV22M4996KBXZQ01MEE96",
+     "pgi_01M7GWV22M4996KBXZQ01MEE97",
+     "pgi_01M7GWV22M4996KBXZQ01MEE98",
+     "pgi_01M7GWV22M4996KBXZQ01MEE99"
+    ],
+    "lessons_skipped": 0,
+    "invalid_answers": 0,
+    "llm_errors": 0,
+    "guided": {
+     "digest": "extractive",
+     "candidate_groups": 1,
+     "groups": 1,
+     "groups_digested": 1,
+     "groups_skipped": 0,
+     "groups_left": 0,
+     "lines_written": 10,
+     "lines_discarded": {},
+     "fichas": [
+      "pg_01M7GWV22KBN5NCX3MM7TV6ZF2"
+     ]
+    }
+   },
+   "gate": {
+    "ran": true,
+    "before": 0,
+    "after": 0,
+    "tolerance": 2,
+    "violations_before": 0,
+    "violations_after": 0,
+    "reverted": false
+   }
+  },
+  "cost": {
+   "llm_calls": 0,
+   "input_tokens": 0,
+   "output_tokens": 0
+  },
+  "report": "# Sleep run run_01M7GWV2180ZSV5TRF308E3M4W\n\n- Namespace: lme\n- Status: completed\n- Phases: 1, 2\n- Budget: 200000 tokens, 500 events\n- Snapshot: /Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/6071bd76/X/snapshots/run_01M7GWV2180ZSV5TRF308E3M4W.db\n\n## Phase 1\n\n- Integrity violations: 0\n- Merge proposals (pending): 0\n- Facts marked stale_source: 0\n- Pages rebuilt: 0\n- Gate questions proposed (awaiting a human): 0\n- Ranker: trained none, evaluated none, passed false, promoted false, baseline 0.00, learned 0.00, lambda 0.00 (train_skipped_few_examples, no_model)\n\n## Phase 2 (guided digest)\n\n- Digest: extractive\n- Candidate groups: 1; groups after merging: 1\n- Groups digested: 1; skipped (already digested): 0; left for the next run: 0\n- Lines written: 10\n- Lines discarded: none\n- Fichas created: 1 (pg_01M7GWV22KBN5NCX3MM7TV6ZF2)\n- Page items added: 10 (pgi_01M7GWV22M4996KBXZQ01MEE90, pgi_01M7GWV22M4996KBXZQ01MEE91, pgi_01M7GWV22M4996KBXZQ01MEE92, pgi_01M7GWV22M4996KBXZQ01MEE93, pgi_01M7GWV22M4996KBXZQ01MEE94, pgi_01M7GWV22M4996KBXZQ01MEE95, pgi_01M7GWV22M4996KBXZQ01MEE96, pgi_01M7GWV22M4996KBXZQ01MEE97, pgi_01M7GWV22M4996KBXZQ01MEE98, pgi_01M7GWV22M4996KBXZQ01MEE99)\n- Invalid LLM answers discarded (no retry): 0\n- LLM errors: 0\n\n## Gate\n\n- Score before: 0.00, after: 0.00, tolerance: 2.00 points\n- Integrity violations before: 0, after: 0\n- Result: passed; staged changes committed\n\n## Cost\n\n- LLM calls: 0\n- Tokens: 0 in, 0 out, 0 total\n\n## Notices\n\n- gate: no approved gate questions; the score measured nothing and only the integrity check guarded this run\n"
+ },
+ "counts": {
+  "integrity_violations": 0,
+  "merge_proposals": [],
+  "stale_facts": [],
+  "pages_rebuilt": [],
+  "gate_proposed": [],
+  "learning": {
+   "passed": false,
+   "promoted": false,
+   "baseline": 0,
+   "learned": 0,
+   "lambda": 0,
+   "notices": [
+    "train_skipped_few_examples",
+    "no_model"
+   ]
+  },
+  "events_extracted": 0,
+  "events_skipped": [],
+  "fact_actions": {},
+  "candidates_dropped": 0,
+  "verdicts": {},
+  "facts_activated": [],
+  "facts_superseded": [],
+  "facts_history": [],
+  "facts_quarantined": [],
+  "facts_rejected": [],
+  "verdicts_refused": [],
+  "merges_applied": [],
+  "merges_rejected": [],
+  "pages_created": [
+   "pg_01M7GWV22KBN5NCX3MM7TV6ZF2"
+  ],
+  "page_items_added": [
+   "pgi_01M7GWV22M4996KBXZQ01MEE90",
+   "pgi_01M7GWV22M4996KBXZQ01MEE91",
+   "pgi_01M7GWV22M4996KBXZQ01MEE92",
+   "pgi_01M7GWV22M4996KBXZQ01MEE93",
+   "pgi_01M7GWV22M4996KBXZQ01MEE94",
+   "pgi_01M7GWV22M4996KBXZQ01MEE95",
+   "pgi_01M7GWV22M4996KBXZQ01MEE96",
+   "pgi_01M7GWV22M4996KBXZQ01MEE97",
+   "pgi_01M7GWV22M4996KBXZQ01MEE98",
+   "pgi_01M7GWV22M4996KBXZQ01MEE99"
+  ],
+  "lessons_skipped": 0,
+  "invalid_answers": 0,
+  "llm_errors": 0,
+  "guided": {
+   "digest": "extractive",
+   "candidate_groups": 1,
+   "groups": 1,
+   "groups_digested": 1,
+   "groups_skipped": 0,
+   "groups_left": 0,
+   "lines_written": 10,
+   "lines_discarded": {},
+   "fichas": [
+    "pg_01M7GWV22KBN5NCX3MM7TV6ZF2"
+   ]
+  }
+ },
+ "stats_before": {
+  "sources": 46,
+  "documents": 0,
+  "events": 482,
+  "retired_events": 0,
+  "entities": 0,
+  "facts": 0,
+  "active_facts": 0,
+  "quarantined_facts": 0,
+  "pages": 0,
+  "embeddings": 482,
+  "retrievals": 1,
+  "outcomes": 1,
+  "tombstones": 0
+ },
+ "stats_after": {
+  "sources": 46,
+  "documents": 0,
+  "events": 482,
+  "retired_events": 0,
+  "entities": 0,
+  "facts": 0,
+  "active_facts": 0,
+  "quarantined_facts": 0,
+  "pages": 1,
+  "embeddings": 483,
+  "retrievals": 1,
+  "outcomes": 1,
+  "tombstones": 0
+ },
+ "fichas": [
+  {
+   "id": "pg_01M7GWV22KBN5NCX3MM7TV6ZF2",
+   "kind": "summary",
+   "title": "Digest: coffee, french, press",
+   "status": "active",
+   "zone": "internal",
+   "sleep_run_id": "run_01M7GWV2180ZSV5TRF308E3M4W",
+   "body": "2023-02-11 | user | evt_01M7GWMB9QSG9SY1T55TPPNJDN | I'm thinking of trying out a new coffee recipe, but I'm not sure what type of coffee beans would pair well with citrus notes. Can you recommend some options?…\n\n2023-02-11 | assistant | evt_01M7GWMBCJST2F7MHVD15EGY1H | …1. **Kenyan coffee**: Kenyan beans are known for their bright acidity and complex flavor profiles, which often feature citrus notes like lemon, orange, and grapefruit. Look for beans from regions like Nyeri, Kiambu, or Muranga. 2.…\n\n2023-02-11 | user | evt_01M7GWMCWX7ETGDJBGB6HZQN26 | I'm curious, what do you think of the beans you received in your first shipment? Are you planning on trying them out in your French press, or do you have another brewing method in mind?\n\n2023-02-11 | assistant | evt_01M7GWMCZ02XR4NYWHRVWZ5DMT | …However, I'm happy to help you explore your new coffee beans and offer brewing suggestions or recommendations if you'd like to share more about the beans you received!\n\n2023-02-11 | user | evt_01M7GWMD3A6A76G13RWC6RRNC4 | …I think the bright, vibrant flavors will pair really well with the citrus notes I'm experimenting with. Do you have any tips on how to store my coffee beans to preserve their freshness?\n\n2023-02-11 | assistant | evt_01M7GWMD63M74VFS80VSX49P99 | French press is a great brewing method for bringing out the rich, bold flavors of your new coffee beans. Regarding storing coffee beans, I'm happy to share some tips to help preserve their freshness: 1.…\n\n2023-05-27 | assistant | evt_01M7GWN57BGXR40BQ6EP8FR2Y6 | …It's also great that you're using a variety of materials, including tea bags and coffee grounds, which are rich in nutrients. The benefits of composting are numerous, and it's fantastic that you're experiencing them firsthand.…\n\n2023-06-30 | user | evt_01M7GWNBDF375ECW0W3P3BEX8G | …By the way, I'm planning to brew a fresh pot of coffee in the morning, and I'm feeling excited to use my new beans - I've got my French press ratio down to a science: 1 tablespoon of coffee for every 5 ounces of water.\n\n2023-06-30 | user | evt_01M7GWNCF5Z84A6A7VBZD1Q3RJ | I'll definitely check out those promotions. By the way, I've been meaning to ask: what's the best way to clean my French press? I want to make sure I'm getting all the old coffee oils out.\n\n2023-06-30 | assistant | evt_01M7GWNCHYQQ70GNK0D036542V | …1. **Disassemble the French press**: Take apart the French press by removing the plunger and the lid. 2. **Rinse with hot water**: Rinse the French press with hot water to remove any loose coffee grounds and oils. 3.…",
+   "items": [
+    {
+     "id": "pgi_01M7GWV22M4996KBXZQ01MEE90",
+     "ordinal": 1,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWV2180ZSV5TRF308E3M4W",
+     "text": "2023-02-11 | user | evt_01M7GWMB9QSG9SY1T55TPPNJDN | I'm thinking of trying out a new coffee recipe, but I'm not sure what type of coffee beans would pair well with citrus notes. Can you recommend some options?…",
+     "cites": [
+      "evt_01M7GWMB9QSG9SY1T55TPPNJDN"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWV22M4996KBXZQ01MEE91",
+     "ordinal": 2,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWV2180ZSV5TRF308E3M4W",
+     "text": "2023-02-11 | assistant | evt_01M7GWMBCJST2F7MHVD15EGY1H | …1. **Kenyan coffee**: Kenyan beans are known for their bright acidity and complex flavor profiles, which often feature citrus notes like lemon, orange, and grapefruit. Look for beans from regions like Nyeri, Kiambu, or Muranga. 2.…",
+     "cites": [
+      "evt_01M7GWMBCJST2F7MHVD15EGY1H"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWV22M4996KBXZQ01MEE92",
+     "ordinal": 3,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWV2180ZSV5TRF308E3M4W",
+     "text": "2023-02-11 | user | evt_01M7GWMCWX7ETGDJBGB6HZQN26 | I'm curious, what do you think of the beans you received in your first shipment? Are you planning on trying them out in your French press, or do you have another brewing method in mind?",
+     "cites": [
+      "evt_01M7GWMCWX7ETGDJBGB6HZQN26"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWV22M4996KBXZQ01MEE93",
+     "ordinal": 4,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWV2180ZSV5TRF308E3M4W",
+     "text": "2023-02-11 | assistant | evt_01M7GWMCZ02XR4NYWHRVWZ5DMT | …However, I'm happy to help you explore your new coffee beans and offer brewing suggestions or recommendations if you'd like to share more about the beans you received!",
+     "cites": [
+      "evt_01M7GWMCZ02XR4NYWHRVWZ5DMT"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWV22M4996KBXZQ01MEE94",
+     "ordinal": 5,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWV2180ZSV5TRF308E3M4W",
+     "text": "2023-02-11 | user | evt_01M7GWMD3A6A76G13RWC6RRNC4 | …I think the bright, vibrant flavors will pair really well with the citrus notes I'm experimenting with. Do you have any tips on how to store my coffee beans to preserve their freshness?",
+     "cites": [
+      "evt_01M7GWMD3A6A76G13RWC6RRNC4"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWV22M4996KBXZQ01MEE95",
+     "ordinal": 6,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWV2180ZSV5TRF308E3M4W",
+     "text": "2023-02-11 | assistant | evt_01M7GWMD63M74VFS80VSX49P99 | French press is a great brewing method for bringing out the rich, bold flavors of your new coffee beans. Regarding storing coffee beans, I'm happy to share some tips to help preserve their freshness: 1.…",
+     "cites": [
+      "evt_01M7GWMD63M74VFS80VSX49P99"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWV22M4996KBXZQ01MEE96",
+     "ordinal": 7,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWV2180ZSV5TRF308E3M4W",
+     "text": "2023-05-27 | assistant | evt_01M7GWN57BGXR40BQ6EP8FR2Y6 | …It's also great that you're using a variety of materials, including tea bags and coffee grounds, which are rich in nutrients. The benefits of composting are numerous, and it's fantastic that you're experiencing them firsthand.…",
+     "cites": [
+      "evt_01M7GWN57BGXR40BQ6EP8FR2Y6"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWV22M4996KBXZQ01MEE97",
+     "ordinal": 8,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWV2180ZSV5TRF308E3M4W",
+     "text": "2023-06-30 | user | evt_01M7GWNBDF375ECW0W3P3BEX8G | …By the way, I'm planning to brew a fresh pot of coffee in the morning, and I'm feeling excited to use my new beans - I've got my French press ratio down to a science: 1 tablespoon of coffee for every 5 ounces of water.",
+     "cites": [
+      "evt_01M7GWNBDF375ECW0W3P3BEX8G"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWV22M4996KBXZQ01MEE98",
+     "ordinal": 9,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWV2180ZSV5TRF308E3M4W",
+     "text": "2023-06-30 | user | evt_01M7GWNCF5Z84A6A7VBZD1Q3RJ | I'll definitely check out those promotions. By the way, I've been meaning to ask: what's the best way to clean my French press? I want to make sure I'm getting all the old coffee oils out.",
+     "cites": [
+      "evt_01M7GWNCF5Z84A6A7VBZD1Q3RJ"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWV22M4996KBXZQ01MEE99",
+     "ordinal": 10,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWV2180ZSV5TRF308E3M4W",
+     "text": "2023-06-30 | assistant | evt_01M7GWNCHYQQ70GNK0D036542V | …1. **Disassemble the French press**: Take apart the French press by removing the plunger and the lid. 2. **Rinse with hot water**: Rinse the French press with hot water to remove any loose coffee grounds and oils. 3.…",
+     "cites": [
+      "evt_01M7GWNCHYQQ70GNK0D036542V"
+     ]
+    }
+   ]
+  }
+ ]
+}

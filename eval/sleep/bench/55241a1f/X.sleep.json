@@ -1,0 +1,348 @@
+{
+ "db": "/Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/55241a1f/X",
+ "condition": "X",
+ "phases": [
+  1,
+  2
+ ],
+ "budget": {},
+ "chanda_set": [
+  "read.context_derived_max_share=0.3",
+  "sleep.mode=guided",
+  "sleep.guided.digest=extractive"
+ ],
+ "chanda_config_hash": "052c307d5730b8ed",
+ "started_at": "2026-11-16T00:40:51Z",
+ "wall_ms": 336.275,
+ "attempts": 1,
+ "output": {
+  "cost": {
+   "input_tokens": 0,
+   "llm_calls": 0,
+   "output_tokens": 0
+  },
+  "created": 0,
+  "merged": 0,
+  "phases": [
+   1,
+   2
+  ],
+  "rejected": 0,
+  "report": "# Sleep run run_01M7GWSD220ZSV5TRF308E3M4W\n\n- Namespace: lme\n- Status: completed\n- Phases: 1, 2\n- Budget: 200000 tokens, 500 events\n- Snapshot: /Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/55241a1f/X/snapshots/run_01M7GWSD220ZSV5TRF308E3M4W.db\n\n## Phase 1\n\n- Integrity violations: 0\n- Merge proposals (pending): 0\n- Facts marked stale_source: 0\n- Pages rebuilt: 0\n- Gate questions proposed (awaiting a human): 0\n- Ranker: trained none, evaluated none, passed false, promoted false, baseline 0.00, learned 0.00, lambda 0.00 (train_skipped_few_examples, no_model)\n\n## Phase 2 (guided digest)\n\n- Digest: extractive\n- Candidate groups: 1; groups after merging: 1\n- Groups digested: 1; skipped (already digested): 0; left for the next run: 0\n- Lines written: 10\n- Lines discarded: none\n- Fichas created: 1 (pg_01M7GWSD33BN5NCX3MM7TV6ZF2)\n- Page items added: 10 (pgi_01M7GWSD33BN5NCX3MM7TV6ZF3, pgi_01M7GWSD33BN5NCX3MM7TV6ZF4, pgi_01M7GWSD33BN5NCX3MM7TV6ZF5, pgi_01M7GWSD33BN5NCX3MM7TV6ZF6, pgi_01M7GWSD33BN5NCX3MM7TV6ZF7, pgi_01M7GWSD33BN5NCX3MM7TV6ZF8, pgi_01M7GWSD33BN5NCX3MM7TV6ZF9, pgi_01M7GWSD33BN5NCX3MM7TV6ZFA, pgi_01M7GWSD33BN5NCX3MM7TV6ZFB, pgi_01M7GWSD33BN5NCX3MM7TV6ZFC)\n- Invalid LLM answers discarded (no retry): 0\n- LLM errors: 0\n\n## Gate\n\n- Score before: 0.00, after: 0.00, tolerance: 2.00 points\n- Integrity violations before: 0, after: 0\n- Result: passed; staged changes committed\n\n## Cost\n\n- LLM calls: 0\n- Tokens: 0 in, 0 out, 0 total\n\n## Notices\n\n- gate: no approved gate questions; the score measured nothing and only the integrity check guarded this run\n",
+  "run_id": "run_01M7GWSD220ZSV5TRF308E3M4W",
+  "status": "completed",
+  "superseded": 0
+ },
+ "run": {
+  "id": "run_01M7GWSD220ZSV5TRF308E3M4W",
+  "status": "completed",
+  "started_at": "2026-11-16T00:40:51.522301000Z",
+  "ended_at": "2026-11-16T00:40:51.856673000Z",
+  "phases": [
+   1,
+   2
+  ],
+  "budget": {
+   "tokens": 200000,
+   "events": 500
+  },
+  "inputs": {
+   "actor": "agent",
+   "provider": ""
+  },
+  "outputs": {
+   "counts": {
+    "integrity_violations": 0,
+    "merge_proposals": [],
+    "stale_facts": [],
+    "pages_rebuilt": [],
+    "gate_proposed": [],
+    "learning": {
+     "passed": false,
+     "promoted": false,
+     "baseline": 0,
+     "learned": 0,
+     "lambda": 0,
+     "notices": [
+      "train_skipped_few_examples",
+      "no_model"
+     ]
+    },
+    "events_extracted": 0,
+    "events_skipped": [],
+    "fact_actions": {},
+    "candidates_dropped": 0,
+    "verdicts": {},
+    "facts_activated": [],
+    "facts_superseded": [],
+    "facts_history": [],
+    "facts_quarantined": [],
+    "facts_rejected": [],
+    "verdicts_refused": [],
+    "merges_applied": [],
+    "merges_rejected": [],
+    "pages_created": [
+     "pg_01M7GWSD33BN5NCX3MM7TV6ZF2"
+    ],
+    "page_items_added": [
+     "pgi_01M7GWSD33BN5NCX3MM7TV6ZF3",
+     "pgi_01M7GWSD33BN5NCX3MM7TV6ZF4",
+     "pgi_01M7GWSD33BN5NCX3MM7TV6ZF5",
+     "pgi_01M7GWSD33BN5NCX3MM7TV6ZF6",
+     "pgi_01M7GWSD33BN5NCX3MM7TV6ZF7",
+     "pgi_01M7GWSD33BN5NCX3MM7TV6ZF8",
+     "pgi_01M7GWSD33BN5NCX3MM7TV6ZF9",
+     "pgi_01M7GWSD33BN5NCX3MM7TV6ZFA",
+     "pgi_01M7GWSD33BN5NCX3MM7TV6ZFB",
+     "pgi_01M7GWSD33BN5NCX3MM7TV6ZFC"
+    ],
+    "lessons_skipped": 0,
+    "invalid_answers": 0,
+    "llm_errors": 0,
+    "guided": {
+     "digest": "extractive",
+     "candidate_groups": 1,
+     "groups": 1,
+     "groups_digested": 1,
+     "groups_skipped": 0,
+     "groups_left": 0,
+     "lines_written": 10,
+     "lines_discarded": {},
+     "fichas": [
+      "pg_01M7GWSD33BN5NCX3MM7TV6ZF2"
+     ]
+    }
+   },
+   "gate": {
+    "ran": true,
+    "before": 0,
+    "after": 0,
+    "tolerance": 2,
+    "violations_before": 0,
+    "violations_after": 0,
+    "reverted": false
+   }
+  },
+  "cost": {
+   "llm_calls": 0,
+   "input_tokens": 0,
+   "output_tokens": 0
+  },
+  "report": "# Sleep run run_01M7GWSD220ZSV5TRF308E3M4W\n\n- Namespace: lme\n- Status: completed\n- Phases: 1, 2\n- Budget: 200000 tokens, 500 events\n- Snapshot: /Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/55241a1f/X/snapshots/run_01M7GWSD220ZSV5TRF308E3M4W.db\n\n## Phase 1\n\n- Integrity violations: 0\n- Merge proposals (pending): 0\n- Facts marked stale_source: 0\n- Pages rebuilt: 0\n- Gate questions proposed (awaiting a human): 0\n- Ranker: trained none, evaluated none, passed false, promoted false, baseline 0.00, learned 0.00, lambda 0.00 (train_skipped_few_examples, no_model)\n\n## Phase 2 (guided digest)\n\n- Digest: extractive\n- Candidate groups: 1; groups after merging: 1\n- Groups digested: 1; skipped (already digested): 0; left for the next run: 0\n- Lines written: 10\n- Lines discarded: none\n- Fichas created: 1 (pg_01M7GWSD33BN5NCX3MM7TV6ZF2)\n- Page items added: 10 (pgi_01M7GWSD33BN5NCX3MM7TV6ZF3, pgi_01M7GWSD33BN5NCX3MM7TV6ZF4, pgi_01M7GWSD33BN5NCX3MM7TV6ZF5, pgi_01M7GWSD33BN5NCX3MM7TV6ZF6, pgi_01M7GWSD33BN5NCX3MM7TV6ZF7, pgi_01M7GWSD33BN5NCX3MM7TV6ZF8, pgi_01M7GWSD33BN5NCX3MM7TV6ZF9, pgi_01M7GWSD33BN5NCX3MM7TV6ZFA, pgi_01M7GWSD33BN5NCX3MM7TV6ZFB, pgi_01M7GWSD33BN5NCX3MM7TV6ZFC)\n- Invalid LLM answers discarded (no retry): 0\n- LLM errors: 0\n\n## Gate\n\n- Score before: 0.00, after: 0.00, tolerance: 2.00 points\n- Integrity violations before: 0, after: 0\n- Result: passed; staged changes committed\n\n## Cost\n\n- LLM calls: 0\n- Tokens: 0 in, 0 out, 0 total\n\n## Notices\n\n- gate: no approved gate questions; the score measured nothing and only the integrity check guarded this run\n"
+ },
+ "counts": {
+  "integrity_violations": 0,
+  "merge_proposals": [],
+  "stale_facts": [],
+  "pages_rebuilt": [],
+  "gate_proposed": [],
+  "learning": {
+   "passed": false,
+   "promoted": false,
+   "baseline": 0,
+   "learned": 0,
+   "lambda": 0,
+   "notices": [
+    "train_skipped_few_examples",
+    "no_model"
+   ]
+  },
+  "events_extracted": 0,
+  "events_skipped": [],
+  "fact_actions": {},
+  "candidates_dropped": 0,
+  "verdicts": {},
+  "facts_activated": [],
+  "facts_superseded": [],
+  "facts_history": [],
+  "facts_quarantined": [],
+  "facts_rejected": [],
+  "verdicts_refused": [],
+  "merges_applied": [],
+  "merges_rejected": [],
+  "pages_created": [
+   "pg_01M7GWSD33BN5NCX3MM7TV6ZF2"
+  ],
+  "page_items_added": [
+   "pgi_01M7GWSD33BN5NCX3MM7TV6ZF3",
+   "pgi_01M7GWSD33BN5NCX3MM7TV6ZF4",
+   "pgi_01M7GWSD33BN5NCX3MM7TV6ZF5",
+   "pgi_01M7GWSD33BN5NCX3MM7TV6ZF6",
+   "pgi_01M7GWSD33BN5NCX3MM7TV6ZF7",
+   "pgi_01M7GWSD33BN5NCX3MM7TV6ZF8",
+   "pgi_01M7GWSD33BN5NCX3MM7TV6ZF9",
+   "pgi_01M7GWSD33BN5NCX3MM7TV6ZFA",
+   "pgi_01M7GWSD33BN5NCX3MM7TV6ZFB",
+   "pgi_01M7GWSD33BN5NCX3MM7TV6ZFC"
+  ],
+  "lessons_skipped": 0,
+  "invalid_answers": 0,
+  "llm_errors": 0,
+  "guided": {
+   "digest": "extractive",
+   "candidate_groups": 1,
+   "groups": 1,
+   "groups_digested": 1,
+   "groups_skipped": 0,
+   "groups_left": 0,
+   "lines_written": 10,
+   "lines_discarded": {},
+   "fichas": [
+    "pg_01M7GWSD33BN5NCX3MM7TV6ZF2"
+   ]
+  }
+ },
+ "stats_before": {
+  "sources": 49,
+  "documents": 0,
+  "events": 513,
+  "retired_events": 0,
+  "entities": 0,
+  "facts": 0,
+  "active_facts": 0,
+  "quarantined_facts": 0,
+  "pages": 0,
+  "embeddings": 513,
+  "retrievals": 1,
+  "outcomes": 1,
+  "tombstones": 0
+ },
+ "stats_after": {
+  "sources": 49,
+  "documents": 0,
+  "events": 513,
+  "retired_events": 0,
+  "entities": 0,
+  "facts": 0,
+  "active_facts": 0,
+  "quarantined_facts": 0,
+  "pages": 1,
+  "embeddings": 514,
+  "retrievals": 1,
+  "outcomes": 1,
+  "tombstones": 0
+ },
+ "fichas": [
+  {
+   "id": "pg_01M7GWSD33BN5NCX3MM7TV6ZF2",
+   "kind": "summary",
+   "title": "Digest: content, facebook, live",
+   "status": "active",
+   "zone": "internal",
+   "sleep_run_id": "run_01M7GWSD220ZSV5TRF308E3M4W",
+   "body": "2023-05-23 | user | evt_01M7GW6GRPMKZC3GCSPYJV48AM | I'm looking for some tips on increasing engagement on my social media platforms. I've been experimenting with different content types, like my recent Facebook Live session about cooking vegan recipes, which got 12 comments.…\n\n2023-05-23 | assistant | evt_01M7GW6GTJNA0WPCQXF6BR1A3E | …9. **Repurpose your Live content**: After the Live session, repurpose the content into other formats like blog posts, Instagram Stories, or YouTube videos to reach a broader audience. 10.…\n\n2023-05-23 | user | evt_01M7GW6H1GG5KSY011H511JWMF | What are some creative ways to repurpose my Facebook Live content, like my vegan recipes session, into other formats like blog posts or YouTube videos?\n\n2023-05-23 | assistant | evt_01M7GW6H32HG5EYE79NVBVB1MY | …**Instagram Stories:** Break down your Facebook Live session into Instagram Stories, sharing tips, recipes, and Q\u0026A sessions. 4. **Reels:** Create Instagram Reels showcasing your vegan recipes, with music, captions, and engaging visuals.…\n\n2023-05-23 | user | evt_01M7GW6HDJCRT7A55B0SGCCTAH | I'm thinking of creating a YouTube video based on my Facebook Live session about vegan recipes. Do you think I should focus on a specific type of recipe, like breakfast or dinner ideas, or cover a variety of recipes in one video?\n\n2023-05-23 | assistant | evt_01M7GW6HG9Q3KAVBGW6E6V35DY | …3. **SEO benefits**: Using specific keywords related to the recipe type can improve your video's search engine optimization (SEO). Cons: 1. **Limited appeal**: Your video might appeal to a smaller audience, limiting its reach and views.…\n\n2023-05-23 | user | evt_01M7GW6JJTAWF1PGWRWNQ67D7H | I'm thinking of including a personal anecdote about how I started experimenting with vegan recipes, including the Facebook Live session that got 12 comments.…\n\n2023-05-23 | assistant | evt_01M7GW6JQ4J8CVFKCQYM5M1WE0 | …experimenting with vegan recipes and how the Facebook Live session inspired you to create more vegan content can be a great way to connect with your audience and add a personal touch to your video. Here's why: **Why it's a good idea:**…\n\n2023-05-24 | user | evt_01M7GW6Q8B2A5YGCPJCP4BMDJX | …My most popular video on social media analytics has quite a few comments, so I think I'm on the right track, but I want to keep the momentum going.\n\n2023-05-24 | assistant | evt_01M7GW6QATATBNMFQWKTZ1NDHD | …Here are some ideas to get you started: 1. **Deep dive into specific analytics tools**: Create tutorials on popular social media analytics tools like Hootsuite Insights, Sprout Social, or Google Analytics.…",
+   "items": [
+    {
+     "id": "pgi_01M7GWSD33BN5NCX3MM7TV6ZF3",
+     "ordinal": 1,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWSD220ZSV5TRF308E3M4W",
+     "text": "2023-05-23 | user | evt_01M7GW6GRPMKZC3GCSPYJV48AM | I'm looking for some tips on increasing engagement on my social media platforms. I've been experimenting with different content types, like my recent Facebook Live session about cooking vegan recipes, which got 12 comments.…",
+     "cites": [
+      "evt_01M7GW6GRPMKZC3GCSPYJV48AM"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWSD33BN5NCX3MM7TV6ZF4",
+     "ordinal": 2,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWSD220ZSV5TRF308E3M4W",
+     "text": "2023-05-23 | assistant | evt_01M7GW6GTJNA0WPCQXF6BR1A3E | …9. **Repurpose your Live content**: After the Live session, repurpose the content into other formats like blog posts, Instagram Stories, or YouTube videos to reach a broader audience. 10.…",
+     "cites": [
+      "evt_01M7GW6GTJNA0WPCQXF6BR1A3E"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWSD33BN5NCX3MM7TV6ZF5",
+     "ordinal": 3,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWSD220ZSV5TRF308E3M4W",
+     "text": "2023-05-23 | user | evt_01M7GW6H1GG5KSY011H511JWMF | What are some creative ways to repurpose my Facebook Live content, like my vegan recipes session, into other formats like blog posts or YouTube videos?",
+     "cites": [
+      "evt_01M7GW6H1GG5KSY011H511JWMF"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWSD33BN5NCX3MM7TV6ZF6",
+     "ordinal": 4,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWSD220ZSV5TRF308E3M4W",
+     "text": "2023-05-23 | assistant | evt_01M7GW6H32HG5EYE79NVBVB1MY | …**Instagram Stories:** Break down your Facebook Live session into Instagram Stories, sharing tips, recipes, and Q\u0026A sessions. 4. **Reels:** Create Instagram Reels showcasing your vegan recipes, with music, captions, and engaging visuals.…",
+     "cites": [
+      "evt_01M7GW6H32HG5EYE79NVBVB1MY"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWSD33BN5NCX3MM7TV6ZF7",
+     "ordinal": 5,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWSD220ZSV5TRF308E3M4W",
+     "text": "2023-05-23 | user | evt_01M7GW6HDJCRT7A55B0SGCCTAH | I'm thinking of creating a YouTube video based on my Facebook Live session about vegan recipes. Do you think I should focus on a specific type of recipe, like breakfast or dinner ideas, or cover a variety of recipes in one video?",
+     "cites": [
+      "evt_01M7GW6HDJCRT7A55B0SGCCTAH"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWSD33BN5NCX3MM7TV6ZF8",
+     "ordinal": 6,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWSD220ZSV5TRF308E3M4W",
+     "text": "2023-05-23 | assistant | evt_01M7GW6HG9Q3KAVBGW6E6V35DY | …3. **SEO benefits**: Using specific keywords related to the recipe type can improve your video's search engine optimization (SEO). Cons: 1. **Limited appeal**: Your video might appeal to a smaller audience, limiting its reach and views.…",
+     "cites": [
+      "evt_01M7GW6HG9Q3KAVBGW6E6V35DY"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWSD33BN5NCX3MM7TV6ZF9",
+     "ordinal": 7,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWSD220ZSV5TRF308E3M4W",
+     "text": "2023-05-23 | user | evt_01M7GW6JJTAWF1PGWRWNQ67D7H | I'm thinking of including a personal anecdote about how I started experimenting with vegan recipes, including the Facebook Live session that got 12 comments.…",
+     "cites": [
+      "evt_01M7GW6JJTAWF1PGWRWNQ67D7H"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWSD33BN5NCX3MM7TV6ZFA",
+     "ordinal": 8,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWSD220ZSV5TRF308E3M4W",
+     "text": "2023-05-23 | assistant | evt_01M7GW6JQ4J8CVFKCQYM5M1WE0 | …experimenting with vegan recipes and how the Facebook Live session inspired you to create more vegan content can be a great way to connect with your audience and add a personal touch to your video. Here's why: **Why it's a good idea:**…",
+     "cites": [
+      "evt_01M7GW6JQ4J8CVFKCQYM5M1WE0"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWSD33BN5NCX3MM7TV6ZFB",
+     "ordinal": 9,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWSD220ZSV5TRF308E3M4W",
+     "text": "2023-05-24 | user | evt_01M7GW6Q8B2A5YGCPJCP4BMDJX | …My most popular video on social media analytics has quite a few comments, so I think I'm on the right track, but I want to keep the momentum going.",
+     "cites": [
+      "evt_01M7GW6Q8B2A5YGCPJCP4BMDJX"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWSD33BN5NCX3MM7TV6ZFC",
+     "ordinal": 10,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWSD220ZSV5TRF308E3M4W",
+     "text": "2023-05-24 | assistant | evt_01M7GW6QATATBNMFQWKTZ1NDHD | …Here are some ideas to get you started: 1. **Deep dive into specific analytics tools**: Create tutorials on popular social media analytics tools like Hootsuite Insights, Sprout Social, or Google Analytics.…",
+     "cites": [
+      "evt_01M7GW6QATATBNMFQWKTZ1NDHD"
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,410 @@
+{
+ "db": "/Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/gpt4_b0863698/L",
+ "condition": "L",
+ "phases": [
+  1,
+  2
+ ],
+ "budget": {},
+ "llm_url": "http://127.0.0.1:8787/tag/BENCH-L-sleep/v1",
+ "chanda_set": [
+  "read.context_derived_max_share=0.3",
+  "sleep.mode=guided",
+  "sleep.guided.digest=llm"
+ ],
+ "chanda_config_hash": "c3db78736ea446ca",
+ "started_at": "2026-11-16T00:41:55Z",
+ "wall_ms": 4664.676,
+ "attempts": 1,
+ "output": {
+  "cost": {
+   "input_tokens": 3381,
+   "llm_calls": 1,
+   "output_tokens": 889
+  },
+  "created": 0,
+  "merged": 0,
+  "phases": [
+   1,
+   2
+  ],
+  "rejected": 0,
+  "report": "# Sleep run run_01M7GWVB5P0ZSV5TRF308E3M4W\n\n- Namespace: lme\n- Status: completed\n- Phases: 1, 2\n- Budget: 200000 tokens, 500 events\n- Snapshot: /Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/gpt4_b0863698/L/snapshots/run_01M7GWVB5P0ZSV5TRF308E3M4W.db\n\n## Phase 1\n\n- Integrity violations: 0\n- Merge proposals (pending): 0\n- Facts marked stale_source: 0\n- Pages rebuilt: 0\n- Gate questions proposed (awaiting a human): 3 (gq_01M7GWVB5YBN5NCX3MM7TV6ZF2, gq_01M7GWVB5YBN5NCX3MM7TV6ZF3, gq_01M7GWVB5YBN5NCX3MM7TV6ZF4)\n- Ranker: trained none, evaluated none, passed false, promoted false, baseline 0.00, learned 0.00, lambda 0.00 (train_skipped_few_examples, no_model)\n\n## Phase 2 (guided digest)\n\n- Digest: llm\n- Candidate groups: 1; groups after merging: 1\n- Groups digested: 1; skipped (already digested): 0; left for the next run: 0\n- Lines written: 14\n- Lines discarded: none\n- Fichas created: 1 (pg_01M7GWVFE34996KBXZQ01MEE90)\n- Page items added: 14 (pgi_01M7GWVFE4XZTTG156R1Z8DZ19, pgi_01M7GWVFE4XZTTG156R1Z8DZ1A, pgi_01M7GWVFE4XZTTG156R1Z8DZ1B, pgi_01M7GWVFE4XZTTG156R1Z8DZ1C, pgi_01M7GWVFE4XZTTG156R1Z8DZ1D, pgi_01M7GWVFE4XZTTG156R1Z8DZ1E, pgi_01M7GWVFE4XZTTG156R1Z8DZ1F, pgi_01M7GWVFE4XZTTG156R1Z8DZ1G, pgi_01M7GWVFE4XZTTG156R1Z8DZ1H, pgi_01M7GWVFE4XZTTG156R1Z8DZ1J, pgi_01M7GWVFE4XZTTG156R1Z8DZ1K, pgi_01M7GWVFE4XZTTG156R1Z8DZ1M, pgi_01M7GWVFE5P2Z7MTYC9MYNM1SB, pgi_01M7GWVFE5P2Z7MTYC9MYNM1SC)\n- Invalid LLM answers discarded (no retry): 0\n- LLM errors: 0\n\n## Gate\n\n- Score before: 0.00, after: 0.00, tolerance: 2.00 points\n- Integrity violations before: 0, after: 0\n- Result: passed; staged changes committed\n\n## Cost\n\n- LLM calls: 1\n- Tokens: 3381 in, 889 out, 4270 total\n\n## Notices\n\n- gate: no approved gate questions; the score measured nothing and only the integrity check guarded this run\n",
+  "run_id": "run_01M7GWVB5P0ZSV5TRF308E3M4W",
+  "status": "completed",
+  "superseded": 0
+ },
+ "run": {
+  "id": "run_01M7GWVB5P0ZSV5TRF308E3M4W",
+  "status": "completed",
+  "started_at": "2026-11-16T00:41:55.126746000Z",
+  "ended_at": "2026-11-16T00:41:59.787994000Z",
+  "phases": [
+   1,
+   2
+  ],
+  "budget": {
+   "tokens": 200000,
+   "events": 500
+  },
+  "inputs": {
+   "actor": "agent",
+   "provider": "openai-compatible:deepseek-flash"
+  },
+  "outputs": {
+   "counts": {
+    "integrity_violations": 0,
+    "merge_proposals": [],
+    "stale_facts": [],
+    "pages_rebuilt": [],
+    "gate_proposed": [
+     "gq_01M7GWVB5YBN5NCX3MM7TV6ZF2",
+     "gq_01M7GWVB5YBN5NCX3MM7TV6ZF3",
+     "gq_01M7GWVB5YBN5NCX3MM7TV6ZF4"
+    ],
+    "learning": {
+     "passed": false,
+     "promoted": false,
+     "baseline": 0,
+     "learned": 0,
+     "lambda": 0,
+     "notices": [
+      "train_skipped_few_examples",
+      "no_model"
+     ]
+    },
+    "events_extracted": 0,
+    "events_skipped": [],
+    "fact_actions": {},
+    "candidates_dropped": 0,
+    "verdicts": {},
+    "facts_activated": [],
+    "facts_superseded": [],
+    "facts_history": [],
+    "facts_quarantined": [],
+    "facts_rejected": [],
+    "verdicts_refused": [],
+    "merges_applied": [],
+    "merges_rejected": [],
+    "pages_created": [
+     "pg_01M7GWVFE34996KBXZQ01MEE90"
+    ],
+    "page_items_added": [
+     "pgi_01M7GWVFE4XZTTG156R1Z8DZ19",
+     "pgi_01M7GWVFE4XZTTG156R1Z8DZ1A",
+     "pgi_01M7GWVFE4XZTTG156R1Z8DZ1B",
+     "pgi_01M7GWVFE4XZTTG156R1Z8DZ1C",
+     "pgi_01M7GWVFE4XZTTG156R1Z8DZ1D",
+     "pgi_01M7GWVFE4XZTTG156R1Z8DZ1E",
+     "pgi_01M7GWVFE4XZTTG156R1Z8DZ1F",
+     "pgi_01M7GWVFE4XZTTG156R1Z8DZ1G",
+     "pgi_01M7GWVFE4XZTTG156R1Z8DZ1H",
+     "pgi_01M7GWVFE4XZTTG156R1Z8DZ1J",
+     "pgi_01M7GWVFE4XZTTG156R1Z8DZ1K",
+     "pgi_01M7GWVFE4XZTTG156R1Z8DZ1M",
+     "pgi_01M7GWVFE5P2Z7MTYC9MYNM1SB",
+     "pgi_01M7GWVFE5P2Z7MTYC9MYNM1SC"
+    ],
+    "lessons_skipped": 0,
+    "invalid_answers": 0,
+    "llm_errors": 0,
+    "guided": {
+     "digest": "llm",
+     "candidate_groups": 1,
+     "groups": 1,
+     "groups_digested": 1,
+     "groups_skipped": 0,
+     "groups_left": 0,
+     "lines_written": 14,
+     "lines_discarded": {},
+     "fichas": [
+      "pg_01M7GWVFE34996KBXZQ01MEE90"
+     ]
+    }
+   },
+   "gate": {
+    "ran": true,
+    "before": 0,
+    "after": 0,
+    "tolerance": 2,
+    "violations_before": 0,
+    "violations_after": 0,
+    "reverted": false
+   }
+  },
+  "cost": {
+   "llm_calls": 1,
+   "input_tokens": 3381,
+   "output_tokens": 889
+  },
+  "report": "# Sleep run run_01M7GWVB5P0ZSV5TRF308E3M4W\n\n- Namespace: lme\n- Status: completed\n- Phases: 1, 2\n- Budget: 200000 tokens, 500 events\n- Snapshot: /Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/gpt4_b0863698/L/snapshots/run_01M7GWVB5P0ZSV5TRF308E3M4W.db\n\n## Phase 1\n\n- Integrity violations: 0\n- Merge proposals (pending): 0\n- Facts marked stale_source: 0\n- Pages rebuilt: 0\n- Gate questions proposed (awaiting a human): 3 (gq_01M7GWVB5YBN5NCX3MM7TV6ZF2, gq_01M7GWVB5YBN5NCX3MM7TV6ZF3, gq_01M7GWVB5YBN5NCX3MM7TV6ZF4)\n- Ranker: trained none, evaluated none, passed false, promoted false, baseline 0.00, learned 0.00, lambda 0.00 (train_skipped_few_examples, no_model)\n\n## Phase 2 (guided digest)\n\n- Digest: llm\n- Candidate groups: 1; groups after merging: 1\n- Groups digested: 1; skipped (already digested): 0; left for the next run: 0\n- Lines written: 14\n- Lines discarded: none\n- Fichas created: 1 (pg_01M7GWVFE34996KBXZQ01MEE90)\n- Page items added: 14 (pgi_01M7GWVFE4XZTTG156R1Z8DZ19, pgi_01M7GWVFE4XZTTG156R1Z8DZ1A, pgi_01M7GWVFE4XZTTG156R1Z8DZ1B, pgi_01M7GWVFE4XZTTG156R1Z8DZ1C, pgi_01M7GWVFE4XZTTG156R1Z8DZ1D, pgi_01M7GWVFE4XZTTG156R1Z8DZ1E, pgi_01M7GWVFE4XZTTG156R1Z8DZ1F, pgi_01M7GWVFE4XZTTG156R1Z8DZ1G, pgi_01M7GWVFE4XZTTG156R1Z8DZ1H, pgi_01M7GWVFE4XZTTG156R1Z8DZ1J, pgi_01M7GWVFE4XZTTG156R1Z8DZ1K, pgi_01M7GWVFE4XZTTG156R1Z8DZ1M, pgi_01M7GWVFE5P2Z7MTYC9MYNM1SB, pgi_01M7GWVFE5P2Z7MTYC9MYNM1SC)\n- Invalid LLM answers discarded (no retry): 0\n- LLM errors: 0\n\n## Gate\n\n- Score before: 0.00, after: 0.00, tolerance: 2.00 points\n- Integrity violations before: 0, after: 0\n- Result: passed; staged changes committed\n\n## Cost\n\n- LLM calls: 1\n- Tokens: 3381 in, 889 out, 4270 total\n\n## Notices\n\n- gate: no approved gate questions; the score measured nothing and only the integrity check guarded this run\n"
+ },
+ "counts": {
+  "integrity_violations": 0,
+  "merge_proposals": [],
+  "stale_facts": [],
+  "pages_rebuilt": [],
+  "gate_proposed": [
+   "gq_01M7GWVB5YBN5NCX3MM7TV6ZF2",
+   "gq_01M7GWVB5YBN5NCX3MM7TV6ZF3",
+   "gq_01M7GWVB5YBN5NCX3MM7TV6ZF4"
+  ],
+  "learning": {
+   "passed": false,
+   "promoted": false,
+   "baseline": 0,
+   "learned": 0,
+   "lambda": 0,
+   "notices": [
+    "train_skipped_few_examples",
+    "no_model"
+   ]
+  },
+  "events_extracted": 0,
+  "events_skipped": [],
+  "fact_actions": {},
+  "candidates_dropped": 0,
+  "verdicts": {},
+  "facts_activated": [],
+  "facts_superseded": [],
+  "facts_history": [],
+  "facts_quarantined": [],
+  "facts_rejected": [],
+  "verdicts_refused": [],
+  "merges_applied": [],
+  "merges_rejected": [],
+  "pages_created": [
+   "pg_01M7GWVFE34996KBXZQ01MEE90"
+  ],
+  "page_items_added": [
+   "pgi_01M7GWVFE4XZTTG156R1Z8DZ19",
+   "pgi_01M7GWVFE4XZTTG156R1Z8DZ1A",
+   "pgi_01M7GWVFE4XZTTG156R1Z8DZ1B",
+   "pgi_01M7GWVFE4XZTTG156R1Z8DZ1C",
+   "pgi_01M7GWVFE4XZTTG156R1Z8DZ1D",
+   "pgi_01M7GWVFE4XZTTG156R1Z8DZ1E",
+   "pgi_01M7GWVFE4XZTTG156R1Z8DZ1F",
+   "pgi_01M7GWVFE4XZTTG156R1Z8DZ1G",
+   "pgi_01M7GWVFE4XZTTG156R1Z8DZ1H",
+   "pgi_01M7GWVFE4XZTTG156R1Z8DZ1J",
+   "pgi_01M7GWVFE4XZTTG156R1Z8DZ1K",
+   "pgi_01M7GWVFE4XZTTG156R1Z8DZ1M",
+   "pgi_01M7GWVFE5P2Z7MTYC9MYNM1SB",
+   "pgi_01M7GWVFE5P2Z7MTYC9MYNM1SC"
+  ],
+  "lessons_skipped": 0,
+  "invalid_answers": 0,
+  "llm_errors": 0,
+  "guided": {
+   "digest": "llm",
+   "candidate_groups": 1,
+   "groups": 1,
+   "groups_digested": 1,
+   "groups_skipped": 0,
+   "groups_left": 0,
+   "lines_written": 14,
+   "lines_discarded": {},
+   "fichas": [
+    "pg_01M7GWVFE34996KBXZQ01MEE90"
+   ]
+  }
+ },
+ "stats_before": {
+  "sources": 42,
+  "documents": 0,
+  "events": 457,
+  "retired_events": 0,
+  "entities": 1,
+  "facts": 3,
+  "active_facts": 3,
+  "quarantined_facts": 0,
+  "pages": 0,
+  "embeddings": 460,
+  "retrievals": 1,
+  "outcomes": 1,
+  "tombstones": 0
+ },
+ "stats_after": {
+  "sources": 42,
+  "documents": 0,
+  "events": 457,
+  "retired_events": 0,
+  "entities": 1,
+  "facts": 3,
+  "active_facts": 3,
+  "quarantined_facts": 0,
+  "pages": 1,
+  "embeddings": 461,
+  "retrievals": 1,
+  "outcomes": 1,
+  "tombstones": 0
+ },
+ "fichas": [
+  {
+   "id": "pg_01M7GWVFE34996KBXZQ01MEE90",
+   "kind": "summary",
+   "title": "Digest: charity, how, run",
+   "status": "active",
+   "zone": "internal",
+   "sleep_run_id": "run_01M7GWVB5P0ZSV5TRF308E3M4W",
+   "body": "2023-03-10 | user | evt_01M7GWQNJZQQ70GNK0D036542W | User is planning a charity event and wants to invite friends and family; trained six months before their first marathon.\n\n2023-03-10 | assistant | evt_01M7GWQP938FMC8MCH3GRYTX0D | Assistant gave tips for creating a Facebook event page for a charity event, including title, details, description, CTA, registration and donation links, schedule, sponsors, updates and sharing.\n\n2023-03-10 | assistant | evt_01M7GWQP938FMC8MCH3GRYTX0D | Assistant's example event page was 'Run for Hope: Charity 5K Run/Walk' on Saturday, March 12, 2023, 8:00 AM - 11:00 AM at Downtown Park.\n\n2023-03-14 | user | evt_01M7GWQYEANVAA5VN0DQ5K0HGM | User attended a gala at the downtown Marriott hotel for the Children's Hospital on February 26th and donated $100.\n\n2023-03-14 | user | evt_01M7GWQYEANVAA5VN0DQ5K0HGM | User plans to join a charity bike ride next month and asked for training tips.\n\n2023-03-14 | user | evt_01M7GWQYEANVAA5VN0DQ5K0HGM,evt_01M7GWQZDH9CTY0HGPCQXYQM62 | User mentioned attending the Children's Hospital gala at the downtown Marriott on February 26th and donating $100, twice.\n\n2023-03-14 | assistant | evt_01M7GWQYGHGZ1QNKNBG95RKZJN | Assistant gave bike-ride training tips: baseline assessment, training plan, gradual mileage increases, intervals, cadence, bike fit, fueling, varied conditions, stretching and group support.\n\n2023-03-14 | user | evt_01M7GWQYRT97YZCVVN6VHNDZN3 | User helped with registration and handed out water at a charity 5K run/walk and asked about pacing for the bike ride.\n\n2023-03-14 | user | evt_01M7GWQZDH9CTY0HGPCQXYQM62 | User is excited to participate in a charity spin class and asked about setting up a fundraising page and choosing fundraising goals.\n\n2023-03-14 | user | evt_01M7GWQZDH9CTY0HGPCQXYQM62 | User repeated attending the Children's Hospital gala at the downtown Marriott on February 26th and donating $100.\n\n2023-03-19 | user | evt_01M7GWRGSBG28EAGSXBT50DSD9 | User did a 5K charity run in 27 minutes and 12 seconds and asked for 3-5 mile running route recommendations.\n\n2023-03-19 | assistant | evt_01M7GWRHR3FDDV9SDWTZ15EXVT | Assistant advised looking for beginner-friendly running groups with gentle routes, walk-to-run or couch-to-5K programs, pace groups, coaching and a supportive environment.\n\n2023-03-19 | assistant | evt_01M7GWRJDZR3Q829KA64FKEGGW | Assistant provided an email template and tips for contacting a Saturday morning running group, citing the user's 5K time of 27:12.\n\n2023-03-19 | user | evt_01M7GWRFR439ZBTY9N5JWNDM6T | User plans to run a 5K at a local theme park and asked about environmental organizations focused on conservation in theme parks or amusement parks.",
+   "items": [
+    {
+     "id": "pgi_01M7GWVFE4XZTTG156R1Z8DZ19",
+     "ordinal": 1,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWVB5P0ZSV5TRF308E3M4W",
+     "text": "2023-03-10 | user | evt_01M7GWQNJZQQ70GNK0D036542W | User is planning a charity event and wants to invite friends and family; trained six months before their first marathon.",
+     "cites": [
+      "evt_01M7GWQNJZQQ70GNK0D036542W"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWVFE4XZTTG156R1Z8DZ1A",
+     "ordinal": 2,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWVB5P0ZSV5TRF308E3M4W",
+     "text": "2023-03-10 | assistant | evt_01M7GWQP938FMC8MCH3GRYTX0D | Assistant gave tips for creating a Facebook event page for a charity event, including title, details, description, CTA, registration and donation links, schedule, sponsors, updates and sharing.",
+     "cites": [
+      "evt_01M7GWQP938FMC8MCH3GRYTX0D"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWVFE4XZTTG156R1Z8DZ1B",
+     "ordinal": 3,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWVB5P0ZSV5TRF308E3M4W",
+     "text": "2023-03-10 | assistant | evt_01M7GWQP938FMC8MCH3GRYTX0D | Assistant's example event page was 'Run for Hope: Charity 5K Run/Walk' on Saturday, March 12, 2023, 8:00 AM - 11:00 AM at Downtown Park.",
+     "cites": [
+      "evt_01M7GWQP938FMC8MCH3GRYTX0D"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWVFE4XZTTG156R1Z8DZ1C",
+     "ordinal": 4,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWVB5P0ZSV5TRF308E3M4W",
+     "text": "2023-03-14 | user | evt_01M7GWQYEANVAA5VN0DQ5K0HGM | User attended a gala at the downtown Marriott hotel for the Children's Hospital on February 26th and donated $100.",
+     "cites": [
+      "evt_01M7GWQYEANVAA5VN0DQ5K0HGM"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWVFE4XZTTG156R1Z8DZ1D",
+     "ordinal": 5,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWVB5P0ZSV5TRF308E3M4W",
+     "text": "2023-03-14 | user | evt_01M7GWQYEANVAA5VN0DQ5K0HGM | User plans to join a charity bike ride next month and asked for training tips.",
+     "cites": [
+      "evt_01M7GWQYEANVAA5VN0DQ5K0HGM"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWVFE4XZTTG156R1Z8DZ1E",
+     "ordinal": 6,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWVB5P0ZSV5TRF308E3M4W",
+     "text": "2023-03-14 | user | evt_01M7GWQYEANVAA5VN0DQ5K0HGM,evt_01M7GWQZDH9CTY0HGPCQXYQM62 | User mentioned attending the Children's Hospital gala at the downtown Marriott on February 26th and donating $100, twice.",
+     "cites": [
+      "evt_01M7GWQYEANVAA5VN0DQ5K0HGM",
+      "evt_01M7GWQZDH9CTY0HGPCQXYQM62"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWVFE4XZTTG156R1Z8DZ1F",
+     "ordinal": 7,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWVB5P0ZSV5TRF308E3M4W",
+     "text": "2023-03-14 | assistant | evt_01M7GWQYGHGZ1QNKNBG95RKZJN | Assistant gave bike-ride training tips: baseline assessment, training plan, gradual mileage increases, intervals, cadence, bike fit, fueling, varied conditions, stretching and group support.",
+     "cites": [
+      "evt_01M7GWQYGHGZ1QNKNBG95RKZJN"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWVFE4XZTTG156R1Z8DZ1G",
+     "ordinal": 8,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWVB5P0ZSV5TRF308E3M4W",
+     "text": "2023-03-14 | user | evt_01M7GWQYRT97YZCVVN6VHNDZN3 | User helped with registration and handed out water at a charity 5K run/walk and asked about pacing for the bike ride.",
+     "cites": [
+      "evt_01M7GWQYRT97YZCVVN6VHNDZN3"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWVFE4XZTTG156R1Z8DZ1H",
+     "ordinal": 9,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWVB5P0ZSV5TRF308E3M4W",
+     "text": "2023-03-14 | user | evt_01M7GWQZDH9CTY0HGPCQXYQM62 | User is excited to participate in a charity spin class and asked about setting up a fundraising page and choosing fundraising goals.",
+     "cites": [
+      "evt_01M7GWQZDH9CTY0HGPCQXYQM62"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWVFE4XZTTG156R1Z8DZ1J",
+     "ordinal": 10,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWVB5P0ZSV5TRF308E3M4W",
+     "text": "2023-03-14 | user | evt_01M7GWQZDH9CTY0HGPCQXYQM62 | User repeated attending the Children's Hospital gala at the downtown Marriott on February 26th and donating $100.",
+     "cites": [
+      "evt_01M7GWQZDH9CTY0HGPCQXYQM62"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWVFE4XZTTG156R1Z8DZ1K",
+     "ordinal": 11,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWVB5P0ZSV5TRF308E3M4W",
+     "text": "2023-03-19 | user | evt_01M7GWRGSBG28EAGSXBT50DSD9 | User did a 5K charity run in 27 minutes and 12 seconds and asked for 3-5 mile running route recommendations.",
+     "cites": [
+      "evt_01M7GWRGSBG28EAGSXBT50DSD9"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWVFE4XZTTG156R1Z8DZ1M",
+     "ordinal": 12,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWVB5P0ZSV5TRF308E3M4W",
+     "text": "2023-03-19 | assistant | evt_01M7GWRHR3FDDV9SDWTZ15EXVT | Assistant advised looking for beginner-friendly running groups with gentle routes, walk-to-run or couch-to-5K programs, pace groups, coaching and a supportive environment.",
+     "cites": [
+      "evt_01M7GWRHR3FDDV9SDWTZ15EXVT"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWVFE5P2Z7MTYC9MYNM1SB",
+     "ordinal": 13,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWVB5P0ZSV5TRF308E3M4W",
+     "text": "2023-03-19 | assistant | evt_01M7GWRJDZR3Q829KA64FKEGGW | Assistant provided an email template and tips for contacting a Saturday morning running group, citing the user's 5K time of 27:12.",
+     "cites": [
+      "evt_01M7GWRJDZR3Q829KA64FKEGGW"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWVFE5P2Z7MTYC9MYNM1SC",
+     "ordinal": 14,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWVB5P0ZSV5TRF308E3M4W",
+     "text": "2023-03-19 | user | evt_01M7GWRFR439ZBTY9N5JWNDM6T | User plans to run a 5K at a local theme park and asked about environmental organizations focused on conservation in theme parks or amusement parks.",
+     "cites": [
+      "evt_01M7GWRFR439ZBTY9N5JWNDM6T"
+     ]
+    }
+   ]
+  }
+ ]
+}

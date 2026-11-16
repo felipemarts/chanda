@@ -1,0 +1,348 @@
+{
+ "db": "/Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/eac54add/X",
+ "condition": "X",
+ "phases": [
+  1,
+  2
+ ],
+ "budget": {},
+ "chanda_set": [
+  "read.context_derived_max_share=0.3",
+  "sleep.mode=guided",
+  "sleep.guided.digest=extractive"
+ ],
+ "chanda_config_hash": "052c307d5730b8ed",
+ "started_at": "2026-11-16T00:41:19Z",
+ "wall_ms": 223.203,
+ "attempts": 1,
+ "output": {
+  "cost": {
+   "input_tokens": 0,
+   "llm_calls": 0,
+   "output_tokens": 0
+  },
+  "created": 0,
+  "merged": 0,
+  "phases": [
+   1,
+   2
+  ],
+  "rejected": 0,
+  "report": "# Sleep run run_01M7GWT8JG0ZSV5TRF308E3M4W\n\n- Namespace: lme\n- Status: completed\n- Phases: 1, 2\n- Budget: 200000 tokens, 500 events\n- Snapshot: /Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/eac54add/X/snapshots/run_01M7GWT8JG0ZSV5TRF308E3M4W.db\n\n## Phase 1\n\n- Integrity violations: 0\n- Merge proposals (pending): 0\n- Facts marked stale_source: 0\n- Pages rebuilt: 0\n- Gate questions proposed (awaiting a human): 0\n- Ranker: trained none, evaluated none, passed false, promoted false, baseline 0.00, learned 0.00, lambda 0.00 (train_skipped_few_examples, no_model)\n\n## Phase 2 (guided digest)\n\n- Digest: extractive\n- Candidate groups: 1; groups after merging: 1\n- Groups digested: 1; skipped (already digested): 0; left for the next run: 0\n- Lines written: 10\n- Lines discarded: none\n- Fichas created: 1 (pg_01M7GWT8KEBN5NCX3MM7TV6ZF2)\n- Page items added: 10 (pgi_01M7GWT8KEBN5NCX3MM7TV6ZF3, pgi_01M7GWT8KF4996KBXZQ01MEE90, pgi_01M7GWT8KF4996KBXZQ01MEE91, pgi_01M7GWT8KF4996KBXZQ01MEE92, pgi_01M7GWT8KF4996KBXZQ01MEE93, pgi_01M7GWT8KF4996KBXZQ01MEE94, pgi_01M7GWT8KF4996KBXZQ01MEE95, pgi_01M7GWT8KF4996KBXZQ01MEE96, pgi_01M7GWT8KF4996KBXZQ01MEE97, pgi_01M7GWT8KF4996KBXZQ01MEE98)\n- Invalid LLM answers discarded (no retry): 0\n- LLM errors: 0\n\n## Gate\n\n- Score before: 0.00, after: 0.00, tolerance: 2.00 points\n- Integrity violations before: 0, after: 0\n- Result: passed; staged changes committed\n\n## Cost\n\n- LLM calls: 0\n- Tokens: 0 in, 0 out, 0 total\n\n## Notices\n\n- gate: no approved gate questions; the score measured nothing and only the integrity check guarded this run\n",
+  "run_id": "run_01M7GWT8JG0ZSV5TRF308E3M4W",
+  "status": "completed",
+  "superseded": 0
+ },
+ "run": {
+  "id": "run_01M7GWT8JG0ZSV5TRF308E3M4W",
+  "status": "completed",
+  "started_at": "2026-11-16T00:41:19.696341000Z",
+  "ended_at": "2026-11-16T00:41:19.917305000Z",
+  "phases": [
+   1,
+   2
+  ],
+  "budget": {
+   "tokens": 200000,
+   "events": 500
+  },
+  "inputs": {
+   "actor": "agent",
+   "provider": ""
+  },
+  "outputs": {
+   "counts": {
+    "integrity_violations": 0,
+    "merge_proposals": [],
+    "stale_facts": [],
+    "pages_rebuilt": [],
+    "gate_proposed": [],
+    "learning": {
+     "passed": false,
+     "promoted": false,
+     "baseline": 0,
+     "learned": 0,
+     "lambda": 0,
+     "notices": [
+      "train_skipped_few_examples",
+      "no_model"
+     ]
+    },
+    "events_extracted": 0,
+    "events_skipped": [],
+    "fact_actions": {},
+    "candidates_dropped": 0,
+    "verdicts": {},
+    "facts_activated": [],
+    "facts_superseded": [],
+    "facts_history": [],
+    "facts_quarantined": [],
+    "facts_rejected": [],
+    "verdicts_refused": [],
+    "merges_applied": [],
+    "merges_rejected": [],
+    "pages_created": [
+     "pg_01M7GWT8KEBN5NCX3MM7TV6ZF2"
+    ],
+    "page_items_added": [
+     "pgi_01M7GWT8KEBN5NCX3MM7TV6ZF3",
+     "pgi_01M7GWT8KF4996KBXZQ01MEE90",
+     "pgi_01M7GWT8KF4996KBXZQ01MEE91",
+     "pgi_01M7GWT8KF4996KBXZQ01MEE92",
+     "pgi_01M7GWT8KF4996KBXZQ01MEE93",
+     "pgi_01M7GWT8KF4996KBXZQ01MEE94",
+     "pgi_01M7GWT8KF4996KBXZQ01MEE95",
+     "pgi_01M7GWT8KF4996KBXZQ01MEE96",
+     "pgi_01M7GWT8KF4996KBXZQ01MEE97",
+     "pgi_01M7GWT8KF4996KBXZQ01MEE98"
+    ],
+    "lessons_skipped": 0,
+    "invalid_answers": 0,
+    "llm_errors": 0,
+    "guided": {
+     "digest": "extractive",
+     "candidate_groups": 1,
+     "groups": 1,
+     "groups_digested": 1,
+     "groups_skipped": 0,
+     "groups_left": 0,
+     "lines_written": 10,
+     "lines_discarded": {},
+     "fichas": [
+      "pg_01M7GWT8KEBN5NCX3MM7TV6ZF2"
+     ]
+    }
+   },
+   "gate": {
+    "ran": true,
+    "before": 0,
+    "after": 0,
+    "tolerance": 2,
+    "violations_before": 0,
+    "violations_after": 0,
+    "reverted": false
+   }
+  },
+  "cost": {
+   "llm_calls": 0,
+   "input_tokens": 0,
+   "output_tokens": 0
+  },
+  "report": "# Sleep run run_01M7GWT8JG0ZSV5TRF308E3M4W\n\n- Namespace: lme\n- Status: completed\n- Phases: 1, 2\n- Budget: 200000 tokens, 500 events\n- Snapshot: /Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/eac54add/X/snapshots/run_01M7GWT8JG0ZSV5TRF308E3M4W.db\n\n## Phase 1\n\n- Integrity violations: 0\n- Merge proposals (pending): 0\n- Facts marked stale_source: 0\n- Pages rebuilt: 0\n- Gate questions proposed (awaiting a human): 0\n- Ranker: trained none, evaluated none, passed false, promoted false, baseline 0.00, learned 0.00, lambda 0.00 (train_skipped_few_examples, no_model)\n\n## Phase 2 (guided digest)\n\n- Digest: extractive\n- Candidate groups: 1; groups after merging: 1\n- Groups digested: 1; skipped (already digested): 0; left for the next run: 0\n- Lines written: 10\n- Lines discarded: none\n- Fichas created: 1 (pg_01M7GWT8KEBN5NCX3MM7TV6ZF2)\n- Page items added: 10 (pgi_01M7GWT8KEBN5NCX3MM7TV6ZF3, pgi_01M7GWT8KF4996KBXZQ01MEE90, pgi_01M7GWT8KF4996KBXZQ01MEE91, pgi_01M7GWT8KF4996KBXZQ01MEE92, pgi_01M7GWT8KF4996KBXZQ01MEE93, pgi_01M7GWT8KF4996KBXZQ01MEE94, pgi_01M7GWT8KF4996KBXZQ01MEE95, pgi_01M7GWT8KF4996KBXZQ01MEE96, pgi_01M7GWT8KF4996KBXZQ01MEE97, pgi_01M7GWT8KF4996KBXZQ01MEE98)\n- Invalid LLM answers discarded (no retry): 0\n- LLM errors: 0\n\n## Gate\n\n- Score before: 0.00, after: 0.00, tolerance: 2.00 points\n- Integrity violations before: 0, after: 0\n- Result: passed; staged changes committed\n\n## Cost\n\n- LLM calls: 0\n- Tokens: 0 in, 0 out, 0 total\n\n## Notices\n\n- gate: no approved gate questions; the score measured nothing and only the integrity check guarded this run\n"
+ },
+ "counts": {
+  "integrity_violations": 0,
+  "merge_proposals": [],
+  "stale_facts": [],
+  "pages_rebuilt": [],
+  "gate_proposed": [],
+  "learning": {
+   "passed": false,
+   "promoted": false,
+   "baseline": 0,
+   "learned": 0,
+   "lambda": 0,
+   "notices": [
+    "train_skipped_few_examples",
+    "no_model"
+   ]
+  },
+  "events_extracted": 0,
+  "events_skipped": [],
+  "fact_actions": {},
+  "candidates_dropped": 0,
+  "verdicts": {},
+  "facts_activated": [],
+  "facts_superseded": [],
+  "facts_history": [],
+  "facts_quarantined": [],
+  "facts_rejected": [],
+  "verdicts_refused": [],
+  "merges_applied": [],
+  "merges_rejected": [],
+  "pages_created": [
+   "pg_01M7GWT8KEBN5NCX3MM7TV6ZF2"
+  ],
+  "page_items_added": [
+   "pgi_01M7GWT8KEBN5NCX3MM7TV6ZF3",
+   "pgi_01M7GWT8KF4996KBXZQ01MEE90",
+   "pgi_01M7GWT8KF4996KBXZQ01MEE91",
+   "pgi_01M7GWT8KF4996KBXZQ01MEE92",
+   "pgi_01M7GWT8KF4996KBXZQ01MEE93",
+   "pgi_01M7GWT8KF4996KBXZQ01MEE94",
+   "pgi_01M7GWT8KF4996KBXZQ01MEE95",
+   "pgi_01M7GWT8KF4996KBXZQ01MEE96",
+   "pgi_01M7GWT8KF4996KBXZQ01MEE97",
+   "pgi_01M7GWT8KF4996KBXZQ01MEE98"
+  ],
+  "lessons_skipped": 0,
+  "invalid_answers": 0,
+  "llm_errors": 0,
+  "guided": {
+   "digest": "extractive",
+   "candidate_groups": 1,
+   "groups": 1,
+   "groups_digested": 1,
+   "groups_skipped": 0,
+   "groups_left": 0,
+   "lines_written": 10,
+   "lines_discarded": {},
+   "fichas": [
+    "pg_01M7GWT8KEBN5NCX3MM7TV6ZF2"
+   ]
+  }
+ },
+ "stats_before": {
+  "sources": 43,
+  "documents": 0,
+  "events": 476,
+  "retired_events": 0,
+  "entities": 0,
+  "facts": 0,
+  "active_facts": 0,
+  "quarantined_facts": 0,
+  "pages": 0,
+  "embeddings": 476,
+  "retrievals": 1,
+  "outcomes": 1,
+  "tombstones": 0
+ },
+ "stats_after": {
+  "sources": 43,
+  "documents": 0,
+  "events": 476,
+  "retired_events": 0,
+  "entities": 0,
+  "facts": 0,
+  "active_facts": 0,
+  "quarantined_facts": 0,
+  "pages": 1,
+  "embeddings": 477,
+  "retrievals": 1,
+  "outcomes": 1,
+  "tombstones": 0
+ },
+ "fichas": [
+  {
+   "id": "pg_01M7GWT8KEBN5NCX3MM7TV6ZF2",
+   "kind": "summary",
+   "title": "Digest: some, any, time",
+   "status": "active",
+   "zone": "internal",
+   "sleep_run_id": "run_01M7GWT8JG0ZSV5TRF308E3M4W",
+   "body": "2023-01-18 | user | evt_01M7GWD7FNSG9SY1T55TPPNJDN | I've been trying to get into a better habit of flossing every day, and it made me think about my bathroom's overall cleanliness.…\n\n2023-01-18 | user | evt_01M7GWD7RF6KF4JZN6CSW3148W | I'm glad you provided those tips. I was thinking about my bathroom scale, and I just realized I've been weighing myself every morning since I replaced the old one with a new digital scale from Target about 3 weeks ago.…\n\n2023-02-11 | user | evt_01M7GWDSTB6M16W0ASR78KHMSE | …I'm sure they'll love it, especially since we had a great time playing Carcassonne together two weeks ago. Do you have any tips on how to improve my chances of winning at Azul?\n\n2023-02-16 | assistant | evt_01M7GWE13NFMBHV3XGFPZ2B1B4 | …Now, let's get to prioritizing your to-do list. One popular method is the Eisenhower Matrix, which helps you categorize tasks based on their urgency and importance. Here's how it works: **Divide your tasks into four quadrants:** 1.…\n\n2023-02-16 | assistant | evt_01M7GWE2PWS5DE5R2EPTX3GJVS | …1. **Prioritize your tasks**: Use the Eisenhower Matrix to categorize your tasks based on their urgency and importance. Focus on the most critical tasks first, and break them down into smaller, manageable chunks. 2.…\n\n2023-02-22 | assistant | evt_01M7GWEEME97YZCVVN6VHNDZN3 | …3. Zimmerman, F. J., et al. (2007). Early cognitive stimulation, emotional support, and television watching as predictors of subsequent bullying among grade-school children. Archives of Pediatrics \u0026 Adolescent Medicine, 161(4), 389-395.…\n\n2023-02-22 | assistant | evt_01M7GWEEXFHGPC93DM7YFK9W98 | …4. Vandewater, E. A., Rideout, V. J., Wartella, E. A., Huang, X., Lee, J. H., \u0026 Shim, M. S. (2007). Digital childhood: Electronic media and technology use among infants, toddlers, and preschoolers. Pediatrics, 119(5), e1006-e1015.…\n\n2023-02-24 | user | evt_01M7GWEGA34M9KSHW3F3HGAT7J | …I'm looking forward to hearing everyone's thoughts on the book. Anyway, back to my reading list - I'd like to add \"The Power\" to the list, as I'm currently listening to the audiobook version during my morning jogs.\n\n2023-03-01 | user | evt_01M7GWF8RHKVBQXQ3JS0PP4EFF | …By the way, I recently repotted my spider plant 3 weeks ago and it's doing much better now with more room to grow.\n\n2023-03-01 | user | evt_01M7GWF1XB9NZR1YVFKGBTM4NS | …The deadline for wrapping up the Johnson account is in two weeks, and I need to ensure a smooth transition. Can you help me break down these tasks into smaller steps and suggest some tools to help me stay on track?",
+   "items": [
+    {
+     "id": "pgi_01M7GWT8KEBN5NCX3MM7TV6ZF3",
+     "ordinal": 1,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT8JG0ZSV5TRF308E3M4W",
+     "text": "2023-01-18 | user | evt_01M7GWD7FNSG9SY1T55TPPNJDN | I've been trying to get into a better habit of flossing every day, and it made me think about my bathroom's overall cleanliness.…",
+     "cites": [
+      "evt_01M7GWD7FNSG9SY1T55TPPNJDN"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWT8KF4996KBXZQ01MEE90",
+     "ordinal": 2,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT8JG0ZSV5TRF308E3M4W",
+     "text": "2023-01-18 | user | evt_01M7GWD7RF6KF4JZN6CSW3148W | I'm glad you provided those tips. I was thinking about my bathroom scale, and I just realized I've been weighing myself every morning since I replaced the old one with a new digital scale from Target about 3 weeks ago.…",
+     "cites": [
+      "evt_01M7GWD7RF6KF4JZN6CSW3148W"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWT8KF4996KBXZQ01MEE91",
+     "ordinal": 3,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT8JG0ZSV5TRF308E3M4W",
+     "text": "2023-02-11 | user | evt_01M7GWDSTB6M16W0ASR78KHMSE | …I'm sure they'll love it, especially since we had a great time playing Carcassonne together two weeks ago. Do you have any tips on how to improve my chances of winning at Azul?",
+     "cites": [
+      "evt_01M7GWDSTB6M16W0ASR78KHMSE"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWT8KF4996KBXZQ01MEE92",
+     "ordinal": 4,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT8JG0ZSV5TRF308E3M4W",
+     "text": "2023-02-16 | assistant | evt_01M7GWE13NFMBHV3XGFPZ2B1B4 | …Now, let's get to prioritizing your to-do list. One popular method is the Eisenhower Matrix, which helps you categorize tasks based on their urgency and importance. Here's how it works: **Divide your tasks into four quadrants:** 1.…",
+     "cites": [
+      "evt_01M7GWE13NFMBHV3XGFPZ2B1B4"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWT8KF4996KBXZQ01MEE93",
+     "ordinal": 5,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT8JG0ZSV5TRF308E3M4W",
+     "text": "2023-02-16 | assistant | evt_01M7GWE2PWS5DE5R2EPTX3GJVS | …1. **Prioritize your tasks**: Use the Eisenhower Matrix to categorize your tasks based on their urgency and importance. Focus on the most critical tasks first, and break them down into smaller, manageable chunks. 2.…",
+     "cites": [
+      "evt_01M7GWE2PWS5DE5R2EPTX3GJVS"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWT8KF4996KBXZQ01MEE94",
+     "ordinal": 6,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT8JG0ZSV5TRF308E3M4W",
+     "text": "2023-02-22 | assistant | evt_01M7GWEEME97YZCVVN6VHNDZN3 | …3. Zimmerman, F. J., et al. (2007). Early cognitive stimulation, emotional support, and television watching as predictors of subsequent bullying among grade-school children. Archives of Pediatrics \u0026 Adolescent Medicine, 161(4), 389-395.…",
+     "cites": [
+      "evt_01M7GWEEME97YZCVVN6VHNDZN3"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWT8KF4996KBXZQ01MEE95",
+     "ordinal": 7,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT8JG0ZSV5TRF308E3M4W",
+     "text": "2023-02-22 | assistant | evt_01M7GWEEXFHGPC93DM7YFK9W98 | …4. Vandewater, E. A., Rideout, V. J., Wartella, E. A., Huang, X., Lee, J. H., \u0026 Shim, M. S. (2007). Digital childhood: Electronic media and technology use among infants, toddlers, and preschoolers. Pediatrics, 119(5), e1006-e1015.…",
+     "cites": [
+      "evt_01M7GWEEXFHGPC93DM7YFK9W98"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWT8KF4996KBXZQ01MEE96",
+     "ordinal": 8,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT8JG0ZSV5TRF308E3M4W",
+     "text": "2023-02-24 | user | evt_01M7GWEGA34M9KSHW3F3HGAT7J | …I'm looking forward to hearing everyone's thoughts on the book. Anyway, back to my reading list - I'd like to add \"The Power\" to the list, as I'm currently listening to the audiobook version during my morning jogs.",
+     "cites": [
+      "evt_01M7GWEGA34M9KSHW3F3HGAT7J"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWT8KF4996KBXZQ01MEE97",
+     "ordinal": 9,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT8JG0ZSV5TRF308E3M4W",
+     "text": "2023-03-01 | user | evt_01M7GWF8RHKVBQXQ3JS0PP4EFF | …By the way, I recently repotted my spider plant 3 weeks ago and it's doing much better now with more room to grow.",
+     "cites": [
+      "evt_01M7GWF8RHKVBQXQ3JS0PP4EFF"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWT8KF4996KBXZQ01MEE98",
+     "ordinal": 10,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT8JG0ZSV5TRF308E3M4W",
+     "text": "2023-03-01 | user | evt_01M7GWF1XB9NZR1YVFKGBTM4NS | …The deadline for wrapping up the Johnson account is in two weeks, and I need to ensure a smooth transition. Can you help me break down these tasks into smaller steps and suggest some tools to help me stay on track?",
+     "cites": [
+      "evt_01M7GWF1XB9NZR1YVFKGBTM4NS"
+     ]
+    }
+   ]
+  }
+ ]
+}

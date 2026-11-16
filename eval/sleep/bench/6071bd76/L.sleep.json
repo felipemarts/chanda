@@ -1,0 +1,363 @@
+{
+ "db": "/Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/6071bd76/L",
+ "condition": "L",
+ "phases": [
+  1,
+  2
+ ],
+ "budget": {},
+ "llm_url": "http://127.0.0.1:8787/tag/BENCH-L-sleep/v1",
+ "chanda_set": [
+  "read.context_derived_max_share=0.3",
+  "sleep.mode=guided",
+  "sleep.guided.digest=llm"
+ ],
+ "chanda_config_hash": "c3db78736ea446ca",
+ "started_at": "2026-11-16T00:41:46Z",
+ "wall_ms": 4361.491,
+ "attempts": 1,
+ "output": {
+  "cost": {
+   "input_tokens": 2788,
+   "llm_calls": 1,
+   "output_tokens": 747
+  },
+  "created": 0,
+  "merged": 0,
+  "phases": [
+   1,
+   2
+  ],
+  "rejected": 0,
+  "report": "# Sleep run run_01M7GWV2EX0ZSV5TRF308E3M4W\n\n- Namespace: lme\n- Status: completed\n- Phases: 1, 2\n- Budget: 200000 tokens, 500 events\n- Snapshot: /Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/6071bd76/L/snapshots/run_01M7GWV2EX0ZSV5TRF308E3M4W.db\n\n## Phase 1\n\n- Integrity violations: 0\n- Merge proposals (pending): 0\n- Facts marked stale_source: 0\n- Pages rebuilt: 0\n- Gate questions proposed (awaiting a human): 0\n- Ranker: trained none, evaluated none, passed false, promoted false, baseline 0.00, learned 0.00, lambda 0.00 (train_skipped_few_examples, no_model)\n\n## Phase 2 (guided digest)\n\n- Digest: llm\n- Candidate groups: 1; groups after merging: 1\n- Groups digested: 1; skipped (already digested): 0; left for the next run: 0\n- Lines written: 11\n- Lines discarded: none\n- Fichas created: 1 (pg_01M7GWV6A4BN5NCX3MM7TV6ZF2)\n- Page items added: 11 (pgi_01M7GWV6A54996KBXZQ01MEE90, pgi_01M7GWV6A54996KBXZQ01MEE91, pgi_01M7GWV6A54996KBXZQ01MEE92, pgi_01M7GWV6A54996KBXZQ01MEE93, pgi_01M7GWV6A54996KBXZQ01MEE94, pgi_01M7GWV6A54996KBXZQ01MEE95, pgi_01M7GWV6A54996KBXZQ01MEE96, pgi_01M7GWV6A54996KBXZQ01MEE97, pgi_01M7GWV6A54996KBXZQ01MEE98, pgi_01M7GWV6A54996KBXZQ01MEE99, pgi_01M7GWV6A54996KBXZQ01MEE9A)\n- Invalid LLM answers discarded (no retry): 0\n- LLM errors: 0\n\n## Gate\n\n- Score before: 0.00, after: 0.00, tolerance: 2.00 points\n- Integrity violations before: 0, after: 0\n- Result: passed; staged changes committed\n\n## Cost\n\n- LLM calls: 1\n- Tokens: 2788 in, 747 out, 3535 total\n\n## Notices\n\n- gate: no approved gate questions; the score measured nothing and only the integrity check guarded this run\n",
+  "run_id": "run_01M7GWV2EX0ZSV5TRF308E3M4W",
+  "status": "completed",
+  "superseded": 0
+ },
+ "run": {
+  "id": "run_01M7GWV2EX0ZSV5TRF308E3M4W",
+  "status": "completed",
+  "started_at": "2026-11-16T00:41:46.205978000Z",
+  "ended_at": "2026-11-16T00:41:50.564620000Z",
+  "phases": [
+   1,
+   2
+  ],
+  "budget": {
+   "tokens": 200000,
+   "events": 500
+  },
+  "inputs": {
+   "actor": "agent",
+   "provider": "openai-compatible:deepseek-flash"
+  },
+  "outputs": {
+   "counts": {
+    "integrity_violations": 0,
+    "merge_proposals": [],
+    "stale_facts": [],
+    "pages_rebuilt": [],
+    "gate_proposed": [],
+    "learning": {
+     "passed": false,
+     "promoted": false,
+     "baseline": 0,
+     "learned": 0,
+     "lambda": 0,
+     "notices": [
+      "train_skipped_few_examples",
+      "no_model"
+     ]
+    },
+    "events_extracted": 0,
+    "events_skipped": [],
+    "fact_actions": {},
+    "candidates_dropped": 0,
+    "verdicts": {},
+    "facts_activated": [],
+    "facts_superseded": [],
+    "facts_history": [],
+    "facts_quarantined": [],
+    "facts_rejected": [],
+    "verdicts_refused": [],
+    "merges_applied": [],
+    "merges_rejected": [],
+    "pages_created": [
+     "pg_01M7GWV6A4BN5NCX3MM7TV6ZF2"
+    ],
+    "page_items_added": [
+     "pgi_01M7GWV6A54996KBXZQ01MEE90",
+     "pgi_01M7GWV6A54996KBXZQ01MEE91",
+     "pgi_01M7GWV6A54996KBXZQ01MEE92",
+     "pgi_01M7GWV6A54996KBXZQ01MEE93",
+     "pgi_01M7GWV6A54996KBXZQ01MEE94",
+     "pgi_01M7GWV6A54996KBXZQ01MEE95",
+     "pgi_01M7GWV6A54996KBXZQ01MEE96",
+     "pgi_01M7GWV6A54996KBXZQ01MEE97",
+     "pgi_01M7GWV6A54996KBXZQ01MEE98",
+     "pgi_01M7GWV6A54996KBXZQ01MEE99",
+     "pgi_01M7GWV6A54996KBXZQ01MEE9A"
+    ],
+    "lessons_skipped": 0,
+    "invalid_answers": 0,
+    "llm_errors": 0,
+    "guided": {
+     "digest": "llm",
+     "candidate_groups": 1,
+     "groups": 1,
+     "groups_digested": 1,
+     "groups_skipped": 0,
+     "groups_left": 0,
+     "lines_written": 11,
+     "lines_discarded": {},
+     "fichas": [
+      "pg_01M7GWV6A4BN5NCX3MM7TV6ZF2"
+     ]
+    }
+   },
+   "gate": {
+    "ran": true,
+    "before": 0,
+    "after": 0,
+    "tolerance": 2,
+    "violations_before": 0,
+    "violations_after": 0,
+    "reverted": false
+   }
+  },
+  "cost": {
+   "llm_calls": 1,
+   "input_tokens": 2788,
+   "output_tokens": 747
+  },
+  "report": "# Sleep run run_01M7GWV2EX0ZSV5TRF308E3M4W\n\n- Namespace: lme\n- Status: completed\n- Phases: 1, 2\n- Budget: 200000 tokens, 500 events\n- Snapshot: /Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/6071bd76/L/snapshots/run_01M7GWV2EX0ZSV5TRF308E3M4W.db\n\n## Phase 1\n\n- Integrity violations: 0\n- Merge proposals (pending): 0\n- Facts marked stale_source: 0\n- Pages rebuilt: 0\n- Gate questions proposed (awaiting a human): 0\n- Ranker: trained none, evaluated none, passed false, promoted false, baseline 0.00, learned 0.00, lambda 0.00 (train_skipped_few_examples, no_model)\n\n## Phase 2 (guided digest)\n\n- Digest: llm\n- Candidate groups: 1; groups after merging: 1\n- Groups digested: 1; skipped (already digested): 0; left for the next run: 0\n- Lines written: 11\n- Lines discarded: none\n- Fichas created: 1 (pg_01M7GWV6A4BN5NCX3MM7TV6ZF2)\n- Page items added: 11 (pgi_01M7GWV6A54996KBXZQ01MEE90, pgi_01M7GWV6A54996KBXZQ01MEE91, pgi_01M7GWV6A54996KBXZQ01MEE92, pgi_01M7GWV6A54996KBXZQ01MEE93, pgi_01M7GWV6A54996KBXZQ01MEE94, pgi_01M7GWV6A54996KBXZQ01MEE95, pgi_01M7GWV6A54996KBXZQ01MEE96, pgi_01M7GWV6A54996KBXZQ01MEE97, pgi_01M7GWV6A54996KBXZQ01MEE98, pgi_01M7GWV6A54996KBXZQ01MEE99, pgi_01M7GWV6A54996KBXZQ01MEE9A)\n- Invalid LLM answers discarded (no retry): 0\n- LLM errors: 0\n\n## Gate\n\n- Score before: 0.00, after: 0.00, tolerance: 2.00 points\n- Integrity violations before: 0, after: 0\n- Result: passed; staged changes committed\n\n## Cost\n\n- LLM calls: 1\n- Tokens: 2788 in, 747 out, 3535 total\n\n## Notices\n\n- gate: no approved gate questions; the score measured nothing and only the integrity check guarded this run\n"
+ },
+ "counts": {
+  "integrity_violations": 0,
+  "merge_proposals": [],
+  "stale_facts": [],
+  "pages_rebuilt": [],
+  "gate_proposed": [],
+  "learning": {
+   "passed": false,
+   "promoted": false,
+   "baseline": 0,
+   "learned": 0,
+   "lambda": 0,
+   "notices": [
+    "train_skipped_few_examples",
+    "no_model"
+   ]
+  },
+  "events_extracted": 0,
+  "events_skipped": [],
+  "fact_actions": {},
+  "candidates_dropped": 0,
+  "verdicts": {},
+  "facts_activated": [],
+  "facts_superseded": [],
+  "facts_history": [],
+  "facts_quarantined": [],
+  "facts_rejected": [],
+  "verdicts_refused": [],
+  "merges_applied": [],
+  "merges_rejected": [],
+  "pages_created": [
+   "pg_01M7GWV6A4BN5NCX3MM7TV6ZF2"
+  ],
+  "page_items_added": [
+   "pgi_01M7GWV6A54996KBXZQ01MEE90",
+   "pgi_01M7GWV6A54996KBXZQ01MEE91",
+   "pgi_01M7GWV6A54996KBXZQ01MEE92",
+   "pgi_01M7GWV6A54996KBXZQ01MEE93",
+   "pgi_01M7GWV6A54996KBXZQ01MEE94",
+   "pgi_01M7GWV6A54996KBXZQ01MEE95",
+   "pgi_01M7GWV6A54996KBXZQ01MEE96",
+   "pgi_01M7GWV6A54996KBXZQ01MEE97",
+   "pgi_01M7GWV6A54996KBXZQ01MEE98",
+   "pgi_01M7GWV6A54996KBXZQ01MEE99",
+   "pgi_01M7GWV6A54996KBXZQ01MEE9A"
+  ],
+  "lessons_skipped": 0,
+  "invalid_answers": 0,
+  "llm_errors": 0,
+  "guided": {
+   "digest": "llm",
+   "candidate_groups": 1,
+   "groups": 1,
+   "groups_digested": 1,
+   "groups_skipped": 0,
+   "groups_left": 0,
+   "lines_written": 11,
+   "lines_discarded": {},
+   "fichas": [
+    "pg_01M7GWV6A4BN5NCX3MM7TV6ZF2"
+   ]
+  }
+ },
+ "stats_before": {
+  "sources": 46,
+  "documents": 0,
+  "events": 482,
+  "retired_events": 0,
+  "entities": 0,
+  "facts": 0,
+  "active_facts": 0,
+  "quarantined_facts": 0,
+  "pages": 0,
+  "embeddings": 482,
+  "retrievals": 1,
+  "outcomes": 1,
+  "tombstones": 0
+ },
+ "stats_after": {
+  "sources": 46,
+  "documents": 0,
+  "events": 482,
+  "retired_events": 0,
+  "entities": 0,
+  "facts": 0,
+  "active_facts": 0,
+  "quarantined_facts": 0,
+  "pages": 1,
+  "embeddings": 483,
+  "retrievals": 1,
+  "outcomes": 1,
+  "tombstones": 0
+ },
+ "fichas": [
+  {
+   "id": "pg_01M7GWV6A4BN5NCX3MM7TV6ZF2",
+   "kind": "summary",
+   "title": "Digest: coffee, french, press",
+   "status": "active",
+   "zone": "internal",
+   "sleep_run_id": "run_01M7GWV2EX0ZSV5TRF308E3M4W",
+   "body": "2023-02-11 | user | evt_01M7GWMB9QSG9SY1T55TPPNJDN | User asks for coffee bean recommendations that pair with citrus notes and reports a French press ratio of 1 tablespoon coffee per 6 ounces water.\n\n2023-02-11 | user | evt_01M7GWMB9QSG9SY1T55TPPNJDN,evt_01M7GWNBDF375ECW0W3P3BEX8G | User's stated French press ratio changed from 1 tablespoon per 6 ounces water on 2023-02-11 to 1 tablespoon per 5 ounces water on 2023-06-30.\n\n2023-02-11 | assistant | evt_01M7GWMBCJST2F7MHVD15EGY1H | Assistant suggests Kenyan, Ethiopian Yirgacheffe, Colombian Gesha, Guatemalan Antigua and Rwanda Bourbon beans for citrus pairing, plus medium-coarse grind and 3-4 minute steep.\n\n2023-02-11 | user | evt_01M7GWMCWX7ETGDJBGB6HZQN26 | User asks what the assistant thinks of beans from its first shipment and whether it will use a French press or another method.\n\n2023-02-11 | assistant | evt_01M7GWMCZ02XR4NYWHRVWZ5DMT | Assistant says it is a digital AI with no taste buds or physical presence and received no coffee beans or French press.\n\n2023-02-11 | user | evt_01M7GWMD3A6A76G13RWC6RRNC4 | User plans to try the new beans in the French press and asks how to store coffee beans to preserve freshness.\n\n2023-02-11 | assistant | evt_01M7GWMD63M74VFS80VSX49P99 | Assistant gives storage tips: airtight container, cool dark place, room temperature 60-70°F/15-21°C, use within 2 weeks, freeze 3-6 months for longer storage, grind just before brewing.\n\n2023-05-27 | assistant | evt_01M7GWN57BGXR40BQ6EP8FR2Y6 | Assistant discusses composting balance of green and brown materials, turning the pile, and suggests permaculture, biodynamics, rainwater harvesting and natural pest control.\n\n2023-06-30 | user | evt_01M7GWNBDF375ECW0W3P3BEX8G | User asks for a relaxing tea similar to chamomile and reports a French press ratio of 1 tablespoon coffee per 5 ounces water for new beans.\n\n2023-06-30 | user | evt_01M7GWNCF5Z84A6A7VBZD1Q3RJ | User asks the best way to clean a French press to remove old coffee oils.\n\n2023-06-30 | assistant | evt_01M7GWNCHYQQ70GNK0D036542V | Assistant gives French press cleaning steps: disassemble, rinse with hot water, soak in hot soapy water about 30 minutes, scrub, rinse, dry, optional bleach sanitizing; avoid abrasives and dishwasher.",
+   "items": [
+    {
+     "id": "pgi_01M7GWV6A54996KBXZQ01MEE90",
+     "ordinal": 1,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWV2EX0ZSV5TRF308E3M4W",
+     "text": "2023-02-11 | user | evt_01M7GWMB9QSG9SY1T55TPPNJDN | User asks for coffee bean recommendations that pair with citrus notes and reports a French press ratio of 1 tablespoon coffee per 6 ounces water.",
+     "cites": [
+      "evt_01M7GWMB9QSG9SY1T55TPPNJDN"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWV6A54996KBXZQ01MEE91",
+     "ordinal": 2,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWV2EX0ZSV5TRF308E3M4W",
+     "text": "2023-02-11 | user | evt_01M7GWMB9QSG9SY1T55TPPNJDN,evt_01M7GWNBDF375ECW0W3P3BEX8G | User's stated French press ratio changed from 1 tablespoon per 6 ounces water on 2023-02-11 to 1 tablespoon per 5 ounces water on 2023-06-30.",
+     "cites": [
+      "evt_01M7GWMB9QSG9SY1T55TPPNJDN",
+      "evt_01M7GWNBDF375ECW0W3P3BEX8G"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWV6A54996KBXZQ01MEE92",
+     "ordinal": 3,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWV2EX0ZSV5TRF308E3M4W",
+     "text": "2023-02-11 | assistant | evt_01M7GWMBCJST2F7MHVD15EGY1H | Assistant suggests Kenyan, Ethiopian Yirgacheffe, Colombian Gesha, Guatemalan Antigua and Rwanda Bourbon beans for citrus pairing, plus medium-coarse grind and 3-4 minute steep.",
+     "cites": [
+      "evt_01M7GWMBCJST2F7MHVD15EGY1H"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWV6A54996KBXZQ01MEE93",
+     "ordinal": 4,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWV2EX0ZSV5TRF308E3M4W",
+     "text": "2023-02-11 | user | evt_01M7GWMCWX7ETGDJBGB6HZQN26 | User asks what the assistant thinks of beans from its first shipment and whether it will use a French press or another method.",
+     "cites": [
+      "evt_01M7GWMCWX7ETGDJBGB6HZQN26"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWV6A54996KBXZQ01MEE94",
+     "ordinal": 5,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWV2EX0ZSV5TRF308E3M4W",
+     "text": "2023-02-11 | assistant | evt_01M7GWMCZ02XR4NYWHRVWZ5DMT | Assistant says it is a digital AI with no taste buds or physical presence and received no coffee beans or French press.",
+     "cites": [
+      "evt_01M7GWMCZ02XR4NYWHRVWZ5DMT"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWV6A54996KBXZQ01MEE95",
+     "ordinal": 6,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWV2EX0ZSV5TRF308E3M4W",
+     "text": "2023-02-11 | user | evt_01M7GWMD3A6A76G13RWC6RRNC4 | User plans to try the new beans in the French press and asks how to store coffee beans to preserve freshness.",
+     "cites": [
+      "evt_01M7GWMD3A6A76G13RWC6RRNC4"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWV6A54996KBXZQ01MEE96",
+     "ordinal": 7,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWV2EX0ZSV5TRF308E3M4W",
+     "text": "2023-02-11 | assistant | evt_01M7GWMD63M74VFS80VSX49P99 | Assistant gives storage tips: airtight container, cool dark place, room temperature 60-70°F/15-21°C, use within 2 weeks, freeze 3-6 months for longer storage, grind just before brewing.",
+     "cites": [
+      "evt_01M7GWMD63M74VFS80VSX49P99"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWV6A54996KBXZQ01MEE97",
+     "ordinal": 8,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWV2EX0ZSV5TRF308E3M4W",
+     "text": "2023-05-27 | assistant | evt_01M7GWN57BGXR40BQ6EP8FR2Y6 | Assistant discusses composting balance of green and brown materials, turning the pile, and suggests permaculture, biodynamics, rainwater harvesting and natural pest control.",
+     "cites": [
+      "evt_01M7GWN57BGXR40BQ6EP8FR2Y6"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWV6A54996KBXZQ01MEE98",
+     "ordinal": 9,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWV2EX0ZSV5TRF308E3M4W",
+     "text": "2023-06-30 | user | evt_01M7GWNBDF375ECW0W3P3BEX8G | User asks for a relaxing tea similar to chamomile and reports a French press ratio of 1 tablespoon coffee per 5 ounces water for new beans.",
+     "cites": [
+      "evt_01M7GWNBDF375ECW0W3P3BEX8G"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWV6A54996KBXZQ01MEE99",
+     "ordinal": 10,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWV2EX0ZSV5TRF308E3M4W",
+     "text": "2023-06-30 | user | evt_01M7GWNCF5Z84A6A7VBZD1Q3RJ | User asks the best way to clean a French press to remove old coffee oils.",
+     "cites": [
+      "evt_01M7GWNCF5Z84A6A7VBZD1Q3RJ"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWV6A54996KBXZQ01MEE9A",
+     "ordinal": 11,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWV2EX0ZSV5TRF308E3M4W",
+     "text": "2023-06-30 | assistant | evt_01M7GWNCHYQQ70GNK0D036542V | Assistant gives French press cleaning steps: disassemble, rinse with hot water, soak in hot soapy water about 30 minutes, scrub, rinse, dry, optional bleach sanitizing; avoid abrasives and dishwasher.",
+     "cites": [
+      "evt_01M7GWNCHYQQ70GNK0D036542V"
+     ]
+    }
+   ]
+  }
+ ]
+}

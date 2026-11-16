@@ -1,0 +1,348 @@
+{
+ "db": "/Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/gpt4_e061b84f/X",
+ "condition": "X",
+ "phases": [
+  1,
+  2
+ ],
+ "budget": {},
+ "chanda_set": [
+  "read.context_derived_max_share=0.3",
+  "sleep.mode=guided",
+  "sleep.guided.digest=extractive"
+ ],
+ "chanda_config_hash": "052c307d5730b8ed",
+ "started_at": "2026-11-16T00:41:11Z",
+ "wall_ms": 232.184,
+ "attempts": 1,
+ "output": {
+  "cost": {
+   "input_tokens": 0,
+   "llm_calls": 0,
+   "output_tokens": 0
+  },
+  "created": 0,
+  "merged": 0,
+  "phases": [
+   1,
+   2
+  ],
+  "rejected": 0,
+  "report": "# Sleep run run_01M7GWT0750ZSV5TRF308E3M4W\n\n- Namespace: lme\n- Status: completed\n- Phases: 1, 2\n- Budget: 200000 tokens, 500 events\n- Snapshot: /Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/gpt4_e061b84f/X/snapshots/run_01M7GWT0750ZSV5TRF308E3M4W.db\n\n## Phase 1\n\n- Integrity violations: 0\n- Merge proposals (pending): 0\n- Facts marked stale_source: 0\n- Pages rebuilt: 0\n- Gate questions proposed (awaiting a human): 0\n- Ranker: trained none, evaluated none, passed false, promoted false, baseline 0.00, learned 0.00, lambda 0.00 (train_skipped_few_examples, no_model)\n\n## Phase 2 (guided digest)\n\n- Digest: extractive\n- Candidate groups: 1; groups after merging: 1\n- Groups digested: 1; skipped (already digested): 0; left for the next run: 0\n- Lines written: 10\n- Lines discarded: none\n- Fichas created: 1 (pg_01M7GWT084BN5NCX3MM7TV6ZF2)\n- Page items added: 10 (pgi_01M7GWT084BN5NCX3MM7TV6ZF3, pgi_01M7GWT084BN5NCX3MM7TV6ZF4, pgi_01M7GWT084BN5NCX3MM7TV6ZF5, pgi_01M7GWT084BN5NCX3MM7TV6ZF6, pgi_01M7GWT084BN5NCX3MM7TV6ZF7, pgi_01M7GWT0854996KBXZQ01MEE90, pgi_01M7GWT0854996KBXZQ01MEE91, pgi_01M7GWT0854996KBXZQ01MEE92, pgi_01M7GWT0854996KBXZQ01MEE93, pgi_01M7GWT0854996KBXZQ01MEE94)\n- Invalid LLM answers discarded (no retry): 0\n- LLM errors: 0\n\n## Gate\n\n- Score before: 0.00, after: 0.00, tolerance: 2.00 points\n- Integrity violations before: 0, after: 0\n- Result: passed; staged changes committed\n\n## Cost\n\n- LLM calls: 0\n- Tokens: 0 in, 0 out, 0 total\n\n## Notices\n\n- gate: no approved gate questions; the score measured nothing and only the integrity check guarded this run\n",
+  "run_id": "run_01M7GWT0750ZSV5TRF308E3M4W",
+  "status": "completed",
+  "superseded": 0
+ },
+ "run": {
+  "id": "run_01M7GWT0750ZSV5TRF308E3M4W",
+  "status": "completed",
+  "started_at": "2026-11-16T00:41:11.141026000Z",
+  "ended_at": "2026-11-16T00:41:11.371917000Z",
+  "phases": [
+   1,
+   2
+  ],
+  "budget": {
+   "tokens": 200000,
+   "events": 500
+  },
+  "inputs": {
+   "actor": "agent",
+   "provider": ""
+  },
+  "outputs": {
+   "counts": {
+    "integrity_violations": 0,
+    "merge_proposals": [],
+    "stale_facts": [],
+    "pages_rebuilt": [],
+    "gate_proposed": [],
+    "learning": {
+     "passed": false,
+     "promoted": false,
+     "baseline": 0,
+     "learned": 0,
+     "lambda": 0,
+     "notices": [
+      "train_skipped_few_examples",
+      "no_model"
+     ]
+    },
+    "events_extracted": 0,
+    "events_skipped": [],
+    "fact_actions": {},
+    "candidates_dropped": 0,
+    "verdicts": {},
+    "facts_activated": [],
+    "facts_superseded": [],
+    "facts_history": [],
+    "facts_quarantined": [],
+    "facts_rejected": [],
+    "verdicts_refused": [],
+    "merges_applied": [],
+    "merges_rejected": [],
+    "pages_created": [
+     "pg_01M7GWT084BN5NCX3MM7TV6ZF2"
+    ],
+    "page_items_added": [
+     "pgi_01M7GWT084BN5NCX3MM7TV6ZF3",
+     "pgi_01M7GWT084BN5NCX3MM7TV6ZF4",
+     "pgi_01M7GWT084BN5NCX3MM7TV6ZF5",
+     "pgi_01M7GWT084BN5NCX3MM7TV6ZF6",
+     "pgi_01M7GWT084BN5NCX3MM7TV6ZF7",
+     "pgi_01M7GWT0854996KBXZQ01MEE90",
+     "pgi_01M7GWT0854996KBXZQ01MEE91",
+     "pgi_01M7GWT0854996KBXZQ01MEE92",
+     "pgi_01M7GWT0854996KBXZQ01MEE93",
+     "pgi_01M7GWT0854996KBXZQ01MEE94"
+    ],
+    "lessons_skipped": 0,
+    "invalid_answers": 0,
+    "llm_errors": 0,
+    "guided": {
+     "digest": "extractive",
+     "candidate_groups": 1,
+     "groups": 1,
+     "groups_digested": 1,
+     "groups_skipped": 0,
+     "groups_left": 0,
+     "lines_written": 10,
+     "lines_discarded": {},
+     "fichas": [
+      "pg_01M7GWT084BN5NCX3MM7TV6ZF2"
+     ]
+    }
+   },
+   "gate": {
+    "ran": true,
+    "before": 0,
+    "after": 0,
+    "tolerance": 2,
+    "violations_before": 0,
+    "violations_after": 0,
+    "reverted": false
+   }
+  },
+  "cost": {
+   "llm_calls": 0,
+   "input_tokens": 0,
+   "output_tokens": 0
+  },
+  "report": "# Sleep run run_01M7GWT0750ZSV5TRF308E3M4W\n\n- Namespace: lme\n- Status: completed\n- Phases: 1, 2\n- Budget: 200000 tokens, 500 events\n- Snapshot: /Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/gpt4_e061b84f/X/snapshots/run_01M7GWT0750ZSV5TRF308E3M4W.db\n\n## Phase 1\n\n- Integrity violations: 0\n- Merge proposals (pending): 0\n- Facts marked stale_source: 0\n- Pages rebuilt: 0\n- Gate questions proposed (awaiting a human): 0\n- Ranker: trained none, evaluated none, passed false, promoted false, baseline 0.00, learned 0.00, lambda 0.00 (train_skipped_few_examples, no_model)\n\n## Phase 2 (guided digest)\n\n- Digest: extractive\n- Candidate groups: 1; groups after merging: 1\n- Groups digested: 1; skipped (already digested): 0; left for the next run: 0\n- Lines written: 10\n- Lines discarded: none\n- Fichas created: 1 (pg_01M7GWT084BN5NCX3MM7TV6ZF2)\n- Page items added: 10 (pgi_01M7GWT084BN5NCX3MM7TV6ZF3, pgi_01M7GWT084BN5NCX3MM7TV6ZF4, pgi_01M7GWT084BN5NCX3MM7TV6ZF5, pgi_01M7GWT084BN5NCX3MM7TV6ZF6, pgi_01M7GWT084BN5NCX3MM7TV6ZF7, pgi_01M7GWT0854996KBXZQ01MEE90, pgi_01M7GWT0854996KBXZQ01MEE91, pgi_01M7GWT0854996KBXZQ01MEE92, pgi_01M7GWT0854996KBXZQ01MEE93, pgi_01M7GWT0854996KBXZQ01MEE94)\n- Invalid LLM answers discarded (no retry): 0\n- LLM errors: 0\n\n## Gate\n\n- Score before: 0.00, after: 0.00, tolerance: 2.00 points\n- Integrity violations before: 0, after: 0\n- Result: passed; staged changes committed\n\n## Cost\n\n- LLM calls: 0\n- Tokens: 0 in, 0 out, 0 total\n\n## Notices\n\n- gate: no approved gate questions; the score measured nothing and only the integrity check guarded this run\n"
+ },
+ "counts": {
+  "integrity_violations": 0,
+  "merge_proposals": [],
+  "stale_facts": [],
+  "pages_rebuilt": [],
+  "gate_proposed": [],
+  "learning": {
+   "passed": false,
+   "promoted": false,
+   "baseline": 0,
+   "learned": 0,
+   "lambda": 0,
+   "notices": [
+    "train_skipped_few_examples",
+    "no_model"
+   ]
+  },
+  "events_extracted": 0,
+  "events_skipped": [],
+  "fact_actions": {},
+  "candidates_dropped": 0,
+  "verdicts": {},
+  "facts_activated": [],
+  "facts_superseded": [],
+  "facts_history": [],
+  "facts_quarantined": [],
+  "facts_rejected": [],
+  "verdicts_refused": [],
+  "merges_applied": [],
+  "merges_rejected": [],
+  "pages_created": [
+   "pg_01M7GWT084BN5NCX3MM7TV6ZF2"
+  ],
+  "page_items_added": [
+   "pgi_01M7GWT084BN5NCX3MM7TV6ZF3",
+   "pgi_01M7GWT084BN5NCX3MM7TV6ZF4",
+   "pgi_01M7GWT084BN5NCX3MM7TV6ZF5",
+   "pgi_01M7GWT084BN5NCX3MM7TV6ZF6",
+   "pgi_01M7GWT084BN5NCX3MM7TV6ZF7",
+   "pgi_01M7GWT0854996KBXZQ01MEE90",
+   "pgi_01M7GWT0854996KBXZQ01MEE91",
+   "pgi_01M7GWT0854996KBXZQ01MEE92",
+   "pgi_01M7GWT0854996KBXZQ01MEE93",
+   "pgi_01M7GWT0854996KBXZQ01MEE94"
+  ],
+  "lessons_skipped": 0,
+  "invalid_answers": 0,
+  "llm_errors": 0,
+  "guided": {
+   "digest": "extractive",
+   "candidate_groups": 1,
+   "groups": 1,
+   "groups_digested": 1,
+   "groups_skipped": 0,
+   "groups_left": 0,
+   "lines_written": 10,
+   "lines_discarded": {},
+   "fichas": [
+    "pg_01M7GWT084BN5NCX3MM7TV6ZF2"
+   ]
+  }
+ },
+ "stats_before": {
+  "sources": 46,
+  "documents": 0,
+  "events": 467,
+  "retired_events": 0,
+  "entities": 0,
+  "facts": 0,
+  "active_facts": 0,
+  "quarantined_facts": 0,
+  "pages": 0,
+  "embeddings": 467,
+  "retrievals": 1,
+  "outcomes": 1,
+  "tombstones": 0
+ },
+ "stats_after": {
+  "sources": 46,
+  "documents": 0,
+  "events": 467,
+  "retired_events": 0,
+  "entities": 0,
+  "facts": 0,
+  "active_facts": 0,
+  "quarantined_facts": 0,
+  "pages": 1,
+  "embeddings": 468,
+  "retrievals": 1,
+  "outcomes": 1,
+  "tombstones": 0
+ },
+ "fichas": [
+  {
+   "id": "pg_01M7GWT084BN5NCX3MM7TV6ZF2",
+   "kind": "summary",
+   "title": "Digest: some, any, time",
+   "status": "active",
+   "zone": "internal",
+   "sleep_run_id": "run_01M7GWT0750ZSV5TRF308E3M4W",
+   "body": "2023-05-17 | user | evt_01M7GWB9C3S3AF6X4N3F0T35CB | Those all sound great, but do you have any suggestions for events specifically for younger children? My little ones might not be ready for the prison tour or the music festivals.\n\n2023-06-16 | user | evt_01M7GWBWWDXPKBEKKR6GNRT5W8 | How can I incorporate strength training to improve my core strength, as I'm currently doing planks and Russian twists 3 times a week and aiming to hold a plank for 60 seconds by the end of the month?\n\n2023-06-16 | assistant | evt_01M7GWBX06G6M4M3E589457K54 | …2. **Practice consistently:** Aim to do core exercises 3-4 times a week, with at least one day of rest in between. 3. **Mix and match exercises:** Vary your exercises to target different muscle groups and avoid plateaus. 4.…\n\n2023-06-17 | assistant | evt_01M7GWCCDHBB6QA7GCF61F538T | …**Additional Tips:** * Get enough sleep (7-9 hours) before the tournament to ensure you're well-rested and ready to perform. * Avoid playing if you're experiencing any underlying medical conditions, such as a concussion or muscle strain.…\n\n2023-06-17 | assistant | evt_01M7GWCDEZ4VNK1XPZ2F8SFG62 | …2. **Monitor Urine Output**: Check the color of your urine to ensure it's pale yellow or clear. 3. **Hydrate Before Exercise**: Drink 16-20 ounces of water 1-2 hours before the game, and 8-10 ounces 30 minutes before kickoff. 4.…\n\n2023-06-17 | user | evt_01M7GWBZC7D4BRQSPEHHVJW2T9 | I'm thinking of booking a photography workshop next month, can you help me find some good options in my area?\n\n2023-06-17 | assistant | evt_01M7GWCRYA41FVMGZ6ARWH77V2 | …1. **Self-Help and Personal Development**: * Productivity and Time Management * Mindfulness and Meditation * Goal Setting and Achievement * Career Development * Wellness and Self-Care 2. **Biographies and Memoirs**: * Historical Figures…\n\n2023-06-17 | user | evt_01M7GWCGPBXN3265ATGZGG2D8H | …I did try out some food delivery services last month, though. Speaking of which, I ordered from UberEats three times in the first week of October, trying out different places for lunch.\n\n2023-06-17 | user | evt_01M7GWCJ0V6G1201VJPWC8EHP4 | I'm looking forward to trying out Sun Basket and their Korean-inspired dishes. For my first order, I think I'll choose the \"Classic\" menu plan and opt for the \"3 Recipes for 2 People\" plan.…\n\n2023-06-17 | assistant | evt_01M7GWCJ5CQN8XG3WN6008FPKY | …5. **Have fun!**: Don't stress if things don't turn out perfectly – it's all about experimentation and learning new cooking skills. I hope you enjoy your first Sun Basket order and the recipes you choose!…",
+   "items": [
+    {
+     "id": "pgi_01M7GWT084BN5NCX3MM7TV6ZF3",
+     "ordinal": 1,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT0750ZSV5TRF308E3M4W",
+     "text": "2023-05-17 | user | evt_01M7GWB9C3S3AF6X4N3F0T35CB | Those all sound great, but do you have any suggestions for events specifically for younger children? My little ones might not be ready for the prison tour or the music festivals.",
+     "cites": [
+      "evt_01M7GWB9C3S3AF6X4N3F0T35CB"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWT084BN5NCX3MM7TV6ZF4",
+     "ordinal": 2,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT0750ZSV5TRF308E3M4W",
+     "text": "2023-06-16 | user | evt_01M7GWBWWDXPKBEKKR6GNRT5W8 | How can I incorporate strength training to improve my core strength, as I'm currently doing planks and Russian twists 3 times a week and aiming to hold a plank for 60 seconds by the end of the month?",
+     "cites": [
+      "evt_01M7GWBWWDXPKBEKKR6GNRT5W8"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWT084BN5NCX3MM7TV6ZF5",
+     "ordinal": 3,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT0750ZSV5TRF308E3M4W",
+     "text": "2023-06-16 | assistant | evt_01M7GWBX06G6M4M3E589457K54 | …2. **Practice consistently:** Aim to do core exercises 3-4 times a week, with at least one day of rest in between. 3. **Mix and match exercises:** Vary your exercises to target different muscle groups and avoid plateaus. 4.…",
+     "cites": [
+      "evt_01M7GWBX06G6M4M3E589457K54"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWT084BN5NCX3MM7TV6ZF6",
+     "ordinal": 4,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT0750ZSV5TRF308E3M4W",
+     "text": "2023-06-17 | assistant | evt_01M7GWCCDHBB6QA7GCF61F538T | …**Additional Tips:** * Get enough sleep (7-9 hours) before the tournament to ensure you're well-rested and ready to perform. * Avoid playing if you're experiencing any underlying medical conditions, such as a concussion or muscle strain.…",
+     "cites": [
+      "evt_01M7GWCCDHBB6QA7GCF61F538T"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWT084BN5NCX3MM7TV6ZF7",
+     "ordinal": 5,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT0750ZSV5TRF308E3M4W",
+     "text": "2023-06-17 | assistant | evt_01M7GWCDEZ4VNK1XPZ2F8SFG62 | …2. **Monitor Urine Output**: Check the color of your urine to ensure it's pale yellow or clear. 3. **Hydrate Before Exercise**: Drink 16-20 ounces of water 1-2 hours before the game, and 8-10 ounces 30 minutes before kickoff. 4.…",
+     "cites": [
+      "evt_01M7GWCDEZ4VNK1XPZ2F8SFG62"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWT0854996KBXZQ01MEE90",
+     "ordinal": 6,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT0750ZSV5TRF308E3M4W",
+     "text": "2023-06-17 | user | evt_01M7GWBZC7D4BRQSPEHHVJW2T9 | I'm thinking of booking a photography workshop next month, can you help me find some good options in my area?",
+     "cites": [
+      "evt_01M7GWBZC7D4BRQSPEHHVJW2T9"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWT0854996KBXZQ01MEE91",
+     "ordinal": 7,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT0750ZSV5TRF308E3M4W",
+     "text": "2023-06-17 | assistant | evt_01M7GWCRYA41FVMGZ6ARWH77V2 | …1. **Self-Help and Personal Development**: * Productivity and Time Management * Mindfulness and Meditation * Goal Setting and Achievement * Career Development * Wellness and Self-Care 2. **Biographies and Memoirs**: * Historical Figures…",
+     "cites": [
+      "evt_01M7GWCRYA41FVMGZ6ARWH77V2"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWT0854996KBXZQ01MEE92",
+     "ordinal": 8,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT0750ZSV5TRF308E3M4W",
+     "text": "2023-06-17 | user | evt_01M7GWCGPBXN3265ATGZGG2D8H | …I did try out some food delivery services last month, though. Speaking of which, I ordered from UberEats three times in the first week of October, trying out different places for lunch.",
+     "cites": [
+      "evt_01M7GWCGPBXN3265ATGZGG2D8H"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWT0854996KBXZQ01MEE93",
+     "ordinal": 9,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT0750ZSV5TRF308E3M4W",
+     "text": "2023-06-17 | user | evt_01M7GWCJ0V6G1201VJPWC8EHP4 | I'm looking forward to trying out Sun Basket and their Korean-inspired dishes. For my first order, I think I'll choose the \"Classic\" menu plan and opt for the \"3 Recipes for 2 People\" plan.…",
+     "cites": [
+      "evt_01M7GWCJ0V6G1201VJPWC8EHP4"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWT0854996KBXZQ01MEE94",
+     "ordinal": 10,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWT0750ZSV5TRF308E3M4W",
+     "text": "2023-06-17 | assistant | evt_01M7GWCJ5CQN8XG3WN6008FPKY | …5. **Have fun!**: Don't stress if things don't turn out perfectly – it's all about experimentation and learning new cooking skills. I hope you enjoy your first Sun Basket order and the recipes you choose!…",
+     "cites": [
+      "evt_01M7GWCJ5CQN8XG3WN6008FPKY"
+     ]
+    }
+   ]
+  }
+ ]
+}

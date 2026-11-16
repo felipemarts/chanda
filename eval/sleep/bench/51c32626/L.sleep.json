@@ -1,0 +1,374 @@
+{
+ "db": "/Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/51c32626/L",
+ "condition": "L",
+ "phases": [
+  1,
+  2
+ ],
+ "budget": {},
+ "llm_url": "http://127.0.0.1:8787/tag/BENCH-L-sleep/v1",
+ "chanda_set": [
+  "read.context_derived_max_share=0.3",
+  "sleep.mode=guided",
+  "sleep.guided.digest=llm"
+ ],
+ "chanda_config_hash": "c3db78736ea446ca",
+ "started_at": "2026-11-16T00:41:01Z",
+ "wall_ms": 5105.138,
+ "attempts": 1,
+ "output": {
+  "cost": {
+   "input_tokens": 3785,
+   "llm_calls": 1,
+   "output_tokens": 1056
+  },
+  "created": 0,
+  "merged": 0,
+  "phases": [
+   1,
+   2
+  ],
+  "rejected": 0,
+  "report": "# Sleep run run_01M7GWSQ8V0ZSV5TRF308E3M4W\n\n- Namespace: lme\n- Status: completed\n- Phases: 1, 2\n- Budget: 200000 tokens, 500 events\n- Snapshot: /Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/51c32626/L/snapshots/run_01M7GWSQ8V0ZSV5TRF308E3M4W.db\n\n## Phase 1\n\n- Integrity violations: 0\n- Merge proposals (pending): 0\n- Facts marked stale_source: 0\n- Pages rebuilt: 0\n- Gate questions proposed (awaiting a human): 0\n- Ranker: trained none, evaluated none, passed false, promoted false, baseline 0.00, learned 0.00, lambda 0.00 (train_skipped_few_examples, no_model)\n\n## Phase 2 (guided digest)\n\n- Digest: llm\n- Candidate groups: 1; groups after merging: 1\n- Groups digested: 1; skipped (already digested): 0; left for the next run: 0\n- Lines written: 11\n- Lines discarded: unsupported_name 1\n- Fichas created: 1 (pg_01M7GWSVYBBN5NCX3MM7TV6ZF2)\n- Page items added: 11 (pgi_01M7GWSVYC4996KBXZQ01MEE90, pgi_01M7GWSVYC4996KBXZQ01MEE91, pgi_01M7GWSVYC4996KBXZQ01MEE92, pgi_01M7GWSVYC4996KBXZQ01MEE93, pgi_01M7GWSVYC4996KBXZQ01MEE94, pgi_01M7GWSVYC4996KBXZQ01MEE95, pgi_01M7GWSVYC4996KBXZQ01MEE96, pgi_01M7GWSVYC4996KBXZQ01MEE97, pgi_01M7GWSVYC4996KBXZQ01MEE98, pgi_01M7GWSVYC4996KBXZQ01MEE99, pgi_01M7GWSVYC4996KBXZQ01MEE9A)\n- Invalid LLM answers discarded (no retry): 0\n- LLM errors: 0\n\n## Gate\n\n- Score before: 0.00, after: 0.00, tolerance: 2.00 points\n- Integrity violations before: 0, after: 0\n- Result: passed; staged changes committed\n\n## Cost\n\n- LLM calls: 1\n- Tokens: 3785 in, 1056 out, 4841 total\n\n## Notices\n\n- gate: no approved gate questions; the score measured nothing and only the integrity check guarded this run\n",
+  "run_id": "run_01M7GWSQ8V0ZSV5TRF308E3M4W",
+  "status": "completed",
+  "superseded": 0
+ },
+ "run": {
+  "id": "run_01M7GWSQ8V0ZSV5TRF308E3M4W",
+  "status": "completed",
+  "started_at": "2026-11-16T00:41:01.979567000Z",
+  "ended_at": "2026-11-16T00:41:07.081693000Z",
+  "phases": [
+   1,
+   2
+  ],
+  "budget": {
+   "tokens": 200000,
+   "events": 500
+  },
+  "inputs": {
+   "actor": "agent",
+   "provider": "openai-compatible:deepseek-flash"
+  },
+  "outputs": {
+   "counts": {
+    "integrity_violations": 0,
+    "merge_proposals": [],
+    "stale_facts": [],
+    "pages_rebuilt": [],
+    "gate_proposed": [],
+    "learning": {
+     "passed": false,
+     "promoted": false,
+     "baseline": 0,
+     "learned": 0,
+     "lambda": 0,
+     "notices": [
+      "train_skipped_few_examples",
+      "no_model"
+     ]
+    },
+    "events_extracted": 0,
+    "events_skipped": [],
+    "fact_actions": {},
+    "candidates_dropped": 0,
+    "verdicts": {},
+    "facts_activated": [],
+    "facts_superseded": [],
+    "facts_history": [],
+    "facts_quarantined": [],
+    "facts_rejected": [],
+    "verdicts_refused": [],
+    "merges_applied": [],
+    "merges_rejected": [],
+    "pages_created": [
+     "pg_01M7GWSVYBBN5NCX3MM7TV6ZF2"
+    ],
+    "page_items_added": [
+     "pgi_01M7GWSVYC4996KBXZQ01MEE90",
+     "pgi_01M7GWSVYC4996KBXZQ01MEE91",
+     "pgi_01M7GWSVYC4996KBXZQ01MEE92",
+     "pgi_01M7GWSVYC4996KBXZQ01MEE93",
+     "pgi_01M7GWSVYC4996KBXZQ01MEE94",
+     "pgi_01M7GWSVYC4996KBXZQ01MEE95",
+     "pgi_01M7GWSVYC4996KBXZQ01MEE96",
+     "pgi_01M7GWSVYC4996KBXZQ01MEE97",
+     "pgi_01M7GWSVYC4996KBXZQ01MEE98",
+     "pgi_01M7GWSVYC4996KBXZQ01MEE99",
+     "pgi_01M7GWSVYC4996KBXZQ01MEE9A"
+    ],
+    "lessons_skipped": 0,
+    "invalid_answers": 0,
+    "llm_errors": 0,
+    "guided": {
+     "digest": "llm",
+     "candidate_groups": 1,
+     "groups": 1,
+     "groups_digested": 1,
+     "groups_skipped": 0,
+     "groups_left": 0,
+     "lines_written": 11,
+     "lines_discarded": {
+      "unsupported_name": 1
+     },
+     "fichas": [
+      "pg_01M7GWSVYBBN5NCX3MM7TV6ZF2"
+     ]
+    }
+   },
+   "gate": {
+    "ran": true,
+    "before": 0,
+    "after": 0,
+    "tolerance": 2,
+    "violations_before": 0,
+    "violations_after": 0,
+    "reverted": false
+   }
+  },
+  "cost": {
+   "llm_calls": 1,
+   "input_tokens": 3785,
+   "output_tokens": 1056
+  },
+  "report": "# Sleep run run_01M7GWSQ8V0ZSV5TRF308E3M4W\n\n- Namespace: lme\n- Status: completed\n- Phases: 1, 2\n- Budget: 200000 tokens, 500 events\n- Snapshot: /Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/51c32626/L/snapshots/run_01M7GWSQ8V0ZSV5TRF308E3M4W.db\n\n## Phase 1\n\n- Integrity violations: 0\n- Merge proposals (pending): 0\n- Facts marked stale_source: 0\n- Pages rebuilt: 0\n- Gate questions proposed (awaiting a human): 0\n- Ranker: trained none, evaluated none, passed false, promoted false, baseline 0.00, learned 0.00, lambda 0.00 (train_skipped_few_examples, no_model)\n\n## Phase 2 (guided digest)\n\n- Digest: llm\n- Candidate groups: 1; groups after merging: 1\n- Groups digested: 1; skipped (already digested): 0; left for the next run: 0\n- Lines written: 11\n- Lines discarded: unsupported_name 1\n- Fichas created: 1 (pg_01M7GWSVYBBN5NCX3MM7TV6ZF2)\n- Page items added: 11 (pgi_01M7GWSVYC4996KBXZQ01MEE90, pgi_01M7GWSVYC4996KBXZQ01MEE91, pgi_01M7GWSVYC4996KBXZQ01MEE92, pgi_01M7GWSVYC4996KBXZQ01MEE93, pgi_01M7GWSVYC4996KBXZQ01MEE94, pgi_01M7GWSVYC4996KBXZQ01MEE95, pgi_01M7GWSVYC4996KBXZQ01MEE96, pgi_01M7GWSVYC4996KBXZQ01MEE97, pgi_01M7GWSVYC4996KBXZQ01MEE98, pgi_01M7GWSVYC4996KBXZQ01MEE99, pgi_01M7GWSVYC4996KBXZQ01MEE9A)\n- Invalid LLM answers discarded (no retry): 0\n- LLM errors: 0\n\n## Gate\n\n- Score before: 0.00, after: 0.00, tolerance: 2.00 points\n- Integrity violations before: 0, after: 0\n- Result: passed; staged changes committed\n\n## Cost\n\n- LLM calls: 1\n- Tokens: 3785 in, 1056 out, 4841 total\n\n## Notices\n\n- gate: no approved gate questions; the score measured nothing and only the integrity check guarded this run\n"
+ },
+ "counts": {
+  "integrity_violations": 0,
+  "merge_proposals": [],
+  "stale_facts": [],
+  "pages_rebuilt": [],
+  "gate_proposed": [],
+  "learning": {
+   "passed": false,
+   "promoted": false,
+   "baseline": 0,
+   "learned": 0,
+   "lambda": 0,
+   "notices": [
+    "train_skipped_few_examples",
+    "no_model"
+   ]
+  },
+  "events_extracted": 0,
+  "events_skipped": [],
+  "fact_actions": {},
+  "candidates_dropped": 0,
+  "verdicts": {},
+  "facts_activated": [],
+  "facts_superseded": [],
+  "facts_history": [],
+  "facts_quarantined": [],
+  "facts_rejected": [],
+  "verdicts_refused": [],
+  "merges_applied": [],
+  "merges_rejected": [],
+  "pages_created": [
+   "pg_01M7GWSVYBBN5NCX3MM7TV6ZF2"
+  ],
+  "page_items_added": [
+   "pgi_01M7GWSVYC4996KBXZQ01MEE90",
+   "pgi_01M7GWSVYC4996KBXZQ01MEE91",
+   "pgi_01M7GWSVYC4996KBXZQ01MEE92",
+   "pgi_01M7GWSVYC4996KBXZQ01MEE93",
+   "pgi_01M7GWSVYC4996KBXZQ01MEE94",
+   "pgi_01M7GWSVYC4996KBXZQ01MEE95",
+   "pgi_01M7GWSVYC4996KBXZQ01MEE96",
+   "pgi_01M7GWSVYC4996KBXZQ01MEE97",
+   "pgi_01M7GWSVYC4996KBXZQ01MEE98",
+   "pgi_01M7GWSVYC4996KBXZQ01MEE99",
+   "pgi_01M7GWSVYC4996KBXZQ01MEE9A"
+  ],
+  "lessons_skipped": 0,
+  "invalid_answers": 0,
+  "llm_errors": 0,
+  "guided": {
+   "digest": "llm",
+   "candidate_groups": 1,
+   "groups": 1,
+   "groups_digested": 1,
+   "groups_skipped": 0,
+   "groups_left": 0,
+   "lines_written": 11,
+   "lines_discarded": {
+    "unsupported_name": 1
+   },
+   "fichas": [
+    "pg_01M7GWSVYBBN5NCX3MM7TV6ZF2"
+   ]
+  }
+ },
+ "stats_before": {
+  "sources": 51,
+  "documents": 0,
+  "events": 490,
+  "retired_events": 0,
+  "entities": 0,
+  "facts": 0,
+  "active_facts": 0,
+  "quarantined_facts": 0,
+  "pages": 0,
+  "embeddings": 490,
+  "retrievals": 1,
+  "outcomes": 1,
+  "tombstones": 0
+ },
+ "stats_after": {
+  "sources": 51,
+  "documents": 0,
+  "events": 490,
+  "retired_events": 0,
+  "entities": 0,
+  "facts": 0,
+  "active_facts": 0,
+  "quarantined_facts": 0,
+  "pages": 1,
+  "embeddings": 491,
+  "retrievals": 1,
+  "outcomes": 1,
+  "tombstones": 0
+ },
+ "fichas": [
+  {
+   "id": "pg_01M7GWSVYBBN5NCX3MM7TV6ZF2",
+   "kind": "summary",
+   "title": "Digest: analysis, sentiment, learning",
+   "status": "active",
+   "zone": "internal",
+   "sleep_run_id": "run_01M7GWSQ8V0ZSV5TRF308E3M4W",
+   "body": "2023-05-22 | mixed | evt_01M7GW8R68KC4CQS3709XTTBZW,evt_01M7GW8R8CXE593KYSWVEYQGNB,evt_01M7GW8RXEEBZVG1XQDFBG79GH,evt_01M7GW8SAW8B1HN99H0VP8H5XX,evt_01M7GW8SCS1MC18J61WPT8J7JD | On 2023-05-22 the user asked for text classification help, the assistant asked clarifying questions, the user gave preprocessing, TF-IDF, class balance and metric details, then asked about datasets and libraries, and the assistant recommended datasets and libraries.\n\n2023-05-22 | user | evt_01M7GW8R68KC4CQS3709XTTBZW | User's master's thesis was on NLP and they submitted a sentiment analysis research paper to ACL; they ask for help with text classification using machine learning.\n\n2023-05-22 | assistant | evt_01M7GW8R8CXE593KYSWVEYQGNB | Assistant congratulates the user, referring to the paper as submitted to EACL, and asks about data type, classification task, labels, algorithm, dataset size and constraints.\n\n2023-05-22 | user | evt_01M7GW8RXEEBZVG1XQDFBG79GH | User has done no preprocessing yet, plans to use TF-IDF, reports class balance of about 55% positive and 45% negative reviews, and wants accuracy and F1-score.\n\n2023-05-22 | user | evt_01M7GW8SAW8B1HN99H0VP8H5XX | User is ready to implement in Python and asks about sentiment analysis datasets and libraries.\n\n2023-05-22 | assistant | evt_01M7GW8SCS1MC18J61WPT8J7JD | Assistant lists datasets (IMDB, Stanford Sentiment Treebank, Amazon Product Reviews) and libraries (NLTK, scikit-learn, spaCy, TextBlob) and proposes using NLTK, scikit-learn and spaCy for the task.\n\n2023-05-30 | mixed | evt_01M7GWAB9383MXYD072A5NPE0N,evt_01M7GWABAJPJ5Y2P5GG4TE4WYW,evt_01M7GWABH9MKX5J35PX8X5HPT4,evt_01M7GWABK9EPXDVYQEY4A440TA,evt_01M7GWAC628Q0CT9ANR4N2TYFQ | On 2023-05-30 the user asked for sentiment analysis library recommendations, the assistant listed techniques and tools, the user asked about CNN and RNN architectures, and the assistant described deep learning architectures and then hybrid CNN-RNN applications.\n\n2023-05-30 | user | evt_01M7GWAB9383MXYD072A5NPE0N | User asks for recommendations of popular sentiment analysis libraries or tools.\n\n2023-05-30 | assistant | evt_01M7GWABAJPJ5Y2P5GG4TE4WYW | Assistant describes rule-based, machine learning and hybrid approaches and lists libraries and tools including NLTK, TextBlob, spaCy, Stanford CoreNLP, OpenNLP, VaderSentiment, IBM Watson, Google Cloud Natural Language and Azure Text Analytics.\n\n2023-05-30 | assistant | evt_01M7GWABK9EPXDVYQEY4A440TA | Assistant outlines CNN and RNN architectures with examples (Kim CNN, Deep CNN, LSTM, GRU, Bi-LSTM, CNN-RNN, Hierarchical CNN-RNN) and cites 95.1% accuracy on IMDB and 93.2% on Stanford Sentiment Treebank.\n\n2023-05-30 | assistant | evt_01M7GWAC628Q0CT9ANR4N2TYFQ | Assistant describes hybrid CNN-RNN use on social media text, citing 92.1% on Twitter, 93.5% on Facebook and 91.2% on Amazon aspect-based analysis, plus challenges of imbalance, sarcasm and explainability.",
+   "items": [
+    {
+     "id": "pgi_01M7GWSVYC4996KBXZQ01MEE90",
+     "ordinal": 1,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWSQ8V0ZSV5TRF308E3M4W",
+     "text": "2023-05-22 | mixed | evt_01M7GW8R68KC4CQS3709XTTBZW,evt_01M7GW8R8CXE593KYSWVEYQGNB,evt_01M7GW8RXEEBZVG1XQDFBG79GH,evt_01M7GW8SAW8B1HN99H0VP8H5XX,evt_01M7GW8SCS1MC18J61WPT8J7JD | On 2023-05-22 the user asked for text classification help, the assistant asked clarifying questions, the user gave preprocessing, TF-IDF, class balance and metric details, then asked about datasets and libraries, and the assistant recommended datasets and libraries.",
+     "cites": [
+      "evt_01M7GW8R68KC4CQS3709XTTBZW",
+      "evt_01M7GW8R8CXE593KYSWVEYQGNB",
+      "evt_01M7GW8RXEEBZVG1XQDFBG79GH",
+      "evt_01M7GW8SAW8B1HN99H0VP8H5XX",
+      "evt_01M7GW8SCS1MC18J61WPT8J7JD"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWSVYC4996KBXZQ01MEE91",
+     "ordinal": 2,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWSQ8V0ZSV5TRF308E3M4W",
+     "text": "2023-05-22 | user | evt_01M7GW8R68KC4CQS3709XTTBZW | User's master's thesis was on NLP and they submitted a sentiment analysis research paper to ACL; they ask for help with text classification using machine learning.",
+     "cites": [
+      "evt_01M7GW8R68KC4CQS3709XTTBZW"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWSVYC4996KBXZQ01MEE92",
+     "ordinal": 3,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWSQ8V0ZSV5TRF308E3M4W",
+     "text": "2023-05-22 | assistant | evt_01M7GW8R8CXE593KYSWVEYQGNB | Assistant congratulates the user, referring to the paper as submitted to EACL, and asks about data type, classification task, labels, algorithm, dataset size and constraints.",
+     "cites": [
+      "evt_01M7GW8R8CXE593KYSWVEYQGNB"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWSVYC4996KBXZQ01MEE93",
+     "ordinal": 4,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWSQ8V0ZSV5TRF308E3M4W",
+     "text": "2023-05-22 | user | evt_01M7GW8RXEEBZVG1XQDFBG79GH | User has done no preprocessing yet, plans to use TF-IDF, reports class balance of about 55% positive and 45% negative reviews, and wants accuracy and F1-score.",
+     "cites": [
+      "evt_01M7GW8RXEEBZVG1XQDFBG79GH"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWSVYC4996KBXZQ01MEE94",
+     "ordinal": 5,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWSQ8V0ZSV5TRF308E3M4W",
+     "text": "2023-05-22 | user | evt_01M7GW8SAW8B1HN99H0VP8H5XX | User is ready to implement in Python and asks about sentiment analysis datasets and libraries.",
+     "cites": [
+      "evt_01M7GW8SAW8B1HN99H0VP8H5XX"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWSVYC4996KBXZQ01MEE95",
+     "ordinal": 6,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWSQ8V0ZSV5TRF308E3M4W",
+     "text": "2023-05-22 | assistant | evt_01M7GW8SCS1MC18J61WPT8J7JD | Assistant lists datasets (IMDB, Stanford Sentiment Treebank, Amazon Product Reviews) and libraries (NLTK, scikit-learn, spaCy, TextBlob) and proposes using NLTK, scikit-learn and spaCy for the task.",
+     "cites": [
+      "evt_01M7GW8SCS1MC18J61WPT8J7JD"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWSVYC4996KBXZQ01MEE96",
+     "ordinal": 7,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWSQ8V0ZSV5TRF308E3M4W",
+     "text": "2023-05-30 | mixed | evt_01M7GWAB9383MXYD072A5NPE0N,evt_01M7GWABAJPJ5Y2P5GG4TE4WYW,evt_01M7GWABH9MKX5J35PX8X5HPT4,evt_01M7GWABK9EPXDVYQEY4A440TA,evt_01M7GWAC628Q0CT9ANR4N2TYFQ | On 2023-05-30 the user asked for sentiment analysis library recommendations, the assistant listed techniques and tools, the user asked about CNN and RNN architectures, and the assistant described deep learning architectures and then hybrid CNN-RNN applications.",
+     "cites": [
+      "evt_01M7GWAB9383MXYD072A5NPE0N",
+      "evt_01M7GWABAJPJ5Y2P5GG4TE4WYW",
+      "evt_01M7GWABH9MKX5J35PX8X5HPT4",
+      "evt_01M7GWABK9EPXDVYQEY4A440TA",
+      "evt_01M7GWAC628Q0CT9ANR4N2TYFQ"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWSVYC4996KBXZQ01MEE97",
+     "ordinal": 8,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWSQ8V0ZSV5TRF308E3M4W",
+     "text": "2023-05-30 | user | evt_01M7GWAB9383MXYD072A5NPE0N | User asks for recommendations of popular sentiment analysis libraries or tools.",
+     "cites": [
+      "evt_01M7GWAB9383MXYD072A5NPE0N"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWSVYC4996KBXZQ01MEE98",
+     "ordinal": 9,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWSQ8V0ZSV5TRF308E3M4W",
+     "text": "2023-05-30 | assistant | evt_01M7GWABAJPJ5Y2P5GG4TE4WYW | Assistant describes rule-based, machine learning and hybrid approaches and lists libraries and tools including NLTK, TextBlob, spaCy, Stanford CoreNLP, OpenNLP, VaderSentiment, IBM Watson, Google Cloud Natural Language and Azure Text Analytics.",
+     "cites": [
+      "evt_01M7GWABAJPJ5Y2P5GG4TE4WYW"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWSVYC4996KBXZQ01MEE99",
+     "ordinal": 10,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWSQ8V0ZSV5TRF308E3M4W",
+     "text": "2023-05-30 | assistant | evt_01M7GWABK9EPXDVYQEY4A440TA | Assistant outlines CNN and RNN architectures with examples (Kim CNN, Deep CNN, LSTM, GRU, Bi-LSTM, CNN-RNN, Hierarchical CNN-RNN) and cites 95.1% accuracy on IMDB and 93.2% on Stanford Sentiment Treebank.",
+     "cites": [
+      "evt_01M7GWABK9EPXDVYQEY4A440TA"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWSVYC4996KBXZQ01MEE9A",
+     "ordinal": 11,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWSQ8V0ZSV5TRF308E3M4W",
+     "text": "2023-05-30 | assistant | evt_01M7GWAC628Q0CT9ANR4N2TYFQ | Assistant describes hybrid CNN-RNN use on social media text, citing 92.1% on Twitter, 93.5% on Facebook and 91.2% on Amazon aspect-based analysis, plus challenges of imbalance, sarcasm and explainability.",
+     "cites": [
+      "evt_01M7GWAC628Q0CT9ANR4N2TYFQ"
+     ]
+    }
+   ]
+  }
+ ]
+}

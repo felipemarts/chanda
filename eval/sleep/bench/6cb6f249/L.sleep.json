@@ -1,0 +1,336 @@
+{
+ "db": "/Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/6cb6f249/L",
+ "condition": "L",
+ "phases": [
+  1,
+  2
+ ],
+ "budget": {},
+ "llm_url": "http://127.0.0.1:8787/tag/BENCH-L-sleep/v1",
+ "chanda_set": [
+  "read.context_derived_max_share=0.3",
+  "sleep.mode=guided",
+  "sleep.guided.digest=llm"
+ ],
+ "chanda_config_hash": "c3db78736ea446ca",
+ "started_at": "2026-11-16T00:41:28Z",
+ "wall_ms": 4014.674,
+ "attempts": 1,
+ "output": {
+  "cost": {
+   "input_tokens": 4062,
+   "llm_calls": 1,
+   "output_tokens": 621
+  },
+  "created": 0,
+  "merged": 0,
+  "phases": [
+   1,
+   2
+  ],
+  "rejected": 0,
+  "report": "# Sleep run run_01M7GWTH5T0ZSV5TRF308E3M4W\n\n- Namespace: lme\n- Status: completed\n- Phases: 1, 2\n- Budget: 200000 tokens, 500 events\n- Snapshot: /Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/6cb6f249/L/snapshots/run_01M7GWTH5T0ZSV5TRF308E3M4W.db\n\n## Phase 1\n\n- Integrity violations: 0\n- Merge proposals (pending): 0\n- Facts marked stale_source: 0\n- Pages rebuilt: 0\n- Gate questions proposed (awaiting a human): 0\n- Ranker: trained none, evaluated none, passed false, promoted false, baseline 0.00, learned 0.00, lambda 0.00 (train_skipped_few_examples, no_model)\n\n## Phase 2 (guided digest)\n\n- Digest: llm\n- Candidate groups: 1; groups after merging: 1\n- Groups digested: 1; skipped (already digested): 0; left for the next run: 0\n- Lines written: 9\n- Lines discarded: none\n- Fichas created: 1 (pg_01M7GWTMR8BN5NCX3MM7TV6ZF2)\n- Page items added: 9 (pgi_01M7GWTMR8BN5NCX3MM7TV6ZF3, pgi_01M7GWTMR8BN5NCX3MM7TV6ZF4, pgi_01M7GWTMR8BN5NCX3MM7TV6ZF5, pgi_01M7GWTMR8BN5NCX3MM7TV6ZF6, pgi_01M7GWTMR8BN5NCX3MM7TV6ZF7, pgi_01M7GWTMR8BN5NCX3MM7TV6ZF8, pgi_01M7GWTMR8BN5NCX3MM7TV6ZF9, pgi_01M7GWTMR8BN5NCX3MM7TV6ZFA, pgi_01M7GWTMR8BN5NCX3MM7TV6ZFB)\n- Invalid LLM answers discarded (no retry): 0\n- LLM errors: 0\n\n## Gate\n\n- Score before: 0.00, after: 0.00, tolerance: 2.00 points\n- Integrity violations before: 0, after: 0\n- Result: passed; staged changes committed\n\n## Cost\n\n- LLM calls: 1\n- Tokens: 4062 in, 621 out, 4683 total\n\n## Notices\n\n- gate: no approved gate questions; the score measured nothing and only the integrity check guarded this run\n",
+  "run_id": "run_01M7GWTH5T0ZSV5TRF308E3M4W",
+  "status": "completed",
+  "superseded": 0
+ },
+ "run": {
+  "id": "run_01M7GWTH5T0ZSV5TRF308E3M4W",
+  "status": "completed",
+  "started_at": "2026-11-16T00:41:28.506401000Z",
+  "ended_at": "2026-11-16T00:41:32.519053000Z",
+  "phases": [
+   1,
+   2
+  ],
+  "budget": {
+   "tokens": 200000,
+   "events": 500
+  },
+  "inputs": {
+   "actor": "agent",
+   "provider": "openai-compatible:deepseek-flash"
+  },
+  "outputs": {
+   "counts": {
+    "integrity_violations": 0,
+    "merge_proposals": [],
+    "stale_facts": [],
+    "pages_rebuilt": [],
+    "gate_proposed": [],
+    "learning": {
+     "passed": false,
+     "promoted": false,
+     "baseline": 0,
+     "learned": 0,
+     "lambda": 0,
+     "notices": [
+      "train_skipped_few_examples",
+      "no_model"
+     ]
+    },
+    "events_extracted": 0,
+    "events_skipped": [],
+    "fact_actions": {},
+    "candidates_dropped": 0,
+    "verdicts": {},
+    "facts_activated": [],
+    "facts_superseded": [],
+    "facts_history": [],
+    "facts_quarantined": [],
+    "facts_rejected": [],
+    "verdicts_refused": [],
+    "merges_applied": [],
+    "merges_rejected": [],
+    "pages_created": [
+     "pg_01M7GWTMR8BN5NCX3MM7TV6ZF2"
+    ],
+    "page_items_added": [
+     "pgi_01M7GWTMR8BN5NCX3MM7TV6ZF3",
+     "pgi_01M7GWTMR8BN5NCX3MM7TV6ZF4",
+     "pgi_01M7GWTMR8BN5NCX3MM7TV6ZF5",
+     "pgi_01M7GWTMR8BN5NCX3MM7TV6ZF6",
+     "pgi_01M7GWTMR8BN5NCX3MM7TV6ZF7",
+     "pgi_01M7GWTMR8BN5NCX3MM7TV6ZF8",
+     "pgi_01M7GWTMR8BN5NCX3MM7TV6ZF9",
+     "pgi_01M7GWTMR8BN5NCX3MM7TV6ZFA",
+     "pgi_01M7GWTMR8BN5NCX3MM7TV6ZFB"
+    ],
+    "lessons_skipped": 0,
+    "invalid_answers": 0,
+    "llm_errors": 0,
+    "guided": {
+     "digest": "llm",
+     "candidate_groups": 1,
+     "groups": 1,
+     "groups_digested": 1,
+     "groups_skipped": 0,
+     "groups_left": 0,
+     "lines_written": 9,
+     "lines_discarded": {},
+     "fichas": [
+      "pg_01M7GWTMR8BN5NCX3MM7TV6ZF2"
+     ]
+    }
+   },
+   "gate": {
+    "ran": true,
+    "before": 0,
+    "after": 0,
+    "tolerance": 2,
+    "violations_before": 0,
+    "violations_after": 0,
+    "reverted": false
+   }
+  },
+  "cost": {
+   "llm_calls": 1,
+   "input_tokens": 4062,
+   "output_tokens": 621
+  },
+  "report": "# Sleep run run_01M7GWTH5T0ZSV5TRF308E3M4W\n\n- Namespace: lme\n- Status: completed\n- Phases: 1, 2\n- Budget: 200000 tokens, 500 events\n- Snapshot: /Users/felipemarts/Documents/devel/chanda-mcp/eval/sleep/work/bench/6cb6f249/L/snapshots/run_01M7GWTH5T0ZSV5TRF308E3M4W.db\n\n## Phase 1\n\n- Integrity violations: 0\n- Merge proposals (pending): 0\n- Facts marked stale_source: 0\n- Pages rebuilt: 0\n- Gate questions proposed (awaiting a human): 0\n- Ranker: trained none, evaluated none, passed false, promoted false, baseline 0.00, learned 0.00, lambda 0.00 (train_skipped_few_examples, no_model)\n\n## Phase 2 (guided digest)\n\n- Digest: llm\n- Candidate groups: 1; groups after merging: 1\n- Groups digested: 1; skipped (already digested): 0; left for the next run: 0\n- Lines written: 9\n- Lines discarded: none\n- Fichas created: 1 (pg_01M7GWTMR8BN5NCX3MM7TV6ZF2)\n- Page items added: 9 (pgi_01M7GWTMR8BN5NCX3MM7TV6ZF3, pgi_01M7GWTMR8BN5NCX3MM7TV6ZF4, pgi_01M7GWTMR8BN5NCX3MM7TV6ZF5, pgi_01M7GWTMR8BN5NCX3MM7TV6ZF6, pgi_01M7GWTMR8BN5NCX3MM7TV6ZF7, pgi_01M7GWTMR8BN5NCX3MM7TV6ZF8, pgi_01M7GWTMR8BN5NCX3MM7TV6ZF9, pgi_01M7GWTMR8BN5NCX3MM7TV6ZFA, pgi_01M7GWTMR8BN5NCX3MM7TV6ZFB)\n- Invalid LLM answers discarded (no retry): 0\n- LLM errors: 0\n\n## Gate\n\n- Score before: 0.00, after: 0.00, tolerance: 2.00 points\n- Integrity violations before: 0, after: 0\n- Result: passed; staged changes committed\n\n## Cost\n\n- LLM calls: 1\n- Tokens: 4062 in, 621 out, 4683 total\n\n## Notices\n\n- gate: no approved gate questions; the score measured nothing and only the integrity check guarded this run\n"
+ },
+ "counts": {
+  "integrity_violations": 0,
+  "merge_proposals": [],
+  "stale_facts": [],
+  "pages_rebuilt": [],
+  "gate_proposed": [],
+  "learning": {
+   "passed": false,
+   "promoted": false,
+   "baseline": 0,
+   "learned": 0,
+   "lambda": 0,
+   "notices": [
+    "train_skipped_few_examples",
+    "no_model"
+   ]
+  },
+  "events_extracted": 0,
+  "events_skipped": [],
+  "fact_actions": {},
+  "candidates_dropped": 0,
+  "verdicts": {},
+  "facts_activated": [],
+  "facts_superseded": [],
+  "facts_history": [],
+  "facts_quarantined": [],
+  "facts_rejected": [],
+  "verdicts_refused": [],
+  "merges_applied": [],
+  "merges_rejected": [],
+  "pages_created": [
+   "pg_01M7GWTMR8BN5NCX3MM7TV6ZF2"
+  ],
+  "page_items_added": [
+   "pgi_01M7GWTMR8BN5NCX3MM7TV6ZF3",
+   "pgi_01M7GWTMR8BN5NCX3MM7TV6ZF4",
+   "pgi_01M7GWTMR8BN5NCX3MM7TV6ZF5",
+   "pgi_01M7GWTMR8BN5NCX3MM7TV6ZF6",
+   "pgi_01M7GWTMR8BN5NCX3MM7TV6ZF7",
+   "pgi_01M7GWTMR8BN5NCX3MM7TV6ZF8",
+   "pgi_01M7GWTMR8BN5NCX3MM7TV6ZF9",
+   "pgi_01M7GWTMR8BN5NCX3MM7TV6ZFA",
+   "pgi_01M7GWTMR8BN5NCX3MM7TV6ZFB"
+  ],
+  "lessons_skipped": 0,
+  "invalid_answers": 0,
+  "llm_errors": 0,
+  "guided": {
+   "digest": "llm",
+   "candidate_groups": 1,
+   "groups": 1,
+   "groups_digested": 1,
+   "groups_skipped": 0,
+   "groups_left": 0,
+   "lines_written": 9,
+   "lines_discarded": {},
+   "fichas": [
+    "pg_01M7GWTMR8BN5NCX3MM7TV6ZF2"
+   ]
+  }
+ },
+ "stats_before": {
+  "sources": 41,
+  "documents": 0,
+  "events": 470,
+  "retired_events": 0,
+  "entities": 0,
+  "facts": 0,
+  "active_facts": 0,
+  "quarantined_facts": 0,
+  "pages": 0,
+  "embeddings": 470,
+  "retrievals": 1,
+  "outcomes": 1,
+  "tombstones": 0
+ },
+ "stats_after": {
+  "sources": 41,
+  "documents": 0,
+  "events": 470,
+  "retired_events": 0,
+  "entities": 0,
+  "facts": 0,
+  "active_facts": 0,
+  "quarantined_facts": 0,
+  "pages": 1,
+  "embeddings": 471,
+  "retrievals": 1,
+  "outcomes": 1,
+  "tombstones": 0
+ },
+ "fichas": [
+  {
+   "id": "pg_01M7GWTMR8BN5NCX3MM7TV6ZF2",
+   "kind": "summary",
+   "title": "Digest: media, social, help",
+   "status": "active",
+   "zone": "internal",
+   "sleep_run_id": "run_01M7GWTH5T0ZSV5TRF308E3M4W",
+   "body": "2023-03-14 | user | evt_01M7GWGNN3WNE5WB27KQ1E8QX9 | User is tracking screen time and social media usage and wants app or tool suggestions; they took a week-long break from social media in mid-January and found it refreshing.\n\n2023-03-14 | assistant | evt_01M7GWGNPV2HVM0EBWZGSK4TQC | Assistant congratulated the user on the week-long break and listed screen time tracking apps (Screen Time, Digital Wellbeing, Moment, Freedom, StayFocused) and social media management tools (RescueTime, Hootsuite Insights, Cold Turkey, SelfControl, StayAway), plus website blockers and browser extensions.\n\n2023-03-14 | assistant | evt_01M7GWGPJTWR633P19T2792FRT | Assistant gave step-by-step instructions for setting a daily social media time limit in Moment, including scheduling, alerts, blocking, Free Mode and reviewing goals.\n\n2023-03-14 | assistant | evt_01M7GWGPVDG6M4M3E589457K54 | Assistant explained how to set an Instagram goal of 15 minutes a day Monday to Friday in Moment, with tips on triggers, alternative breaks, coaching and reviewing progress.\n\n2023-03-14 | user | evt_01M7GWGWWY6X6CS7K49Q76ZK7Q | User asked how social media affects mental health and what individuals can do to protect themselves.\n\n2023-03-14 | assistant | evt_01M7GWGWXXTRYDGB9FYQVJ43ER | Assistant said studies suggest social media has positive and negative mental health effects, citing social comparison, and suggested limiting use, curating feeds, practicing mindfulness, positive self-talk and seeking support.\n\n2023-03-14 | assistant | evt_01M7GWGXFXEV6AW5W8D8VG4260 | Assistant said social media companies have a responsibility to address cyberbullying and listed raising awareness, encouraging transparency, supporting legislation and collective activism as ways to hold them accountable.\n\n2023-03-14 | assistant | evt_01M7GWGXVM3DTDTNGMXR0M9X1N | Assistant said fully quitting social media is not necessarily realistic and suggested setting boundaries, offline hobbies, self-care, unfollowing triggering accounts and supporting positive initiatives.\n\n2023-03-14 | assistant | evt_01M7GWGY3HNPY0X7B210JXVSJ8 | Assistant said the situation is not a catch-22, describing social media as a tool rather than a necessity and recommending intentional use, face-to-face interaction and self-care.",
+   "items": [
+    {
+     "id": "pgi_01M7GWTMR8BN5NCX3MM7TV6ZF3",
+     "ordinal": 1,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWTH5T0ZSV5TRF308E3M4W",
+     "text": "2023-03-14 | user | evt_01M7GWGNN3WNE5WB27KQ1E8QX9 | User is tracking screen time and social media usage and wants app or tool suggestions; they took a week-long break from social media in mid-January and found it refreshing.",
+     "cites": [
+      "evt_01M7GWGNN3WNE5WB27KQ1E8QX9"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWTMR8BN5NCX3MM7TV6ZF4",
+     "ordinal": 2,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWTH5T0ZSV5TRF308E3M4W",
+     "text": "2023-03-14 | assistant | evt_01M7GWGNPV2HVM0EBWZGSK4TQC | Assistant congratulated the user on the week-long break and listed screen time tracking apps (Screen Time, Digital Wellbeing, Moment, Freedom, StayFocused) and social media management tools (RescueTime, Hootsuite Insights, Cold Turkey, SelfControl, StayAway), plus website blockers and browser extensions.",
+     "cites": [
+      "evt_01M7GWGNPV2HVM0EBWZGSK4TQC"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWTMR8BN5NCX3MM7TV6ZF5",
+     "ordinal": 3,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWTH5T0ZSV5TRF308E3M4W",
+     "text": "2023-03-14 | assistant | evt_01M7GWGPJTWR633P19T2792FRT | Assistant gave step-by-step instructions for setting a daily social media time limit in Moment, including scheduling, alerts, blocking, Free Mode and reviewing goals.",
+     "cites": [
+      "evt_01M7GWGPJTWR633P19T2792FRT"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWTMR8BN5NCX3MM7TV6ZF6",
+     "ordinal": 4,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWTH5T0ZSV5TRF308E3M4W",
+     "text": "2023-03-14 | assistant | evt_01M7GWGPVDG6M4M3E589457K54 | Assistant explained how to set an Instagram goal of 15 minutes a day Monday to Friday in Moment, with tips on triggers, alternative breaks, coaching and reviewing progress.",
+     "cites": [
+      "evt_01M7GWGPVDG6M4M3E589457K54"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWTMR8BN5NCX3MM7TV6ZF7",
+     "ordinal": 5,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWTH5T0ZSV5TRF308E3M4W",
+     "text": "2023-03-14 | user | evt_01M7GWGWWY6X6CS7K49Q76ZK7Q | User asked how social media affects mental health and what individuals can do to protect themselves.",
+     "cites": [
+      "evt_01M7GWGWWY6X6CS7K49Q76ZK7Q"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWTMR8BN5NCX3MM7TV6ZF8",
+     "ordinal": 6,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWTH5T0ZSV5TRF308E3M4W",
+     "text": "2023-03-14 | assistant | evt_01M7GWGWXXTRYDGB9FYQVJ43ER | Assistant said studies suggest social media has positive and negative mental health effects, citing social comparison, and suggested limiting use, curating feeds, practicing mindfulness, positive self-talk and seeking support.",
+     "cites": [
+      "evt_01M7GWGWXXTRYDGB9FYQVJ43ER"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWTMR8BN5NCX3MM7TV6ZF9",
+     "ordinal": 7,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWTH5T0ZSV5TRF308E3M4W",
+     "text": "2023-03-14 | assistant | evt_01M7GWGXFXEV6AW5W8D8VG4260 | Assistant said social media companies have a responsibility to address cyberbullying and listed raising awareness, encouraging transparency, supporting legislation and collective activism as ways to hold them accountable.",
+     "cites": [
+      "evt_01M7GWGXFXEV6AW5W8D8VG4260"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWTMR8BN5NCX3MM7TV6ZFA",
+     "ordinal": 8,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWTH5T0ZSV5TRF308E3M4W",
+     "text": "2023-03-14 | assistant | evt_01M7GWGXVM3DTDTNGMXR0M9X1N | Assistant said fully quitting social media is not necessarily realistic and suggested setting boundaries, offline hobbies, self-care, unfollowing triggering accounts and supporting positive initiatives.",
+     "cites": [
+      "evt_01M7GWGXVM3DTDTNGMXR0M9X1N"
+     ]
+    },
+    {
+     "id": "pgi_01M7GWTMR8BN5NCX3MM7TV6ZFB",
+     "ordinal": 9,
+     "status": "active",
+     "zone": "internal",
+     "sleep_run_id": "run_01M7GWTH5T0ZSV5TRF308E3M4W",
+     "text": "2023-03-14 | assistant | evt_01M7GWGY3HNPY0X7B210JXVSJ8 | Assistant said the situation is not a catch-22, describing social media as a tool rather than a necessity and recommending intentional use, face-to-face interaction and self-care.",
+     "cites": [
+      "evt_01M7GWGY3HNPY0X7B210JXVSJ8"
+     ]
+    }
+   ]
+  }
+ ]
+}

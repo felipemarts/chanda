@@ -28,3 +28,4 @@
 /eval/sleep/cost.json.lock
 /eval/sleep/lmeproxy.log
 /eval/sleep/**/__pycache__/
+/work/
