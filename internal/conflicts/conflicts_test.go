@@ -164,3 +164,43 @@ func TestDecideRules(t *testing.T) {
 		}
 	}
 }
+
+// Decision 0149: user_only and require_entity narrow detection.
+func TestDetectUserOnlyAndRequireEntity(t *testing.T) {
+	older := rec("evt_1", "I moved to Porto for the Acme office.", "", day1)
+	newer := rec("evt_2", "I moved to Lisbon for the Acme office.", "", day2)
+	user := func(r Record) Record { r.Role = "user"; return r }
+	asst := func(r Record) Record { r.Role = "assistant"; return r }
+	strict := params
+	strict.UserOnly = true
+	for _, tc := range []struct {
+		name string
+		n, x Record
+		want int
+	}{
+		{"user and user", user(newer), user(older), 1},
+		{"user and a document (no role)", user(newer), older, 1},
+		{"assistant newer", asst(newer), user(older), 0},
+		{"assistant older", user(newer), asst(older), 0},
+	} {
+		if got, _ := Detect(tc.n, []Neighbour{{tc.x, 0.9}}, strict); len(got) != tc.want {
+			t.Errorf("user_only, %s: %d pairs, want %d", tc.name, len(got), tc.want)
+		}
+	}
+	if got, _ := Detect(asst(newer), []Neighbour{{asst(older), 0.9}}, params); len(got) != 1 {
+		t.Fatalf("without user_only an assistant pair forms: %+v", got)
+	}
+	ent := params
+	ent.RequireEntity = true
+	if got, _ := Detect(newer, []Neighbour{{older, 0.9}}, ent); len(got) != 1 {
+		t.Fatalf("shared entity Acme: %+v", got)
+	}
+	noEnt := rec("evt_2", "I moved to a bigger flat near the office.", "", day2)
+	noEntOld := rec("evt_1", "I moved to a small flat near the office in 2019.", "", day1)
+	if got, _ := Detect(noEnt, []Neighbour{{noEntOld, 0.9}}, params); len(got) != 1 {
+		t.Fatalf("content terms alone pair without require_entity: %+v", got)
+	}
+	if got, _ := Detect(noEnt, []Neighbour{{noEntOld, 0.9}}, ent); len(got) != 0 {
+		t.Fatalf("require_entity: content terms alone must not pair: %+v", got)
+	}
+}

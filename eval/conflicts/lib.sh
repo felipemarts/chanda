@@ -45,7 +45,7 @@ PY
 }
 
 # read_conf_set FILE: the conflict keys of a key=value file into CONF_SETS.
-# Allowed: sleep.conflicts.{min_cosine,max_per_record,context_turns,
+# Allowed: sleep.conflicts.{min_cosine,max_per_record,context_turns,user_only,require_entity,
 # min_confidence,max_pairs}; REQUIRED (space-separated) must all be given.
 CONF_SETS=()
 read_conf_set() {
@@ -59,9 +59,9 @@ read_conf_set() {
     k=${line%%=*} v=${line#*=}
     [ -n "$v" ] || die "$f: $k has no value"
     case "$k" in
-      sleep.conflicts.min_cosine|sleep.conflicts.max_per_record|sleep.conflicts.context_turns|sleep.conflicts.min_confidence|sleep.conflicts.max_pairs)
+      sleep.conflicts.min_cosine|sleep.conflicts.max_per_record|sleep.conflicts.context_turns|sleep.conflicts.min_confidence|sleep.conflicts.max_pairs|sleep.conflicts.user_only|sleep.conflicts.require_entity)
         CONF_SETS+=(-set "$k=$v") ;;
-      *) die "$f: $k is not a conflict key of this study (sleep.conflicts.min_cosine, max_per_record, context_turns, min_confidence, max_pairs)" ;;
+      *) die "$f: $k is not a conflict key of this study (sleep.conflicts.min_cosine, max_per_record, context_turns, min_confidence, max_pairs, user_only, require_entity)" ;;
     esac
     case " $seen " in *" $k "*) die "$f: $k given twice" ;; esac
     seen="$seen $k"

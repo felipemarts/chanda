@@ -19,7 +19,8 @@ func (a *App) conflictParams(minCosine float64) conflicts.Params {
 	l := a.e.Cfg.Write.Lexical(model)
 	p := conflicts.Params{
 		MinCosine: k.Cosine(), MaxPerRecord: k.PerRecord(), Threshold: a.e.Cfg.Write.NearDup(model),
-		Lexical: dedup.Lexical{MaxAddedWords: l.MaxAddedWords, MinCosine: l.MinCosine},
+		Lexical:  dedup.Lexical{MaxAddedWords: l.MaxAddedWords, MinCosine: l.MinCosine},
+		UserOnly: k.UserOnly, RequireEntity: k.RequireEntity,
 	}
 	if minCosine > 0 {
 		p.MinCosine = minCosine
@@ -38,19 +39,19 @@ func (a *App) detectConflicts(ctx context.Context, tx *sql.Tx, ev write.Event, i
 	}
 	nb := make([]conflicts.Neighbour, 0, len(ids))
 	for i, id := range ids {
-		var kind, validFrom, recordedAt string
-		if err := tx.QueryRowContext(ctx, `SELECT kind, COALESCE(valid_from,''), recorded_at FROM events WHERE id = ?`, id).
-			Scan(&kind, &validFrom, &recordedAt); err != nil {
+		var kind, validFrom, recordedAt, role string
+		if err := tx.QueryRowContext(ctx, `SELECT kind, COALESCE(valid_from,''), recorded_at, COALESCE(role,'') FROM events WHERE id = ?`, id).
+			Scan(&kind, &validFrom, &recordedAt, &role); err != nil {
 			return err
 		}
 		if kind == string(core.EventFact) {
 			continue
 		}
 		nb = append(nb, conflicts.Neighbour{
-			Record: conflicts.Record{ID: id, Content: texts[i], ValidFrom: validFrom, RecordedAt: recordedAt}, Cosine: cosines[i],
+			Record: conflicts.Record{ID: id, Content: texts[i], ValidFrom: validFrom, RecordedAt: recordedAt, Role: role}, Cosine: cosines[i],
 		})
 	}
-	pairs, _ := conflicts.Detect(conflicts.Record{ID: ev.ID, Content: ev.Content, ValidFrom: ev.ValidFrom, RecordedAt: ev.RecordedAt},
+	pairs, _ := conflicts.Detect(conflicts.Record{ID: ev.ID, Content: ev.Content, ValidFrom: ev.ValidFrom, RecordedAt: ev.RecordedAt, Role: ev.Role},
 		nb, a.conflictParams(0))
 	if len(pairs) == 0 {
 		return nil

@@ -1,0 +1,5 @@
+sleep.conflicts.user_only=true
+sleep.conflicts.min_cosine=0.90
+sleep.conflicts.context_turns=1
+sleep.conflicts.min_confidence=0.95
+sleep.conflicts.max_pairs=40

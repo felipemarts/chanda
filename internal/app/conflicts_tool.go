@@ -193,6 +193,7 @@ func (a *App) resetConflicts(ctx context.Context, ns, actor string) (int64, int6
 type scanEvent struct {
 	id, content, zone string
 	validFrom, rec    string
+	role              string
 	rowid             int64
 }
 
@@ -217,7 +218,7 @@ func (a *App) scanConflicts(ctx context.Context, ns string, minCosine float64, w
 		sc.Candidates, sc.NearDupRefusals = []chanda.ScanPair{}, []chanda.ScanRefusal{}
 	}
 	db := a.e.Store.DB()
-	rows, err := db.QueryContext(ctx, `SELECT rowid, id, content, trust_zone, COALESCE(valid_from,''), recorded_at FROM events
+	rows, err := db.QueryContext(ctx, `SELECT rowid, id, content, trust_zone, COALESCE(valid_from,''), recorded_at, COALESCE(role,'') FROM events
 		WHERE namespace = ? AND retired_at IS NULL AND kind <> 'fact_assertion' ORDER BY rowid`, ns)
 	if err != nil {
 		return nil, 0, err
@@ -226,7 +227,7 @@ func (a *App) scanConflicts(ctx context.Context, ns string, minCosine float64, w
 	byID := map[string]int{}
 	for rows.Next() {
 		var e scanEvent
-		if err := rows.Scan(&e.rowid, &e.id, &e.content, &e.zone, &e.validFrom, &e.rec); err != nil {
+		if err := rows.Scan(&e.rowid, &e.id, &e.content, &e.zone, &e.validFrom, &e.rec, &e.role); err != nil {
 			rows.Close()
 			return nil, 0, err
 		}
@@ -275,11 +276,11 @@ func (a *App) scanConflicts(ctx context.Context, ns string, minCosine float64, w
 		nb := make([]conflicts.Neighbour, len(ids))
 		for i, id := range ids {
 			x := evs[byID[id]]
-			nb[i] = conflicts.Neighbour{Record: conflicts.Record{ID: x.id, Content: x.content, ValidFrom: x.validFrom, RecordedAt: x.rec},
+			nb[i] = conflicts.Neighbour{Record: conflicts.Record{ID: x.id, Content: x.content, ValidFrom: x.validFrom, RecordedAt: x.rec, Role: x.role},
 				Cosine: dot(vecs[e.id], vecs[id])}
 		}
 		sc.NeighbourPairs += len(nb)
-		pairs, refusals := conflicts.Detect(conflicts.Record{ID: e.id, Content: e.content, ValidFrom: e.validFrom, RecordedAt: e.rec}, nb, p)
+		pairs, refusals := conflicts.Detect(conflicts.Record{ID: e.id, Content: e.content, ValidFrom: e.validFrom, RecordedAt: e.rec, Role: e.role}, nb, p)
 		for _, r := range refusals {
 			sc.RefusalsByReason[r.Reason]++
 			if details {

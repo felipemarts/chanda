@@ -72,6 +72,7 @@ const (
 // Record is what detection reads of an event.
 type Record struct {
 	ID, Content, ValidFrom, RecordedAt string
+	Role                               string // session turn role (user, assistant, ...); "" for other events
 }
 
 // Effective is the record's effective time: valid_from when set, else
@@ -102,6 +103,13 @@ type Params struct {
 	MaxPerRecord int // 0: no cap
 	Threshold    float64
 	Lexical      dedup.Lexical
+	// UserOnly (sleep.conflicts.user_only): both records are user turns or
+	// events with no role (documents, statements); an assistant, system or
+	// tool turn never forms a pair.
+	UserOnly bool
+	// RequireEntity (sleep.conflicts.require_entity): the two share an
+	// entity of their dedup.Signature, not only a content term.
+	RequireEntity bool
 }
 
 // Pair is one candidate pair. OlderID and NewerID are ordered by effective
@@ -138,7 +146,9 @@ const maxShared = 32
 //  3. the two share an entity of their dedup.Signature or a content term
 //     (letters only, four or more, not a stop word, after norm.Alias);
 //  4. their signatures differ (numbers, dates, entities or negations);
-//  5. their effective times differ.
+//  5. their effective times differ;
+//  6. with p.UserOnly, neither is an assistant, system or tool turn;
+//  7. with p.RequireEntity, they share a signature entity.
 func Detect(n Record, nb []Neighbour, p Params) ([]Pair, []Refusal) {
 	type scored struct {
 		pair Pair
@@ -160,12 +170,18 @@ func Detect(n Record, nb []Neighbour, p Params) ([]Pair, []Refusal) {
 		if ok || !(x.Cosine >= p.MinCosine) {
 			continue
 		}
+		if p.UserOnly && (!userSide(n.Role) || !userSide(x.Role)) {
+			continue
+		}
 		xSig := dedup.Signature(x.Content)
 		same, why := nSig.Compare(xSig)
 		if same {
 			continue
 		}
 		shared := intersect(nSig.Entities, xSig.Entities)
+		if p.RequireEntity && len(shared) == 0 {
+			continue
+		}
 		shared = append(shared, intersect(nTerms, Terms(x.Content))...)
 		shared = uniqueSorted(shared)
 		if len(shared) == 0 {
@@ -292,3 +308,7 @@ type Execer interface {
 	ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error)
 	QueryRowContext(ctx context.Context, query string, args ...any) *sql.Row
 }
+
+// userSide reports whether a record with this role may form a pair under
+// sleep.conflicts.user_only: a user turn, or an event that is not a turn.
+func userSide(role string) bool { return role == "" || role == "user" }

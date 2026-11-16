@@ -357,6 +357,11 @@ type ConflictsConfig struct {
 	ContextTurns  int     `yaml:"context_turns,omitempty"`  // neighbouring session turns shown on each side (1)
 	MinConfidence float64 `yaml:"min_confidence,omitempty"` // a supersedes verdict below this is uncertain (0.7)
 	MaxPairs      int     `yaml:"max_pairs,omitempty"`      // pairs judged per run, 0 = no cap
+	// UserOnly and RequireEntity narrow detection (decision 0149): only user
+	// turns (or non-turn events) pair, and the two must share a signature
+	// entity, not only a content term.
+	UserOnly      bool `yaml:"user_only,omitempty"`
+	RequireEntity bool `yaml:"require_entity,omitempty"`
 }
 
 // On reports whether conflict resolution is enabled.
