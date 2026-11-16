@@ -113,7 +113,7 @@ func toolSet(p ...Profile) []string {
 func TestProfilesRegisterOnlyTheirTools(t *testing.T) {
 	read := []string{"context", "explain", "get", "search", "stats", "timeline"}
 	standard := []string{"assert_fact", "flag", "flush", "ingest", "log_session", "outcome", "remember"}
-	admin := []string{"forget", "promote", "ranking_reset", "sleep_run", "verify"}
+	admin := []string{"forget", "learned_keys", "promote", "ranking_reset", "sleep_run", "verify"}
 	tests := []struct {
 		profiles []string
 		want     []string
@@ -136,8 +136,8 @@ func TestProfilesRegisterOnlyTheirTools(t *testing.T) {
 			}
 		})
 	}
-	if n := len(toolSet(ProfileRead, ProfileStandard, ProfileAdmin)); n != 18 {
-		t.Fatalf("all profiles give %d tools, want 18", n)
+	if n := len(toolSet(ProfileRead, ProfileStandard, ProfileAdmin)); n != 19 {
+		t.Fatalf("all profiles give %d tools, want 19", n)
 	}
 }
 
@@ -184,10 +184,11 @@ var minimalArgs = map[string]map[string]any{
 	"sleep_run":     {"phases": []any{1}},
 	"verify":        {},
 	"ranking_reset": {},
+	"learned_keys":  {"action": "stats"},
 }
 
 // auditedTools are the tools whose fake output carries an AuditID.
-var auditedTools = []string{"remember", "assert_fact", "ingest", "log_session", "outcome", "flag", "forget", "promote", "sleep_run", "ranking_reset"}
+var auditedTools = []string{"remember", "assert_fact", "ingest", "log_session", "outcome", "flag", "forget", "promote", "sleep_run", "ranking_reset", "learned_keys"}
 
 // BASE.md: "Every tool receives namespace and answers in the same envelope:
 // ok, data, notices and audit_id".
@@ -196,7 +197,7 @@ func TestEveryToolAnswersInTheEnvelope(t *testing.T) {
 	cfg.MCP.HumanActor = true
 	api := &fakeAPI{}
 	_, cs := newTestServer(t, api, cfg)
-	if len(minimalArgs) != 18 {
+	if len(minimalArgs) != 19 {
 		t.Fatalf("minimalArgs has %d tools", len(minimalArgs))
 	}
 	for _, name := range chanda.ToolNames() {

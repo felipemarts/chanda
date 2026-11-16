@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"slices"
 	"strings"
 
 	"github.com/felipemarts/chanda-mcp/internal/app"
@@ -135,6 +136,30 @@ func (cl CLI) cmdRanking(ctx context.Context, args []string, stdout, stderr io.W
 		}
 		meta, err := g.RankingToggle(ctx, ns, on)
 		return rankingOutput{Meta: meta, Namespace: ns, Enabled: on}, err
+	})
+}
+
+// cmdKeys is the learned_keys admin tool at the terminal (decision 0145):
+// chanda keys enable|disable|reset|rebuild|stats. Every mutating action is
+// audited under the --actor given (default the configured one).
+func (cl CLI) cmdKeys(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	usage := "usage: chanda keys " + strings.Join(chanda.KeysActions(), "|") + " [--config f] [--namespace ns] [--actor name]"
+	if len(args) == 0 || !slices.Contains(chanda.KeysActions(), args[0]) {
+		fmt.Fprintln(stderr, usage)
+		return 2
+	}
+	action := args[0]
+	var c common
+	fs := newFlags("keys "+action, stderr, &c)
+	if code := parse(fs, args[1:]); code >= 0 {
+		return code
+	}
+	if fs.NArg() > 0 {
+		fmt.Fprintln(stderr, usage)
+		return 2
+	}
+	return c.withAPI(ctx, cl.NewAPI, stdout, stderr, func(ctx context.Context, api chanda.API, ns string) (any, error) {
+		return api.LearnedKeys(ctx, chanda.LearnedKeysInput{Namespace: ns, Action: action})
 	})
 }
 

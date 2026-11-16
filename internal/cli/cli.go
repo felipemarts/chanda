@@ -87,6 +87,7 @@ commands:
   forget   delete in cascade and verify
   gate     review the gate set (list, approve, retire, add)
   ranking  switch learned ranking on or off
+  keys     learned query keys: enable, disable, reset, rebuild, stats
   version  print the version
 
 run "chanda <command> -h" for the flags of a command.
@@ -117,6 +118,8 @@ func (cl CLI) Run(ctx context.Context, args []string, stdout, stderr io.Writer) 
 		return cl.cmdGate(ctx, rest, stdout, stderr)
 	case "ranking":
 		return cl.cmdRanking(ctx, rest, stdout, stderr)
+	case "keys":
+		return cl.cmdKeys(ctx, rest, stdout, stderr)
 	case "version", "--version", "-version", "-v":
 		fmt.Fprintln(stdout, "chanda", cl.Version)
 		return 0

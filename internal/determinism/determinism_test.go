@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"strings"
 	"testing"
@@ -259,6 +260,43 @@ func appScenario(t *testing.T, e *env.Env) {
 	step("verify after sleep", err)
 	if !v.OK {
 		t.Fatalf("verify after sleep: %+v %v", v, v.Notices)
+	}
+
+	// Learned query keys (decision 0145): a positive outcome makes a key,
+	// flush embeds it, reads use it; switch, reset and rebuild.
+	e.Cfg.Write.LearnedKeys, e.Cfg.Read.LearnedKeys = true, true
+	clk.Advance(time.Minute)
+	kr, err := a.Search(agent, chanda.SearchInput{Query: "how much does the Pro plan cost", Limit: 5})
+	step("search for a key", err)
+	if len(kr.Items) == 0 {
+		t.Fatal("no item to make a key of")
+	}
+	ko, err := a.Outcome(agent, chanda.OutcomeInput{RetrievalID: kr.RetrievalID, Value: 1, UsedIDs: []string{kr.Items[0].ID}})
+	step("outcome with keys", err)
+	if ko.KeysCreated != 1 {
+		t.Fatalf("outcome made %d keys", ko.KeysCreated)
+	}
+	_, err = a.Flush(cli, chanda.FlushInput{})
+	step("flush keys", err)
+	k1, err := a.Context(agent, chanda.ContextInput{Query: "how much does the Pro plan cost"})
+	step("context with keys", err)
+	k2, err := a.Context(agent, chanda.ContextInput{Query: "how much does the Pro plan cost"})
+	step("context with keys again", err)
+	if !reflect.DeepEqual(k1.Items, k2.Items) {
+		t.Fatalf("same query, different items:\n%+v\n%+v", k1.Items, k2.Items)
+	}
+	for _, act := range []string{chanda.KeysDisable, chanda.KeysEnable, chanda.KeysStats, chanda.KeysReset, chanda.KeysRebuild} {
+		_, err = a.LearnedKeys(cli, chanda.LearnedKeysInput{Action: act})
+		step("learned_keys "+act, err)
+	}
+	_, err = a.Flush(cli, chanda.FlushInput{})
+	step("flush rebuilt keys", err)
+	_, err = a.Context(agent, chanda.ContextInput{Query: "Pro plan price"})
+	step("context after rebuild", err)
+	v, err = a.Verify(cli, chanda.VerifyInput{})
+	step("verify with keys", err)
+	if !v.OK {
+		t.Fatalf("verify with keys: %+v %v", v, v.Notices)
 	}
 }
 

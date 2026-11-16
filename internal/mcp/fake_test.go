@@ -132,3 +132,6 @@ func (f *fakeAPI) Verify(ctx context.Context, in chanda.VerifyInput) (chanda.Ver
 func (f *fakeAPI) RankingReset(ctx context.Context, in chanda.RankingResetInput) (chanda.RankingResetOutput, error) {
 	return record(f, ctx, chanda.ToolRankingReset, in, chanda.RankingResetOutput{}, true)
 }
+func (f *fakeAPI) LearnedKeys(ctx context.Context, in chanda.LearnedKeysInput) (chanda.LearnedKeysOutput, error) {
+	return record(f, ctx, chanda.ToolLearnedKeys, in, chanda.LearnedKeysOutput{Action: in.Action}, true)
+}

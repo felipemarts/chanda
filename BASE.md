@@ -302,7 +302,7 @@ Rules:
 
 ## MCP interface and agent integration
 
-Chanda exposes 18 MCP tools, over stdio and HTTP, grouped into three profiles. The profile is chosen in the configuration: an agent that reads untrusted content should not receive the administration profile.
+Chanda exposes 19 MCP tools, over stdio and HTTP, grouped into three profiles. The profile is chosen in the configuration: an agent that reads untrusted content should not receive the administration profile.
 
 | Tool | Profile | What it does | Main inputs |
 | --- | --- | --- | --- |
@@ -324,6 +324,7 @@ Chanda exposes 18 MCP tools, over stdio and HTTP, grouped into three profiles. T
 | `sleep_run` | Administration | Triggers sleep | `phases`, `budget` |
 | `verify` | Administration | Checks the audit log and the provenance graph | none |
 | `ranking_reset` | Administration | Clears the learning state | none |
+| `learned_keys` | Administration | Learned query keys: enable, disable, reset, rebuild, stats (decision 0145) | `action` |
 
 Every tool receives `namespace` and answers in the same envelope: `ok`, `data`, `notices` and `audit_id`. Errors use stable, documented codes.
 
