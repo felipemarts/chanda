@@ -390,6 +390,10 @@ type StudyItem struct {
 	Truncated      bool     `json:"truncated,omitempty"`
 	OriginEventIDs []string `json:"origin_event_ids,omitempty"` // facts and pages
 	Text           string   `json:"text"`                       // as delivered
+	// KeyRank is features.key_rank of the item in the retrieval log: the
+	// best rank of a learned query key that points to it (decision 0145);
+	// 0 when no key reached it or keys are off.
+	KeyRank int `json:"key_rank,omitempty"`
 }
 
 // StudyEvidenceTurn is one evidence turn of a question and how it fared.
@@ -457,13 +461,16 @@ type StudyAskLine struct {
 	Items            []StudyItem   `json:"items"`
 	Evidence         StudyEvidence `json:"evidence"`
 	// Sleep items: facts and pages, rendered tokens over block tokens.
-	SleepItems  int      `json:"sleep_items"`
-	SleepTokens int      `json:"sleep_tokens"`
-	SleepShare  float64  `json:"sleep_share"`
-	RetrievalMS float64  `json:"retrieval_ms"`
-	ChandaSet   []string `json:"chanda_set,omitempty"`
-	ConfigHash  string   `json:"chanda_config_hash,omitempty"`
-	DB          string   `json:"db,omitempty"`
+	SleepItems  int     `json:"sleep_items"`
+	SleepTokens int     `json:"sleep_tokens"`
+	SleepShare  float64 `json:"sleep_share"`
+	RetrievalMS float64 `json:"retrieval_ms"`
+	// KeyCandidates: logged candidates with features.key_rank > 0 (decision
+	// 0145), delivered or not; 0 when keys are off.
+	KeyCandidates int      `json:"key_candidates,omitempty"`
+	ChandaSet     []string `json:"chanda_set,omitempty"`
+	ConfigHash    string   `json:"chanda_config_hash,omitempty"`
+	DB            string   `json:"db,omitempty"`
 }
 
 // evTurn is an evidence turn to look for: its key, text and event id.
@@ -602,7 +609,48 @@ func StudyAsk(ctx context.Context, o *StudyOptions, dir, cond string, qs []Study
 	if err := srv.Close(); err != nil {
 		return nil, err
 	}
+	if err := annotateKeyRanks(ctx, dir, lines); err != nil {
+		return nil, err
+	}
 	return lines, m.Write(dir)
+}
+
+// annotateKeyRanks reads each line's retrieval log back from the closed
+// database and copies features.key_rank (decision 0145) onto the delivered
+// items. Without keys every rank is 0 and the lines are unchanged.
+func annotateKeyRanks(ctx context.Context, dir string, lines []*StudyAskLine) error {
+	db, err := openRO(filepath.Join(dir, "chanda.db"))
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	for _, l := range lines {
+		if l.RetrievalID == "" {
+			continue
+		}
+		var raw string
+		if err := db.QueryRowContext(ctx, `SELECT candidates FROM retrievals WHERE id = ?`, l.RetrievalID).Scan(&raw); err != nil {
+			return fmt.Errorf("%s: retrieval %s: %w", l.QuestionID, l.RetrievalID, err)
+		}
+		var cands []struct {
+			ID       string             `json:"id"`
+			Features map[string]float64 `json:"features"`
+		}
+		if err := json.Unmarshal([]byte(raw), &cands); err != nil {
+			return fmt.Errorf("%s: retrieval %s candidates: %w", l.QuestionID, l.RetrievalID, err)
+		}
+		rank := map[string]int{}
+		for _, c := range cands {
+			if k := int(c.Features["key_rank"]); k > 0 {
+				l.KeyCandidates++
+				rank[c.ID] = k
+			}
+		}
+		for i := range l.Items {
+			l.Items[i].KeyRank = rank[l.Items[i].ID]
+		}
+	}
+	return nil
 }
 
 // locomoCache holds the loaded LoCoMo file for fillLocomoContent.
