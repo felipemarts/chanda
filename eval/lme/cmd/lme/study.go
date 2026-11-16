@@ -252,7 +252,7 @@ func studyIngest(ctx context.Context, args []string) error {
 	default:
 		return fmt.Errorf("give -locomo FILE -conv ID, or -data FILE -question QID")
 	}
-	fmt.Printf("ingested %s: %d turns (%v)\n", dir, len(m.Turns), m.Ingest["actions"])
+	fmt.Printf("ingested %s: %d turns mapped to events\n", dir, len(m.Turns))
 	return nil
 }
 

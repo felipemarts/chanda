@@ -24,3 +24,7 @@
 /eval/selection/holdout/*.contexts.jsonl
 /eval/selection/holdout/llm-*/*.answers.jsonl
 /eval/locomo/data/
+/eval/sleep/work/
+/eval/sleep/cost.json.lock
+/eval/sleep/lmeproxy.log
+/eval/sleep/**/__pycache__/
