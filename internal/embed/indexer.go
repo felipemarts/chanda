@@ -173,31 +173,31 @@ func (ix *Indexer) batch(ctx context.Context) (picked, done int, err error) {
 		return 0, 0, err
 	}
 
-	var texts []string
-	var toEmbed []*queued
+	// Passages and queries (learned keys) are embedded in two calls, each
+	// in queue order; a batch without keys makes exactly the one passage call.
+	var passages, queries []*queued
 	for _, q := range items {
 		if q.text, q.live, err = recordText(ctx, db, q.ns, core.RecordType(q.rt), q.id); err != nil {
 			return 0, 0, err
 		}
-		if q.live {
-			texts = append(texts, q.text)
-			toEmbed = append(toEmbed, q)
+		if !q.live {
+			continue
+		}
+		if queryRole(core.RecordType(q.rt)) {
+			queries = append(queries, q)
+		} else {
+			passages = append(passages, q)
 		}
 	}
-	if len(texts) > 0 {
-		vecs, err := ix.emb.Embed(ctx, texts)
-		if err != nil {
-			return 0, 0, err
-		}
-		if len(vecs) != len(texts) {
-			return 0, 0, core.Errf(core.CodeInternal, "embedder returned %d vectors for %d texts", len(vecs), len(texts))
-		}
-		for i, q := range toEmbed {
-			if err := CheckDim(vecs[i], ix.emb.Dim()); err != nil {
-				return 0, 0, err
-			}
-			q.vec = Normalized(vecs[i])
-		}
+	if err := ix.embedInto(ctx, passages, ix.emb.Embed); err != nil {
+		return 0, 0, err
+	}
+	embedQuery := ix.emb.Embed
+	if re, ok := ix.emb.(core.RoleEmbedder); ok {
+		embedQuery = re.EmbedQuery
+	}
+	if err := ix.embedInto(ctx, queries, embedQuery); err != nil {
+		return 0, 0, err
 	}
 
 	model := ix.emb.ModelID()
@@ -266,6 +266,32 @@ func (ix *Indexer) batch(ctx context.Context) (picked, done int, err error) {
 	}
 	ix.idx.apply(ds)
 	return len(items), done, nil
+}
+
+// embedInto embeds the texts of qs with embed and stores each normalized
+// vector in its item.
+func (ix *Indexer) embedInto(ctx context.Context, qs []*queued, embed func(context.Context, []string) ([][]float32, error)) error {
+	if len(qs) == 0 {
+		return nil
+	}
+	texts := make([]string, len(qs))
+	for i, q := range qs {
+		texts[i] = q.text
+	}
+	vecs, err := embed(ctx, texts)
+	if err != nil {
+		return err
+	}
+	if len(vecs) != len(texts) {
+		return core.Errf(core.CodeInternal, "embedder returned %d vectors for %d texts", len(vecs), len(texts))
+	}
+	for i, q := range qs {
+		if err := CheckDim(vecs[i], ix.emb.Dim()); err != nil {
+			return err
+		}
+		q.vec = Normalized(vecs[i])
+	}
+	return nil
 }
 
 // Backfill enqueues every live record of namespace that lacks a vector for

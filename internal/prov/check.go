@@ -75,6 +75,10 @@ func loadGraph(ctx context.Context, q store.Queryer, ns string) (*graphState, []
 		{core.RecEntity, "entities", false, false},
 		{core.RecSource, "sources", true, false},
 		{core.RecDocument, "documents", false, false},
+		// Learned keys (decision 0145) and their retrievals: endpoints of
+		// the key -> retrieval and key -> record edges, and key vectors.
+		{core.RecKey, "learned_keys", false, false},
+		{core.RecRetrieval, "retrievals", false, false},
 	}
 	for _, tb := range tables {
 		cols := "id, '', ''"
