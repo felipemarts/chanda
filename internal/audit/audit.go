@@ -65,6 +65,12 @@ const (
 	ActKeysReset   = "keys_reset"   // every key of a namespace deleted
 	ActKeysRebuild = "keys_rebuild" // missing keys of recorded positive outcomes created
 
+	// Conflict resolution (decision 0148).
+	ActConflictVerdict = "conflict_verdict" // a pair judged in phase 2 (verdict, reason, supersession)
+	ActConflictsRevert = "conflicts_revert" // a supersession reverted (conflicts tool)
+	ActConflictsReset  = "conflicts_reset"  // the conflict queue and its verdicts deleted
+	ActConflictsScan   = "conflicts_scan"   // offline detection that wrote the queue
+
 	// Sleep (internal/sleep) and the gate set.
 	ActMergePropose    = "merge_propose"    // entity merge proposal created (phase 1)
 	ActMergeVerdict    = "merge_verdict"    // merge proposal rejected by a phase-2 verdict
@@ -84,6 +90,7 @@ const (
 // must use names from this list (tested in internal/app).
 func Actions() []string {
 	return []string{
+		ActConflictVerdict, ActConflictsReset, ActConflictsRevert, ActConflictsScan,
 		ActDocumentRetire, ActDocumentVersion, ActDuplicate, ActEmbedBackfill, ActEmbedDropModel, ActEmbedIndex, ActEmbedRemove,
 		ActEntityCreate, ActEntityMerge, ActEventsProcessed, ActFactAdjust, ActFactConfirm, ActFactInsert,
 		ActFactVerdict, ActFlag, ActForget, ActGatePropose, ActGateReview,

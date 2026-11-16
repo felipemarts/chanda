@@ -39,21 +39,26 @@ type lesson struct {
 }
 
 type plan struct {
-	batches  []extractBatch
-	skipped  []string // events larger than the whole token budget: marked processed with no facts
-	verdicts []verdict
-	lessons  []lesson
-	fichas   []ficha // guided digest (decision 0142)
+	batches   []extractBatch
+	skipped   []string // events larger than the whole token budget: marked processed with no facts
+	verdicts  []verdict
+	lessons   []lesson
+	fichas    []ficha             // guided digest (decision 0142)
+	conflicts []conflictJudgement // conflict verdicts (decision 0148)
 }
 
 func (p *plan) empty() bool {
-	return len(p.batches) == 0 && len(p.skipped) == 0 && len(p.verdicts) == 0 && len(p.lessons) == 0 && len(p.fichas) == 0
+	return len(p.batches) == 0 && len(p.skipped) == 0 && len(p.verdicts) == 0 && len(p.lessons) == 0 && len(p.fichas) == 0 &&
+		len(p.conflicts) == 0
 }
 
 // phase2 is LLM consolidation (BASE.md "Phase 2").
 func (s *Sleeper) phase2(ctx context.Context, r *run) error {
 	if s.env.Cfg.Sleep.IsGuided() {
 		return s.phase2Guided(ctx, r)
+	}
+	if s.env.Cfg.Sleep.IsMaintenance() {
+		return s.phase2Maintenance(ctx, r)
 	}
 	if s.d.LLM == nil {
 		r.res.notice("phase 2 skipped: no LLM provider configured; phase 1 only")
@@ -64,6 +69,10 @@ func (s *Sleeper) phase2(ctx context.Context, r *run) error {
 		return nil
 	}
 	p := &plan{}
+	// Conflict verdicts first (decision 0148; nothing when off).
+	if err := s.collectConflicts(ctx, r, p); err != nil {
+		return err
+	}
 	if s.d.Facts == nil {
 		r.res.notice("fact sink not configured; extraction skipped")
 	} else if err := s.collectExtraction(ctx, r, p); err != nil {

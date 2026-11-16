@@ -21,15 +21,16 @@ const (
 	ToolVerify       = "verify"
 	ToolRankingReset = "ranking_reset"
 	ToolLearnedKeys  = "learned_keys" // decision 0145
+	ToolConflicts    = "conflicts"    // decision 0148
 )
 
-// ToolNames lists the 19 tools in BASE.md table order (learned_keys,
-// decision 0145, after the 18 of BASE.md).
+// ToolNames lists the 20 tools in BASE.md table order (learned_keys,
+// decision 0145, and conflicts, decision 0148, after the 18 of BASE.md).
 func ToolNames() []string {
 	return []string{
 		ToolContext, ToolSearch, ToolGet, ToolTimeline, ToolExplain, ToolStats,
 		ToolRemember, ToolAssertFact, ToolIngest, ToolLogSession, ToolOutcome, ToolFlag, ToolFlush,
-		ToolForget, ToolPromote, ToolSleepRun, ToolVerify, ToolRankingReset, ToolLearnedKeys,
+		ToolForget, ToolPromote, ToolSleepRun, ToolVerify, ToolRankingReset, ToolLearnedKeys, ToolConflicts,
 	}
 }
 
@@ -153,6 +154,20 @@ type TimelineOutput struct {
 	Subject     string          `json:"subject" jsonschema:"resolved subject entity id"`
 	SubjectName string          `json:"subject_name,omitempty" jsonschema:"canonical name of the subject"`
 	Entries     []TimelineEntry `json:"entries" jsonschema:"facts ordered by predicate, then valid_from, oldest first"`
+	// Supersessions: the chain of raw records outdated by applied conflict
+	// verdicts (decision 0148) whose old or new record names the subject;
+	// absent when there is none (or sleep.conflicts is off).
+	Supersessions []TimelineSupersession `json:"supersessions,omitempty" jsonschema:"raw records outdated by newer ones (old -> new, end date), oldest end date first"`
+}
+
+// TimelineSupersession is one link of a chain of raw records (decision 0148).
+type TimelineSupersession struct {
+	SupersessionID string  `json:"supersession_id"`
+	OldID          string  `json:"old_id" jsonschema:"the outdated record"`
+	NewID          string  `json:"new_id" jsonschema:"the record that outdates it"`
+	EndsAt         string  `json:"ends_at" jsonschema:"end date of the old record: the new record's effective time"`
+	Confidence     float64 `json:"confidence" jsonschema:"the verdict's confidence"`
+	CreatedAt      string  `json:"created_at"`
 }
 
 // ExplainInput asks why a record ranked where it did in a retrieval.
@@ -433,6 +448,9 @@ type RemovedCounts struct {
 	Snapshots    int64 `json:"snapshots"`
 	EntityLinks  int64 `json:"entity_links"`
 	Keys         int64 `json:"keys" jsonschema:"learned query keys"`
+	// Conflict resolution (decision 0148); absent when none.
+	ConflictPairs int64 `json:"conflict_pairs,omitempty" jsonschema:"conflict queue rows naming a removed record"`
+	Supersessions int64 `json:"supersessions,omitempty" jsonschema:"supersessions naming a removed record"`
 }
 
 // Probe is one absence check run after deletion.
@@ -506,6 +524,29 @@ type SleepRunOutput struct {
 	Rejected   int       `json:"rejected"`
 	Cost       SleepCost `json:"cost"`
 	Report     string    `json:"report" jsonschema:"readable report of the run"`
+	// Conflicts: the conflict verdicts of the run (decision 0148); absent
+	// when sleep.conflicts is off outside maintenance mode.
+	Conflicts *SleepConflicts `json:"conflicts,omitempty" jsonschema:"conflict verdicts of the run"`
+}
+
+// SleepConflicts is what the conflict verdicts of a sleep run did (decision
+// 0148). With a reverted gate everything counted was discarded.
+type SleepConflicts struct {
+	Mode           string         `json:"mode" jsonschema:"sleep mode of the run: uniform, guided or maintenance"`
+	Enabled        bool           `json:"enabled" jsonschema:"sleep.conflicts.enabled"`
+	Pending        int            `json:"pending" jsonschema:"pending pairs (both records live) when phase 2 started"`
+	Judged         map[string]int `json:"judged" jsonschema:"pairs judged, by verdict after the rules"`
+	ModelVerdicts  map[string]int `json:"model_verdicts" jsonschema:"pairs judged, by the model's verdict"`
+	Applied        int            `json:"applied" jsonschema:"supersessions written"`
+	Rejected       map[string]int `json:"rejected" jsonschema:"supersedes verdicts not applied, by rule reason"`
+	InvalidAnswers int            `json:"invalid_answers" jsonschema:"answers off the schema; the pair stays pending"`
+	TooLarge       int            `json:"too_large" jsonschema:"pairs whose prompt exceeds the whole token budget"`
+	Dropped        int            `json:"dropped" jsonschema:"pairs that changed between the plan and the gate"`
+	Left           int            `json:"left" jsonschema:"pending pairs not judged in this run"`
+	LLMCalls       int            `json:"llm_calls"`
+	InputTokens    int            `json:"input_tokens"`
+	OutputTokens   int            `json:"output_tokens"`
+	Supersessions  []string       `json:"supersessions" jsonschema:"supersession ids written"`
 }
 
 // VerifyInput checks the audit chain and the provenance graph.

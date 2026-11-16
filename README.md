@@ -274,7 +274,7 @@ Every tool takes an optional `namespace` and answers in the same envelope.
 | --- | --- |
 | read | `context`, `search`, `get`, `timeline`, `explain`, `stats` |
 | standard | `remember`, `assert_fact`, `ingest`, `log_session`, `outcome`, `flag`, `flush` |
-| admin | `forget`, `promote`, `sleep_run`, `verify`, `ranking_reset`, `learned_keys` |
+| admin | `forget`, `promote`, `sleep_run`, `verify`, `ranking_reset`, `learned_keys`, `conflicts` |
 
 An agent that reads untrusted content should get `read` and `standard` only.
 `promote` also requires `mcp.human_actor: true`. Without an LLM provider,

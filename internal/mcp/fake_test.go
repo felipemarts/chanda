@@ -135,3 +135,7 @@ func (f *fakeAPI) RankingReset(ctx context.Context, in chanda.RankingResetInput)
 func (f *fakeAPI) LearnedKeys(ctx context.Context, in chanda.LearnedKeysInput) (chanda.LearnedKeysOutput, error) {
 	return record(f, ctx, chanda.ToolLearnedKeys, in, chanda.LearnedKeysOutput{Action: in.Action}, true)
 }
+
+func (f *fakeAPI) Conflicts(ctx context.Context, in chanda.ConflictsInput) (chanda.ConflictsOutput, error) {
+	return record(f, ctx, chanda.ToolConflicts, in, chanda.ConflictsOutput{Action: in.Action}, true)
+}

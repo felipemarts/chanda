@@ -33,6 +33,24 @@ type record struct {
 	flagged bool
 	// events: the facts extracted from or confirmed by this event
 	derived []derivedFact
+	// events: the active supersession that outdates this event (decision
+	// 0148; loaded only with sleep.conflicts.enabled): the newer event and
+	// the end date (its effective time).
+	supersededBy, supersededAt string
+}
+
+// supersededIn reports whether the event's supersession holds as seen at
+// as_of: always without an explicit as_of; with one, only from the end date
+// on (before it, the old record was the current one).
+func (rec *record) supersededIn(o filterOpts) bool {
+	if rec.supersededBy == "" {
+		return false
+	}
+	if !o.asOfExplicit {
+		return true
+	}
+	t, err := core.ParseTime(rec.supersededAt)
+	return err != nil || !o.asOf.Before(t)
 }
 
 // derivedFact is the state of a fact an event stated (derived_from or
@@ -160,6 +178,11 @@ func (r *Reader) loadRecords(ctx context.Context, ns string, byType map[core.Rec
 	if err := r.loadDerived(ctx, ns, out); err != nil {
 		return nil, err
 	}
+	if r.e.Cfg.Sleep.Conflicts.On() {
+		if err := r.loadSupersessions(ctx, ns, out); err != nil {
+			return nil, err
+		}
+	}
 	if err := r.resolveSubjects(ctx, ns, out); err != nil {
 		return nil, err
 	}
@@ -243,6 +266,49 @@ func (r *Reader) loadDerived(ctx context.Context, ns string, recs map[string]*re
 	return nil
 }
 
+// loadSupersessions fills rec.supersededBy and supersededAt for the events
+// of recs that are the old side of an active, unreverted supersession whose
+// new event is live (decision 0148). With several, the earliest end date
+// wins (ties by new id).
+func (r *Reader) loadSupersessions(ctx context.Context, ns string, recs map[string]*record) error {
+	var evs []string
+	for id, rec := range recs {
+		if rec.typ == core.RecEvent {
+			evs = append(evs, id)
+		}
+	}
+	sort.Strings(evs)
+	for start := 0; start < len(evs); start += inBatch {
+		batch := evs[start:min(start+inBatch, len(evs))]
+		args := []any{ns}
+		for _, id := range batch {
+			args = append(args, id)
+		}
+		rows, err := r.db().QueryContext(ctx, `SELECT s.old_id, s.new_id, s.ends_at FROM supersessions s JOIN events n ON n.id = s.new_id
+			WHERE s.namespace = ? AND s.status = 'active' AND s.reverted_at IS NULL AND n.retired_at IS NULL
+			  AND s.old_id IN (`+placeholders(len(batch))+`) ORDER BY s.old_id, s.ends_at, s.new_id`, args...)
+		if err != nil {
+			return core.Wrap(core.CodeInternal, err, "supersessions")
+		}
+		for rows.Next() {
+			var old, nw, at string
+			if err := rows.Scan(&old, &nw, &at); err != nil {
+				rows.Close()
+				return err
+			}
+			if rec := recs[old]; rec.supersededBy == "" {
+				rec.supersededBy, rec.supersededAt = nw, at
+			}
+		}
+		err = rows.Err()
+		rows.Close()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // markFlagged sets rec.flagged for records with a row in the flags table
 // (BASE.md "Marked as wrong or outdated ... removes the record from reads").
 func (r *Reader) markFlagged(ctx context.Context, ns string, recs map[string]*record) error {
@@ -313,6 +379,7 @@ const (
 	dropStatus      = "status"
 	dropNotValid    = "not_valid_at_as_of"
 	dropAfterAsOf   = "after_as_of" // an event dated after an explicit as_of (decision 0135)
+	dropSuperseded  = "superseded"  // an event outdated by an applied conflict verdict (decision 0148)
 	dropInstruction = "instruction_like"
 	dropDuplicate   = "duplicate_of"
 	dropCut         = "below_relevance"
@@ -364,6 +431,10 @@ func ruleFilter(rec *record, o filterOpts) string {
 		}
 		if o.asOfExplicit && eventAfter(rec, o.asOf) {
 			return dropAfterAsOf
+		}
+		// Superseded (decision 0148): hidden unless a search asks for history.
+		if rec.supersededIn(o) && !(o.mode == ModeSearch && o.includeHistory) {
+			return dropSuperseded
 		}
 		if o.mode == ModeContext && rec.hasFlag(core.FlagInstructionLike) {
 			return dropInstruction

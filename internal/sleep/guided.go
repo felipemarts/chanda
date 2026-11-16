@@ -423,6 +423,12 @@ func (s *Sleeper) phase2Guided(ctx context.Context, r *run) error {
 		return nil
 	}
 	p := &plan{}
+	// Conflict verdicts first (decision 0148; nothing when off).
+	if s.env.Cfg.Sleep.Conflicts.On() && s.d.LLM == nil {
+		r.res.notice("conflicts: no LLM provider; the conflict queue waits")
+	} else if err := s.collectConflicts(ctx, r, p); err != nil {
+		return err
+	}
 	if err := s.collectGuided(ctx, r, p); err != nil {
 		return err
 	}

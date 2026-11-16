@@ -334,14 +334,72 @@ type SleepConfig struct {
 	// Guided tunes the guided mode; every zero value means its documented
 	// default (read them through the GuidedConfig methods).
 	Guided GuidedConfig `yaml:"guided,omitempty"`
+	// Conflicts is conflict resolution between raw records (decision 0148):
+	// write-time detection fills a queue, phase 2 judges it. Off by default;
+	// every zero value means its documented default (ConflictsConfig methods).
+	Conflicts ConflictsConfig `yaml:"conflicts,omitempty"`
+}
+
+// Defaults of sleep.conflicts.* (decision 0148), used when a key is zero.
+const (
+	DefaultConflictsMinCosine     = 0.80
+	DefaultConflictsMaxPerRecord  = 3
+	DefaultConflictsContextTurns  = 1
+	DefaultConflictsMinConfidence = 0.7
+)
+
+// ConflictsConfig is sleep.conflicts (decision 0148). A zero field means the
+// documented default; the methods return the effective values.
+type ConflictsConfig struct {
+	Enabled       bool    `yaml:"enabled,omitempty"`        // detection on write, verdicts in phase 2
+	MinCosine     float64 `yaml:"min_cosine,omitempty"`     // similarity floor of a candidate pair (0.80)
+	MaxPerRecord  int     `yaml:"max_per_record,omitempty"` // candidates kept per new record (3)
+	ContextTurns  int     `yaml:"context_turns,omitempty"`  // neighbouring session turns shown on each side (1)
+	MinConfidence float64 `yaml:"min_confidence,omitempty"` // a supersedes verdict below this is uncertain (0.7)
+	MaxPairs      int     `yaml:"max_pairs,omitempty"`      // pairs judged per run, 0 = no cap
+}
+
+// On reports whether conflict resolution is enabled.
+func (c ConflictsConfig) On() bool { return c.Enabled }
+
+// Cosine is the effective sleep.conflicts.min_cosine.
+func (c ConflictsConfig) Cosine() float64 { return orFloat(c.MinCosine, DefaultConflictsMinCosine) }
+
+// PerRecord is the effective sleep.conflicts.max_per_record.
+func (c ConflictsConfig) PerRecord() int { return orInt(c.MaxPerRecord, DefaultConflictsMaxPerRecord) }
+
+// Turns is the effective sleep.conflicts.context_turns.
+func (c ConflictsConfig) Turns() int { return orInt(c.ContextTurns, DefaultConflictsContextTurns) }
+
+// Confidence is the effective sleep.conflicts.min_confidence.
+func (c ConflictsConfig) Confidence() float64 {
+	return orFloat(c.MinConfidence, DefaultConflictsMinConfidence)
+}
+
+// PairCap is sleep.conflicts.max_pairs: pairs judged per run, 0 = no cap.
+func (c ConflictsConfig) PairCap() int { return c.MaxPairs }
+
+// validate checks sleep.conflicts (decision 0148).
+func (c ConflictsConfig) validate() error {
+	if !(c.MinCosine >= 0 && c.MinCosine < 1) { // also rejects NaN
+		return fmt.Errorf("sleep.conflicts.min_cosine must be in [0,1)")
+	}
+	if !(c.MinConfidence >= 0 && c.MinConfidence <= 1) {
+		return fmt.Errorf("sleep.conflicts.min_confidence must be in [0,1]")
+	}
+	if c.MaxPerRecord < 0 || c.ContextTurns < 0 || c.MaxPairs < 0 {
+		return fmt.Errorf("sleep.conflicts.max_per_record, context_turns and max_pairs must be >= 0")
+	}
+	return nil
 }
 
 // Values of sleep.mode and sleep.guided.digest (decision 0142).
 const (
-	SleepModeUniform = "uniform"
-	SleepModeGuided  = "guided"
-	DigestExtractive = "extractive"
-	DigestLLM        = "llm"
+	SleepModeUniform     = "uniform"
+	SleepModeGuided      = "guided"
+	SleepModeMaintenance = "maintenance" // phase 2 judges only the conflict queue (decision 0148)
+	DigestExtractive     = "extractive"
+	DigestLLM            = "llm"
 )
 
 // Defaults of sleep.guided.* (decision 0142), used when a key is zero.
@@ -383,6 +441,10 @@ func (s SleepConfig) SleepMode() string {
 
 // IsGuided reports whether phase 2 is the guided digest.
 func (s SleepConfig) IsGuided() bool { return s.SleepMode() == SleepModeGuided }
+
+// IsMaintenance reports whether phase 2 does only conflict verdicts
+// (decision 0148).
+func (s SleepConfig) IsMaintenance() bool { return s.SleepMode() == SleepModeMaintenance }
 
 func orInt(v, def int) int {
 	if v == 0 {
@@ -451,9 +513,12 @@ func (g GuidedConfig) WindowTokens() int { return orInt(g.LineTokens, DefaultGui
 // validateGuided checks sleep.mode and sleep.guided (decision 0142).
 func (s SleepConfig) validateGuided() error {
 	switch s.Mode {
-	case "", SleepModeUniform, SleepModeGuided:
+	case "", SleepModeUniform, SleepModeGuided, SleepModeMaintenance:
 	default:
-		return fmt.Errorf("sleep.mode must be uniform or guided, not %q", s.Mode)
+		return fmt.Errorf("sleep.mode must be uniform, guided or maintenance, not %q", s.Mode)
+	}
+	if err := s.Conflicts.validate(); err != nil {
+		return err
 	}
 	g := s.Guided
 	switch g.Digest {

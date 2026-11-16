@@ -104,13 +104,18 @@ func (s *Sleeper) applyGated(ctx context.Context, r *run, p *plan) error {
 	}
 	if g.Reverted {
 		c := r.res.Counts
+		discarded := map[string]int{
+			"facts": sumActions(c.FactActions), "verdicts": sumActions(c.Verdicts),
+			"merges": len(c.MergesApplied), "pages": len(c.PagesCreated), "page_items": len(c.PageItemsAdded),
+		}
+		if c.Conflicts != nil {
+			discarded["conflict_verdicts"] = sumActions(c.Conflicts.Judged)
+			discarded["supersessions"] = len(c.Conflicts.Supersessions)
+		}
 		if err := s.audit(ctx, tx, r.ns, audit.ActSleepRevert, r.res.RunID, map[string]any{
 			"reason": g.Reason, "score_before": g.Before, "score_after": g.After, "tolerance": g.Tolerance,
 			"violations_before": g.ViolationsBefore, "violations_after": g.ViolationsAfter, "snapshot": r.res.Snapshot,
-			"discarded": map[string]int{
-				"facts": sumActions(c.FactActions), "verdicts": sumActions(c.Verdicts),
-				"merges": len(c.MergesApplied), "pages": len(c.PagesCreated), "page_items": len(c.PageItemsAdded),
-			},
+			"discarded": discarded,
 		}); err != nil {
 			return err
 		}
@@ -216,6 +221,11 @@ func (s *Sleeper) markProcessed(ctx context.Context, tx *sql.Tx, r *run, step st
 // staged items, sorted.
 func (s *Sleeper) apply(ctx context.Context, tx *sql.Tx, r *run, p *plan) ([]string, error) {
 	c := &r.res.Counts
+	for _, j := range p.conflicts {
+		if err := s.applyConflict(ctx, tx, r, j); err != nil {
+			return nil, err
+		}
+	}
 	for _, b := range p.batches {
 		st, _, err := eventStates(ctx, tx, r.ns, b.events)
 		if err != nil {
@@ -569,6 +579,9 @@ func (s *Sleeper) stageLesson(ctx context.Context, tx *sql.Tx, r *run, l lesson)
 // promote turns this run's staged items and pages active inside the
 // savepoint (so the gate measures them) and recomputes each touched page.
 func (s *Sleeper) promote(ctx context.Context, tx *sql.Tx, r *run, pages []string) error {
+	if err := s.promoteSupersessions(ctx, tx, r); err != nil {
+		return err
+	}
 	created := map[string]bool{}
 	for _, id := range r.res.Counts.PagesCreated {
 		created[id] = true

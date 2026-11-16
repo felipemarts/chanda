@@ -191,7 +191,7 @@ func TestPhase2ClientListsAndCallsTools(t *testing.T) {
 	if err != nil || len(lt.Tools) != 13 {
 		t.Fatalf("agent tools: %d %v", len(lt.Tools), err)
 	}
-	if lt, _ := w.admin.ListTools(context.Background(), nil); len(lt.Tools) != 19 { // 18 of BASE.md + learned_keys (decision 0145)
+	if lt, _ := w.admin.ListTools(context.Background(), nil); len(lt.Tools) != 20 { // 18 of BASE.md + learned_keys (decision 0145) + conflicts (decision 0148)
 		t.Fatalf("admin tools: %d", len(lt.Tools))
 	}
 	var r chanda.RememberOutput

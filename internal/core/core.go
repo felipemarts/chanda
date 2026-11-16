@@ -147,6 +147,9 @@ const (
 	PrefixFlag      = "flg"
 	PrefixModel     = "mdl"
 	PrefixKey       = "key" // learned query key (decision 0145)
+	// Conflict resolution (decision 0148).
+	PrefixConflict     = "cfl" // conflict_candidates row (a candidate pair)
+	PrefixSupersession = "sup" // supersessions row
 )
 
 func IDPrefix(t RecordType) string { return idPrefix[t] }

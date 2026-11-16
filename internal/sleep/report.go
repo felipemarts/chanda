@@ -34,6 +34,23 @@ func renderReport(r *Result) string {
 		b.WriteByte('\n')
 	}
 
+	maintenance := false
+	if k := c.Conflicts; len(r.Phases) == 2 && k != nil {
+		maintenance = k.Mode == "maintenance"
+		b.WriteString("\n## Phase 2 (conflict verdicts)\n\n")
+		if r.Gate.Reverted {
+			b.WriteString("Everything below was staged and then discarded by the gate.\n\n")
+		}
+		fmt.Fprintf(&b, "- Mode: %s; conflicts enabled: %t\n", k.Mode, k.Enabled)
+		fmt.Fprintf(&b, "- Pending pairs: %d; judged: %s; left for the next run: %d\n", k.Pending, actions(k.Judged), k.Left)
+		fmt.Fprintf(&b, "- Model verdicts: %s\n", actions(k.ModelVerdicts))
+		fmt.Fprintf(&b, "- Applied: %d; rejected by the rules: %s\n", k.Applied, actions(k.Rejected))
+		list(&b, "Supersessions written", k.Supersessions)
+		fmt.Fprintf(&b, "- Invalid answers (no retry): %d; larger than the budget: %d; changed before the gate: %d\n",
+			k.InvalidAnswers, k.TooLarge, k.Dropped)
+		fmt.Fprintf(&b, "- LLM calls: %d; tokens: %d in, %d out\n", k.LLMCalls, k.InputTokens, k.OutputTokens)
+	}
+
 	if len(r.Phases) == 2 && c.Guided != nil {
 		g := c.Guided
 		b.WriteString("\n## Phase 2 (guided digest)\n\n")
@@ -50,7 +67,7 @@ func renderReport(r *Result) string {
 		list(&b, "Page items added", c.PageItemsAdded)
 		fmt.Fprintf(&b, "- Invalid LLM answers discarded (no retry): %d\n", c.InvalidAnswers)
 		fmt.Fprintf(&b, "- LLM errors: %d\n", c.LLMErrors)
-	} else if len(r.Phases) == 2 {
+	} else if len(r.Phases) == 2 && !maintenance {
 		b.WriteString("\n## Phase 2\n\n")
 		if r.Gate.Reverted {
 			b.WriteString("Everything below was staged and then discarded by the gate.\n\n")
