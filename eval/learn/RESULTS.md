@@ -148,8 +148,8 @@ turn lost from the block.
    answered "*Dune*".
 2. **conv-43-q88**, "How did John get introduced to basketball?" (gold:
    his dad signed him up for a local league). Six key-brought records
-   about John's career goals and seminars displaced the evidence turn. K
-   answered "Not mentioned".
+   about John's career goals and seminars entered, and the evidence turn
+   left the block. K answered "Not mentioned".
 3. **conv-43-q118**, "What did John's team win at the end of the season?"
    (gold: a trophy). Keys about his ankle injury, his new team and a
    celebration brought in neighbouring turns. "We even won a trophy!"
