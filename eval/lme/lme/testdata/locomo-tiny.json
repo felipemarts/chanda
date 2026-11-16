@@ -1,0 +1,43 @@
+[
+ {
+  "sample_id": "conv-t1",
+  "conversation": {
+   "speaker_a": "Ana",
+   "speaker_b": "Bruno",
+   "session_1_date_time": "1:56 pm on 8 May, 2023",
+   "session_1": [
+    {"speaker": "Bruno", "dia_id": "D1:1", "text": "Hi Ana! How was your week?"},
+    {"speaker": "Ana", "dia_id": "D1:2", "text": "Great! I adopted a grey cat named Pixel from the shelter on Monday."},
+    {"speaker": "Bruno", "dia_id": "D1:3", "text": "Lovely. I started pottery classes downtown, every Thursday evening."},
+    {"speaker": "Ana", "dia_id": "D1:4", "text": "Here is Pixel sleeping on my desk.", "blip_caption": "a photo of a grey cat on a desk", "img_url": ["http://example.invalid/x.jpg"], "query": "grey cat desk"}
+   ],
+   "session_2_date_time": "10:37 am on 27 June, 2023",
+   "session_2": [
+    {"speaker": "Ana", "dia_id": "D2:1", "text": "I ran my first half marathon in Lisbon last Sunday, 2 hours 5 minutes."},
+    {"speaker": "Bruno", "dia_id": "D2:2", "text": "Congratulations! My pottery teacher says my bowls are getting better."},
+    {"speaker": "Ana", "dia_id": "D2:3", "text": "Pixel knocked one of your bowls off the shelf, sorry!"}
+   ],
+   "session_3_date_time": "12:05 am on 1 August, 2023",
+   "session_3": [
+    {"speaker": "Bruno", "dia_id": "D3:1", "text": "I am moving to Porto in September for a new job at a bakery."},
+    {"speaker": "Ana", "dia_id": "D3:2", "text": "Porto is beautiful. I will visit you with Pixel."},
+    {"speaker": "Bruno", "dia_id": "D3:3", "text": "Bring running shoes, there is a nice route along the river."}
+   ],
+   "session_4_date_time": "3:00 pm on 9 August, 2023"
+  },
+  "qa": [
+   {"question": "What is the name of Ana's cat?", "answer": "Pixel", "evidence": ["D1:2"], "category": 4},
+   {"question": "When did Ana adopt her cat?", "answer": "The Monday before 8 May 2023", "evidence": ["D1:2"], "category": 2},
+   {"question": "Where did Ana run a half marathon?", "answer": "Lisbon", "evidence": ["D:2:1"], "category": 4},
+   {"question": "What did Bruno make in pottery class that Pixel broke?", "answer": "a bowl", "evidence": ["D2:2; D2:3"], "category": 1},
+   {"question": "Where is Bruno moving?", "answer": "Porto", "evidence": ["D3:01"], "category": 4},
+   {"question": "Would Ana likely run in Porto?", "answer": "Yes; she runs half marathons", "evidence": ["D2:1 D3:3", "D"], "category": 3},
+   {"question": "How long did Ana's half marathon take?", "answer": 2, "evidence": ["D2:1", "D9:9"], "category": 2},
+   {"question": "What does Bruno do on Thursdays?", "answer": "Pottery classes", "evidence": ["D1:3"], "category": 1},
+   {"question": "What is Bruno's cat called?", "adversarial_answer": "Pixel", "evidence": ["D1:2"], "category": 5}
+  ],
+  "observation": {"session_1_observation": {"Ana": [["NEVER READ", "D1:2"]]}},
+  "session_summary": {"session_1_summary": "NEVER READ"},
+  "event_summary": {"events_session_1": {"Ana": ["NEVER READ"], "date": "8 May, 2023"}}
+ }
+]
