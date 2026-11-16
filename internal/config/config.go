@@ -478,6 +478,10 @@ type RankingConfig struct {
 	MinTrainExamples     int     `yaml:"min_train_examples"` // below this, Train refuses
 	HoldoutFraction      float64 `yaml:"holdout_fraction"`   // most recent share of retrievals kept for the eval score
 	ModelSeed            string  `yaml:"model_seed"`         // seed of the hash-based MLP init
+	// UtilityLambda, when > 0, is a fixed λ whose term is the stage-1
+	// utility (decision 0146): no learned model, no gate. 0 (default) keeps
+	// the promotion path.
+	UtilityLambda float64 `yaml:"utility_lambda,omitempty"`
 }
 
 type LLMConfig struct {
@@ -620,6 +624,9 @@ func (c *Config) Validate() error {
 	}
 	if c.Ranking.LambdaMax < 0 || c.Ranking.LambdaMax > 1 {
 		return fmt.Errorf("ranking.lambda_max must be in [0,1]")
+	}
+	if u := c.Ranking.UtilityLambda; math.IsNaN(u) || u < 0 || u > c.Ranking.LambdaMax {
+		return fmt.Errorf("ranking.utility_lambda must be in [0, ranking.lambda_max]")
 	}
 	if c.Write.NearDupThreshold <= 0 || c.Write.NearDupThreshold > 1 {
 		return fmt.Errorf("write.near_dup_threshold must be in (0,1]")

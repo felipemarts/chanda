@@ -41,7 +41,13 @@ func (r *Ranker) Lambda(ctx context.Context, ns string) (float64, error) {
 	if err != nil {
 		return 0, err
 	}
-	if !r.learningOn(st) || st.ActiveModel == "" || st.Lambda <= 0 {
+	if !r.learningOn(st) {
+		return 0, nil
+	}
+	if u := r.env.Cfg.Ranking.UtilityLambda; u > 0 { // decision 0146
+		return min(u, r.env.Cfg.Ranking.LambdaMax), nil
+	}
+	if st.ActiveModel == "" || st.Lambda <= 0 {
 		return 0, nil
 	}
 	return min(st.Lambda, r.env.Cfg.Ranking.LambdaMax), nil

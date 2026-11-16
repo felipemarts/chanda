@@ -53,6 +53,26 @@ func (r *Ranker) Terms(ctx context.Context, ns string, cands []Candidate) (map[s
 	if err := requireNS(ns); err != nil {
 		return nil, err
 	}
+	if r.env.Cfg.Ranking.UtilityLambda > 0 {
+		// Decision 0146: the term is the stage-1 utility, neutral below
+		// ranking.min_exposures; no learned model is used.
+		ids := make([]string, len(cands))
+		for i, c := range cands {
+			ids[i] = c.ID
+		}
+		us, err := r.Scores(ctx, ns, ids)
+		if err != nil {
+			return nil, err
+		}
+		out := make(map[string]float64, len(cands))
+		for _, c := range cands {
+			out[c.ID] = Neutral
+			if u, ok := us[c.ID]; ok {
+				out[c.ID] = u
+			}
+		}
+		return out, nil
+	}
 	db := r.env.Store.DB()
 	st, err := loadState(ctx, db, ns)
 	if err != nil {
