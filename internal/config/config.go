@@ -7,6 +7,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"math"
 	"os"
 	"strings"
 
@@ -170,6 +171,49 @@ type ReadConfig struct {
 	// ContextShowRole adds the speaker role of a session turn to its label
 	// ("role: user").
 	ContextShowRole bool `yaml:"context_show_role,omitempty"`
+
+	// Derived share of the block (decision 0143), context mode only; off
+	// by default, and omitempty keeps the configuration hash unchanged.
+	//
+	// ContextDerivedMaxShare: derived items (facts and pages) together may
+	// take at most floor(share × budget) rendered tokens of the block.
+	// Range [0, 1]; 0 = off.
+	ContextDerivedMaxShare float64 `yaml:"context_derived_max_share,omitempty"`
+	// ContextProtectRaw: with the share on, the N best-ranked raw excerpts
+	// that pass the other filters are never displaced by a derived item.
+	// 0 = DefaultContextProtectRaw, -1 = protect none.
+	ContextProtectRaw int `yaml:"context_protect_raw,omitempty"`
+}
+
+// DefaultContextProtectRaw is read.context_protect_raw when the derived
+// share is on and the key is 0 (decision 0143).
+const DefaultContextProtectRaw = 2
+
+// DerivedShareOn reports whether read.context_derived_max_share is set.
+func (r ReadConfig) DerivedShareOn() bool { return r.ContextDerivedMaxShare > 0 }
+
+// DerivedShareTokens is the most rendered tokens derived items may take
+// in a block of budget tokens: floor(share × budget), or budget when the
+// share is off. A tiny epsilon keeps floor from losing a token to the
+// binary representation (0.29 × 100 is 28.999…).
+func (r ReadConfig) DerivedShareTokens(budget int) int {
+	if !r.DerivedShareOn() {
+		return budget
+	}
+	return int(math.Floor(r.ContextDerivedMaxShare*float64(budget) + 1e-9))
+}
+
+// ProtectRaw is the number of best-ranked raw excerpts protected from
+// derived items: 0 when the share is off or context_protect_raw is -1,
+// DefaultContextProtectRaw when it is 0, else its value.
+func (r ReadConfig) ProtectRaw() int {
+	switch {
+	case !r.DerivedShareOn() || r.ContextProtectRaw < 0:
+		return 0
+	case r.ContextProtectRaw == 0:
+		return DefaultContextProtectRaw
+	}
+	return r.ContextProtectRaw
 }
 
 // Values of read.context_truncate.
@@ -249,6 +293,164 @@ type SleepConfig struct {
 	GateProposals     int     `yaml:"gate_proposals"`      // gate questions phase 1 may propose per run (0 disables)
 	Scheduler         bool    `yaml:"scheduler"`           // run sleep on its own (App.Start); false: on demand only
 	StaleRunMinutes   int     `yaml:"stale_run_minutes"`   // a run still "running" after this long is recovered as failed (startup, next run); 0 disables
+
+	// Mode picks what phase 2 does (decision 0142): "uniform" (or empty, the
+	// default) is the sleep as before; "guided" replaces phase 2 with the
+	// usage-guided digest. omitempty keeps the configuration hash of a file
+	// that does not set it unchanged.
+	Mode string `yaml:"mode,omitempty"`
+	// Guided tunes the guided mode; every zero value means its documented
+	// default (read them through the GuidedConfig methods).
+	Guided GuidedConfig `yaml:"guided,omitempty"`
+}
+
+// Values of sleep.mode and sleep.guided.digest (decision 0142).
+const (
+	SleepModeUniform = "uniform"
+	SleepModeGuided  = "guided"
+	DigestExtractive = "extractive"
+	DigestLLM        = "llm"
+)
+
+// Defaults of sleep.guided.* (decision 0142), used when a key is zero.
+const (
+	DefaultGuidedTopK                = 10
+	DefaultGuidedWeightDemand        = 1.0
+	DefaultGuidedWeightNearMiss      = 2.0
+	DefaultGuidedWeightFailure       = 2.0
+	DefaultGuidedWeightFragmentation = 1.0
+	DefaultGuidedHalfLifeHours       = 168.0
+	DefaultGuidedGroupMaxEvents      = 12
+	DefaultGuidedGroupMergeJaccard   = 0.5
+	DefaultGuidedLineTokens          = 60
+)
+
+// GuidedConfig is sleep.guided (decision 0142). A zero or empty field means
+// the documented default; the methods return the effective values.
+type GuidedConfig struct {
+	Digest              string  `yaml:"digest,omitempty"`                 // extractive (default) or llm
+	TopK                int     `yaml:"top_k,omitempty"`                  // event candidates of a retrieval that count as returned (10)
+	WeightDemand        float64 `yaml:"weight_demand,omitempty"`          // 1
+	WeightNearMiss      float64 `yaml:"weight_near_miss,omitempty"`       // 2
+	WeightFailure       float64 `yaml:"weight_failure,omitempty"`         // 2
+	WeightFragmentation float64 `yaml:"weight_fragmentation,omitempty"`   // 1
+	DemandHalfLifeHours float64 `yaml:"demand_half_life_hours,omitempty"` // 168
+	GroupMaxEvents      int     `yaml:"group_max_events,omitempty"`       // 12
+	GroupMergeJaccard   float64 `yaml:"group_merge_jaccard,omitempty"`    // 0.5
+	MaxGroups           int     `yaml:"max_groups,omitempty"`             // 0 = no cap
+	LineTokens          int     `yaml:"line_tokens,omitempty"`            // 60
+}
+
+// SleepMode is the effective sleep.mode: uniform or guided.
+func (s SleepConfig) SleepMode() string {
+	if s.Mode == "" {
+		return SleepModeUniform
+	}
+	return s.Mode
+}
+
+// IsGuided reports whether phase 2 is the guided digest.
+func (s SleepConfig) IsGuided() bool { return s.SleepMode() == SleepModeGuided }
+
+func orInt(v, def int) int {
+	if v == 0 {
+		return def
+	}
+	return v
+}
+
+func orFloat(v, def float64) float64 {
+	if v == 0 {
+		return def
+	}
+	return v
+}
+
+// DigestKind is the effective sleep.guided.digest: extractive or llm.
+func (g GuidedConfig) DigestKind() string {
+	if g.Digest == "" {
+		return DigestExtractive
+	}
+	return g.Digest
+}
+
+// TopKEvents is the effective sleep.guided.top_k.
+func (g GuidedConfig) TopKEvents() int { return orInt(g.TopK, DefaultGuidedTopK) }
+
+// DemandWeight is the effective sleep.guided.weight_demand.
+func (g GuidedConfig) DemandWeight() float64 {
+	return orFloat(g.WeightDemand, DefaultGuidedWeightDemand)
+}
+
+// NearMissWeight is the effective sleep.guided.weight_near_miss.
+func (g GuidedConfig) NearMissWeight() float64 {
+	return orFloat(g.WeightNearMiss, DefaultGuidedWeightNearMiss)
+}
+
+// FailureWeight is the effective sleep.guided.weight_failure.
+func (g GuidedConfig) FailureWeight() float64 {
+	return orFloat(g.WeightFailure, DefaultGuidedWeightFailure)
+}
+
+// FragmentationWeight is the effective sleep.guided.weight_fragmentation.
+func (g GuidedConfig) FragmentationWeight() float64 {
+	return orFloat(g.WeightFragmentation, DefaultGuidedWeightFragmentation)
+}
+
+// HalfLifeHours is the effective sleep.guided.demand_half_life_hours.
+func (g GuidedConfig) HalfLifeHours() float64 {
+	return orFloat(g.DemandHalfLifeHours, DefaultGuidedHalfLifeHours)
+}
+
+// MaxMembers is the effective sleep.guided.group_max_events.
+func (g GuidedConfig) MaxMembers() int { return orInt(g.GroupMaxEvents, DefaultGuidedGroupMaxEvents) }
+
+// MergeJaccard is the effective sleep.guided.group_merge_jaccard.
+func (g GuidedConfig) MergeJaccard() float64 {
+	return orFloat(g.GroupMergeJaccard, DefaultGuidedGroupMergeJaccard)
+}
+
+// GroupCap is sleep.guided.max_groups: groups digested per run, 0 = no cap.
+func (g GuidedConfig) GroupCap() int { return g.MaxGroups }
+
+// WindowTokens is the effective sleep.guided.line_tokens.
+func (g GuidedConfig) WindowTokens() int { return orInt(g.LineTokens, DefaultGuidedLineTokens) }
+
+// validateGuided checks sleep.mode and sleep.guided (decision 0142).
+func (s SleepConfig) validateGuided() error {
+	switch s.Mode {
+	case "", SleepModeUniform, SleepModeGuided:
+	default:
+		return fmt.Errorf("sleep.mode must be uniform or guided, not %q", s.Mode)
+	}
+	g := s.Guided
+	switch g.Digest {
+	case "", DigestExtractive, DigestLLM:
+	default:
+		return fmt.Errorf("sleep.guided.digest must be extractive or llm, not %q", g.Digest)
+	}
+	if g.WeightDemand < 0 || g.WeightNearMiss < 0 || g.WeightFailure < 0 || g.WeightFragmentation < 0 {
+		return fmt.Errorf("sleep.guided weights must be >= 0")
+	}
+	if g.TopK < 0 {
+		return fmt.Errorf("sleep.guided.top_k must be >= 0")
+	}
+	if g.GroupMergeJaccard < 0 || g.GroupMergeJaccard > 1 {
+		return fmt.Errorf("sleep.guided.group_merge_jaccard must be in [0,1]")
+	}
+	if g.DemandHalfLifeHours < 0 {
+		return fmt.Errorf("sleep.guided.demand_half_life_hours must be >= 0")
+	}
+	if g.LineTokens < 0 {
+		return fmt.Errorf("sleep.guided.line_tokens must be >= 0")
+	}
+	if g.GroupMaxEvents < 0 {
+		return fmt.Errorf("sleep.guided.group_max_events must be >= 0")
+	}
+	if g.MaxGroups < 0 {
+		return fmt.Errorf("sleep.guided.max_groups must be >= 0")
+	}
+	return nil
 }
 
 // MergeVectorSimilarity returns the cosine threshold of vector merge
@@ -413,6 +615,9 @@ func (c *Config) Validate() error {
 	if err := c.Read.validateContext(); err != nil {
 		return err
 	}
+	if err := c.Sleep.validateGuided(); err != nil {
+		return err
+	}
 	if c.Ranking.LambdaMax < 0 || c.Ranking.LambdaMax > 1 {
 		return fmt.Errorf("ranking.lambda_max must be in [0,1]")
 	}
@@ -439,7 +644,8 @@ func (c *Config) Validate() error {
 	return nil
 }
 
-// validateContext checks the context-mode selection knobs (decision 0137).
+// validateContext checks the context-mode selection knobs (decisions 0137
+// and 0143).
 func (r ReadConfig) validateContext() error {
 	switch r.ContextTruncate {
 	case "", TruncateHead, TruncateBestWindow:
@@ -461,6 +667,12 @@ func (r ReadConfig) validateContext() error {
 	if r.ContextMaxPerSession < 0 {
 		return fmt.Errorf("read.context_max_per_session must be >= 0")
 	}
+	if !(r.ContextDerivedMaxShare >= 0 && r.ContextDerivedMaxShare <= 1) { // also rejects NaN
+		return fmt.Errorf("read.context_derived_max_share must be in [0,1]")
+	}
+	if r.ContextProtectRaw < -1 {
+		return fmt.Errorf("read.context_protect_raw must be >= -1")
+	}
 	return nil
 }
 
@@ -476,6 +688,12 @@ func (c *Config) Hash() string {
 	cp.MCP.HTTPTokenEnv, cp.Store = "", StoreConfig{}
 	if cp.Read.ContextTruncate == TruncateHead {
 		cp.Read.ContextTruncate = "" // the default, spelled out
+	}
+	if cp.Sleep.Mode == SleepModeUniform {
+		cp.Sleep.Mode = "" // the default, spelled out
+	}
+	if cp.Sleep.Guided.Digest == DigestExtractive {
+		cp.Sleep.Guided.Digest = ""
 	}
 	b, _ := yaml.Marshal(&cp)
 	h := sha256.Sum256(b)

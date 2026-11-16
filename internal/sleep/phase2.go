@@ -43,14 +43,18 @@ type plan struct {
 	skipped  []string // events larger than the whole token budget: marked processed with no facts
 	verdicts []verdict
 	lessons  []lesson
+	fichas   []ficha // guided digest (decision 0142)
 }
 
 func (p *plan) empty() bool {
-	return len(p.batches) == 0 && len(p.skipped) == 0 && len(p.verdicts) == 0 && len(p.lessons) == 0
+	return len(p.batches) == 0 && len(p.skipped) == 0 && len(p.verdicts) == 0 && len(p.lessons) == 0 && len(p.fichas) == 0
 }
 
 // phase2 is LLM consolidation (BASE.md "Phase 2").
 func (s *Sleeper) phase2(ctx context.Context, r *run) error {
+	if s.env.Cfg.Sleep.IsGuided() {
+		return s.phase2Guided(ctx, r)
+	}
 	if s.d.LLM == nil {
 		r.res.notice("phase 2 skipped: no LLM provider configured; phase 1 only")
 		return nil

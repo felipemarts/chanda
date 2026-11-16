@@ -151,3 +151,73 @@ Discarded lines are counted by reason in the run report and never written.
 The run report and `Counts` gain: candidate groups, groups digested and
 skipped, lines written, lines discarded by reason, and fichas created
 (page ids). Cost is reported as before.
+
+## Implementation notes
+
+Code: `internal/sleep/guided.go` (priority, groups, digest, staging),
+`internal/sleep/verify.go` (verifier), the digest prompt in
+`internal/sleep/prompts.go`, the window in `internal/window` (the read
+path's `bestWindowFit` now delegates to it, behaviour unchanged).
+Accessors on `config.SleepConfig` (`SleepMode`, `IsGuided`) and
+`config.GuidedConfig` (`DigestKind`, `TopKEvents`, `DemandWeight`,
+`NearMissWeight`, `FailureWeight`, `FragmentationWeight`, `HalfLifeHours`,
+`MaxMembers`, `MergeJaccard`, `GroupCap`, `WindowTokens`) return the
+effective values. `Hash` treats `mode: uniform` and `digest: extractive`
+spelled out as the defaults, as it does for `context_truncate: head`.
+
+Divergences and choices the record left open:
+
+- **Validation.** `max_groups < 0` is also rejected.
+- **Counts.** The counts are `Counts.Guided` (JSON `guided`, absent in
+  uniform mode, so the uniform run's outputs stay byte for byte as
+  before): `digest`, `candidate_groups`, `groups` (after merging),
+  `groups_digested`, `groups_skipped` (every member already digested),
+  `groups_left` (not reached: budget, `max_groups`, or an LLM prompt
+  larger than the whole token budget), `lines_written`,
+  `lines_discarded` (by reason) and `fichas` (page ids). Fichas also
+  appear in `pages_created` and their items in `page_items_added`.
+- **Two more discard reasons.** `repeated` counts the extractive lines
+  dropped by the no-repetition rule; `origin_not_live` counts lines
+  whose origin was retired or forgotten between the plan and the gate
+  transaction. When the LLM read a member forgotten meanwhile, the whole
+  ficha is dropped and the group stays pending (as an extraction batch).
+- **Top k and liveness.** The top k is taken from the logged order first
+  and then restricted to live events, so a retired event still uses a
+  slot of its retrieval's top k.
+- **Metadata outside the group.** Fragmentation needs the session of the
+  delivered events, which may be outside the group: the guided sleep
+  reads `session_id` and liveness (never content) of the events a
+  retrieval returned or delivered. Only live delivered events with a
+  session count. `outcomes.used_ids` is not read: no signal uses it.
+- **Merging.** A candidate merges into the accepted group it overlaps
+  most (ties: the earlier accepted group); merging is on the full member
+  sets, and the `group_max_events` cap is applied after all merges.
+- **Groups in one run.** A member digested earlier in the same run counts
+  as digested for the skip rule. A group with some members already
+  digested is digested whole (the rule skips only all-digested groups).
+- **Lines.** Text is collapsed to one line (whitespace runs become one
+  space). Several origins are joined with `,` and no space, in date,
+  session, ordinal, id order. A turn with no parsable date shows `-`.
+  The no-repetition rule applies to the extractive digest only.
+- **Title.** The group terms are ranked by how many members hold them,
+  then alphabetically; a group with no term shared by two members is
+  titled `Digest`.
+- **Extractive terms.** "Digits and capitalised words" are those of the
+  member being windowed (normalized tokens with a digit, and capitalised
+  words that are not stopwords). The window cost is `llm.EstimateTokens`
+  of the window text.
+- **Verifier.** Numbers compare as tokens; a digit run without separators
+  ignores leading zeros (`05` = `5`); `4,2` and `4.2` differ. Date
+  metadata is the date shown to the model (year, month and day numbers,
+  the English month and weekday names and their three-letter forms). A
+  name matches when every normalized word of it is a word of the cited
+  content (a trailing `'s` is removed first). The digest schema does not
+  constrain `event_ids` to the members, so an unknown id discards the line
+  (`unknown_origin`) and not the whole answer.
+- **Embedding.** `stageFicha` puts the ficha page in `embed_queue` inside
+  the gate transaction (a revert removes the row); the closing flush
+  embeds it. Lesson pages were never queued (a gap this change leaves as
+  it was).
+- **Budget.** Each digested group counts its members against
+  `sleep.budget_events` (extractive too); reaching `max_groups` is a
+  ceiling like the budget (status `partial`).

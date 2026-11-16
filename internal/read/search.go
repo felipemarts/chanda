@@ -366,6 +366,11 @@ func (r *Reader) run(ctx context.Context, q request) (*result, error) {
 // read.context_min_item_tokens remain), both by read.context_truncate
 // (decision 0137). The order is never changed: an item that does not fit
 // is shortened or skipped, and the walk goes on.
+//
+// With read.context_derived_max_share on (decision 0143), facts and pages
+// together take at most floor(share × budget) tokens, and a derived item
+// never takes the room of the protected raw excerpts (protectedRaw) not yet
+// reached; context_item_cap_after then counts raw excerpts only.
 func (r *Reader) selectItems(ctx context.Context, q request, res *result, alive []*cand, terms []string) error {
 	rc := r.e.Cfg.Read
 	perDoc, perSession := map[string]int{}, map[string]int{}
@@ -375,56 +380,77 @@ func (r *Reader) selectItems(ctx context.Context, q request, res *result, alive 
 		maxPerDoc, maxPerSession = rc.ContextPerDocument(), rc.ContextMaxPerSession
 		used = estimateTokens(contextHeader(res.retrievalID)) + estimateTokens(contextFooter)
 	}
+	share := q.mode == ModeContext && rc.DerivedShareOn()
+	sel := &selection{r: r, q: q, terms: terms, maxPerDoc: maxPerDoc, maxPerSession: maxPerSession}
+	derivedLeft, pending, raw := 0, 0, 0
+	var reserved map[*cand]int
+	if share {
+		var err error
+		if reserved, err = sel.protectedRaw(ctx, alive); err != nil {
+			return err
+		}
+		for _, cost := range reserved {
+			pending += cost
+		}
+		derivedLeft = rc.DerivedShareTokens(q.budget)
+	}
 	for _, c := range alive {
 		if q.mode == ModeSearch && len(res.items) >= q.limit {
 			c.dropped = dropLimit
 			continue
 		}
-		it, docKey, err := r.buildItem(ctx, q.ns, c)
+		if cost, ok := reserved[c]; ok { // reached: its room is no longer kept
+			pending -= cost
+		}
+		it, docKey, err := sel.build(ctx, c)
 		if err != nil {
 			return err
 		}
-		if q.mode == ModeContext && containsStr(it.Flags, core.FlagInstructionLike) {
-			c.dropped = dropInstruction
-			continue
-		}
-		if docKey != "" && maxPerDoc > 0 && perDoc[docKey] >= maxPerDoc {
-			c.dropped = dropDiversity
-			continue
-		}
-		sessionKey := ""
-		if maxPerSession > 0 && c.rec.typ == core.RecEvent {
-			sessionKey = c.rec.sessionID
-		}
-		if sessionKey != "" && perSession[sessionKey] >= maxPerSession {
-			c.dropped = dropSession
+		if reason := sel.filter(c, it, docKey, perDoc, perSession); reason != "" {
+			c.dropped = reason
 			continue
 		}
 		if q.mode == ModeContext {
-			if rc.ContextShowRole && it.Type == core.RecEvent {
-				it.role = c.rec.role
-			}
 			full := it // shortening always starts from the whole text
 			cost := estimateTokens(renderItem(it))
-			if itemMax := rc.ContextItemMaxTokens; itemMax > 0 && len(res.items) >= rc.ContextItemCapAfter && cost > itemMax {
+			ranked := len(res.items) // items ahead of this one, for context_item_cap_after
+			if share {
+				ranked = raw
+			}
+			if itemMax := rc.ContextItemMaxTokens; itemMax > 0 && ranked >= rc.ContextItemCapAfter && cost > itemMax {
 				var ok bool
 				if it, cost, ok = shortenItem(full, itemMax, rc.ContextMinItemTokens, rc.BestWindow(), terms); !ok {
 					c.dropped = dropBudget
 					continue
 				}
 			}
-			if remaining := q.budget - used; cost > remaining {
+			remaining := q.budget - used
+			derived := share && it.Type != core.RecEvent
+			room := remaining
+			if derived {
+				room = min(derivedLeft, remaining-pending)
+			}
+			if cost > room {
 				var ok bool
-				if it, cost, ok = shortenItem(full, remaining, rc.ContextMinItemTokens, rc.BestWindow(), terms); !ok {
+				if it, cost, ok = shortenItem(full, room, rc.ContextMinItemTokens, rc.BestWindow(), terms); !ok {
 					c.dropped = dropBudget
+					if room < remaining {
+						c.dropped = dropDerivedShare // the share or the protected room, not the budget alone
+					}
 					continue
 				}
 			}
 			used += cost
+			if derived {
+				derivedLeft -= cost
+			}
+			if it.Type == core.RecEvent {
+				raw++
+			}
 		}
 		perDoc[docKey]++
-		if sessionKey != "" {
-			perSession[sessionKey]++
+		if it.Type == core.RecEvent && maxPerSession > 0 && c.rec.sessionID != "" {
+			perSession[c.rec.sessionID]++
 		}
 		res.items = append(res.items, it)
 	}
@@ -437,6 +463,101 @@ func (r *Reader) selectItems(ctx context.Context, q request, res *result, alive 
 		}
 	}
 	return nil
+}
+
+// selection holds what the selection walk and its pre-pass share: the
+// request, the limits and the items built so far (buildItem reads the
+// database, so each candidate is built once).
+type selection struct {
+	r                        *Reader
+	q                        request
+	terms                    []string
+	maxPerDoc, maxPerSession int
+	built                    map[*cand]builtItem
+}
+
+type builtItem struct {
+	it     Item
+	docKey string
+}
+
+// build is buildItem, once per candidate, with the speaker role set when
+// read.context_show_role asks for it.
+func (s *selection) build(ctx context.Context, c *cand) (Item, string, error) {
+	if b, ok := s.built[c]; ok {
+		return b.it, b.docKey, nil
+	}
+	it, docKey, err := s.r.buildItem(ctx, s.q.ns, c)
+	if err != nil {
+		return Item{}, "", err
+	}
+	if s.q.mode == ModeContext && s.r.e.Cfg.Read.ContextShowRole && it.Type == core.RecEvent {
+		it.role = c.rec.role
+	}
+	if s.built == nil {
+		s.built = map[*cand]builtItem{}
+	}
+	s.built[c] = builtItem{it, docKey}
+	return it, docKey, nil
+}
+
+// filter returns the drop reason of the per-item filters given the counts
+// of the items admitted so far: instruction_like (context), per document,
+// per session (raw excerpts); "" when the item passes.
+func (s *selection) filter(c *cand, it Item, docKey string, perDoc, perSession map[string]int) string {
+	if s.q.mode == ModeContext && containsStr(it.Flags, core.FlagInstructionLike) {
+		return dropInstruction
+	}
+	if docKey != "" && s.maxPerDoc > 0 && perDoc[docKey] >= s.maxPerDoc {
+		return dropDiversity
+	}
+	if it.Type == core.RecEvent && s.maxPerSession > 0 && c.rec.sessionID != "" && perSession[c.rec.sessionID] >= s.maxPerSession {
+		return dropSession
+	}
+	return ""
+}
+
+// protectedRaw is the pre-pass of the derived share (decision 0143): the
+// first read.context_protect_raw event candidates, in final order, that
+// pass the instruction, per-document and per-session filters (counting the
+// raw excerpts before them as admitted), each with the cost it would have
+// when admitted: its whole block, or the block shortened to
+// read.context_item_max_tokens when its rank among raw excerpts is at or
+// after read.context_item_cap_after. A candidate the item cap would drop is
+// not protected.
+func (s *selection) protectedRaw(ctx context.Context, alive []*cand) (map[*cand]int, error) {
+	rc := s.r.e.Cfg.Read
+	n := rc.ProtectRaw()
+	out := map[*cand]int{}
+	perDoc, perSession := map[string]int{}, map[string]int{}
+	for _, c := range alive {
+		if len(out) >= n {
+			break
+		}
+		if c.rec.typ != core.RecEvent {
+			continue
+		}
+		it, docKey, err := s.build(ctx, c)
+		if err != nil {
+			return nil, err
+		}
+		if s.filter(c, it, docKey, perDoc, perSession) != "" {
+			continue
+		}
+		cost := estimateTokens(renderItem(it))
+		if itemMax := rc.ContextItemMaxTokens; itemMax > 0 && len(out) >= rc.ContextItemCapAfter && cost > itemMax {
+			var ok bool
+			if _, cost, ok = shortenItem(it, itemMax, rc.ContextMinItemTokens, rc.BestWindow(), s.terms); !ok {
+				continue
+			}
+		}
+		out[c] = cost
+		perDoc[docKey]++
+		if s.maxPerSession > 0 && c.rec.sessionID != "" {
+			perSession[c.rec.sessionID]++
+		}
+	}
+	return out, nil
 }
 
 // guardNamespace drops any item whose namespace is not ns. The namespace is

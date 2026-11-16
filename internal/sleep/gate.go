@@ -296,6 +296,15 @@ func (s *Sleeper) apply(ctx context.Context, tx *sql.Tx, r *run, p *plan) ([]str
 			touched[pid] = true
 		}
 	}
+	for _, f := range p.fichas {
+		pid, err := s.stageFicha(ctx, tx, r, f)
+		if err != nil {
+			return nil, err
+		}
+		if pid != "" {
+			touched[pid] = true
+		}
+	}
 	out := make([]string, 0, len(touched))
 	for pid := range touched {
 		out = append(out, pid)

@@ -1,6 +1,7 @@
 package config_test
 
 import (
+	"math"
 	"os"
 	"path/filepath"
 	"testing"
@@ -115,6 +116,9 @@ func TestContextKnobsDefaultsAndHash(t *testing.T) {
 		func(c *config.Config) { c.Read.ContextMaxPerDocument = 5 },
 		func(c *config.Config) { c.Read.ContextMaxPerSession = 2 },
 		func(c *config.Config) { c.Read.ContextShowRole = true },
+		func(c *config.Config) { c.Read.ContextDerivedMaxShare = 0.5 },
+		func(c *config.Config) { c.Read.ContextProtectRaw = 3 },
+		func(c *config.Config) { c.Read.ContextProtectRaw = -1 },
 	} {
 		x := config.Default()
 		mut(x)
@@ -153,6 +157,14 @@ func TestContextKnobsValidation(t *testing.T) {
 		{"per doc -2", func(r *config.ReadConfig) { r.ContextMaxPerDocument = -2 }, false},
 		{"per session 2", func(r *config.ReadConfig) { r.ContextMaxPerSession = 2 }, true},
 		{"per session -1", func(r *config.ReadConfig) { r.ContextMaxPerSession = -1 }, false},
+		{"share 0.4", func(r *config.ReadConfig) { r.ContextDerivedMaxShare = 0.4 }, true},
+		{"share 1", func(r *config.ReadConfig) { r.ContextDerivedMaxShare = 1 }, true},
+		{"share above 1", func(r *config.ReadConfig) { r.ContextDerivedMaxShare = 1.01 }, false},
+		{"negative share", func(r *config.ReadConfig) { r.ContextDerivedMaxShare = -0.1 }, false},
+		{"NaN share", func(r *config.ReadConfig) { r.ContextDerivedMaxShare = math.NaN() }, false},
+		{"protect 5", func(r *config.ReadConfig) { r.ContextProtectRaw = 5 }, true},
+		{"protect -1", func(r *config.ReadConfig) { r.ContextProtectRaw = -1 }, true},
+		{"protect -2", func(r *config.ReadConfig) { r.ContextProtectRaw = -2 }, false},
 	} {
 		c := config.Default()
 		tc.mut(&c.Read)
@@ -172,5 +184,45 @@ func TestContextKnobsValidation(t *testing.T) {
 	os.WriteFile(p, []byte("read:\n  context_truncate: middle\n"), 0o644)
 	if _, err := config.Load(p); err == nil {
 		t.Fatal("an unknown context_truncate must fail to load")
+	}
+}
+
+// Decision 0143: the derived share is off by default; context_protect_raw
+// is 2 when the share is on and the key is 0, none with -1, and unused
+// with the share off.
+func TestDerivedShareKeys(t *testing.T) {
+	r := config.Default().Read
+	if r.ContextDerivedMaxShare != 0 || r.ContextProtectRaw != 0 || r.DerivedShareOn() || r.ProtectRaw() != 0 || r.DerivedShareTokens(800) != 800 {
+		t.Fatalf("defaults: %+v", r)
+	}
+	r.ContextProtectRaw = 3
+	if r.ProtectRaw() != 0 {
+		t.Fatal("protect_raw is unused with the share off")
+	}
+	r.ContextDerivedMaxShare = 0.29
+	for _, c := range []struct{ set, want int }{{0, config.DefaultContextProtectRaw}, {-1, 0}, {1, 1}, {5, 5}} {
+		r.ContextProtectRaw = c.set
+		if got := r.ProtectRaw(); got != c.want {
+			t.Errorf("protect_raw %d: %d, want %d", c.set, got, c.want)
+		}
+	}
+	if config.DefaultContextProtectRaw != 2 {
+		t.Fatal("default protect_raw is 2")
+	}
+	for _, c := range []struct{ budget, want int }{{100, 29}, {800, 232}, {0, 0}, {3, 0}} {
+		if got := r.DerivedShareTokens(c.budget); got != c.want {
+			t.Errorf("floor(0.29 × %d) = %d, want %d", c.budget, got, c.want)
+		}
+	}
+	dir := t.TempDir()
+	p := filepath.Join(dir, "chanda.yaml")
+	os.WriteFile(p, []byte("read:\n  context_derived_max_share: 0.3\n  context_protect_raw: -1\n"), 0o644)
+	c, err := config.Load(p)
+	if err != nil || c.Read.ContextDerivedMaxShare != 0.3 || c.Read.ContextProtectRaw != -1 || c.Read.ProtectRaw() != 0 {
+		t.Fatalf("load: %+v %v", c.Read, err)
+	}
+	os.WriteFile(p, []byte("read:\n  context_derived_max_share: 1.5\n"), 0o644)
+	if _, err := config.Load(p); err == nil {
+		t.Fatal("a share above 1 must fail to load")
 	}
 }
