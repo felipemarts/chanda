@@ -35,9 +35,9 @@ What the grid already says, before the test:
 - **Utility** moves full evidence by at most one question out of 197.
 - **Keys** add nothing over U1 at the best weight and hurt at higher
   weights. At the frozen setting, keys bring a record U0 did not deliver
-  into 163 of 197 blocks: 411 records, only 5 of them evidence. Keys
-  match by question similarity, and LoCoMo's questions about the same two
-  people resemble each other, so a key points to the records of a
-  different question.
+  into 163 of 197 blocks: 411 records, only 5 of them evidence. A likely
+  cause, not checked: keys match by question similarity, and LoCoMo's
+  questions about the same two people resemble each other, so a key can
+  point to the records of a different question.
 - The selection rule picks the best K anyway, because the protocol
   defines K as U1 plus keys. The test decides the claims.
