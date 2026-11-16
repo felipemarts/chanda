@@ -28,7 +28,7 @@ cd "$(git rev-parse --show-toplevel)"
 . eval/conflicts/lib.sh
 
 PROTOCOL_COMMITS="2c2dde3 62dc279"
-PAID=0 DRY=0 START_PROXY=0 SMOKE=0 LIMIT=0
+PAID=0 DRY=0 START_PROXY=0 SMOKE=0 LIMIT=0 SHARD=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --paid) PAID=1 ;;
@@ -36,6 +36,7 @@ while [ $# -gt 0 ]; do
     --start-proxy) START_PROXY=1 ;;
     --smoke) SMOKE=$2; shift ;;
     --limit) LIMIT=$2; shift ;;
+    --shard) SHARD=$2; shift ;;  # i/N: only the per-history steps of every N-th history from i; no reader, judge or report
     -h|--help) sed -n '2,26p' "$0"; exit 0 ;;
     *) die "unknown flag $1" ;;
   esac
@@ -85,6 +86,15 @@ if [ "$SMOKE" -gt 0 ]; then
 elif [ "$LIMIT" -gt 0 ]; then
   RUN_IDS=$(echo $IDS | tr ' ' '\n' | head -n "$LIMIT" | tr '\n' ' ')
 fi
+# --shard i/N runs the per-history steps of histories i, i+N, ... in
+# parallel with other shards (disjoint sets); a final run without --shard
+# finds them done, then runs the reader, the judge and the report.
+LOOP_IDS=$RUN_IDS
+if [ -n "$SHARD" ]; then
+  [ "$SMOKE" = 0 ] || die "--shard is for the full run"
+  si=${SHARD%/*} sn=${SHARD#*/}
+  LOOP_IDS=$(echo $RUN_IDS | tr ' ' '\n' | awk -v i="$si" -v n="$sn" '(NR-1)%n==i' | tr '\n' ' ')
+fi
 
 build_bins
 read -r -a EMB <<<"$(embed_flags)"
@@ -119,7 +129,7 @@ mkdir -p "$WORK"
 write_sample test "$WORK/sample.json"
 
 n=0
-for q in $RUN_IDS; do
+for q in $LOOP_IDS; do
   n=$((n + 1))
   d=$WORK/$q
   mkdir -p "$d"
@@ -163,6 +173,8 @@ for q in $RUN_IDS; do
   conflicts_step "$d/C1" list "$d/C1.list.json" "${CONF_SETS[@]}"
   conflicts_step "$d/base" list "$d/C0.list.json" "${CONF_SETS[@]}"
 done
+
+[ -z "$SHARD" ] || { log "shard $SHARD done"; exit 0; }
 
 # The official reader and judge on both conditions (resumable, per question).
 for c in C0 C1; do
