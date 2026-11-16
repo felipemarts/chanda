@@ -24,7 +24,12 @@ the two best-ranked raw excerpts protected; the line format of decision
 Why nothing was changed: on 9 questions, each asked again after a sleep
 that saw only that question, no setting showed an effect to tune for. In
 the 6 wrong questions, the missing evidence was not in the query's top
-10, so the group could not contain it, whatever the weights. Choosing new
+10, so the group could not contain it, whatever the weights. The ranks
+of the missing evidence turns among the event candidates: 27 (a08a253f),
+12 (55241a1f), 24 (51c32626), 58, 39 and not retrieved (gpt4_e061b84f),
+not retrieved (eac54add), 11 (6cb6f249). Two of them sit just below the
+cut. A larger `top_k` is the obvious next thing to test, on fresh data and
+not here. Choosing new
 values on this bench would mean fitting noise before the test that counts.
 
 Observations kept for the record, not acted on:
