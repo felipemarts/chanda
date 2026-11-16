@@ -1,11 +1,14 @@
-# Shared helpers of run_bench.sh and run_locomo.sh (sourced, bash).
+# Shared helpers of run_bench.sh and run_locomo.sh, and of eval/learn/run_learn.sh
+# (sourced, bash). A driver of another study sets STUDY_DIR (its cost file,
+# call log and proxy log live there) and CAP_USD before sourcing.
 # Paths are relative to the repository root; the drivers cd there first.
 
 SLEEP_DIR=eval/sleep
 LME_BIN=eval/lme/bin/lme
 PROXY_BIN=eval/lme/bin/lmeproxy
-COST_FILE=$SLEEP_DIR/cost.json
-CALL_LOG=$SLEEP_DIR/llm_calls.jsonl
+STUDY_DIR=${STUDY_DIR:-$SLEEP_DIR}
+COST_FILE=$STUDY_DIR/cost.json
+CALL_LOG=$STUDY_DIR/llm_calls.jsonl
 STORE_DIR=eval/lme/llmstore
 CAP_USD=${CAP_USD:-2}
 PROXY_URL=${PROXY_URL:-http://127.0.0.1:8787}
@@ -49,12 +52,12 @@ start_proxy() {
     set -a; . ./.env; set +a
     exec "$PROXY_BIN" -listen "$addr" -cap-usd "$CAP_USD" -cost "$COST_FILE" -log "$CALL_LOG" \
       -store "$STORE_DIR" -replay $( [ "${OFFPEAK_ONLY:-1}" = 1 ] && echo -offpeak-only )
-  ) 2>>"$SLEEP_DIR/lmeproxy.log" &
+  ) 2>>"$STUDY_DIR/lmeproxy.log" &
   PROXY_PID=$!
   trap 'stop_proxy' EXIT
   for _ in $(seq 1 50); do
     curl -s -o /dev/null "$PROXY_URL/" 2>/dev/null && return 0
-    kill -0 "$PROXY_PID" 2>/dev/null || die "lmeproxy exited (see $SLEEP_DIR/lmeproxy.log)"
+    kill -0 "$PROXY_PID" 2>/dev/null || die "lmeproxy exited (see $STUDY_DIR/lmeproxy.log)"
     sleep 0.2
   done
   die "lmeproxy did not come up at $PROXY_URL"
@@ -69,7 +72,7 @@ stop_proxy() {
 
 # check_proxy: a proxy started elsewhere must answer at $PROXY_URL and hold
 # the lock of this study's cost file (lmeproxy locks <cost>.lock), which is
-# the sign it runs with -cost eval/sleep/cost.json. Its other flags (-store,
+# the sign it runs with -cost $COST_FILE. Its other flags (-store,
 # -replay, -offpeak-only, the cap) cannot be checked from here.
 check_proxy() {
   curl -s -o /dev/null "$PROXY_URL/" 2>/dev/null || die "no proxy at $PROXY_URL (pass --start-proxy, or start lmeproxy with -cost $COST_FILE -store $STORE_DIR -replay -offpeak-only -cap-usd $CAP_USD)"

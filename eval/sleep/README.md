@@ -30,7 +30,8 @@ run from the repository root.
     `sleep_runs` row with its counts, stats before/after and every page with
     its items and cited events), `rag` (plain RAG B, one index per
     conversation), `fichas`, `leakcheck`, `check` (validates a configuration
-    with Chanda's loader; prints its hash).
+    with Chanda's loader; prints its hash). The learning study adds `keys`
+    and `leakcheck -protocol learn` (`eval/learn/README.md`).
   - Every server-starting step takes `-set key=value` (repeatable) and
     `-set-file FILE`, and refuses an unknown key before starting.
 - `locomo_qa.py`: LoCoMo reader then judge, prompts verbatim from the

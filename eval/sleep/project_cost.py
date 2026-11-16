@@ -38,9 +38,9 @@ SLEEP_BUDGET_TOKENS = 200_000  # Chanda's sleep.budget_tokens default: the ceili
 SLEEP_OUT_SHARE = 0.15          # assumed output share of a sleep run's tokens
 
 
-def rates(model: str) -> dict:
+def rates(model: str, window: str = "offpeak") -> dict:
     with open(PRICES) as f:
-        return json.load(f)["models"][model]["offpeak"]
+        return json.load(f)["models"][model][window]
 
 
 def usd(r: dict, tin: float, tout: float) -> float:
