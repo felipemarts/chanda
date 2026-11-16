@@ -33,3 +33,8 @@
 /eval/learn/cost.json.lock
 /eval/learn/lmeproxy.log
 /eval/learn/**/__pycache__/
+/eval/conflicts/work/
+/eval/conflicts/cost.json.lock
+/eval/conflicts/lmeproxy.log
+/eval/conflicts/**/__pycache__/
+/eval/conflicts/**/.pytest_cache/
