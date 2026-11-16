@@ -157,6 +157,8 @@ def scan_lists(res) -> dict:
     """candidates and near_dup_refusals of a scan -details output, plus its
     other scalar fields (the counts)."""
     data = output_of(res)
+    if isinstance(data, dict) and isinstance(data.get("scan"), dict):
+        data = data["scan"]  # the tool nests the scan result under "scan" (decision 0148)
     out = {"candidates": [], "near_dup_refusals": [], "counts": {}}
     if isinstance(data, dict):
         out["candidates"] = list(data.get("candidates") or [])

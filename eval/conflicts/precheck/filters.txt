@@ -1,0 +1,8 @@
+0.80 all                          mean  1087.4 median   1090  KU pair reached 10/18
+0.80 user-user                    mean   375.3 median    374  KU pair reached 10/18
+0.80 shared entity                mean   183.2 median    184  KU pair reached 7/18
+0.80 user-user + shared entity    mean    58.1 median     57  KU pair reached 7/18
+0.85 all                          mean   370.0 median    352  KU pair reached 10/18
+0.85 user-user                    mean   159.6 median    158  KU pair reached 10/18
+0.85 shared entity                mean    86.2 median     84  KU pair reached 7/18
+0.85 user-user + shared entity    mean    28.3 median     27  KU pair reached 7/18
