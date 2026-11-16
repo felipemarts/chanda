@@ -29,7 +29,7 @@ Paired comparisons (exact two-sided sign test):
 By type (D2 / Mem0 correct): temporal 9 / 13 of 15, multi-session 8 / 9
 of 13. All other types are equal: knowledge-update 8 / 8, single-session
 user 7 / 7, single-session assistant 7 / 7, preference 4 / 4,
-abstention 6 / 6.
+abstention 5 / 5 of 6.
 
 What this shows: on these 60 questions Mem0 remains ahead of Chanda by
 8.3 points. The difference is not established (p = 0.125) but points one
