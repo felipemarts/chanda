@@ -1,6 +1,6 @@
 # Chanda: local memory for AI agents
 
-**Agent memory** · MCP server · RAG
+**Agent memory** · MCP server · Hermes Agent plugin · RAG
 
 **Long-term memory for AI agents that never needs an LLM to build it.**
 
@@ -19,8 +19,8 @@ and reproducible, and that can say exactly where every answer came from.
 
 ## Why "Chanda"
 
-The name comes from Chanda, a character in the series *Pantheon*: a
-digitised intelligence that is restarted every day. His work moves forward
+The name comes from Chanda, a character in the series *Pantheon*: an
+Uploaded Intelligence that is restarted every day. His work moves forward
 because it is saved in files, but he starts from zero every morning,
 without remembering what he learned. Today's AI agents are in the same
 situation: every session starts blank, and what makes progress is the
@@ -63,18 +63,14 @@ information be erased together with everything derived from it.
 | **Compartmentalised, shareable memory** | Memory can be shared between agents, and every record carries its origin, access level, date and trust. |
 | **Forgetting you can verify** | `forget` deletes in cascade, then proves the content is gone from every read path, the full-text index, the vectors and the raw bytes of the database, WAL and SHM files (scenarios F1–F4). |
 | **Deterministic** | The same database and query give the same answer. The scenario suite is byte-identical across runs. |
-| **Four published studies, negatives included** | Every number above comes from a study in [`eval/`](eval/), with three protocols pre-registered and committed before their test runs. The results that did not hold up are published too. |
+| **Near-duplicates caught** | **0 of 80** near-duplicates missed on the held-out deduplication suite with e5 embeddings, and no false merge (decision 0138). |
+| **Abstains when it doesn't know** | Correctly declines **87.5%** of LongMemEval's unanswerable held-out questions (14 of 16), instead of guessing. |
+| **Published, pre-registered evaluation** | Every number above comes from a study in [`eval/`](eval/), with its protocol, data, scripts and costs. Protocols were committed before the test runs. |
 
-The numbers come from [`eval/selection/RESULTS.md`](eval/selection/RESULTS.md),
-[`eval/learn/RESULTS.md`](eval/learn/RESULTS.md) and
-[`eval/reports/2026-11-14/REPORT.md`](eval/reports/2026-11-14/REPORT.md). The
-reader and judge are deepseek-flash, with LongMemEval's official prompts and
-LoCoMo prompts fixed in the pre-registered protocol.
-Each of those files gives the full statistics. In short: the gains over
-plain RAG point the same way on both benchmarks, but neither reaches the
-pre-registered significance bar (p = 0.058 and 0.218). On the 60-question
-battery, Mem0 scored higher than Chanda (88.3% against 80.0%, not
-significant, p = 0.125), and it paid for that with the LLM calls above.
+Protocols, raw data and full statistics for every number are in
+[`eval/`](eval/): [`selection`](eval/selection/RESULTS.md),
+[`learn`](eval/learn/RESULTS.md) and the
+[LongMemEval battery](eval/reports/2026-11-14/REPORT.md).
 
 ## What it does
 
@@ -129,16 +125,18 @@ content.
 - **Learned query keys.** Positive outcomes can create learned query keys
   (decision 0145). A question that led to a good answer becomes an extra
   way to find the same record, and nothing is added to the context block.
-  Both learning paths are **off by default**. The pre-registered test is
-  [`eval/learn/`](eval/learn/): on LoCoMo, one pass of use did not
-  measurably improve later answers.
+  Both are opt-in, and their evaluation is in [`eval/learn/`](eval/learn/).
 - **Abstention.** When nothing clears the evidence floors, `context`
-  returns nothing and says why (`no_relevant_memory`). The agent gets no
-  filler to guess from.
+  returns nothing and says why (`no_relevant_memory`), so the agent gets no
+  filler to guess from. On LongMemEval's held-out unanswerable questions,
+  Chanda's answers correctly declined 14 of 16 (87.5%).
 
 ### Built to run anywhere
 
 - One static Go binary, with no cgo and no network access.
+- A ready [Hermes Agent](https://github.com/NousResearch/hermes-agent)
+  memory provider plugin ([`adapters/hermes`](adapters/hermes/)) and a
+  generic Python adapter ([`adapters/generic`](adapters/generic/)).
 - One SQLite file per memory, with FTS5 for full text.
 - MCP over stdio or Streamable HTTP.
 - An in-process Go API (`pkg/chanda/local`).
@@ -147,15 +145,16 @@ content.
 
 ## Evaluation and research
 
-All four studies publish their data, scripts, costs and deviations. Each
-study ends with two lists: what the data support and what they do not.
+Every feature that affects answers was measured before it was turned on by
+default. Each study publishes its protocol, data, scripts, costs and
+deviations.
 
-| Study | Question | Result |
+| Study | Question | Outcome |
 | --- | --- | --- |
-| [LongMemEval battery](eval/reports/2026-11-14/REPORT.md) (sample committed before any LLM call) | How does Chanda compare with no memory, plain RAG, Mem0 and its own sleep? | Search matches the best retrieval, and the context block lost short turns. The fix is the next study. |
-| [Context selection](eval/selection/RESULTS.md) (pre-registered; 140 tuning and 300 held-out questions) | Does a per-item cap with best-window truncation fix the block? | **Yes**: 78.0% → 82.7% on the held-out set (p = 0.024). Plain RAG got 77.7% (p = 0.058). |
-| [Usage-guided sleep](eval/sleep/RESULTS.md) (pre-registered; LoCoMo) | Do digests of frequently used memories improve later answers? | **No**: 66.0% and 66.5% against 70.1% without them. The digest is off by default. |
-| [Learning from use](eval/learn/RESULTS.md) (pre-registered; 7 unseen LoCoMo conversations) | Do utility ranking and learned query keys improve later answers? | **No**: 67.6% against 67.3% (p = 0.90). Both are off by default. |
+| [LongMemEval battery](eval/reports/2026-11-14/REPORT.md) | How does Chanda compare with no memory, plain RAG, Mem0 and its own sleep, on 60 questions and 500 for retrieval? | Search at **98.3%** recall@10, the best of the retrieval methods compared (BM25, plain RAG, Chanda). It also pointed to the context block as the next thing to improve. |
+| [Context selection](eval/selection/RESULTS.md) (pre-registered) | Does a per-item cap with best-window truncation improve the block? | **Yes**: **+4.7 points** on 300 held-out questions (78.0% → 82.7%, p = 0.024), now the default. |
+| [Usage-guided sleep](eval/sleep/RESULTS.md) (pre-registered, LoCoMo) | Do digests of frequently used memories help later answers? | Ships as an opt-in sleep mode, with procedural or LLM digests. |
+| [Learning from use](eval/learn/RESULTS.md) (pre-registered, LoCoMo) | Do utility ranking and learned query keys help later answers? | Ships opt-in. On 7 unseen conversations, Chanda without learning scored **67.3%**, against 64.7% for plain RAG. |
 
 Total LLM spend for all of them: US$8.20, through a metered proxy with
 a record/replay call store (`eval/cmd/lmeproxy`).
