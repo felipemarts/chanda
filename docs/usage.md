@@ -81,6 +81,13 @@ embed:
 llm:                            # optional; without it sleep runs phase 1 only
   # endpoint: http://localhost:11434/v1
   # model: qwen2.5:7b
+
+sleep:
+  # mode: uniform                 # or guided (decision 0142): phase 2 digests only what retrieval keeps returning
+  # guided:
+  #   digest: extractive          # or llm (needs llm.endpoint); extractive needs no LLM
+  #   top_k: 10                   # best-ranked event candidates of a retrieval that count as returned
+  #   max_groups: 0               # groups digested per run; 0 = no cap
 ```
 
 Thresholds that compare cosines (`write.near_dup_threshold`,
