@@ -1,0 +1,11 @@
+read.context_derived_max_share=0.3
+read.context_protect_raw=2
+sleep.guided.top_k=10
+sleep.guided.weight_demand=1
+sleep.guided.weight_near_miss=2
+sleep.guided.weight_failure=2
+sleep.guided.weight_fragmentation=1
+sleep.guided.demand_half_life_hours=168
+sleep.guided.group_max_events=12
+sleep.guided.group_merge_jaccard=0.5
+sleep.guided.line_tokens=60

@@ -44,11 +44,11 @@ PROXY_PID=
 start_proxy() {
   [ -f .env ] || die ".env not found (DEEPSEEK_API_KEY)"
   local addr=${PROXY_URL#http://}
-  log "starting lmeproxy on $addr: cost $COST_FILE, cap \$$CAP_USD, store $STORE_DIR (replay), off-peak only"
+  log "starting lmeproxy on $addr: cost $COST_FILE, cap \$$CAP_USD, store $STORE_DIR (replay), off-peak only: ${OFFPEAK_ONLY:-1}"
   (
     set -a; . ./.env; set +a
     exec "$PROXY_BIN" -listen "$addr" -cap-usd "$CAP_USD" -cost "$COST_FILE" -log "$CALL_LOG" \
-      -store "$STORE_DIR" -replay -offpeak-only
+      -store "$STORE_DIR" -replay $( [ "${OFFPEAK_ONLY:-1}" = 1 ] && echo -offpeak-only )
   ) 2>>"$SLEEP_DIR/lmeproxy.log" &
   PROXY_PID=$!
   trap 'stop_proxy' EXIT
