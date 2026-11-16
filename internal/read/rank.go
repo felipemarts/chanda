@@ -25,9 +25,14 @@ type cand struct {
 	hasTerm              bool
 	final                float64
 	ageSec               float64
-	entityMatch          bool   // the query names an entity the record is about
-	dropped              string // "" while alive; a drop* reason otherwise
-	scored               bool   // reached fusion
+	entityMatch          bool // the query names an entity the record is about
+	// Learned keys (decision 0145, keys.go): best key rank (0 = no key
+	// hit), best query-to-key cosine and best query-term coverage of a key.
+	keyRank                int
+	keyCosine, keyCoverage float64
+	hasKeyCos              bool
+	dropped                string // "" while alive; a drop* reason otherwise
+	scored                 bool   // reached fusion
 }
 
 func (c *cand) id() string { return c.rec.id }
@@ -46,6 +51,13 @@ func (c *cand) merge(o *cand) {
 	if o.hasCos && (!c.hasCos || o.cosine > c.cosine) {
 		c.cosine, c.hasCos = o.cosine, true
 	}
+	if o.keyRank > 0 && (c.keyRank == 0 || o.keyRank < c.keyRank) {
+		c.keyRank = o.keyRank
+	}
+	if o.hasKeyCos && (!c.hasKeyCos || o.keyCosine > c.keyCosine) {
+		c.keyCosine, c.hasKeyCos = o.keyCosine, true
+	}
+	c.keyCoverage = math.Max(c.keyCoverage, o.keyCoverage)
 }
 
 // fuse computes Reciprocal Rank Fusion and the normalized relevance.
@@ -58,7 +70,13 @@ func (c *cand) merge(o *cand) {
 // one list. L is the number of list kinds that ran (1 keyword-only, 2
 // hybrid), so relNorm is in [0,1] and equals 1 only for an item ranked first
 // in every list. The normalization is query-independent.
-func fuse(cs []*cand, k int, lists int) {
+func fuse(cs []*cand, k int, lists int) { fuseKeys(cs, k, lists, 0) }
+
+// fuseKeys is fuse with the learned-keys list (decision 0145): a candidate
+// with a key rank gains keyWeight/(k + key rank). maxRRF still counts the
+// keyword and vector lists only, so a candidate without a key rank scores
+// exactly as in fuse (relNorm is still clamped to 1).
+func fuseKeys(cs []*cand, k int, lists int, keyWeight float64) {
 	if k < 0 {
 		k = 0
 	}
@@ -70,6 +88,9 @@ func fuse(cs []*cand, k int, lists int) {
 		}
 		if c.vecRank > 0 {
 			c.rrf += 1 / float64(k+c.vecRank)
+		}
+		if c.keyRank > 0 && keyWeight > 0 {
+			c.rrf += keyWeight / float64(k+c.keyRank)
 		}
 		c.relNorm = 0
 		if maxRRF > 0 {

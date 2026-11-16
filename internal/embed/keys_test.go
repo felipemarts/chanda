@@ -47,7 +47,7 @@ func seedKey(t testing.TB, e *env.Env, ns, recordID, text string) string {
 }
 
 // Decision 0145: a learned key is embedded with the query role, every
-// other record with the passage role, and PassageTypes leaves keys out.
+// other record with the passage role, and core.RecordTypes leaves keys out.
 func TestKeysAreEmbeddedWithTheQueryRole(t *testing.T) {
 	e, _ := env.NewTest(t)
 	ctx := context.Background()
@@ -74,12 +74,12 @@ func TestKeysAreEmbeddedWithTheQueryRole(t *testing.T) {
 	if len(hs) != 1 || hs[0].RecordID != key || hs[0].RecordType != core.RecKey || !approx(hs[0].Score, 1) {
 		t.Fatalf("key vector is not the query-role vector: %+v", hs)
 	}
-	for _, rt := range PassageTypes() {
+	for _, rt := range core.RecordTypes() {
 		if rt == core.RecKey {
-			t.Fatal("keys are not passages")
+			t.Fatal("keys are not memory records")
 		}
 	}
-	hs, err := x.Search(ctx, "ns", spy.ModelID(), want[0], 5, PassageTypes())
+	hs, err := x.Search(ctx, "ns", spy.ModelID(), want[0], 5, core.RecordTypes())
 	if err != nil || len(hs) != 1 || hs[0].RecordID != ev {
 		t.Fatalf("passage search must skip keys: %+v %v", hs, err)
 	}

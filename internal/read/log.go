@@ -44,7 +44,10 @@ type LoggedCandidate struct {
 // Delivered reports whether the candidate was delivered.
 func (lc LoggedCandidate) Delivered() bool { return lc.Features["delivered"] == 1 }
 
-func loggedCandidate(c *cand, position int) LoggedCandidate {
+// keysOn adds the learned-key features (decision 0145): key_rank (0 when
+// the candidate had no key hit) and, with a key hit, key_coverage and
+// key_cosine (the latter only from a vector hit).
+func loggedCandidate(c *cand, position int, keysOn bool) LoggedCandidate {
 	s := c.scores()
 	lc := LoggedCandidate{
 		ID: c.id(), Type: c.rec.typ, BM25: s.BM25, Cosine: s.Cosine, Rerank: s.Rerank, RRF: s.RRF,
@@ -64,6 +67,15 @@ func loggedCandidate(c *cand, position int) LoggedCandidate {
 		}
 		if c.hasTerm {
 			lc.Features["term"] = c.term
+		}
+	}
+	if keysOn {
+		lc.Features["key_rank"] = float64(c.keyRank)
+		if c.keyRank > 0 {
+			lc.Features["key_coverage"] = c.keyCoverage
+			if c.hasKeyCos {
+				lc.Features["key_cosine"] = c.keyCosine
+			}
 		}
 	}
 	if position > 0 {
@@ -99,7 +111,7 @@ func (r *Reader) logRetrieval(ctx context.Context, q request, res *result, all [
 	sort.SliceStable(rest, func(i, j int) bool { return rest[i].id() < rest[j].id() })
 	logged := make([]LoggedCandidate, 0, len(scored)+len(rest))
 	for _, c := range append(scored, rest...) {
-		logged = append(logged, loggedCandidate(c, pos[c.id()]))
+		logged = append(logged, loggedCandidate(c, pos[c.id()], q.keys))
 	}
 	params := map[string]any{
 		"types": q.types, "zones": q.zones, "include_history": q.includeHistory,

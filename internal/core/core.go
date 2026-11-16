@@ -9,6 +9,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 )
@@ -149,6 +150,18 @@ const (
 )
 
 func IDPrefix(t RecordType) string { return idPrefix[t] }
+
+// RecordTypes lists the record types of the memory (those with an id
+// prefix), sorted. Learned keys and retrievals are not among them, so a
+// vector search over RecordTypes never returns a key vector.
+func RecordTypes() []RecordType {
+	out := make([]RecordType, 0, len(idPrefix))
+	for t := range idPrefix {
+		out = append(out, t)
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i] < out[j] })
+	return out
+}
 
 // RecordTypeOf returns the record type encoded in an id, or "" if unknown.
 func RecordTypeOf(id string) RecordType {

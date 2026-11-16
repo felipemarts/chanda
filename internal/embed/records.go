@@ -49,19 +49,6 @@ func queryRole(rt core.RecordType) bool {
 	return false
 }
 
-// PassageTypes are the embedded record types that are passages (every type
-// but learned keys), in a fixed order. A vector search over the memory's
-// records passes them so that key vectors never take a slot.
-func PassageTypes() []core.RecordType {
-	var out []core.RecordType
-	for _, e := range embeddable {
-		if !e.query {
-			out = append(out, e.rt)
-		}
-	}
-	return out
-}
-
 // recordText returns the text of a record and whether it is live in ns.
 // A missing record, one from another namespace or of an unknown type is not live.
 func recordText(ctx context.Context, q store.Queryer, ns string, rt core.RecordType, id string) (string, bool, error) {
