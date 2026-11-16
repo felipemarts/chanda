@@ -29,3 +29,7 @@
 /eval/sleep/lmeproxy.log
 /eval/sleep/**/__pycache__/
 /work/
+/eval/learn/work/
+/eval/learn/cost.json.lock
+/eval/learn/lmeproxy.log
+/eval/learn/**/__pycache__/
