@@ -1,0 +1,3634 @@
+{
+ "embedder": "e5",
+ "pairs": 40,
+ "missing": [],
+ "verdicts_ran": true,
+ "updates": {
+  "n": 20,
+  "detected": 16,
+  "verdicts_detected": {
+   "supersedes": 15,
+   "uncertain": 1
+  },
+  "applied": 15,
+  "wrong_supersessions": 0
+ },
+ "controls": {
+  "n": 20,
+  "detected": 11,
+  "verdicts_detected": {
+   "coexist": 8,
+   "unrelated": 3
+  },
+  "false_supersessions": 0
+ },
+ "sleep": {
+  "llm_calls": 27,
+  "input_tokens": 14573,
+  "output_tokens": 610,
+  "cost_usd": 0.00189339
+ },
+ "rows": [
+  {
+   "id": "u01",
+   "kind": "update",
+   "category": "endereco",
+   "expected": "supersedes",
+   "older_event": "evt_01M7JAR5YX0ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JAR5YZBN5NCX3MM7TV6ZF3",
+   "older": "Eu moro em São Paulo, num apartamento na Vila Mariana.",
+   "newer": "Me mudei para o Rio de Janeiro mês passado, agora moro em Botafogo.",
+   "same_event": false,
+   "queue_pairs": 0,
+   "detected": false,
+   "judged_run": true,
+   "verdict": null,
+   "confidence": null,
+   "reason": null,
+   "applied": false,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {},
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "seconds": 0.015,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 0,
+      "judged": {},
+      "model_verdicts": {},
+      "applied": 0,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "supersessions": []
+     }
+    }
+   }
+  },
+  {
+   "id": "u02",
+   "kind": "update",
+   "category": "endereco",
+   "expected": "supersedes",
+   "older_event": "evt_01M7JARHP90ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JARHPBBN5NCX3MM7TV6ZF3",
+   "older": "Meu escritório fica na Avenida Paulista, número 1000.",
+   "newer": "O escritório mudou de endereço: agora fica na Rua Augusta, número 250.",
+   "same_event": false,
+   "queue_pairs": 0,
+   "detected": false,
+   "judged_run": true,
+   "verdict": null,
+   "confidence": null,
+   "reason": null,
+   "applied": false,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {},
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "seconds": 0.014,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 0,
+      "judged": {},
+      "model_verdicts": {},
+      "applied": 0,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "supersessions": []
+     }
+    }
+   }
+  },
+  {
+   "id": "u03",
+   "kind": "update",
+   "category": "endereco",
+   "expected": "supersedes",
+   "older_event": "evt_01M7JARWQW0ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JARWQYBN5NCX3MM7TV6ZF3",
+   "older": "A Ana mora em Curitiba com os pais.",
+   "newer": "A Ana saiu de Curitiba e agora mora sozinha em Florianópolis.",
+   "same_event": false,
+   "queue_pairs": 1,
+   "detected": true,
+   "cosine": 0.9344458653573386,
+   "differs": "entities",
+   "shared": [
+    "ana",
+    "curitiba",
+    "mora"
+   ],
+   "judged_run": true,
+   "verdict": "supersedes",
+   "confidence": 0.97,
+   "reason": "applied",
+   "applied": true,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {
+    "supersedes": 1
+   },
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 1,
+    "input_tokens": 543,
+    "output_tokens": 23,
+    "seconds": 1.206,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 1,
+      "judged": {
+       "supersedes": 1
+      },
+      "model_verdicts": {
+       "supersedes": 1
+      },
+      "applied": 1,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 1,
+      "input_tokens": 543,
+      "output_tokens": 23,
+      "supersessions": [
+       "sup_01M7JAS8V1BN5NCX3MM7TV6ZF2"
+      ]
+     }
+    }
+   }
+  },
+  {
+   "id": "u04",
+   "kind": "update",
+   "category": "cargo",
+   "expected": "supersedes",
+   "older_event": "evt_01M7JAS8YR0ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JAS8YT4996KBXZQ01MEE91",
+   "older": "Trabalho como analista de dados na Natura.",
+   "newer": "Fui promovido: agora sou gerente de dados na Natura.",
+   "same_event": false,
+   "queue_pairs": 0,
+   "detected": false,
+   "judged_run": true,
+   "verdict": null,
+   "confidence": null,
+   "reason": null,
+   "applied": false,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {},
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "seconds": 0.009,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 0,
+      "judged": {},
+      "model_verdicts": {},
+      "applied": 0,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "supersessions": []
+     }
+    }
+   }
+  },
+  {
+   "id": "u05",
+   "kind": "update",
+   "category": "cargo",
+   "expected": "supersedes",
+   "older_event": "evt_01M7JASKZD0ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JASKZEBN5NCX3MM7TV6ZF3",
+   "older": "O Pedro é estagiário no time de marketing.",
+   "newer": "O Pedro foi efetivado e agora é coordenador do time de marketing.",
+   "same_event": false,
+   "queue_pairs": 1,
+   "detected": true,
+   "cosine": 0.9210346956793244,
+   "differs": "negations",
+   "shared": [
+    "marketing",
+    "pedro",
+    "time"
+   ],
+   "judged_run": true,
+   "verdict": "supersedes",
+   "confidence": 0.95,
+   "reason": "applied",
+   "applied": true,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {
+    "supersedes": 1
+   },
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 1,
+    "input_tokens": 538,
+    "output_tokens": 23,
+    "seconds": 1.205,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 1,
+      "judged": {
+       "supersedes": 1
+      },
+      "model_verdicts": {
+       "supersedes": 1
+      },
+      "applied": 1,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 1,
+      "input_tokens": 538,
+      "output_tokens": 23,
+      "supersessions": [
+       "sup_01M7JAT014BN5NCX3MM7TV6ZF2"
+      ]
+     }
+    }
+   }
+  },
+  {
+   "id": "u06",
+   "kind": "update",
+   "category": "cargo",
+   "expected": "supersedes",
+   "older_event": "evt_01M7JAT04R0ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JAT04T4996KBXZQ01MEE91",
+   "older": "Sou professora de matemática na Escola Horizonte.",
+   "newer": "Saí da Escola Horizonte; agora dou aulas de matemática no Colégio Atlas.",
+   "same_event": false,
+   "queue_pairs": 1,
+   "detected": true,
+   "cosine": 0.933046269568959,
+   "differs": "entities",
+   "shared": [
+    "escola",
+    "horizonte",
+    "matematica"
+   ],
+   "judged_run": true,
+   "verdict": "supersedes",
+   "confidence": 0.97,
+   "reason": "applied",
+   "applied": true,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {
+    "supersedes": 1
+   },
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 1,
+    "input_tokens": 541,
+    "output_tokens": 23,
+    "seconds": 1.192,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 1,
+      "judged": {
+       "supersedes": 1
+      },
+      "model_verdicts": {
+       "supersedes": 1
+      },
+      "applied": 1,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 1,
+      "input_tokens": 541,
+      "output_tokens": 23,
+      "supersessions": [
+       "sup_01M7JATC6QBN5NCX3MM7TV6ZF2"
+      ]
+     }
+    }
+   }
+  },
+  {
+   "id": "u07",
+   "kind": "update",
+   "category": "preco",
+   "expected": "supersedes",
+   "older_event": "evt_01M7JATCA20ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JATCBR4996KBXZQ01MEE91",
+   "older": "O Plano Pro custa R$ 49 por mês.",
+   "newer": "O Plano Pro subiu: agora custa R$ 59 por mês.",
+   "same_event": false,
+   "queue_pairs": 1,
+   "detected": true,
+   "cosine": 0.9549699199368685,
+   "differs": "numbers",
+   "shared": [
+    "custa",
+    "plano",
+    "pro"
+   ],
+   "judged_run": true,
+   "verdict": "supersedes",
+   "confidence": 0.98,
+   "reason": "applied",
+   "applied": true,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {
+    "supersedes": 1
+   },
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 1,
+    "input_tokens": 542,
+    "output_tokens": 23,
+    "seconds": 1.268,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 1,
+      "judged": {
+       "supersedes": 1
+      },
+      "model_verdicts": {
+       "supersedes": 1
+      },
+      "applied": 1,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 1,
+      "input_tokens": 542,
+      "output_tokens": 23,
+      "supersessions": [
+       "sup_01M7JATRE3BN5NCX3MM7TV6ZF2"
+      ]
+     }
+    }
+   }
+  },
+  {
+   "id": "u08",
+   "kind": "update",
+   "category": "preco",
+   "expected": "supersedes",
+   "older_event": "evt_01M7JATRHT0ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JATRHWBN5NCX3MM7TV6ZF3",
+   "older": "A mensalidade da academia é R$ 120.",
+   "newer": "A academia reajustou a mensalidade para R$ 135.",
+   "same_event": false,
+   "queue_pairs": 1,
+   "detected": true,
+   "cosine": 0.9463388165480463,
+   "differs": "numbers",
+   "shared": [
+    "academia",
+    "mensalidade"
+   ],
+   "judged_run": true,
+   "verdict": "supersedes",
+   "confidence": 0.95,
+   "reason": "applied",
+   "applied": true,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {
+    "supersedes": 1
+   },
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 1,
+    "input_tokens": 538,
+    "output_tokens": 23,
+    "seconds": 1.261,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 1,
+      "judged": {
+       "supersedes": 1
+      },
+      "model_verdicts": {
+       "supersedes": 1
+      },
+      "applied": 1,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 1,
+      "input_tokens": 538,
+      "output_tokens": 23,
+      "supersessions": [
+       "sup_01M7JAV4P1BN5NCX3MM7TV6ZF2"
+      ]
+     }
+    }
+   }
+  },
+  {
+   "id": "u09",
+   "kind": "update",
+   "category": "preco",
+   "expected": "supersedes",
+   "older_event": "evt_01M7JAV4SH0ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JAV4V64996KBXZQ01MEE91",
+   "older": "O aluguel do apartamento é R$ 2.800 por mês.",
+   "newer": "Renovei o contrato e o aluguel passou a ser R$ 3.100 por mês.",
+   "same_event": false,
+   "queue_pairs": 1,
+   "detected": true,
+   "cosine": 0.9053999144261049,
+   "differs": "numbers",
+   "shared": [
+    "aluguel"
+   ],
+   "judged_run": true,
+   "verdict": "supersedes",
+   "confidence": 0.97,
+   "reason": "applied",
+   "applied": true,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {
+    "supersedes": 1
+   },
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 1,
+    "input_tokens": 553,
+    "output_tokens": 23,
+    "seconds": 1.124,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 1,
+      "judged": {
+       "supersedes": 1
+      },
+      "model_verdicts": {
+       "supersedes": 1
+      },
+      "applied": 1,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 1,
+      "input_tokens": 553,
+      "output_tokens": 23,
+      "supersessions": [
+       "sup_01M7JAVGS2BN5NCX3MM7TV6ZF2"
+      ]
+     }
+    }
+   }
+  },
+  {
+   "id": "u10",
+   "kind": "update",
+   "category": "preferencia",
+   "expected": "supersedes",
+   "older_event": "evt_01M7JAVGWS0ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JAVGWW4996KBXZQ01MEE90",
+   "older": "Meu café preferido é o expresso sem açúcar.",
+   "newer": "Mudei de gosto: hoje meu café preferido é o cappuccino com canela.",
+   "same_event": false,
+   "queue_pairs": 1,
+   "detected": true,
+   "cosine": 0.916793643643413,
+   "differs": "negations",
+   "shared": [
+    "cafe",
+    "preferido"
+   ],
+   "judged_run": true,
+   "verdict": "supersedes",
+   "confidence": 0.98,
+   "reason": "applied",
+   "applied": true,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {
+    "supersedes": 1
+   },
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 1,
+    "input_tokens": 545,
+    "output_tokens": 23,
+    "seconds": 1.064,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 1,
+      "judged": {
+       "supersedes": 1
+      },
+      "model_verdicts": {
+       "supersedes": 1
+      },
+      "applied": 1,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 1,
+      "input_tokens": 545,
+      "output_tokens": 23,
+      "supersessions": [
+       "sup_01M7JAVWVDBN5NCX3MM7TV6ZF2"
+      ]
+     }
+    }
+   }
+  },
+  {
+   "id": "u11",
+   "kind": "update",
+   "category": "preferencia",
+   "expected": "supersedes",
+   "older_event": "evt_01M7JAVWZ00ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JAVWZ24996KBXZQ01MEE91",
+   "older": "Prefiro reuniões de manhã, antes das 10h.",
+   "newer": "Agora prefiro reuniões à tarde, depois das 14h, porque deixo as manhãs para foco.",
+   "same_event": false,
+   "queue_pairs": 1,
+   "detected": true,
+   "cosine": 0.9383276963931835,
+   "differs": "numbers",
+   "shared": [
+    "prefiro",
+    "reunioes"
+   ],
+   "judged_run": true,
+   "verdict": "supersedes",
+   "confidence": 0.97,
+   "reason": "applied",
+   "applied": true,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {
+    "supersedes": 1
+   },
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 1,
+    "input_tokens": 555,
+    "output_tokens": 23,
+    "seconds": 1.124,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 1,
+      "judged": {
+       "supersedes": 1
+      },
+      "model_verdicts": {
+       "supersedes": 1
+      },
+      "applied": 1,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 1,
+      "input_tokens": 555,
+      "output_tokens": 23,
+      "supersessions": [
+       "sup_01M7JAW8ZXBN5NCX3MM7TV6ZF2"
+      ]
+     }
+    }
+   }
+  },
+  {
+   "id": "u12",
+   "kind": "update",
+   "category": "preferencia",
+   "expected": "supersedes",
+   "older_event": "evt_01M7JAW9500ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JAW952BN5NCX3MM7TV6ZF3",
+   "older": "Para viagens a trabalho eu prefiro a Azul.",
+   "newer": "Troquei de companhia: para viagens a trabalho agora prefiro a LATAM.",
+   "same_event": false,
+   "queue_pairs": 1,
+   "detected": true,
+   "cosine": 0.9084259602994201,
+   "differs": "entities",
+   "shared": [
+    "prefiro",
+    "trabalho",
+    "viagens"
+   ],
+   "judged_run": true,
+   "verdict": "supersedes",
+   "confidence": 0.98,
+   "reason": "applied",
+   "applied": true,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {
+    "supersedes": 1
+   },
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 1,
+    "input_tokens": 541,
+    "output_tokens": 23,
+    "seconds": 1.19,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 1,
+      "judged": {
+       "supersedes": 1
+      },
+      "model_verdicts": {
+       "supersedes": 1
+      },
+      "applied": 1,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 1,
+      "input_tokens": 541,
+      "output_tokens": 23,
+      "supersessions": [
+       "sup_01M7JAWN8ABN5NCX3MM7TV6ZF2"
+      ]
+     }
+    }
+   }
+  },
+  {
+   "id": "u13",
+   "kind": "update",
+   "category": "projeto",
+   "expected": "supersedes",
+   "older_event": "evt_01M7JAWNBSBN5NCX3MM7TV6ZF2",
+   "newer_event": "evt_01M7JAWNBT4996KBXZQ01MEE91",
+   "older": "O projeto Atlas está em fase de testes.",
+   "newer": "O projeto Atlas foi lançado em produção na semana passada.",
+   "same_event": false,
+   "queue_pairs": 0,
+   "detected": false,
+   "judged_run": true,
+   "verdict": null,
+   "confidence": null,
+   "reason": null,
+   "applied": false,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {},
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "seconds": 0.021,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 0,
+      "judged": {},
+      "model_verdicts": {},
+      "applied": 0,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "supersessions": []
+     }
+    }
+   }
+  },
+  {
+   "id": "u14",
+   "kind": "update",
+   "category": "projeto",
+   "expected": "supersedes",
+   "older_event": "evt_01M7JAX0CE0ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JAX0CFBN5NCX3MM7TV6ZF3",
+   "older": "A migração para o Postgres está pausada até março.",
+   "newer": "Retomamos a migração para o Postgres e ela já está 80% concluída.",
+   "same_event": false,
+   "queue_pairs": 1,
+   "detected": true,
+   "cosine": 0.9140954510435357,
+   "differs": "numbers",
+   "shared": [
+    "migracao",
+    "postgres"
+   ],
+   "judged_run": true,
+   "verdict": "supersedes",
+   "confidence": 0.95,
+   "reason": "applied",
+   "applied": true,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {
+    "supersedes": 1
+   },
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 1,
+    "input_tokens": 546,
+    "output_tokens": 23,
+    "seconds": 1.068,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 1,
+      "judged": {
+       "supersedes": 1
+      },
+      "model_verdicts": {
+       "supersedes": 1
+      },
+      "applied": 1,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 1,
+      "input_tokens": 546,
+      "output_tokens": 23,
+      "supersessions": [
+       "sup_01M7JAXCAHBN5NCX3MM7TV6ZF2"
+      ]
+     }
+    }
+   }
+  },
+  {
+   "id": "u15",
+   "kind": "update",
+   "category": "projeto",
+   "expected": "supersedes",
+   "older_event": "evt_01M7JAXCEG0ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JAXCEHBN5NCX3MM7TV6ZF3",
+   "older": "O app novo ainda não tem data de lançamento.",
+   "newer": "O app novo tem lançamento marcado para 15 de agosto.",
+   "same_event": false,
+   "queue_pairs": 1,
+   "detected": true,
+   "cosine": 0.9150123705857388,
+   "differs": "numbers",
+   "shared": [
+    "lancamento",
+    "novo"
+   ],
+   "judged_run": true,
+   "verdict": "supersedes",
+   "confidence": 0.95,
+   "reason": "applied",
+   "applied": true,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {
+    "supersedes": 1
+   },
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 1,
+    "input_tokens": 537,
+    "output_tokens": 23,
+    "seconds": 1.145,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 1,
+      "judged": {
+       "supersedes": 1
+      },
+      "model_verdicts": {
+       "supersedes": 1
+      },
+      "applied": 1,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 1,
+      "input_tokens": 537,
+      "output_tokens": 23,
+      "supersessions": [
+       "sup_01M7JAXREYBN5NCX3MM7TV6ZF2"
+      ]
+     }
+    }
+   }
+  },
+  {
+   "id": "u16",
+   "kind": "update",
+   "category": "projeto",
+   "expected": "supersedes",
+   "older_event": "evt_01M7JAXRJQ0ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JAXRJSBN5NCX3MM7TV6ZF3",
+   "older": "O contrato com a Acme está em negociação.",
+   "newer": "O contrato com a Acme foi cancelado; não vamos mais seguir com eles.",
+   "same_event": false,
+   "queue_pairs": 1,
+   "detected": true,
+   "cosine": 0.9245217809887496,
+   "differs": "negations",
+   "shared": [
+    "acme",
+    "contrato"
+   ],
+   "judged_run": true,
+   "verdict": "supersedes",
+   "confidence": 0.95,
+   "reason": "applied",
+   "applied": true,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {
+    "supersedes": 1
+   },
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 1,
+    "input_tokens": 540,
+    "output_tokens": 23,
+    "seconds": 0.845,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 1,
+      "judged": {
+       "supersedes": 1
+      },
+      "model_verdicts": {
+       "supersedes": 1
+      },
+      "applied": 1,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 1,
+      "input_tokens": 540,
+      "output_tokens": 23,
+      "supersessions": [
+       "sup_01M7JAY4A0BN5NCX3MM7TV6ZF2"
+      ]
+     }
+    }
+   }
+  },
+  {
+   "id": "u17",
+   "kind": "update",
+   "category": "quantidade",
+   "expected": "supersedes",
+   "older_event": "evt_01M7JAY4DN0ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JAY4DQ4996KBXZQ01MEE91",
+   "older": "Tenho 3 gatos em casa.",
+   "newer": "Adotei mais dois, então agora tenho 5 gatos em casa.",
+   "same_event": false,
+   "queue_pairs": 1,
+   "detected": true,
+   "cosine": 0.9132595039600295,
+   "differs": "numbers",
+   "shared": [
+    "casa",
+    "gatos"
+   ],
+   "judged_run": true,
+   "verdict": "supersedes",
+   "confidence": 0.95,
+   "reason": "applied",
+   "applied": true,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {
+    "supersedes": 1
+   },
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 1,
+    "input_tokens": 536,
+    "output_tokens": 23,
+    "seconds": 1.014,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 1,
+      "judged": {
+       "supersedes": 1
+      },
+      "model_verdicts": {
+       "supersedes": 1
+      },
+      "applied": 1,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 1,
+      "input_tokens": 536,
+      "output_tokens": 23,
+      "supersessions": [
+       "sup_01M7JAYG9MBN5NCX3MM7TV6ZF2"
+      ]
+     }
+    }
+   }
+  },
+  {
+   "id": "u18",
+   "kind": "update",
+   "category": "quantidade",
+   "expected": "supersedes",
+   "older_event": "evt_01M7JAYGD30ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JAYGD54996KBXZQ01MEE91",
+   "older": "Nosso time de engenharia tem 12 pessoas.",
+   "newer": "Depois das contratações, o time de engenharia tem 18 pessoas.",
+   "same_event": false,
+   "queue_pairs": 1,
+   "detected": true,
+   "cosine": 0.9288335274196725,
+   "differs": "numbers",
+   "shared": [
+    "engenharia",
+    "pessoas",
+    "time"
+   ],
+   "judged_run": true,
+   "verdict": "supersedes",
+   "confidence": 0.95,
+   "reason": "applied",
+   "applied": true,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {
+    "supersedes": 1
+   },
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 1,
+    "input_tokens": 542,
+    "output_tokens": 23,
+    "seconds": 1.279,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 1,
+      "judged": {
+       "supersedes": 1
+      },
+      "model_verdicts": {
+       "supersedes": 1
+      },
+      "applied": 1,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 1,
+      "input_tokens": 542,
+      "output_tokens": 23,
+      "supersessions": [
+       "sup_01M7JAYWHFBN5NCX3MM7TV6ZF2"
+      ]
+     }
+    }
+   }
+  },
+  {
+   "id": "u19",
+   "kind": "update",
+   "category": "quantidade",
+   "expected": "supersedes",
+   "older_event": "evt_01M7JAYWMW0ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JAYWPGBN5NCX3MM7TV6ZF3",
+   "older": "Corro 10 quilômetros por semana.",
+   "newer": "Aumentei o treino: agora corro 25 quilômetros por semana.",
+   "same_event": false,
+   "queue_pairs": 1,
+   "detected": true,
+   "cosine": 0.9160182347753884,
+   "differs": "numbers",
+   "shared": [
+    "corro",
+    "quilometros",
+    "semana"
+   ],
+   "judged_run": true,
+   "verdict": "supersedes",
+   "confidence": 0.95,
+   "reason": "applied",
+   "applied": true,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {
+    "supersedes": 1
+   },
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 1,
+    "input_tokens": 537,
+    "output_tokens": 23,
+    "seconds": 1.136,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 1,
+      "judged": {
+       "supersedes": 1
+      },
+      "model_verdicts": {
+       "supersedes": 1
+      },
+      "applied": 1,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 1,
+      "input_tokens": 537,
+      "output_tokens": 23,
+      "supersessions": [
+       "sup_01M7JAZ8MSBN5NCX3MM7TV6ZF2"
+      ]
+     }
+    }
+   }
+  },
+  {
+   "id": "u20",
+   "kind": "update",
+   "category": "quantidade",
+   "expected": "supersedes",
+   "older_event": "evt_01M7JAZ8R60ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JAZ8R8BN5NCX3MM7TV6ZF3",
+   "older": "A loja tem 40 clientes ativos.",
+   "newer": "A loja chegou a 75 clientes ativos este mês.",
+   "same_event": false,
+   "queue_pairs": 1,
+   "detected": true,
+   "cosine": 0.9193505185394069,
+   "differs": "numbers",
+   "shared": [
+    "ativos",
+    "clientes",
+    "loja"
+   ],
+   "judged_run": true,
+   "verdict": "uncertain",
+   "confidence": 0.85,
+   "reason": "uncertain:low_confidence",
+   "applied": false,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {
+    "uncertain": 1
+   },
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 1,
+    "input_tokens": 537,
+    "output_tokens": 23,
+    "seconds": 1.033,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 1,
+      "judged": {
+       "uncertain": 1
+      },
+      "model_verdicts": {
+       "supersedes": 1
+      },
+      "applied": 0,
+      "rejected": {
+       "uncertain:low_confidence": 1
+      },
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 1,
+      "input_tokens": 537,
+      "output_tokens": 23,
+      "supersessions": []
+     }
+    }
+   }
+  },
+  {
+   "id": "c01",
+   "kind": "control",
+   "category": "outra_pessoa",
+   "expected": "no_supersede",
+   "older_event": "evt_01M7JAZMRB0ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JAZMRDBN5NCX3MM7TV6ZF3",
+   "older": "Eu moro em São Paulo, na Vila Mariana.",
+   "newer": "Minha irmã mora no Rio de Janeiro, em Botafogo.",
+   "same_event": false,
+   "queue_pairs": 0,
+   "detected": false,
+   "judged_run": true,
+   "verdict": null,
+   "confidence": null,
+   "reason": null,
+   "applied": false,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {},
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "seconds": 0.015,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 0,
+      "judged": {},
+      "model_verdicts": {},
+      "applied": 0,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "supersessions": []
+     }
+    }
+   }
+  },
+  {
+   "id": "c02",
+   "kind": "control",
+   "category": "outra_pessoa",
+   "expected": "no_supersede",
+   "older_event": "evt_01M7JAZZXX0ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JAZZXZ4996KBXZQ01MEE91",
+   "older": "Eu trabalho como analista de dados na Natura.",
+   "newer": "O Marcos trabalha como gerente de dados na Natura.",
+   "same_event": false,
+   "queue_pairs": 1,
+   "detected": true,
+   "cosine": 0.9486993090892722,
+   "differs": "entities",
+   "shared": [
+    "dados",
+    "natura"
+   ],
+   "judged_run": true,
+   "verdict": "unrelated",
+   "confidence": 0.95,
+   "reason": "unrelated",
+   "applied": false,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {
+    "unrelated": 1
+   },
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 1,
+    "input_tokens": 534,
+    "output_tokens": 22,
+    "seconds": 1.39,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 1,
+      "judged": {
+       "unrelated": 1
+      },
+      "model_verdicts": {
+       "unrelated": 1
+      },
+      "applied": 0,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 1,
+      "input_tokens": 534,
+      "output_tokens": 22,
+      "supersessions": []
+     }
+    }
+   }
+  },
+  {
+   "id": "c03",
+   "kind": "control",
+   "category": "outra_pessoa",
+   "expected": "no_supersede",
+   "older_event": "evt_01M7JB0C9E0ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JB0C9G4996KBXZQ01MEE91",
+   "older": "Tenho 3 gatos em casa.",
+   "newer": "A Júlia tem 5 gatos em casa.",
+   "same_event": false,
+   "queue_pairs": 1,
+   "detected": true,
+   "cosine": 0.930752901154656,
+   "differs": "numbers",
+   "shared": [
+    "casa",
+    "gatos"
+   ],
+   "judged_run": true,
+   "verdict": "unrelated",
+   "confidence": 0.85,
+   "reason": "unrelated",
+   "applied": false,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {
+    "unrelated": 1
+   },
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 1,
+    "input_tokens": 531,
+    "output_tokens": 22,
+    "seconds": 1.38,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 1,
+      "judged": {
+       "unrelated": 1
+      },
+      "model_verdicts": {
+       "unrelated": 1
+      },
+      "applied": 0,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 1,
+      "input_tokens": 531,
+      "output_tokens": 22,
+      "supersessions": []
+     }
+    }
+   }
+  },
+  {
+   "id": "c04",
+   "kind": "control",
+   "category": "outra_pessoa",
+   "expected": "no_supersede",
+   "older_event": "evt_01M7JB0RKR0ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JB0RKT4996KBXZQ01MEE91",
+   "older": "Meu café preferido é o expresso sem açúcar.",
+   "newer": "O café preferido do Rafael é o cappuccino com canela.",
+   "same_event": false,
+   "queue_pairs": 1,
+   "detected": true,
+   "cosine": 0.9191835079139564,
+   "differs": "entities",
+   "shared": [
+    "cafe",
+    "preferido"
+   ],
+   "judged_run": true,
+   "verdict": "unrelated",
+   "confidence": 0.7,
+   "reason": "unrelated",
+   "applied": false,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {
+    "unrelated": 1
+   },
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 1,
+    "input_tokens": 539,
+    "output_tokens": 22,
+    "seconds": 1.114,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 1,
+      "judged": {
+       "unrelated": 1
+      },
+      "model_verdicts": {
+       "unrelated": 1
+      },
+      "applied": 0,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 1,
+      "input_tokens": 539,
+      "output_tokens": 22,
+      "supersessions": []
+     }
+    }
+   }
+  },
+  {
+   "id": "c05",
+   "kind": "control",
+   "category": "outro_atributo",
+   "expected": "no_supersede",
+   "older_event": "evt_01M7JB14PH0ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JB14PTBN5NCX3MM7TV6ZF3",
+   "older": "O Plano Pro custa R$ 49 por mês.",
+   "newer": "O Plano Pro inclui 50 GB de armazenamento.",
+   "same_event": false,
+   "queue_pairs": 1,
+   "detected": true,
+   "cosine": 0.9148233617263689,
+   "differs": "numbers",
+   "shared": [
+    "plano",
+    "pro"
+   ],
+   "judged_run": true,
+   "verdict": "coexist",
+   "confidence": 0.9,
+   "reason": "coexist",
+   "applied": false,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {
+    "coexist": 1
+   },
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 1,
+    "input_tokens": 538,
+    "output_tokens": 22,
+    "seconds": 1.05,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 1,
+      "judged": {
+       "coexist": 1
+      },
+      "model_verdicts": {
+       "coexist": 1
+      },
+      "applied": 0,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 1,
+      "input_tokens": 538,
+      "output_tokens": 22,
+      "supersessions": []
+     }
+    }
+   }
+  },
+  {
+   "id": "c06",
+   "kind": "control",
+   "category": "outro_atributo",
+   "expected": "no_supersede",
+   "older_event": "evt_01M7JB1GPD0ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JB1GPQBN5NCX3MM7TV6ZF3",
+   "older": "O aluguel do apartamento é R$ 2.800 por mês.",
+   "newer": "O condomínio do apartamento é R$ 650 por mês.",
+   "same_event": false,
+   "queue_pairs": 1,
+   "detected": true,
+   "cosine": 0.9191033409168967,
+   "differs": "numbers",
+   "shared": [
+    "apartamento"
+   ],
+   "judged_run": true,
+   "verdict": "coexist",
+   "confidence": 0.95,
+   "reason": "coexist",
+   "applied": false,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {
+    "coexist": 1
+   },
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 1,
+    "input_tokens": 544,
+    "output_tokens": 22,
+    "seconds": 1.137,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 1,
+      "judged": {
+       "coexist": 1
+      },
+      "model_verdicts": {
+       "coexist": 1
+      },
+      "applied": 0,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 1,
+      "input_tokens": 544,
+      "output_tokens": 22,
+      "supersessions": []
+     }
+    }
+   }
+  },
+  {
+   "id": "c07",
+   "kind": "control",
+   "category": "outro_atributo",
+   "expected": "no_supersede",
+   "older_event": "evt_01M7JB1WS40ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JB1WS6BN5NCX3MM7TV6ZF3",
+   "older": "Nosso time de engenharia tem 12 pessoas.",
+   "newer": "Nosso time de engenharia tem 2 gerentes.",
+   "same_event": false,
+   "queue_pairs": 1,
+   "detected": true,
+   "cosine": 0.9575172232635113,
+   "differs": "numbers",
+   "shared": [
+    "engenharia",
+    "time"
+   ],
+   "judged_run": true,
+   "verdict": "coexist",
+   "confidence": 0.9,
+   "reason": "coexist",
+   "applied": false,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {
+    "coexist": 1
+   },
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 1,
+    "input_tokens": 537,
+    "output_tokens": 22,
+    "seconds": 1.024,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 1,
+      "judged": {
+       "coexist": 1
+      },
+      "model_verdicts": {
+       "coexist": 1
+      },
+      "applied": 0,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 1,
+      "input_tokens": 537,
+      "output_tokens": 22,
+      "supersessions": []
+     }
+    }
+   }
+  },
+  {
+   "id": "c08",
+   "kind": "control",
+   "category": "soma",
+   "expected": "no_supersede",
+   "older_event": "evt_01M7JB28TR0ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JB28TT4996KBXZQ01MEE91",
+   "older": "Eu falo inglês fluente.",
+   "newer": "Também falo espanhol, comecei a estudar há dois anos.",
+   "same_event": false,
+   "queue_pairs": 0,
+   "detected": false,
+   "judged_run": true,
+   "verdict": null,
+   "confidence": null,
+   "reason": null,
+   "applied": false,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {},
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "seconds": 0.015,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 0,
+      "judged": {},
+      "model_verdicts": {},
+      "applied": 0,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "supersessions": []
+     }
+    }
+   }
+  },
+  {
+   "id": "c09",
+   "kind": "control",
+   "category": "soma",
+   "expected": "no_supersede",
+   "older_event": "evt_01M7JB2KYJ0ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JB2KYKBN5NCX3MM7TV6ZF3",
+   "older": "Gosto de correr no Parque Ibirapuera.",
+   "newer": "Também gosto de pedalar no Parque Villa-Lobos aos domingos.",
+   "same_event": false,
+   "queue_pairs": 0,
+   "detected": false,
+   "judged_run": true,
+   "verdict": null,
+   "confidence": null,
+   "reason": null,
+   "applied": false,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {},
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "seconds": 0.016,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 0,
+      "judged": {},
+      "model_verdicts": {},
+      "applied": 0,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "supersessions": []
+     }
+    }
+   }
+  },
+  {
+   "id": "c10",
+   "kind": "control",
+   "category": "soma",
+   "expected": "no_supersede",
+   "older_event": "evt_01M7JB2Z03BN5NCX3MM7TV6ZF2",
+   "newer_event": "evt_01M7JB2Z044996KBXZQ01MEE91",
+   "older": "Tenho um cachorro chamado Thor.",
+   "newer": "Além do Thor, agora também tenho uma gata chamada Luna.",
+   "same_event": false,
+   "queue_pairs": 1,
+   "detected": true,
+   "cosine": 0.9041460261111036,
+   "differs": "entities",
+   "shared": [
+    "thor"
+   ],
+   "judged_run": true,
+   "verdict": "coexist",
+   "confidence": 0.95,
+   "reason": "coexist",
+   "applied": false,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {
+    "coexist": 1
+   },
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 1,
+    "input_tokens": 535,
+    "output_tokens": 22,
+    "seconds": 1.19,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 1,
+      "judged": {
+       "coexist": 1
+      },
+      "model_verdicts": {
+       "coexist": 1
+      },
+      "applied": 0,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 1,
+      "input_tokens": 535,
+      "output_tokens": 22,
+      "supersessions": []
+     }
+    }
+   }
+  },
+  {
+   "id": "c11",
+   "kind": "control",
+   "category": "soma",
+   "expected": "no_supersede",
+   "older_event": "evt_01M7JB3B4X0ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JB3B4Z4996KBXZQ01MEE91",
+   "older": "O projeto Atlas usa Go no backend.",
+   "newer": "O projeto Atlas também usa Python nos scripts de dados.",
+   "same_event": false,
+   "queue_pairs": 1,
+   "detected": true,
+   "cosine": 0.9210588601622349,
+   "differs": "entities",
+   "shared": [
+    "atlas",
+    "projeto"
+   ],
+   "judged_run": true,
+   "verdict": "coexist",
+   "confidence": 0.9,
+   "reason": "coexist",
+   "applied": false,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {
+    "coexist": 1
+   },
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 1,
+    "input_tokens": 529,
+    "output_tokens": 22,
+    "seconds": 1.073,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 1,
+      "judged": {
+       "coexist": 1
+      },
+      "model_verdicts": {
+       "coexist": 1
+      },
+      "applied": 0,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 1,
+      "input_tokens": 529,
+      "output_tokens": 22,
+      "supersessions": []
+     }
+    }
+   }
+  },
+  {
+   "id": "c12",
+   "kind": "control",
+   "category": "historico",
+   "expected": "no_supersede",
+   "older_event": "evt_01M7JB3Q620ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JB3Q7N4996KBXZQ01MEE91",
+   "older": "Em 2019 eu morei em Lisboa por seis meses.",
+   "newer": "Em 2021 eu morei em Berlim por um ano.",
+   "same_event": false,
+   "queue_pairs": 1,
+   "detected": true,
+   "cosine": 0.9115722005239187,
+   "differs": "numbers",
+   "shared": [
+    "morei"
+   ],
+   "judged_run": true,
+   "verdict": "coexist",
+   "confidence": 0.9,
+   "reason": "coexist",
+   "applied": false,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {
+    "coexist": 1
+   },
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 1,
+    "input_tokens": 537,
+    "output_tokens": 22,
+    "seconds": 1.212,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 1,
+      "judged": {
+       "coexist": 1
+      },
+      "model_verdicts": {
+       "coexist": 1
+      },
+      "applied": 0,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 1,
+      "input_tokens": 537,
+      "output_tokens": 22,
+      "supersessions": []
+     }
+    }
+   }
+  },
+  {
+   "id": "c13",
+   "kind": "control",
+   "category": "historico",
+   "expected": "no_supersede",
+   "older_event": "evt_01M7JB43F60ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JB43F84996KBXZQ01MEE91",
+   "older": "Meu primeiro emprego foi na padaria do meu tio, em 2010.",
+   "newer": "Meu segundo emprego foi numa livraria, em 2012.",
+   "same_event": false,
+   "queue_pairs": 0,
+   "detected": false,
+   "judged_run": true,
+   "verdict": null,
+   "confidence": null,
+   "reason": null,
+   "applied": false,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {},
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "seconds": 0.016,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 0,
+      "judged": {},
+      "model_verdicts": {},
+      "applied": 0,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "supersessions": []
+     }
+    }
+   }
+  },
+  {
+   "id": "c14",
+   "kind": "control",
+   "category": "historico",
+   "expected": "no_supersede",
+   "older_event": "evt_01M7JB4EH70ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JB4EH8BN5NCX3MM7TV6ZF3",
+   "older": "Em março visitei o Chile com a família.",
+   "newer": "Em agosto visitei o Peru com a família.",
+   "same_event": false,
+   "queue_pairs": 1,
+   "detected": true,
+   "cosine": 0.9140744815869442,
+   "differs": "entities",
+   "shared": [
+    "familia",
+    "visitei"
+   ],
+   "judged_run": true,
+   "verdict": "coexist",
+   "confidence": 0.9,
+   "reason": "coexist",
+   "applied": false,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {
+    "coexist": 1
+   },
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 1,
+    "input_tokens": 531,
+    "output_tokens": 22,
+    "seconds": 1.075,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 1,
+      "judged": {
+       "coexist": 1
+      },
+      "model_verdicts": {
+       "coexist": 1
+      },
+      "applied": 0,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 1,
+      "input_tokens": 531,
+      "output_tokens": 22,
+      "supersessions": []
+     }
+    }
+   }
+  },
+  {
+   "id": "c15",
+   "kind": "control",
+   "category": "hipotese",
+   "expected": "no_supersede",
+   "older_event": "evt_01M7JB4TKPBN5NCX3MM7TV6ZF2",
+   "newer_event": "evt_01M7JB4TKQ4996KBXZQ01MEE91",
+   "older": "Eu moro em São Paulo, na Vila Mariana.",
+   "newer": "Estou pensando em me mudar para o Rio de Janeiro no ano que vem, mas ainda não decidi.",
+   "same_event": false,
+   "queue_pairs": 0,
+   "detected": false,
+   "judged_run": true,
+   "verdict": null,
+   "confidence": null,
+   "reason": null,
+   "applied": false,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {},
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "seconds": 0.019,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 0,
+      "judged": {},
+      "model_verdicts": {},
+      "applied": 0,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "supersessions": []
+     }
+    }
+   }
+  },
+  {
+   "id": "c16",
+   "kind": "control",
+   "category": "hipotese",
+   "expected": "no_supersede",
+   "older_event": "evt_01M7JB55MB0ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JB55MMBN5NCX3MM7TV6ZF3",
+   "older": "O Plano Pro custa R$ 49 por mês.",
+   "newer": "Se o Plano Pro passar de R$ 70 por mês, vou cancelar a assinatura.",
+   "same_event": false,
+   "queue_pairs": 1,
+   "detected": true,
+   "cosine": 0.9240677930568413,
+   "differs": "numbers",
+   "shared": [
+    "plano",
+    "pro"
+   ],
+   "judged_run": true,
+   "verdict": "coexist",
+   "confidence": 0.8,
+   "reason": "coexist",
+   "applied": false,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {
+    "coexist": 1
+   },
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 1,
+    "input_tokens": 547,
+    "output_tokens": 22,
+    "seconds": 0.995,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 1,
+      "judged": {
+       "coexist": 1
+      },
+      "model_verdicts": {
+       "coexist": 1
+      },
+      "applied": 0,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 1,
+      "input_tokens": 547,
+      "output_tokens": 22,
+      "supersessions": []
+     }
+    }
+   }
+  },
+  {
+   "id": "c17",
+   "kind": "control",
+   "category": "hipotese",
+   "expected": "no_supersede",
+   "older_event": "evt_01M7JB5HJV0ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JB5HJX4996KBXZQ01MEE91",
+   "older": "Trabalho como analista de dados na Natura.",
+   "newer": "Talvez eu me candidate a uma vaga de gerente na Ambev em dezembro.",
+   "same_event": false,
+   "queue_pairs": 0,
+   "detected": false,
+   "judged_run": true,
+   "verdict": null,
+   "confidence": null,
+   "reason": null,
+   "applied": false,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {},
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "seconds": 0.02,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 0,
+      "judged": {},
+      "model_verdicts": {},
+      "applied": 0,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "supersessions": []
+     }
+    }
+   }
+  },
+  {
+   "id": "c18",
+   "kind": "control",
+   "category": "citacao",
+   "expected": "no_supersede",
+   "older_event": "evt_01M7JB5WKDBN5NCX3MM7TV6ZF2",
+   "newer_event": "evt_01M7JB5WKE4996KBXZQ01MEE91",
+   "older": "Eu moro em São Paulo, na Vila Mariana.",
+   "newer": "Meu chefe disse brincando: \"você devia morar no Rio de Janeiro\".",
+   "same_event": false,
+   "queue_pairs": 0,
+   "detected": false,
+   "judged_run": true,
+   "verdict": null,
+   "confidence": null,
+   "reason": null,
+   "applied": false,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {},
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "seconds": 0.016,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 0,
+      "judged": {},
+      "model_verdicts": {},
+      "applied": 0,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "supersessions": []
+     }
+    }
+   }
+  },
+  {
+   "id": "c19",
+   "kind": "control",
+   "category": "citacao",
+   "expected": "no_supersede",
+   "older_event": "evt_01M7JB67NNBN5NCX3MM7TV6ZF2",
+   "newer_event": "evt_01M7JB67NWXZTTG156R1Z8DZ19",
+   "older": "Tenho 3 gatos em casa.",
+   "newer": "A veterinária comentou que \"quem tem 5 gatos precisa de duas caixas de areia a mais\".",
+   "same_event": false,
+   "queue_pairs": 0,
+   "detected": false,
+   "judged_run": true,
+   "verdict": null,
+   "confidence": null,
+   "reason": null,
+   "applied": false,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {},
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "seconds": 0.007,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 0,
+      "judged": {},
+      "model_verdicts": {},
+      "applied": 0,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "supersessions": []
+     }
+    }
+   }
+  },
+  {
+   "id": "c20",
+   "kind": "control",
+   "category": "citacao",
+   "expected": "no_supersede",
+   "older_event": "evt_01M7JB6JP90ZSV5TRF308E3M4X",
+   "newer_event": "evt_01M7JB6JPBBN5NCX3MM7TV6ZF3",
+   "older": "Meu café preferido é o expresso sem açúcar.",
+   "newer": "Minha mãe sempre diz: \"o melhor café é o cappuccino com canela\".",
+   "same_event": false,
+   "queue_pairs": 0,
+   "detected": false,
+   "judged_run": true,
+   "verdict": null,
+   "confidence": null,
+   "reason": null,
+   "applied": false,
+   "other_supersessions": [],
+   "false_supersession": false,
+   "verdicts_all": {},
+   "sleep": {
+    "status": "completed",
+    "llm_calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "seconds": 0.018,
+    "counts": {
+     "integrity_violations": 0,
+     "merge_proposals": [],
+     "stale_facts": [],
+     "pages_rebuilt": [],
+     "gate_proposed": [],
+     "learning": {
+      "passed": false,
+      "promoted": false,
+      "baseline": 0,
+      "learned": 0,
+      "lambda": 0,
+      "notices": [
+       "train_skipped_few_examples",
+       "no_model"
+      ]
+     },
+     "events_extracted": 0,
+     "events_skipped": [],
+     "fact_actions": {},
+     "candidates_dropped": 0,
+     "verdicts": {},
+     "facts_activated": [],
+     "facts_superseded": [],
+     "facts_history": [],
+     "facts_quarantined": [],
+     "facts_rejected": [],
+     "verdicts_refused": [],
+     "merges_applied": [],
+     "merges_rejected": [],
+     "pages_created": [],
+     "page_items_added": [],
+     "lessons_skipped": 0,
+     "invalid_answers": 0,
+     "llm_errors": 0,
+     "conflicts": {
+      "mode": "maintenance",
+      "enabled": true,
+      "pending": 0,
+      "judged": {},
+      "model_verdicts": {},
+      "applied": 0,
+      "rejected": {},
+      "invalid_answers": 0,
+      "too_large": 0,
+      "dropped": 0,
+      "left": 0,
+      "llm_calls": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "supersessions": []
+     }
+    }
+   }
+  }
+ ],
+ "stop": false
+}
