@@ -109,6 +109,7 @@ def main(argv=None) -> int:
     ap.add_argument("--budget", type=int, default=BUDGET)
     ap.add_argument("--allow-over-budget", action="store_true")
     ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--tag", help="proxy tag (default <condition>-reader); the prompt is unchanged")
     args = ap.parse_args(argv)
 
     max_tokens = args.max_tokens or (prompts.GEN_LENGTH_COT if args.reading == "con" else prompts.GEN_LENGTH_DIRECT)
@@ -116,7 +117,7 @@ def main(argv=None) -> int:
     jobs = build_jobs(args)
     done = common.done_ids(out)
     todo = [j for j in jobs if j["question_id"] not in done]
-    tag = f"{args.condition}-reader"
+    tag = args.tag or f"{args.condition}-reader"
     print(f"{len(jobs)} questions, {len(done & {j['question_id'] for j in jobs})} already answered, {len(todo)} to do; tag {tag}", file=sys.stderr)
     lock = threading.Lock()
     stop = threading.Event()

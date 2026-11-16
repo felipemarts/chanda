@@ -31,6 +31,7 @@ def main(argv=None) -> int:
     ap.add_argument("--proxy", default="http://127.0.0.1:8787")
     ap.add_argument("--model", default=common.DEFAULT_MODEL)
     ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--tag", help="proxy tag (default <condition>-judge); the prompt is unchanged")
     args = ap.parse_args(argv)
 
     src = os.path.join(args.raw_dir, f"{args.condition}.answers.jsonl")
@@ -38,7 +39,7 @@ def main(argv=None) -> int:
     answers = common.read_jsonl(src)
     done = common.done_ids(out)
     todo = [a for a in answers if a["question_id"] not in done]
-    tag = f"{args.condition}-judge"
+    tag = args.tag or f"{args.condition}-judge"
     print(f"{len(answers)} answers, {len(todo)} to judge; tag {tag}", file=sys.stderr)
     lock = threading.Lock()
     stop = threading.Event()
