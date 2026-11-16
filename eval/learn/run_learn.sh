@@ -142,7 +142,7 @@ cond_sets K
 
 if [ $DRY = 0 ]; then
   WINDOW=offpeak
-  [ "${OFFPEAK_ONLY:-1}" = 1 ] || { WINDOW=peak; log "OFFPEAK_ONLY=0: calls in peak hours are allowed; each is a deviation (PROTOCOL.md) and the report lists them"; }
+  [ "${OFFPEAK_ONLY:-0}" = 1 ] || { WINDOW=peak; log "OFFPEAK_ONLY=0: calls in peak hours are allowed; each is a deviation (PROTOCOL.md) and the report lists them"; }
   "$PY" "$LEARN_DIR/project_cost.py" --work "$WORK" --cost "$COST_FILE" --cap "$CAP_USD" --window "$WINDOW" ||
     die "the projection exceeds the US\$$CAP_USD cap: ask before running"
   [ $PAID = 1 ] || { log "no LLM call made; pass --paid to run (off-peak only unless OFFPEAK_ONLY=0, enforced by the proxy)"; exit 0; }
