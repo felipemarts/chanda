@@ -10,6 +10,7 @@ import (
 
 	"github.com/felipemarts/chanda-mcp/internal/audit"
 	"github.com/felipemarts/chanda-mcp/internal/core"
+	"github.com/felipemarts/chanda-mcp/internal/keys"
 )
 
 // SignalTaskOutcome is the only outcomes.signal written today.
@@ -39,6 +40,9 @@ type OutcomeResult struct {
 	Credited []string `json:"credited"` // used ids that were delivered: they get the credit
 	Ignored  []string `json:"ignored"`  // used ids not delivered in that retrieval: no effect
 	Notices  []string `json:"notices"`
+	// KeysCreated counts the learned keys this outcome made (decision 0145;
+	// write.learned_keys on and value > 0); 0 otherwise.
+	KeysCreated int `json:"keys_created,omitempty"`
 }
 
 // Outcome records a task outcome for a retrieval and updates utility in the
@@ -50,7 +54,9 @@ type OutcomeResult struct {
 // outcome per retrieval (CodeConflict on a repeat); only used ids that were
 // delivered in that retrieval get credit — the others are reported in
 // Ignored and change nothing. The outcome row stores all used ids given, so
-// RecomputeUtility re-applies the same filter.
+// RecomputeUtility re-applies the same filter. With write.learned_keys on, a
+// value > 0 also makes the retrieval's query text a key of every credited
+// record (internal/keys), in the same transaction.
 func (r *Ranker) Outcome(ctx context.Context, in OutcomeInput) (OutcomeResult, error) {
 	res := OutcomeResult{Credited: []string{}, Ignored: []string{}, Notices: []string{}}
 	switch {
@@ -143,7 +149,19 @@ func (r *Ranker) Outcome(ctx context.Context, in OutcomeInput) (OutcomeResult, e
 				"credited": len(res.Credited), "ignored": len(res.Ignored), "delivered": len(delivered),
 			},
 		})
-		return err
+		if err != nil {
+			return err
+		}
+		// Learned keys (decision 0145): only this path, the session agent's
+		// outcome, creates them; sleep never does.
+		if r.env.Cfg.Write.LearnedKeys && in.Value > 0 && len(res.Credited) > 0 {
+			c, err := keys.CreateForOutcome(ctx, tx, r.env, in.Namespace, res.ID, in.RetrievalID, in.Actor, res.Credited, now)
+			if err != nil {
+				return err
+			}
+			res.KeysCreated = c.Created
+		}
+		return nil
 	})
 	if err != nil {
 		return OutcomeResult{Credited: []string{}, Ignored: []string{}, Notices: []string{}}, err
