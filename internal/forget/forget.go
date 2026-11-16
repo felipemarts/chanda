@@ -106,7 +106,8 @@ func Forget(ctx context.Context, e *env.Env, ns string, scope Scope, dryRun bool
 func (p *plan) empty() bool {
 	r := p.removed
 	return len(r.Events)+len(r.Facts)+len(r.PageItems)+len(r.Pages)+len(r.Entities)+len(r.Documents)+
-		len(r.Sources)+len(r.Retrievals)+len(r.Outcomes)+len(r.Keys)+len(p.factsKept)+len(p.rebuild) == 0
+		len(r.Sources)+len(r.Retrievals)+len(r.Outcomes)+len(r.Keys)+len(r.Conflicts)+len(r.Supersessions)+
+		len(p.factsKept)+len(p.rebuild) == 0
 }
 
 // execIn runs query once per chunk of ids (bound to the single "(%s)" in
@@ -197,6 +198,8 @@ func (p *plan) delete(ctx context.Context, tx *sql.Tx, e *env.Env, ns string, c 
 		ids        []string
 	}{
 		{"keys", `DELETE FROM learned_keys WHERE id IN (%s)`, r.Keys}, // before their retrievals (foreign key)
+		{"conflict_candidates", `DELETE FROM conflict_candidates WHERE id IN (%s)`, r.Conflicts},
+		{"supersessions", `DELETE FROM supersessions WHERE id IN (%s)`, r.Supersessions},
 		{"outcomes", `DELETE FROM outcomes WHERE id IN (%s)`, r.Outcomes},
 		{"outcomes", `DELETE FROM outcomes WHERE retrieval_id IN (%s)`, r.Retrievals},
 		{"retrievals", `DELETE FROM retrievals WHERE id IN (%s)`, r.Retrievals},

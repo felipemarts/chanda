@@ -28,6 +28,10 @@ type Removed struct {
 	Retrievals []string `json:"retrievals"`
 	Outcomes   []string `json:"outcomes"`
 	Keys       []string `json:"keys"` // learned query keys (decision 0145)
+	// Conflict resolution (decision 0148): the queue rows and the
+	// supersessions that name a removed event. Absent when none.
+	Conflicts     []string `json:"conflicts,omitempty"`
+	Supersessions []string `json:"supersessions,omitempty"`
 }
 
 // plan is everything one forget will do, computed before any deletion.
@@ -185,6 +189,9 @@ func buildPlan(ctx context.Context, q store.Queryer, cfg *config.Config, dbPath,
 		return nil, err
 	}
 	if err := p.planKeys(ctx, q, ns, gone); err != nil {
+		return nil, err
+	}
+	if err := p.planConflicts(ctx, q, ns, gone); err != nil {
 		return nil, err
 	}
 	p.gone = gone
@@ -449,6 +456,50 @@ func (p *plan) planKeys(ctx context.Context, q store.Queryer, ns string, gone ma
 		return err
 	}
 	p.embs = append(p.embs, embs...)
+	return nil
+}
+
+// planConflicts selects the conflict queue rows and the supersessions
+// (decision 0148) that name a removed event on either side: they go with
+// it. Their ids join gone.
+func (p *plan) planConflicts(ctx context.Context, q store.Queryer, ns string, gone map[string]bool) error {
+	pairs, sups := map[string]bool{}, map[string]bool{}
+	for _, ch := range chunk(p.removed.Events, 400) {
+		ph := strings.TrimSuffix(strings.Repeat("?,", len(ch)), ",")
+		args := []any{ns}
+		for _, id := range ch {
+			args = append(args, id)
+		}
+		args = append(args, args[1:]...)
+		for _, x := range []struct {
+			query string
+			into  map[string]bool
+		}{
+			{`SELECT id FROM conflict_candidates WHERE namespace = ? AND (older_id IN (` + ph + `) OR newer_id IN (` + ph + `))`, pairs},
+			{`SELECT id FROM supersessions WHERE namespace = ? AND (old_id IN (` + ph + `) OR new_id IN (` + ph + `))`, sups},
+		} {
+			got, err := ids(ctx, q, x.query, args...)
+			if err != nil {
+				return err
+			}
+			for _, id := range got {
+				x.into[id] = true
+			}
+		}
+	}
+	p.removed.Conflicts, p.removed.Supersessions = sortedKeys(pairs), sortedKeys(sups)
+	if len(pairs) == 0 {
+		p.removed.Conflicts = nil
+	}
+	if len(sups) == 0 {
+		p.removed.Supersessions = nil
+	}
+	for id := range pairs {
+		gone[id] = true
+	}
+	for id := range sups {
+		gone[id] = true
+	}
 	return nil
 }
 

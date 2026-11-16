@@ -109,6 +109,7 @@ func (a *App) Forget(ctx context.Context, in chanda.ForgetInput) (chanda.ForgetO
 		Provenance: int64(rep.Counts["provenance_edges"]), Utility: int64(rep.Counts["utility"]),
 		Retrievals: int64(len(r.Retrievals)), Outcomes: int64(len(r.Outcomes)), Snapshots: int64(rep.Snapshots),
 		EntityLinks: int64(len(r.Entities)), Keys: int64(len(r.Keys)),
+		ConflictPairs: int64(len(r.Conflicts)), Supersessions: int64(len(r.Supersessions)),
 	}
 	if v := rep.Verification; v != nil {
 		out.Verification.Passed = v.OK

@@ -447,6 +447,9 @@ type RemovedCounts struct {
 	Snapshots    int64 `json:"snapshots"`
 	EntityLinks  int64 `json:"entity_links"`
 	Keys         int64 `json:"keys" jsonschema:"learned query keys"`
+	// Conflict resolution (decision 0148); absent when none.
+	ConflictPairs int64 `json:"conflict_pairs,omitempty" jsonschema:"conflict queue rows naming a removed record"`
+	Supersessions int64 `json:"supersessions,omitempty" jsonschema:"supersessions naming a removed record"`
 }
 
 // Probe is one absence check run after deletion.
