@@ -1,0 +1,1285 @@
+{
+ "language": "pt-BR",
+ "pairs": [
+  {
+   "id": "u01",
+   "kind": "update",
+   "category": "endereco",
+   "older": {
+    "date": "2023-01-10T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Eu moro em São Paulo, num apartamento na Vila Mariana."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-06-02T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Me mudei para o Rio de Janeiro mês passado, agora moro em Botafogo."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "supersedes"
+  },
+  {
+   "id": "u02",
+   "kind": "update",
+   "category": "endereco",
+   "older": {
+    "date": "2023-02-03T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Meu escritório fica na Avenida Paulista, número 1000."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-09-14T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "O escritório mudou de endereço: agora fica na Rua Augusta, número 250."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "supersedes"
+  },
+  {
+   "id": "u03",
+   "kind": "update",
+   "category": "endereco",
+   "older": {
+    "date": "2023-03-20T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "A Ana mora em Curitiba com os pais."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-11-05T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "A Ana saiu de Curitiba e agora mora sozinha em Florianópolis."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "supersedes"
+  },
+  {
+   "id": "u04",
+   "kind": "update",
+   "category": "cargo",
+   "older": {
+    "date": "2023-01-15T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Trabalho como analista de dados na Natura."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-08-01T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Fui promovido: agora sou gerente de dados na Natura."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "supersedes"
+  },
+  {
+   "id": "u05",
+   "kind": "update",
+   "category": "cargo",
+   "older": {
+    "date": "2023-02-11T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "O Pedro é estagiário no time de marketing."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-10-20T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "O Pedro foi efetivado e agora é coordenador do time de marketing."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "supersedes"
+  },
+  {
+   "id": "u06",
+   "kind": "update",
+   "category": "cargo",
+   "older": {
+    "date": "2023-04-02T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Sou professora de matemática na Escola Horizonte."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-12-01T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Saí da Escola Horizonte; agora dou aulas de matemática no Colégio Atlas."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "supersedes"
+  },
+  {
+   "id": "u07",
+   "kind": "update",
+   "category": "preco",
+   "older": {
+    "date": "2023-01-05T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "O Plano Pro custa R$ 49 por mês."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-07-01T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "O Plano Pro subiu: agora custa R$ 59 por mês."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "supersedes"
+  },
+  {
+   "id": "u08",
+   "kind": "update",
+   "category": "preco",
+   "older": {
+    "date": "2023-03-08T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "A mensalidade da academia é R$ 120."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-09-08T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "A academia reajustou a mensalidade para R$ 135."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "supersedes"
+  },
+  {
+   "id": "u09",
+   "kind": "update",
+   "category": "preco",
+   "older": {
+    "date": "2023-02-17T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "O aluguel do apartamento é R$ 2.800 por mês."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-08-17T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Renovei o contrato e o aluguel passou a ser R$ 3.100 por mês."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "supersedes"
+  },
+  {
+   "id": "u10",
+   "kind": "update",
+   "category": "preferencia",
+   "older": {
+    "date": "2023-01-22T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Meu café preferido é o expresso sem açúcar."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-07-22T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Mudei de gosto: hoje meu café preferido é o cappuccino com canela."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "supersedes"
+  },
+  {
+   "id": "u11",
+   "kind": "update",
+   "category": "preferencia",
+   "older": {
+    "date": "2023-02-02T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Prefiro reuniões de manhã, antes das 10h."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-09-02T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Agora prefiro reuniões à tarde, depois das 14h, porque deixo as manhãs para foco."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "supersedes"
+  },
+  {
+   "id": "u12",
+   "kind": "update",
+   "category": "preferencia",
+   "older": {
+    "date": "2023-05-05T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Para viagens a trabalho eu prefiro a Azul."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-11-25T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Troquei de companhia: para viagens a trabalho agora prefiro a LATAM."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "supersedes"
+  },
+  {
+   "id": "u13",
+   "kind": "update",
+   "category": "projeto",
+   "older": {
+    "date": "2023-01-09T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "O projeto Atlas está em fase de testes."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-04-09T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "O projeto Atlas foi lançado em produção na semana passada."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "supersedes"
+  },
+  {
+   "id": "u14",
+   "kind": "update",
+   "category": "projeto",
+   "older": {
+    "date": "2023-02-14T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "A migração para o Postgres está pausada até março."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-05-14T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Retomamos a migração para o Postgres e ela já está 80% concluída."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "supersedes"
+  },
+  {
+   "id": "u15",
+   "kind": "update",
+   "category": "projeto",
+   "older": {
+    "date": "2023-03-01T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "O app novo ainda não tem data de lançamento."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-06-30T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "O app novo tem lançamento marcado para 15 de agosto."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "supersedes"
+  },
+  {
+   "id": "u16",
+   "kind": "update",
+   "category": "projeto",
+   "older": {
+    "date": "2023-06-12T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "O contrato com a Acme está em negociação."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-10-12T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "O contrato com a Acme foi cancelado; não vamos mais seguir com eles."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "supersedes"
+  },
+  {
+   "id": "u17",
+   "kind": "update",
+   "category": "quantidade",
+   "older": {
+    "date": "2023-01-30T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Tenho 3 gatos em casa."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-09-30T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Adotei mais dois, então agora tenho 5 gatos em casa."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "supersedes"
+  },
+  {
+   "id": "u18",
+   "kind": "update",
+   "category": "quantidade",
+   "older": {
+    "date": "2023-02-25T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Nosso time de engenharia tem 12 pessoas."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-08-25T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Depois das contratações, o time de engenharia tem 18 pessoas."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "supersedes"
+  },
+  {
+   "id": "u19",
+   "kind": "update",
+   "category": "quantidade",
+   "older": {
+    "date": "2023-03-15T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Corro 10 quilômetros por semana."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-07-15T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Aumentei o treino: agora corro 25 quilômetros por semana."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "supersedes"
+  },
+  {
+   "id": "u20",
+   "kind": "update",
+   "category": "quantidade",
+   "older": {
+    "date": "2023-04-18T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "A loja tem 40 clientes ativos."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-12-18T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "A loja chegou a 75 clientes ativos este mês."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "supersedes"
+  },
+  {
+   "id": "c01",
+   "kind": "control",
+   "category": "outra_pessoa",
+   "older": {
+    "date": "2023-01-10T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Eu moro em São Paulo, na Vila Mariana."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-06-02T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Minha irmã mora no Rio de Janeiro, em Botafogo."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "no_supersede"
+  },
+  {
+   "id": "c02",
+   "kind": "control",
+   "category": "outra_pessoa",
+   "older": {
+    "date": "2023-02-11T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Eu trabalho como analista de dados na Natura."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-08-01T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "O Marcos trabalha como gerente de dados na Natura."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "no_supersede"
+  },
+  {
+   "id": "c03",
+   "kind": "control",
+   "category": "outra_pessoa",
+   "older": {
+    "date": "2023-03-03T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Tenho 3 gatos em casa."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-09-03T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "A Júlia tem 5 gatos em casa."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "no_supersede"
+  },
+  {
+   "id": "c04",
+   "kind": "control",
+   "category": "outra_pessoa",
+   "older": {
+    "date": "2023-04-04T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Meu café preferido é o expresso sem açúcar."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-10-04T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "O café preferido do Rafael é o cappuccino com canela."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "no_supersede"
+  },
+  {
+   "id": "c05",
+   "kind": "control",
+   "category": "outro_atributo",
+   "older": {
+    "date": "2023-01-05T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "O Plano Pro custa R$ 49 por mês."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-07-01T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "O Plano Pro inclui 50 GB de armazenamento."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "no_supersede"
+  },
+  {
+   "id": "c06",
+   "kind": "control",
+   "category": "outro_atributo",
+   "older": {
+    "date": "2023-02-06T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "O aluguel do apartamento é R$ 2.800 por mês."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-08-06T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "O condomínio do apartamento é R$ 650 por mês."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "no_supersede"
+  },
+  {
+   "id": "c07",
+   "kind": "control",
+   "category": "outro_atributo",
+   "older": {
+    "date": "2023-03-07T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Nosso time de engenharia tem 12 pessoas."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-09-07T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Nosso time de engenharia tem 2 gerentes."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "no_supersede"
+  },
+  {
+   "id": "c08",
+   "kind": "control",
+   "category": "soma",
+   "older": {
+    "date": "2023-01-08T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Eu falo inglês fluente."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-07-08T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Também falo espanhol, comecei a estudar há dois anos."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "no_supersede"
+  },
+  {
+   "id": "c09",
+   "kind": "control",
+   "category": "soma",
+   "older": {
+    "date": "2023-02-09T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Gosto de correr no Parque Ibirapuera."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-08-09T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Também gosto de pedalar no Parque Villa-Lobos aos domingos."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "no_supersede"
+  },
+  {
+   "id": "c10",
+   "kind": "control",
+   "category": "soma",
+   "older": {
+    "date": "2023-03-10T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Tenho um cachorro chamado Thor."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-09-10T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Além do Thor, agora também tenho uma gata chamada Luna."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "no_supersede"
+  },
+  {
+   "id": "c11",
+   "kind": "control",
+   "category": "soma",
+   "older": {
+    "date": "2023-04-11T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "O projeto Atlas usa Go no backend."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-10-11T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "O projeto Atlas também usa Python nos scripts de dados."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "no_supersede"
+  },
+  {
+   "id": "c12",
+   "kind": "control",
+   "category": "historico",
+   "older": {
+    "date": "2023-01-12T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Em 2019 eu morei em Lisboa por seis meses."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-07-12T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Em 2021 eu morei em Berlim por um ano."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "no_supersede"
+  },
+  {
+   "id": "c13",
+   "kind": "control",
+   "category": "historico",
+   "older": {
+    "date": "2023-02-13T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Meu primeiro emprego foi na padaria do meu tio, em 2010."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-08-13T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Meu segundo emprego foi numa livraria, em 2012."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "no_supersede"
+  },
+  {
+   "id": "c14",
+   "kind": "control",
+   "category": "historico",
+   "older": {
+    "date": "2023-03-14T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Em março visitei o Chile com a família."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-09-14T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Em agosto visitei o Peru com a família."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "no_supersede"
+  },
+  {
+   "id": "c15",
+   "kind": "control",
+   "category": "hipotese",
+   "older": {
+    "date": "2023-01-15T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Eu moro em São Paulo, na Vila Mariana."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-07-15T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Estou pensando em me mudar para o Rio de Janeiro no ano que vem, mas ainda não decidi."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "no_supersede"
+  },
+  {
+   "id": "c16",
+   "kind": "control",
+   "category": "hipotese",
+   "older": {
+    "date": "2023-02-16T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "O Plano Pro custa R$ 49 por mês."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-08-16T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Se o Plano Pro passar de R$ 70 por mês, vou cancelar a assinatura."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "no_supersede"
+  },
+  {
+   "id": "c17",
+   "kind": "control",
+   "category": "hipotese",
+   "older": {
+    "date": "2023-03-17T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Trabalho como analista de dados na Natura."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-09-17T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Talvez eu me candidate a uma vaga de gerente na Ambev em dezembro."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "no_supersede"
+  },
+  {
+   "id": "c18",
+   "kind": "control",
+   "category": "citacao",
+   "older": {
+    "date": "2023-01-18T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Eu moro em São Paulo, na Vila Mariana."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-07-18T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Meu chefe disse brincando: \"você devia morar no Rio de Janeiro\"."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "no_supersede"
+  },
+  {
+   "id": "c19",
+   "kind": "control",
+   "category": "citacao",
+   "older": {
+    "date": "2023-02-19T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Tenho 3 gatos em casa."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-08-19T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "A veterinária comentou que \"quem tem 5 gatos precisa de duas caixas de areia a mais\"."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "no_supersede"
+  },
+  {
+   "id": "c20",
+   "kind": "control",
+   "category": "citacao",
+   "older": {
+    "date": "2023-03-20T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Meu café preferido é o expresso sem açúcar."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "newer": {
+    "date": "2023-09-20T10:00:00Z",
+    "turns": [
+     {
+      "role": "user",
+      "content": "Minha mãe sempre diz: \"o melhor café é o cappuccino com canela\"."
+     },
+     {
+      "role": "assistant",
+      "content": "Entendi, obrigado por avisar."
+     }
+    ]
+   },
+   "expected": "no_supersede"
+  }
+ ]
+}
