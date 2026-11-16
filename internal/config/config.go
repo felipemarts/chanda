@@ -66,6 +66,10 @@ type WriteConfig struct {
 	// max_added_words is a near-duplicate above min_cosine (signatures
 	// still identical). A model without an entry has the plain rule only.
 	NearDupLexical map[string]NearDupLexical `yaml:"near_dup_lexical"`
+	// LearnedKeys (decision 0145): an outcome with value > 0 makes the
+	// query text of its retrieval a key of every used record it delivered.
+	// Off by default; omitempty keeps the configuration hash unchanged.
+	LearnedKeys bool `yaml:"learned_keys,omitempty"`
 }
 
 // NearDupLexical configures the lexical path of the near-duplicate guard
@@ -183,7 +187,33 @@ type ReadConfig struct {
 	// that pass the other filters are never displaced by a derived item.
 	// 0 = DefaultContextProtectRaw, -1 = protect none.
 	ContextProtectRaw int `yaml:"context_protect_raw,omitempty"`
+
+	// Learned query keys (decision 0145), both modes; off by default, and
+	// omitempty keeps the configuration hash unchanged.
+	//
+	// LearnedKeys: reads also search the keys (vector and keyword) and add
+	// the records they point to as one more fused list. Used only while the
+	// namespace's runtime switch (learned_keys enable/disable) is on too.
+	LearnedKeys bool `yaml:"learned_keys,omitempty"`
+	// LearnedKeysWeight: weight w of the keys list in the fusion, the
+	// record's RRF gains w/(k + key rank). 0 = DefaultLearnedKeysWeight.
+	LearnedKeysWeight float64 `yaml:"learned_keys_weight,omitempty"`
+	// LearnedKeysTopK: keys taken from each of the two key searches.
+	// 0 = DefaultLearnedKeysTopK.
+	LearnedKeysTopK int `yaml:"learned_keys_top_k,omitempty"`
 }
+
+// Defaults of the learned-keys read knobs when they are 0 (decision 0145).
+const (
+	DefaultLearnedKeysWeight = 1.0
+	DefaultLearnedKeysTopK   = 20
+)
+
+// KeysWeight is the effective read.learned_keys_weight.
+func (r ReadConfig) KeysWeight() float64 { return orFloat(r.LearnedKeysWeight, DefaultLearnedKeysWeight) }
+
+// KeysTopK is the effective read.learned_keys_top_k.
+func (r ReadConfig) KeysTopK() int { return orInt(r.LearnedKeysTopK, DefaultLearnedKeysTopK) }
 
 // DefaultContextProtectRaw is read.context_protect_raw when the derived
 // share is on and the key is 0 (decision 0143).
@@ -679,6 +709,12 @@ func (r ReadConfig) validateContext() error {
 	}
 	if r.ContextProtectRaw < -1 {
 		return fmt.Errorf("read.context_protect_raw must be >= -1")
+	}
+	if !(r.LearnedKeysWeight >= 0) || math.IsInf(r.LearnedKeysWeight, 1) { // also rejects NaN
+		return fmt.Errorf("read.learned_keys_weight must be >= 0")
+	}
+	if r.LearnedKeysTopK < 0 {
+		return fmt.Errorf("read.learned_keys_top_k must be >= 0")
 	}
 	return nil
 }
