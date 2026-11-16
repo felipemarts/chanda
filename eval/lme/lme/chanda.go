@@ -33,6 +33,9 @@ type ChandaOptions struct {
 	// Set overrides configuration keys on top of ConfigYAML ("lme contexts
 	// -chanda-set key=value"), in order.
 	Set []Override
+	// AppendLog appends the server's stderr to dir/server.log instead of
+	// truncating it (the study runs several servers on one database).
+	AppendLog bool
 }
 
 // ChandaServer is a real chanda MCP server over stdio with its own database.
@@ -91,7 +94,11 @@ func StartChanda(ctx context.Context, o ChandaOptions, dir, modelID string, dim 
 	if err := os.WriteFile(cfg, []byte(text), 0o644); err != nil {
 		return nil, err
 	}
-	logf, err := os.Create(filepath.Join(dir, "server.log"))
+	flags := os.O_CREATE | os.O_WRONLY | os.O_TRUNC
+	if o.AppendLog {
+		flags = os.O_CREATE | os.O_WRONLY | os.O_APPEND
+	}
+	logf, err := os.OpenFile(filepath.Join(dir, "server.log"), flags, 0o644)
 	if err != nil {
 		return nil, err
 	}

@@ -9,9 +9,10 @@
 //	lme evidence -in FILE.jsonl [-in FILE2.jsonl ...] [-json OUT]   turn-level evidence recall
 //	lme embedserve -embedder hash|e5 -addr 127.0.0.1:8089
 //	lme chanda serve --config chanda.yaml      the chanda CLI with the caching provider "lme-cached"
+//	lme study <step> ...                       the sleep study's steps (eval/sleep/README.md)
 //
-// No subcommand calls an LLM except "contexts -cond E", which refuses to run
-// without -allow-llm.
+// No subcommand calls an LLM except "contexts -cond E" and "study sleep"
+// with -llm-url, which refuse to run without -allow-llm.
 package main
 
 import (
@@ -56,7 +57,7 @@ func main() {
 
 func run(ctx context.Context, args []string) int {
 	if len(args) == 0 {
-		fmt.Fprintln(os.Stderr, "usage: lme fetch|stats|sample|retrieve|contexts|evidence|embedserve|chanda ...")
+		fmt.Fprintln(os.Stderr, "usage: lme fetch|stats|sample|retrieve|contexts|evidence|embedserve|study|chanda ...")
 		return 2
 	}
 	var err error
@@ -81,6 +82,8 @@ func run(ctx context.Context, args []string) int {
 		err = cmdEvidence(args[1:])
 	case "embedserve":
 		err = cmdEmbedServe(ctx, args[1:])
+	case "study":
+		err = cmdStudy(ctx, args[1:])
 	default:
 		fmt.Fprintf(os.Stderr, "lme: unknown command %q\n", args[0])
 		return 2
