@@ -1,0 +1,55 @@
+{
+ "blocks": {
+  "conv-30": {
+   "n": 41,
+   "same_items_and_order": 41,
+   "same_items_and_text": 41
+  },
+  "conv-47": {
+   "n": 76,
+   "same_items_and_order": 76,
+   "same_items_and_text": 76
+  },
+  "conv-49": {
+   "n": 80,
+   "same_items_and_order": 80,
+   "same_items_and_text": 80
+  }
+ },
+ "overlap": {
+  "conv-30": {
+   "test": 41,
+   "scored": 41,
+   "used_any": 9,
+   "used_positive": 9,
+   "delivered_any": 38,
+   "outcomes": 40,
+   "used_ids_total": 45
+  },
+  "conv-47": {
+   "test": 76,
+   "scored": 76,
+   "used_any": 24,
+   "used_positive": 22,
+   "delivered_any": 68,
+   "outcomes": 74,
+   "used_ids_total": 96
+  },
+  "conv-49": {
+   "test": 80,
+   "scored": 80,
+   "used_any": 47,
+   "used_positive": 44,
+   "delivered_any": 77,
+   "outcomes": 76,
+   "used_ids_total": 110
+  },
+  "total": {
+   "test": 197,
+   "scored": 197,
+   "used_any": 80,
+   "used_positive": 75,
+   "delivered_any": 183
+  }
+ }
+}
