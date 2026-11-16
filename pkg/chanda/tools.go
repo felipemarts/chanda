@@ -153,6 +153,20 @@ type TimelineOutput struct {
 	Subject     string          `json:"subject" jsonschema:"resolved subject entity id"`
 	SubjectName string          `json:"subject_name,omitempty" jsonschema:"canonical name of the subject"`
 	Entries     []TimelineEntry `json:"entries" jsonschema:"facts ordered by predicate, then valid_from, oldest first"`
+	// Supersessions: the chain of raw records outdated by applied conflict
+	// verdicts (decision 0148) whose old or new record names the subject;
+	// absent when there is none (or sleep.conflicts is off).
+	Supersessions []TimelineSupersession `json:"supersessions,omitempty" jsonschema:"raw records outdated by newer ones (old -> new, end date), oldest end date first"`
+}
+
+// TimelineSupersession is one link of a chain of raw records (decision 0148).
+type TimelineSupersession struct {
+	SupersessionID string  `json:"supersession_id"`
+	OldID          string  `json:"old_id" jsonschema:"the outdated record"`
+	NewID          string  `json:"new_id" jsonschema:"the record that outdates it"`
+	EndsAt         string  `json:"ends_at" jsonschema:"end date of the old record: the new record's effective time"`
+	Confidence     float64 `json:"confidence" jsonschema:"the verdict's confidence"`
+	CreatedAt      string  `json:"created_at"`
 }
 
 // ExplainInput asks why a record ranked where it did in a retrieval.

@@ -144,22 +144,26 @@ type Origin struct {
 
 // Item is one delivered record.
 type Item struct {
-	ID         string          `json:"id"`
-	Type       core.RecordType `json:"type"`
-	Kind       string          `json:"kind,omitempty"`  // event kind or page kind
-	Title      string          `json:"title,omitempty"` // pages
-	Text       string          `json:"text"`
-	Truncated  bool            `json:"truncated,omitempty"`
-	Status     string          `json:"status,omitempty"`     // facts and pages
-	Subject    string          `json:"subject,omitempty"`    // facts
-	Predicate  string          `json:"predicate,omitempty"`  // facts
-	ValidFrom  string          `json:"valid_from,omitempty"` // facts
-	ValidTo    string          `json:"valid_to,omitempty"`   // facts; empty = current
-	RecordedAt string          `json:"recorded_at,omitempty"`
-	Zone       core.Zone       `json:"zone"`
-	Flags      []string        `json:"flags,omitempty"` // e.g. instruction_like (own or inherited from origins)
-	Origin     Origin          `json:"origin"`
-	Scores     Scores          `json:"scores"`
-	namespace  string
-	role       string // speaker of a session turn, shown in the context label with read.context_show_role
+	ID        string          `json:"id"`
+	Type      core.RecordType `json:"type"`
+	Kind      string          `json:"kind,omitempty"`  // event kind or page kind
+	Title     string          `json:"title,omitempty"` // pages
+	Text      string          `json:"text"`
+	Truncated bool            `json:"truncated,omitempty"`
+	Status    string          `json:"status,omitempty"`     // facts and pages
+	Subject   string          `json:"subject,omitempty"`    // facts
+	Predicate string          `json:"predicate,omitempty"`  // facts
+	ValidFrom string          `json:"valid_from,omitempty"` // facts
+	ValidTo   string          `json:"valid_to,omitempty"`   // facts; empty = current
+	// SupersededBy: the newer event that outdates this event (decision
+	// 0148; search with include_history only, with Status superseded and
+	// ValidTo the end date).
+	SupersededBy string    `json:"superseded_by,omitempty"`
+	RecordedAt   string    `json:"recorded_at,omitempty"`
+	Zone         core.Zone `json:"zone"`
+	Flags        []string  `json:"flags,omitempty"` // e.g. instruction_like (own or inherited from origins)
+	Origin       Origin    `json:"origin"`
+	Scores       Scores    `json:"scores"`
+	namespace    string
+	role         string // speaker of a session turn, shown in the context label with read.context_show_role
 }

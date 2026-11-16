@@ -8,6 +8,7 @@ import (
 
 	"github.com/felipemarts/chanda/internal/core"
 	"github.com/felipemarts/chanda/internal/facts"
+	"github.com/felipemarts/chanda/internal/facts/norm"
 	"github.com/felipemarts/chanda/internal/read"
 	"github.com/felipemarts/chanda/pkg/chanda"
 )
@@ -56,7 +57,7 @@ func item(it read.Item) chanda.Item {
 	out := chanda.Item{
 		ID: it.ID, Type: it.Type, Text: text, ValidFrom: it.ValidFrom, ValidTo: it.ValidTo, Status: it.Status,
 		Origin: chanda.Origin{SourceURI: first(it.Origin.SourceURIs), DocURI: first(it.Origin.DocURIs), EventIDs: strs(it.Origin.EventIDs)},
-		Zone:   it.Zone, Flags: it.Flags,
+		Zone:   it.Zone, Flags: it.Flags, SupersededBy: it.SupersededBy,
 	}
 	if it.Scores.Final != nil {
 		out.Score = *it.Scores.Final
@@ -229,7 +230,69 @@ func (a *App) Timeline(ctx context.Context, in chanda.TimelineInput) (chanda.Tim
 			RecordedAt: e.RecordedAt, Status: string(e.Status), Zone: e.TrustZone, SupersededBy: e.SupersededBy, Origin: origin,
 		})
 	}
+	if a.e.Cfg.Sleep.Conflicts.On() {
+		if out.Supersessions, err = a.subjectSupersessions(ctx, c.ns, id, out.SubjectName, asOf); err != nil {
+			return out, coded(err)
+		}
+	}
 	return out, nil
+}
+
+// subjectSupersessions lists the active supersessions of ns (decision 0148)
+// whose old or new event names the entity: its canonical name or an alias
+// as whole words after norm.Alias. With as_of, only the links in effect then
+// (end date at or before it). Ordered by end date, then id.
+func (a *App) subjectSupersessions(ctx context.Context, ns, entity, name string, asOf time.Time) ([]chanda.TimelineSupersession, error) {
+	db := a.e.Store.DB()
+	names := map[string]bool{}
+	if n := norm.Alias(name); n != "" {
+		names[n] = true
+	}
+	rows, err := db.QueryContext(ctx, `SELECT alias_norm FROM entity_aliases WHERE namespace = ? AND entity_id = ? ORDER BY alias_norm`, ns, entity)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var s string
+		if err := rows.Scan(&s); err != nil {
+			rows.Close()
+			return nil, err
+		}
+		if n := norm.Alias(s); n != "" {
+			names[n] = true
+		}
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	rows, err = db.QueryContext(ctx, `SELECT s.id, s.old_id, s.new_id, s.ends_at, s.confidence, s.created_at, o.content, n.content
+		FROM supersessions s JOIN events o ON o.id = s.old_id JOIN events n ON n.id = s.new_id
+		WHERE s.namespace = ? AND s.status = 'active' AND s.reverted_at IS NULL ORDER BY s.ends_at, s.id`, ns)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []chanda.TimelineSupersession
+	for rows.Next() {
+		var x chanda.TimelineSupersession
+		var oldText, newText string
+		if err := rows.Scan(&x.SupersessionID, &x.OldID, &x.NewID, &x.EndsAt, &x.Confidence, &x.CreatedAt, &oldText, &newText); err != nil {
+			return nil, err
+		}
+		if !asOf.IsZero() {
+			if t, err := core.ParseTime(x.EndsAt); err == nil && t.After(asOf) {
+				continue
+			}
+		}
+		texts := " " + norm.Alias(oldText) + " " + norm.Alias(newText) + " "
+		for n := range names {
+			if strings.Contains(texts, " "+n+" ") {
+				out = append(out, x)
+				break
+			}
+		}
+	}
+	return out, rows.Err()
 }
 
 // originOf names the events behind a fact (derived_from and confirmed_by

@@ -163,10 +163,14 @@ type Item struct {
 	ValidFrom string     `json:"valid_from,omitempty" jsonschema:"start of validity in the world (facts; events with a declared date)"`
 	ValidTo   string     `json:"valid_to,omitempty" jsonschema:"end of validity; absent means still current"`
 	Status    string     `json:"status,omitempty" jsonschema:"fact or page status, e.g. active or superseded"`
-	Origin    Origin     `json:"origin" jsonschema:"where the record came from"`
-	Zone      Zone       `json:"zone" jsonschema:"trust zone: external, internal or user"`
-	Flags     []string   `json:"flags,omitempty" jsonschema:"marks such as instruction_like or secrets_masked"`
-	Score     float64    `json:"score" jsonschema:"final ranking score; higher is more relevant"`
+	// SupersededBy names the newer record that outdates this one (decision
+	// 0148: an event judged outdated in sleep, shown by search with
+	// include_history; then Status is superseded and ValidTo the end date).
+	SupersededBy string   `json:"superseded_by,omitempty" jsonschema:"newer record that outdates this one (search with include_history)"`
+	Origin       Origin   `json:"origin" jsonschema:"where the record came from"`
+	Zone         Zone     `json:"zone" jsonschema:"trust zone: external, internal or user"`
+	Flags        []string `json:"flags,omitempty" jsonschema:"marks such as instruction_like or secrets_masked"`
+	Score        float64  `json:"score" jsonschema:"final ranking score; higher is more relevant"`
 }
 
 // SourceRef names the input channel and source of written content.

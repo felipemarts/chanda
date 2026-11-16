@@ -263,6 +263,9 @@ func (r *Reader) run(ctx context.Context, q request) (*result, error) {
 			c.dropped = reason
 			continue
 		}
+		if rec.supersededBy != "" && !rec.supersededIn(o) {
+			rec.supersededBy = "" // before the end date the old record is current
+		}
 		c.rec = rec
 		eligible[id] = rec
 	}
@@ -273,6 +276,9 @@ func (r *Reader) run(ctx context.Context, q request) (*result, error) {
 	for _, id := range sortedKeys(extra) {
 		c := get(extra[id].typ, id)
 		c.rec = extra[id]
+		if c.rec.supersededBy != "" && !c.rec.supersededIn(o) {
+			c.rec.supersededBy = ""
+		}
 	}
 	var alive []*cand
 	for _, id := range order {
@@ -616,6 +622,9 @@ func (r *Reader) buildItem(ctx context.Context, ns string, c *cand) (Item, strin
 	switch rec.typ {
 	case core.RecEvent:
 		it.Kind, it.ValidFrom, it.RecordedAt = rec.kind, rec.validFrom, rec.ts
+		if rec.supersededBy != "" { // search with include_history (decision 0148)
+			it.Status, it.ValidTo, it.SupersededBy = string(core.FactSuperseded), rec.supersededAt, rec.supersededBy
+		}
 	case core.RecFact:
 		it.Status, it.Subject, it.Predicate, it.ValidFrom, it.ValidTo, it.RecordedAt =
 			rec.status, rec.subject, rec.predicate, rec.validFrom, rec.validTo, rec.ts
