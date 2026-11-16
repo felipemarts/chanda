@@ -31,6 +31,8 @@ const studyUsage = `usage: lme study <step> [flags]
   rag        -locomo FILE -conv ID -split FILE -half test -out FILE.jsonl
   fichas     -db DIR [-out FILE.json]        pages and items of a closed database (read-only)
   leakcheck  -db DIR [-split FILE] [-before-test] [-out FILE.json]
+             -protocol learn -db DIR -split FILE [-key-table NAME] [-out FILE.json]   (eval/learn/PROTOCOL.md)
+  keys       -db DIR -action rebuild|stats|reset|enable|disable [-out FILE.json]   admin tool learned_keys (decision 0145)
   check      [-set k=v ...] [-admin] [-llm-url URL]   validate a configuration; prints its hash
 
 Common: -embedder hash|e5 -embed-url URL -e5-dir DIR -cache auto|off|FILE -budget 2000
@@ -59,6 +61,8 @@ func cmdStudy(ctx context.Context, args []string) error {
 		return studyFichas(ctx, rest)
 	case "leakcheck":
 		return studyLeak(ctx, rest)
+	case "keys":
+		return studyKeys(ctx, rest)
 	case "check":
 		return studyCheck(ctx, rest)
 	case "help", "-h", "--help":
@@ -611,6 +615,8 @@ func studyLeak(ctx context.Context, args []string) error {
 	split := fs.String("split", "", "LoCoMo split (gold answers of both halves; test questions)")
 	beforeTest := fs.Bool("before-test", false, "the test half has not been asked yet: its questions must not be in the retrievals")
 	out := fs.String("out", "", "JSON report")
+	protocol := fs.String("protocol", "sleep", "sleep (eval/sleep/PROTOCOL.md) or learn (eval/learn/PROTOCOL.md, always before the test half)")
+	keyTable := fs.String("key-table", "", "learn: the learned-keys table (default: detected)")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -624,6 +630,16 @@ func studyLeak(ctx context.Context, args []string) error {
 	qs, err := studyQuestions(m, *split, lme.HalfAll, 0)
 	if err != nil {
 		return err
+	}
+	switch *protocol {
+	case "sleep":
+		if *keyTable != "" {
+			return fmt.Errorf("-key-table is for -protocol learn")
+		}
+	case "learn":
+		return studyLeakLearn(ctx, *db, qs, *keyTable, *out)
+	default:
+		return fmt.Errorf("-protocol %q: want sleep or learn", *protocol)
 	}
 	var golds, forbidden []string
 	for _, q := range qs {
@@ -646,6 +662,87 @@ func studyLeak(ctx context.Context, args []string) error {
 	if !r.OK {
 		return fmt.Errorf("leak check failed for %s (see the report)", *db)
 	}
+	return nil
+}
+
+// studyLeakLearn is leakcheck -protocol learn: the split's use and test
+// halves of the directory's conversation.
+func studyLeakLearn(ctx context.Context, db string, qs []lme.StudyQuestion, keyTable, out string) error {
+	var in lme.LearnLeakInput
+	in.KeyTable = keyTable
+	for _, q := range qs {
+		switch q.Half {
+		case lme.HalfUse:
+			in.Use = append(in.Use, q)
+		case lme.HalfTest:
+			in.Test = append(in.Test, q)
+		}
+	}
+	if len(in.Use) == 0 || len(in.Test) == 0 {
+		return fmt.Errorf("leakcheck -protocol learn: the split gives %d use and %d test questions for %s", len(in.Use), len(in.Test), db)
+	}
+	r, err := lme.StudyLeakCheckLearn(ctx, db, in)
+	if err != nil {
+		return err
+	}
+	if out != "" {
+		if err := writeJSON(out, r); err != nil {
+			return err
+		}
+	}
+	kt := r.KeyTable
+	if kt == "" {
+		kt = "none (" + r.KeyNote + ")"
+	}
+	fmt.Printf("leakcheck learn %s: ok=%t key-table=%s keys=%d retrievals=%d outcomes=%d values=%d test-in-db=%d (inside use questions %d) "+
+		"keys-not-use=%d retrievals-not-use=%d bad-outcomes=%d judge=%d gold=%d (inside use questions %d)\n",
+		db, r.OK, kt, r.Keys, r.Retrievals, r.Outcomes, r.ValuesScanned, len(r.TestQuestionIn), len(r.TestQuestionInUse),
+		len(r.KeysNotUse), len(r.RetrievalsNotUse), len(r.BadOutcomes), len(r.JudgeOutput), len(r.GoldHits), len(r.GoldInUseQuestion))
+	if !r.OK {
+		return fmt.Errorf("leak check failed for %s: %s (see the report)", db, strings.Join(r.Failures, "; "))
+	}
+	return nil
+}
+
+// studyKeys is the learned_keys admin step (decision 0145).
+func studyKeys(ctx context.Context, args []string) error {
+	fs := flag.NewFlagSet("study keys", flag.ContinueOnError)
+	var f studyFlags
+	f.register(fs, true)
+	action := fs.String("action", "", "rebuild, stats, reset, enable or disable")
+	out := fs.String("out", "", "result JSON (the tool's output as returned)")
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	if err := lme.CheckKeysAction(*action); err != nil {
+		return err
+	}
+	dir, err := f.dir()
+	if err != nil {
+		return err
+	}
+	m, err := lme.ReadStudyMeta(dir)
+	if err != nil {
+		return err
+	}
+	o, emb, err := f.options(ctx)
+	if err != nil {
+		return err
+	}
+	defer emb.Close()
+	if err := checkMeta(m, emb); err != nil {
+		return err
+	}
+	res, err := lme.StudyKeys(ctx, o, dir, *action)
+	if err != nil {
+		return err
+	}
+	if *out != "" {
+		if err := writeJSON(*out, res); err != nil {
+			return err
+		}
+	}
+	fmt.Printf("keys %s on %s: %s\n", *action, dir, res.Output)
 	return nil
 }
 

@@ -146,6 +146,20 @@ func (c *ChandaServer) Call(ctx context.Context, tool string, args any, out any)
 	return nil
 }
 
+// HasTool reports whether the server lists a tool of that name (in the
+// profiles it was started with).
+func (c *ChandaServer) HasTool(ctx context.Context, name string) (bool, error) {
+	for t, err := range c.cs.Tools(ctx, nil) {
+		if err != nil {
+			return false, err
+		}
+		if t.Name == name {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 // Close stops the server.
 func (c *ChandaServer) Close() error {
 	err := c.cs.Close()
