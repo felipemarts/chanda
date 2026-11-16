@@ -88,6 +88,7 @@ commands:
   gate     review the gate set (list, approve, retire, add)
   ranking  switch learned ranking on or off
   keys     learned query keys: enable, disable, reset, rebuild, stats
+  conflicts  conflict resolution: list, revert, reset, scan, stats
   version  print the version
 
 run "chanda <command> -h" for the flags of a command.
@@ -120,6 +121,8 @@ func (cl CLI) Run(ctx context.Context, args []string, stdout, stderr io.Writer) 
 		return cl.cmdRanking(ctx, rest, stdout, stderr)
 	case "keys":
 		return cl.cmdKeys(ctx, rest, stdout, stderr)
+	case "conflicts":
+		return cl.cmdConflicts(ctx, rest, stdout, stderr)
 	case "version", "--version", "-version", "-v":
 		fmt.Fprintln(stdout, "chanda", cl.Version)
 		return 0

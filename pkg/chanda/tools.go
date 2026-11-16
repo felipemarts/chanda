@@ -21,15 +21,16 @@ const (
 	ToolVerify       = "verify"
 	ToolRankingReset = "ranking_reset"
 	ToolLearnedKeys  = "learned_keys" // decision 0145
+	ToolConflicts    = "conflicts"    // decision 0148
 )
 
-// ToolNames lists the 19 tools in BASE.md table order (learned_keys,
-// decision 0145, after the 18 of BASE.md).
+// ToolNames lists the 20 tools in BASE.md table order (learned_keys,
+// decision 0145, and conflicts, decision 0148, after the 18 of BASE.md).
 func ToolNames() []string {
 	return []string{
 		ToolContext, ToolSearch, ToolGet, ToolTimeline, ToolExplain, ToolStats,
 		ToolRemember, ToolAssertFact, ToolIngest, ToolLogSession, ToolOutcome, ToolFlag, ToolFlush,
-		ToolForget, ToolPromote, ToolSleepRun, ToolVerify, ToolRankingReset, ToolLearnedKeys,
+		ToolForget, ToolPromote, ToolSleepRun, ToolVerify, ToolRankingReset, ToolLearnedKeys, ToolConflicts,
 	}
 }
 

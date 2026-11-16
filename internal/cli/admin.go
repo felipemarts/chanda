@@ -163,6 +163,45 @@ func (cl CLI) cmdKeys(ctx context.Context, args []string, stdout, stderr io.Writ
 	})
 }
 
+// cmdConflicts is the conflicts admin tool at the terminal (decision 0148):
+// chanda conflicts list|stats|reset, chanda conflicts revert <supersession
+// id>, chanda conflicts scan [--write] [--details] [--min-cosine f].
+func (cl CLI) cmdConflicts(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	usage := "usage: chanda conflicts " + strings.Join(chanda.ConflictsActions(), "|") +
+		" [revert: <supersession id>] [scan: --write --details --min-cosine f] [--config f] [--namespace ns] [--actor name]"
+	if len(args) == 0 || !slices.Contains(chanda.ConflictsActions(), args[0]) {
+		fmt.Fprintln(stderr, usage)
+		return 2
+	}
+	in := chanda.ConflictsInput{Action: args[0]}
+	var c common
+	fs := newFlags("conflicts "+in.Action, stderr, &c)
+	if in.Action == chanda.ConflictsScan {
+		fs.BoolVar(&in.Write, "write", false, "also queue the pairs found")
+		fs.BoolVar(&in.Details, "details", false, "also print the pair lists")
+		fs.Float64Var(&in.MinCosine, "min-cosine", 0, "similarity floor instead of sleep.conflicts.min_cosine")
+	}
+	rest := args[1:]
+	if in.Action == chanda.ConflictsRevert {
+		if len(rest) == 0 || strings.HasPrefix(rest[0], "-") {
+			fmt.Fprintln(stderr, usage)
+			return 2
+		}
+		in.ID, rest = rest[0], rest[1:]
+	}
+	if code := parse(fs, rest); code >= 0 {
+		return code
+	}
+	if fs.NArg() > 0 {
+		fmt.Fprintln(stderr, usage)
+		return 2
+	}
+	return c.withAPI(ctx, cl.NewAPI, stdout, stderr, func(ctx context.Context, api chanda.API, ns string) (any, error) {
+		in.Namespace = ns
+		return api.Conflicts(ctx, in)
+	})
+}
+
 // listFlag collects a repeatable string flag.
 type listFlag []string
 

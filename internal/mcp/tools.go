@@ -49,7 +49,8 @@ type ToolSpec struct {
 	Idempotent  bool   // repeating the call has no further effect
 }
 
-// Specs returns the 19 tools in BASE.md table order (learned_keys last).
+// Specs returns the 20 tools in BASE.md table order (learned_keys and
+// conflicts last).
 func Specs() []ToolSpec { return slices.Clone(specs) }
 
 // SpecsFor returns the tools of the given profiles, in BASE.md order.
@@ -181,5 +182,13 @@ var specs = []ToolSpec{
 			"ways to find the records used). action: enable or disable the namespace's switch (reads use keys only when " +
 			"read.learned_keys is also on), reset (delete every key), rebuild (create the missing keys of every positive " +
 			"outcome already recorded; then flush so they get vectors), stats (counts). Audited." + envelopeNote,
+	},
+	{
+		Name: chanda.ToolConflicts, Title: "Conflict resolution", Profile: ProfileAdmin, Destructive: true,
+		Description: "Control conflict resolution between raw records (an older record outdated by a newer one, judged in sleep). " +
+			"action: list (every pair and supersession), revert (id: a supersession; it stops hiding the old record), reset " +
+			"(delete the queue and its verdicts; supersessions stay), scan (offline detection over the namespace: counts; " +
+			"write: true also queues the pairs; details: true returns the pair lists; min_cosine overrides the floor), stats. " +
+			"Mutating actions are audited." + envelopeNote,
 	},
 }

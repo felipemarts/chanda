@@ -29,7 +29,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "gen
 
 from chanda_adapter import AgentResult, ChandaClient, run_task  # noqa: E402
 
-ADMIN_TOOLS = {"forget", "promote", "sleep_run", "verify", "ranking_reset", "learned_keys"}
+ADMIN_TOOLS = {"forget", "promote", "sleep_run", "verify", "ranking_reset", "learned_keys", "conflicts"}
 
 failures: list[str] = []
 

@@ -35,12 +35,13 @@ var toolTypes = []struct {
 	{ToolVerify, VerifyInput{}, VerifyOutput{}},
 	{ToolRankingReset, RankingResetInput{}, RankingResetOutput{}},
 	{ToolLearnedKeys, LearnedKeysInput{}, LearnedKeysOutput{}},
+	{ToolConflicts, ConflictsInput{}, ConflictsOutput{}},
 }
 
-func TestNineteenToolsInTableOrder(t *testing.T) {
+func TestTwentyToolsInTableOrder(t *testing.T) {
 	names := ToolNames()
-	if len(names) != 19 || len(toolTypes) != 19 {
-		t.Fatalf("got %d names, %d type pairs; want 19", len(names), len(toolTypes))
+	if len(names) != 20 || len(toolTypes) != 20 {
+		t.Fatalf("got %d names, %d type pairs; want 20", len(names), len(toolTypes))
 	}
 	for i, tt := range toolTypes {
 		if names[i] != tt.name {
@@ -194,8 +195,9 @@ func TestUnwiredIsUnavailable(t *testing.T) {
 		ToolVerify:       func() error { _, err := api.Verify(ctx, VerifyInput{}); return err },
 		ToolRankingReset: func() error { _, err := api.RankingReset(ctx, RankingResetInput{}); return err },
 		ToolLearnedKeys:  func() error { _, err := api.LearnedKeys(ctx, LearnedKeysInput{}); return err },
+		ToolConflicts:    func() error { _, err := api.Conflicts(ctx, ConflictsInput{}); return err },
 	}
-	if len(calls) != 19 {
+	if len(calls) != 20 {
 		t.Fatalf("%d calls", len(calls))
 	}
 	for name, call := range calls {

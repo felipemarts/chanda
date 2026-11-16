@@ -255,6 +255,7 @@ var bindings = map[string]binder{
 	chanda.ToolVerify:       bind(chanda.API.Verify),
 	chanda.ToolRankingReset: bind(chanda.API.RankingReset),
 	chanda.ToolLearnedKeys:  bind(chanda.API.LearnedKeys),
+	chanda.ToolConflicts:    bind(chanda.API.Conflicts),
 }
 
 // envelopeOf is the envelope with a typed data field; it exists only to infer
@@ -413,6 +414,12 @@ func refineInput(tool string, s *jsonschema.Schema) {
 	case chanda.ToolLearnedKeys:
 		actions := make([]any, 0, 5)
 		for _, a := range chanda.KeysActions() {
+			actions = append(actions, a)
+		}
+		enum(p["action"], actions...)
+	case chanda.ToolConflicts:
+		actions := make([]any, 0, 5)
+		for _, a := range chanda.ConflictsActions() {
 			actions = append(actions, a)
 		}
 		enum(p["action"], actions...)

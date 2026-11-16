@@ -37,6 +37,7 @@ type API interface {
 	Verify(ctx context.Context, in VerifyInput) (VerifyOutput, error)
 	RankingReset(ctx context.Context, in RankingResetInput) (RankingResetOutput, error)
 	LearnedKeys(ctx context.Context, in LearnedKeysInput) (LearnedKeysOutput, error)
+	Conflicts(ctx context.Context, in ConflictsInput) (ConflictsOutput, error)
 }
 
 // Unwired is an API whose every method fails with Err, or with a
@@ -110,4 +111,8 @@ func (u Unwired) RankingReset(context.Context, RankingResetInput) (RankingResetO
 }
 func (u Unwired) LearnedKeys(context.Context, LearnedKeysInput) (LearnedKeysOutput, error) {
 	return LearnedKeysOutput{}, u.err(ToolLearnedKeys)
+}
+
+func (u Unwired) Conflicts(context.Context, ConflictsInput) (ConflictsOutput, error) {
+	return ConflictsOutput{}, u.err(ToolConflicts)
 }
