@@ -1,21 +1,131 @@
 # Chanda
 
+**Long-term memory for AI agents that never needs an LLM to build it.**
+
 Chanda is a memory server for agents, spoken over MCP. It stores what an agent
 learns and what a company documents (documents, session transcripts, facts
-with a validity period) in one SQLite file, and returns the right excerpt at
-the right moment: a short, delimited pre-context before the first turn, and
-ranked search during the task. It is a single Go binary that runs on CPU,
-without cgo and without network access; any MCP client can use it.
+with a validity period) in one SQLite file. It returns the right excerpt at the
+right moment: a short, delimited pre-context before the first turn, and ranked
+search during the task. It ships as a single Go binary that runs on CPU, with no
+cgo and no network access, and any MCP client can use it.
 
-Reads and writes are deterministic and never call an LLM: writing costs a
-hash, an embedding and rules, and reading uses full-text search, vectors,
-rules and a small learned ranking. Every derived record points to the raw
-events it came from, and its trust zone (`user`, `internal`, `external`) is
-fixed by the input channel, so content from tools or the web never becomes
-guidance or a trusted fact. Facts are superseded, never overwritten;
-`forget` deletes in cascade and proves the content is gone. The full
-specification is in [BASE.md](BASE.md); decisions that refine it are in
-[docs/decisions/](docs/decisions/), error codes in [docs/errors.md](docs/errors.md).
+Most agent memories call an LLM on every write to extract and rewrite what
+they store. Chanda doesn't. Writing costs a hash, an embedding and a few rules,
+and reading uses full-text search, vectors, rules and a small ranking. An LLM
+is optional and only used offline. The result is memory that is fast, cheap
+and reproducible, and that can say exactly where every answer came from.
+
+## Highlights
+
+| | |
+| --- | --- |
+| **0 LLM calls to build memory** | On the LongMemEval battery, Chanda ingested 60 conversations (about 500 turns each) with **no LLM call and US$0**. Mem0 needed **2,868 LLM calls and US$2.48** for the same 60. |
+| **About 50× faster ingestion** | **7.6 s** per conversation (median, with e5 embeddings on CPU), against **402 s** for Mem0. |
+| **Ahead of plain RAG on two benchmarks** | On LongMemEval, 300 questions never used for tuning: **82.7%** against 77.7%. On LoCoMo, 584 questions from 7 conversations never seen before the freeze: **67.3%** against 64.7%. Same embedder, reader, judge and 2,000-token budget in both. |
+| **A measured gain from the new context selection** | **+4.7 points** over the previous selection on the 300 held-out LongMemEval questions (78.0% → 82.7%; p = 0.024, pre-registered). |
+| **Search that finds the evidence** | **98.3%** session recall@10 over all 500 LongMemEval S questions. Plain RAG gets 97.9% and BM25 95.6%. With the built-in hash embedder and no neural model at all, it still gets 93.4%, against 82.7% for plain RAG. |
+| **Forgetting you can verify** | `forget` deletes in cascade, then proves the content is gone from every read path, the full-text index, the vectors and the raw bytes of the database, WAL and SHM files (scenarios F1–F4). |
+| **Deterministic** | The same database and query give the same answer. The scenario suite is byte-identical across runs. |
+| **Four published studies, negatives included** | Every claim above comes from a study in [`eval/`](eval/), with three protocols pre-registered and committed before their test runs. The results that did not hold up are published too. |
+
+The numbers come from [`eval/selection/RESULTS.md`](eval/selection/RESULTS.md),
+[`eval/learn/RESULTS.md`](eval/learn/RESULTS.md) and
+[`eval/reports/2026-11-14/REPORT.md`](eval/reports/2026-11-14/REPORT.md). The
+reader and judge are deepseek-flash, with LongMemEval's official prompts and
+LoCoMo prompts fixed in the pre-registered protocol.
+Each of those files gives the full statistics. In short: the gains over
+plain RAG point the same way on both benchmarks, but neither reaches the
+pre-registered significance bar (p = 0.058 and 0.218). On the 60-question
+battery, Mem0 scored higher than Chanda (88.3% against 80.0%, not
+significant, p = 0.125), and it paid for that with the LLM calls above.
+
+## What it does
+
+### Memory built without an LLM
+
+Every write path is deterministic. Documents are chunked and indexed,
+session turns are logged with their speaker and date, and facts come from
+explicit assertions and from rule-based extractors (Markdown headers,
+two-column tables, regular expressions). Near-duplicates are folded at
+write time. The default embedder is a built-in hash embedder, and an e5
+model runs locally on CPU when you want semantic recall.
+
+### Agentic memory, with an LLM only if you want one
+
+The read path is hybrid. BM25 and vector lists are fused, an optional
+reranker can reorder them, evidence floors are applied, then diversity and
+a token budget. The output is one context block that labels each excerpt
+with its source, date and trust zone. Agents call `context` before the first
+turn and `search`, `get`, `timeline` and `explain` during the task.
+
+An LLM is optional and only used offline, in **sleep**. Its deterministic
+maintenance phase always runs: integrity checks, pending embeddings,
+utility updates and entity-merge proposals. With a provider configured, an LLM phase can
+also consolidate facts and pages. The phase is gated: it is measured and
+rolled back if the evaluation score drops. The usage-guided digest
+(decision 0142) is **off by default** and has two modes, procedural
+(extractive, no LLM) and LLM.
+
+### Provenance and trust, recorded at write time
+
+Every derived record points to the raw events it came from. Its trust zone
+(`user`, `internal` or `external`) is fixed by the channel it arrived
+through, so content from tools or the web never becomes guidance or a
+trusted fact. Facts are superseded, never overwritten, and they carry a
+validity period. You can ask what was true at any date. Every mutation goes
+into an append-only, hash-chained audit log.
+
+### Forgetting, verified
+
+`forget` takes a record, a document, a source, an entity, a date range
+or a search match. It removes the content and everything derived from it, then
+runs probes that check the text is gone everywhere, including the
+database's raw bytes. A tombstone records what was removed, without the
+content.
+
+### Learning from use, and abstention
+
+- **Outcomes.** Agents report outcomes (`outcome`): whether an answer
+  worked and which items it used. Chanda keeps per-record utility from
+  these, which can feed the ranking: a learned ranker promoted through an
+  evaluation gate, or a fixed weight (decision 0146).
+- **Learned query keys.** Positive outcomes can create learned query keys
+  (decision 0145). A question that led to a good answer becomes an extra
+  way to find the same record, and nothing is added to the context block.
+  Both learning paths are **off by default**. The pre-registered test is
+  [`eval/learn/`](eval/learn/): on LoCoMo, one pass of use did not
+  measurably improve later answers.
+- **Abstention.** When nothing clears the evidence floors, `context`
+  returns nothing and says why (`no_relevant_memory`). The agent gets no
+  filler to guess from.
+
+### Built to run anywhere
+
+- One static Go binary, with no cgo and no network access.
+- One SQLite file per memory, with FTS5 for full text.
+- MCP over stdio or Streamable HTTP.
+- An in-process Go API (`pkg/chanda/local`).
+- Tool profiles (`read`, `standard`, `admin`), so an agent that reads
+  untrusted content cannot forget or promote anything.
+
+## Evaluation and research
+
+All four studies publish their data, scripts, costs and deviations. Each
+study ends with two lists: what the data support and what they do not.
+
+| Study | Question | Result |
+| --- | --- | --- |
+| [LongMemEval battery](eval/reports/2026-11-14/REPORT.md) (sample committed before any LLM call) | How does Chanda compare with no memory, plain RAG, Mem0 and its own sleep? | Search matches the best retrieval, and the context block lost short turns. The fix is the next study. |
+| [Context selection](eval/selection/RESULTS.md) (pre-registered; 140 tuning and 300 held-out questions) | Does a per-item cap with best-window truncation fix the block? | **Yes**: 78.0% → 82.7% on the held-out set (p = 0.024). Plain RAG got 77.7% (p = 0.058). |
+| [Usage-guided sleep](eval/sleep/RESULTS.md) (pre-registered; LoCoMo) | Do digests of frequently used memories improve later answers? | **No**: 66.0% and 66.5% against 70.1% without them. The digest is off by default. |
+| [Learning from use](eval/learn/RESULTS.md) (pre-registered; 7 unseen LoCoMo conversations) | Do utility ranking and learned query keys improve later answers? | **No**: 67.6% against 67.3% (p = 0.90). Both are off by default. |
+
+Total LLM spend for all of them: US$8.20, through a metered proxy with
+a record/replay call store (`eval/cmd/lmeproxy`).
+
+Third-party data is not redistributed. LongMemEval is fetched by `lme
+fetch`. LoCoMo (snap-research/locomo, CC BY-NC 4.0) is downloaded by hand
+(`eval/locomo/SOURCE.md`) and used here for research only.
 
 ## Build
 
