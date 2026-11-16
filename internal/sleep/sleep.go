@@ -219,6 +219,10 @@ type Counts struct {
 	// Guided is what the guided digest did (sleep.mode guided, decision
 	// 0142); nil, and absent from the JSON, in uniform mode.
 	Guided *GuidedCounts `json:"guided,omitempty"`
+	// Conflicts is what the conflict verdicts did (decision 0148); nil, and
+	// absent from the JSON, when sleep.conflicts is off (outside
+	// maintenance mode, which always reports it).
+	Conflicts *ConflictCounts `json:"conflicts,omitempty"`
 }
 
 // Gate is the outcome of the evaluation gate.
@@ -481,6 +485,9 @@ func sortCounts(c *Counts) {
 	}
 	if c.Guided != nil {
 		sort.Strings(c.Guided.Fichas)
+	}
+	if c.Conflicts != nil {
+		sort.Strings(c.Conflicts.Supersessions)
 	}
 }
 

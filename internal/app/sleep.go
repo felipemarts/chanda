@@ -204,6 +204,12 @@ func (a *App) SleepRun(ctx context.Context, in chanda.SleepRunInput) (chanda.Sle
 	}
 	out.Meta, out.RunID, out.Status, out.Phases, out.Report = c.meta(auditID), res.RunID, res.Status, res.Phases, res.Report
 	out.Cost = chanda.SleepCost{InputTokens: res.Cost.InputTokens, OutputTokens: res.Cost.OutputTokens, LLMCalls: res.Cost.LLMCalls}
+	if k := res.Counts.Conflicts; k != nil {
+		out.Conflicts = &chanda.SleepConflicts{Mode: k.Mode, Enabled: k.Enabled, Pending: k.Pending, Judged: k.Judged,
+			ModelVerdicts: k.ModelVerdicts, Applied: k.Applied, Rejected: k.Rejected, InvalidAnswers: k.InvalidAnswers,
+			TooLarge: k.TooLarge, Dropped: k.Dropped, Left: k.Left, LLMCalls: k.LLMCalls, InputTokens: k.InputTokens,
+			OutputTokens: k.OutputTokens, Supersessions: k.Supersessions}
+	}
 	if !res.Gate.Reverted {
 		k := res.Counts
 		for act, n := range k.FactActions {

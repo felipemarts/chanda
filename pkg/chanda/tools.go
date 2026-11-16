@@ -506,6 +506,29 @@ type SleepRunOutput struct {
 	Rejected   int       `json:"rejected"`
 	Cost       SleepCost `json:"cost"`
 	Report     string    `json:"report" jsonschema:"readable report of the run"`
+	// Conflicts: the conflict verdicts of the run (decision 0148); absent
+	// when sleep.conflicts is off outside maintenance mode.
+	Conflicts *SleepConflicts `json:"conflicts,omitempty" jsonschema:"conflict verdicts of the run"`
+}
+
+// SleepConflicts is what the conflict verdicts of a sleep run did (decision
+// 0148). With a reverted gate everything counted was discarded.
+type SleepConflicts struct {
+	Mode           string         `json:"mode" jsonschema:"sleep mode of the run: uniform, guided or maintenance"`
+	Enabled        bool           `json:"enabled" jsonschema:"sleep.conflicts.enabled"`
+	Pending        int            `json:"pending" jsonschema:"pending pairs (both records live) when phase 2 started"`
+	Judged         map[string]int `json:"judged" jsonschema:"pairs judged, by verdict after the rules"`
+	ModelVerdicts  map[string]int `json:"model_verdicts" jsonschema:"pairs judged, by the model's verdict"`
+	Applied        int            `json:"applied" jsonschema:"supersessions written"`
+	Rejected       map[string]int `json:"rejected" jsonschema:"supersedes verdicts not applied, by rule reason"`
+	InvalidAnswers int            `json:"invalid_answers" jsonschema:"answers off the schema; the pair stays pending"`
+	TooLarge       int            `json:"too_large" jsonschema:"pairs whose prompt exceeds the whole token budget"`
+	Dropped        int            `json:"dropped" jsonschema:"pairs that changed between the plan and the gate"`
+	Left           int            `json:"left" jsonschema:"pending pairs not judged in this run"`
+	LLMCalls       int            `json:"llm_calls"`
+	InputTokens    int            `json:"input_tokens"`
+	OutputTokens   int            `json:"output_tokens"`
+	Supersessions  []string       `json:"supersessions" jsonschema:"supersession ids written"`
 }
 
 // VerifyInput checks the audit chain and the provenance graph.
