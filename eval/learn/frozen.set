@@ -1,0 +1,4 @@
+ranking.utility_lambda=0.2
+ranking.min_exposures=5
+read.learned_keys_weight=0.5
+read.learned_keys_top_k=10
