@@ -117,8 +117,26 @@ func TestStudyEndToEndLocomo(t *testing.T) {
 	if len(recs) != 3 || recs[0].Value != 1 || len(recs[0].UsedIDs) == 0 || recs[1].Value != -1 || len(recs[1].UsedIDs) != 0 || recs[2].Value != 1 {
 		t.Fatalf("outcomes %+v", recs)
 	}
-	if _, err := StudyOutcome(ctx, o, base, ask, answers, false); err == nil || !strings.Contains(err.Error(), "already has an outcome") {
-		t.Fatalf("second outcome: %v", err)
+	// A second run resumes: the recorded outcomes are kept, none is added.
+	again, err := StudyOutcome(ctx, o, base, ask, answers, false)
+	if err != nil || len(again) != 3 || again[0].OutcomeID != recs[0].OutcomeID || again[1].Value != -1 {
+		t.Fatalf("second outcome: %+v %v", again, err)
+	}
+	flipped := map[string]StudyAnswer{}
+	for k, v := range answers {
+		flipped[k] = v
+	}
+	for _, l := range ask[:1] {
+		a := flipped[l.QuestionID]
+		if recs[0].Value > 0 {
+			a.Verdict = json.RawMessage("false")
+		} else {
+			a.Verdict = json.RawMessage("true")
+		}
+		flipped[l.QuestionID] = a
+	}
+	if _, err := StudyOutcome(ctx, o, base, ask, flipped, false); err == nil || !strings.Contains(err.Error(), "already has outcome") {
+		t.Fatalf("a different value must be refused: %v", err)
 	}
 	// Gold answers and judge text never reach the database: q1's gold is
 	// in no turn, so it must not be anywhere in the file.

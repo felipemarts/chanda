@@ -785,6 +785,10 @@ func StudyOutcome(ctx context.Context, o *StudyOptions, dir string, lines []*Stu
 	if err != nil {
 		return nil, err
 	}
+	// A run stopped mid-way (rate limit) resumes: a retrieval that already
+	// has an outcome is skipped when the recorded value is the one computed now.
+	resume := true
+	existing := map[string]*StudyOutcomeRecord{}
 	for _, l := range lines {
 		if l.RetrievalID == "" {
 			db.Close()
@@ -804,8 +808,18 @@ func StudyOutcome(ctx context.Context, o *StudyOptions, dir string, lines []*Stu
 			return nil, fmt.Errorf("%s: retrieval %s is not in %s", l.QuestionID, l.RetrievalID, dir)
 		}
 		if no != 0 {
-			db.Close()
-			return nil, fmt.Errorf("%s: retrieval %s already has an outcome", l.QuestionID, l.RetrievalID)
+			if !resume {
+				db.Close()
+				return nil, fmt.Errorf("%s: retrieval %s already has an outcome", l.QuestionID, l.RetrievalID)
+			}
+			var v float64
+			var used, id string
+			if err := db.QueryRowContext(ctx, `SELECT value, used_ids, id FROM outcomes WHERE retrieval_id = ?`, l.RetrievalID).Scan(&v, &used, &id); err != nil {
+				db.Close()
+				return nil, err
+			}
+			existing[l.RetrievalID] = &StudyOutcomeRecord{QuestionID: l.QuestionID, RetrievalID: l.RetrievalID, Value: v, OutcomeID: id}
+			_ = json.Unmarshal([]byte(used), &existing[l.RetrievalID].UsedIDs)
 		}
 	}
 	db.Close()
@@ -845,8 +859,29 @@ func StudyOutcome(ctx context.Context, o *StudyOptions, dir string, lines []*Stu
 	defer srv.Close()
 	var recs []StudyOutcomeRecord
 	for _, j := range jobs {
+		if e := existing[j.l.RetrievalID]; e != nil {
+			if e.Value != j.val {
+				return recs, fmt.Errorf("%s: retrieval %s already has outcome %v, computed %v", j.l.QuestionID, j.l.RetrievalID, e.Value, j.val)
+			}
+			recs = append(recs, *e)
+			continue
+		}
 		var out chanda.OutcomeOutput
-		if err := srv.Call(ctx, chanda.ToolOutcome, chanda.OutcomeInput{RetrievalID: j.l.RetrievalID, Value: j.val, UsedIDs: j.used}, &out); err != nil {
+		for attempt := 0; ; attempt++ {
+			err := srv.Call(ctx, chanda.ToolOutcome, chanda.OutcomeInput{RetrievalID: j.l.RetrievalID, Value: j.val, UsedIDs: j.used}, &out)
+			if err == nil {
+				break
+			}
+			// ranking.outcome_rate_per_minute (60): wait for the window to pass.
+			if attempt < 3 && strings.Contains(err.Error(), "rate_limited") {
+				o.logf("outcome: %s rate limited; waiting 61 s", j.l.QuestionID)
+				select {
+				case <-time.After(61 * time.Second):
+				case <-ctx.Done():
+					return recs, ctx.Err()
+				}
+				continue
+			}
 			return recs, fmt.Errorf("%s: %w", j.l.QuestionID, err)
 		}
 		recs = append(recs, StudyOutcomeRecord{QuestionID: j.l.QuestionID, RetrievalID: j.l.RetrievalID, Value: j.val, UsedIDs: j.used,
