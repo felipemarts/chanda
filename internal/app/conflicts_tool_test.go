@@ -145,7 +145,11 @@ func TestConflictsScan(t *testing.T) {
 // The guard's refusals: a pair above the near-duplicate threshold whose
 // numbers differ is counted (and listed) under numbers_differ.
 func TestConflictsScanRefusals(t *testing.T) {
-	a, _ := newApp(t, func(c *config.Config) { conflictsOn(c); c.Write.NearDupThresholds = nil; c.Write.NearDupThreshold = 0.3 })
+	a, _ := newApp(t, func(c *config.Config) {
+		conflictsOn(c)
+		c.Write.NearDupThresholds = nil
+		c.Write.NearDupThreshold = 0.3
+	})
 	x := remember(t, a, "The Zenith plan costs 10 dollars per month.", "2024-01-01")
 	y := remember(t, a, "The Zenith plan costs 12 dollars per month.", "2024-06-01")
 	sc := must(a.Conflicts(cli, chanda.ConflictsInput{Action: chanda.ConflictsScan, Details: true})).Scan

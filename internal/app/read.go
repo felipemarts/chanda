@@ -267,7 +267,7 @@ func (a *App) subjectSupersessions(ctx context.Context, ns, entity, name string,
 	}
 	rows, err = db.QueryContext(ctx, `SELECT s.id, s.old_id, s.new_id, s.ends_at, s.confidence, s.created_at, o.content, n.content
 		FROM supersessions s JOIN events o ON o.id = s.old_id JOIN events n ON n.id = s.new_id
-		WHERE s.namespace = ? AND s.status = 'active' AND s.reverted_at IS NULL ORDER BY s.ends_at, s.id`, ns)
+		WHERE s.namespace = ? AND s.status = 'active' AND s.reverted_at IS NULL AND n.retired_at IS NULL ORDER BY s.ends_at, s.id`, ns)
 	if err != nil {
 		return nil, err
 	}
