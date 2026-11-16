@@ -1,0 +1,5972 @@
+{
+ "dataset": "LoCoMo locomo10.json",
+ "revision": "3eb6f2c585f5e1699204e3c3bdf7adc5c28cb376",
+ "sha256": "79fa87e90f04081343b8c8debecb80a9a6842b76a7aa537dc9fdf651ea698ff4",
+ "seed": 45,
+ "categories": [
+  1,
+  2,
+  3,
+  4
+ ],
+ "category_names": {
+  "1": "multi-hop",
+  "2": "temporal",
+  "3": "open-domain",
+  "4": "single-hop"
+ },
+ "development": [
+  "conv-30",
+  "conv-47",
+  "conv-49"
+ ],
+ "conversations": [
+  {
+   "sample_id": "conv-26",
+   "questions": [
+    {
+     "index": 0,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 1,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 2,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 3,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 4,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 5,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 6,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 7,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 8,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 9,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 10,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 11,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 12,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 13,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 14,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 15,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 16,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 17,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 18,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 19,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 20,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 21,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 22,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 23,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 24,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 25,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 26,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 27,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 28,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 29,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 30,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 31,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 32,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 33,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 34,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 35,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 36,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 37,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 38,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 39,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 40,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 41,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 42,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 43,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 44,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 45,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 46,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 47,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 48,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 49,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 50,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 51,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 52,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 53,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 54,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 55,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 56,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 57,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 58,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 59,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 60,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 61,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 62,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 63,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 64,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 65,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 66,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 67,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 68,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 69,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 70,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 71,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 72,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 73,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 74,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 75,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 76,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 77,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 78,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 79,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 80,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 81,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 82,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 83,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 84,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 85,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 86,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 87,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 88,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 89,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 90,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 91,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 92,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 93,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 94,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 95,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 96,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 97,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 98,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 99,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 100,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 101,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 102,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 103,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 104,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 105,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 106,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 107,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 108,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 109,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 110,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 111,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 112,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 113,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 114,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 115,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 116,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 117,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 118,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 119,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 120,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 121,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 122,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 123,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 124,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 125,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 126,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 127,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 128,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 129,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 130,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 131,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 132,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 133,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 134,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 135,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 136,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 137,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 138,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 139,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 140,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 141,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 142,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 143,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 144,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 145,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 146,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 147,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 148,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 149,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 150,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 151,
+     "category": 4,
+     "half": "test"
+    }
+   ],
+   "moved_duplicates": 0,
+   "use": 75,
+   "test": 77,
+   "by_category": {
+    "1": {
+     "use": 16,
+     "test": 16
+    },
+    "2": {
+     "use": 18,
+     "test": 19
+    },
+    "3": {
+     "use": 6,
+     "test": 7
+    },
+    "4": {
+     "use": 35,
+     "test": 35
+    }
+   }
+  },
+  {
+   "sample_id": "conv-41",
+   "questions": [
+    {
+     "index": 0,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 1,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 2,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 3,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 4,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 5,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 6,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 7,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 8,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 9,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 10,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 11,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 12,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 13,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 14,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 15,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 16,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 17,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 18,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 19,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 20,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 21,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 22,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 23,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 24,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 25,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 26,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 27,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 28,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 29,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 30,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 31,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 32,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 33,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 34,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 35,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 36,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 37,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 38,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 39,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 40,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 41,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 42,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 43,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 44,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 45,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 46,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 47,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 48,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 49,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 50,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 51,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 52,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 53,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 54,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 55,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 56,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 57,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 58,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 59,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 60,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 61,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 62,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 63,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 64,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 65,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 66,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 67,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 68,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 69,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 70,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 71,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 72,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 73,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 74,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 75,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 76,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 77,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 78,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 79,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 80,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 81,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 82,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 83,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 84,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 85,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 86,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 87,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 88,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 89,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 90,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 91,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 92,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 93,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 94,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 95,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 96,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 97,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 98,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 99,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 100,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 101,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 102,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 103,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 104,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 105,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 106,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 107,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 108,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 109,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 110,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 111,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 112,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 113,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 114,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 115,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 116,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 117,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 118,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 119,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 120,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 121,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 122,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 123,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 124,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 125,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 126,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 127,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 128,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 129,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 130,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 131,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 132,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 133,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 134,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 135,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 136,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 137,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 138,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 139,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 140,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 141,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 142,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 143,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 144,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 145,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 146,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 147,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 148,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 149,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 150,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 151,
+     "category": 4,
+     "half": "test"
+    }
+   ],
+   "moved_duplicates": 0,
+   "use": 75,
+   "test": 77,
+   "by_category": {
+    "1": {
+     "use": 15,
+     "test": 16
+    },
+    "2": {
+     "use": 13,
+     "test": 14
+    },
+    "3": {
+     "use": 4,
+     "test": 4
+    },
+    "4": {
+     "use": 43,
+     "test": 43
+    }
+   }
+  },
+  {
+   "sample_id": "conv-42",
+   "questions": [
+    {
+     "index": 0,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 1,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 2,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 3,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 4,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 5,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 6,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 7,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 8,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 9,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 10,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 11,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 12,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 13,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 14,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 15,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 16,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 17,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 18,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 19,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 20,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 21,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 22,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 23,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 24,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 25,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 26,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 27,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 28,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 29,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 30,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 31,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 32,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 33,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 34,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 35,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 36,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 37,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 38,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 39,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 40,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 41,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 42,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 43,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 44,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 45,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 46,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 47,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 48,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 49,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 50,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 51,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 52,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 53,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 54,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 55,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 56,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 57,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 58,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 59,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 60,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 61,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 62,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 63,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 64,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 65,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 66,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 67,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 68,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 69,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 70,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 71,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 72,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 73,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 74,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 75,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 76,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 77,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 78,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 79,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 80,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 81,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 82,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 83,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 84,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 85,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 86,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 87,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 88,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 89,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 90,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 91,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 92,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 93,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 94,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 95,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 96,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 97,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 98,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 99,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 100,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 101,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 102,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 103,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 104,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 105,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 106,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 107,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 108,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 109,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 110,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 111,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 112,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 113,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 114,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 115,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 116,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 117,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 118,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 119,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 120,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 121,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 122,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 123,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 124,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 125,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 126,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 127,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 128,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 129,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 130,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 131,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 132,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 133,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 134,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 135,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 136,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 137,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 138,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 139,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 140,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 141,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 142,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 143,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 144,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 145,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 146,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 147,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 148,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 149,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 150,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 151,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 152,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 153,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 154,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 155,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 156,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 157,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 158,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 159,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 160,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 161,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 162,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 163,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 164,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 165,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 166,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 167,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 168,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 169,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 170,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 171,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 172,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 173,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 174,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 175,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 176,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 177,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 178,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 179,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 180,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 181,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 182,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 183,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 184,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 185,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 186,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 187,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 188,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 189,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 190,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 191,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 192,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 193,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 194,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 195,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 196,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 197,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 198,
+     "category": 4,
+     "half": "use"
+    }
+   ],
+   "moved_duplicates": 0,
+   "use": 98,
+   "test": 101,
+   "by_category": {
+    "1": {
+     "use": 18,
+     "test": 19
+    },
+    "2": {
+     "use": 20,
+     "test": 20
+    },
+    "3": {
+     "use": 5,
+     "test": 6
+    },
+    "4": {
+     "use": 55,
+     "test": 56
+    }
+   }
+  },
+  {
+   "sample_id": "conv-43",
+   "questions": [
+    {
+     "index": 0,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 1,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 2,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 3,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 4,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 5,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 6,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 7,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 8,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 9,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 10,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 11,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 12,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 13,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 14,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 15,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 16,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 17,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 18,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 19,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 20,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 21,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 22,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 23,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 24,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 25,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 26,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 27,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 28,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 29,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 30,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 31,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 32,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 33,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 34,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 35,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 36,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 37,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 38,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 39,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 40,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 41,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 42,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 43,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 44,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 45,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 46,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 47,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 48,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 49,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 50,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 51,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 52,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 53,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 54,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 55,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 56,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 57,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 58,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 59,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 60,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 61,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 62,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 63,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 64,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 65,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 66,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 67,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 68,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 69,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 70,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 71,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 72,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 73,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 74,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 75,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 76,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 77,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 78,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 79,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 80,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 81,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 82,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 83,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 84,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 85,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 86,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 87,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 88,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 89,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 90,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 91,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 92,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 93,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 94,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 95,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 96,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 97,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 98,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 99,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 100,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 101,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 102,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 103,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 104,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 105,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 106,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 107,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 108,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 109,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 110,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 111,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 112,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 113,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 114,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 115,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 116,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 117,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 118,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 119,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 120,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 121,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 122,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 123,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 124,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 125,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 126,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 127,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 128,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 129,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 130,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 131,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 132,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 133,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 134,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 135,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 136,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 137,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 138,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 139,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 140,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 141,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 142,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 143,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 144,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 145,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 146,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 147,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 148,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 149,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 150,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 151,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 152,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 153,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 154,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 155,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 156,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 157,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 158,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 159,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 160,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 161,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 162,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 163,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 164,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 165,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 166,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 167,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 168,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 169,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 170,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 171,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 172,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 173,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 174,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 175,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 176,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 177,
+     "category": 4,
+     "half": "use"
+    }
+   ],
+   "moved_duplicates": 0,
+   "use": 88,
+   "test": 90,
+   "by_category": {
+    "1": {
+     "use": 15,
+     "test": 16
+    },
+    "2": {
+     "use": 13,
+     "test": 13
+    },
+    "3": {
+     "use": 7,
+     "test": 7
+    },
+    "4": {
+     "use": 53,
+     "test": 54
+    }
+   }
+  },
+  {
+   "sample_id": "conv-44",
+   "questions": [
+    {
+     "index": 0,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 1,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 2,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 3,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 4,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 5,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 6,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 7,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 8,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 9,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 10,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 11,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 12,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 13,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 14,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 15,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 16,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 17,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 18,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 19,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 20,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 21,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 22,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 23,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 24,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 25,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 26,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 27,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 28,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 29,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 30,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 31,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 32,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 33,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 34,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 35,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 36,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 37,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 38,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 39,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 40,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 41,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 42,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 43,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 44,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 45,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 46,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 47,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 48,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 49,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 50,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 51,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 52,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 53,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 54,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 55,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 56,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 57,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 58,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 59,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 60,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 61,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 62,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 63,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 64,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 65,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 66,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 67,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 68,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 69,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 70,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 71,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 72,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 73,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 74,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 75,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 76,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 77,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 78,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 79,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 80,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 81,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 82,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 83,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 84,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 85,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 86,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 87,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 88,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 89,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 90,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 91,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 92,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 93,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 94,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 95,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 96,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 97,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 98,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 99,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 100,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 101,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 102,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 103,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 104,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 105,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 106,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 107,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 108,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 109,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 110,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 111,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 112,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 113,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 114,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 115,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 116,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 117,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 118,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 119,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 120,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 121,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 122,
+     "category": 4,
+     "half": "test"
+    }
+   ],
+   "moved_duplicates": 0,
+   "use": 61,
+   "test": 62,
+   "by_category": {
+    "1": {
+     "use": 15,
+     "test": 15
+    },
+    "2": {
+     "use": 12,
+     "test": 12
+    },
+    "3": {
+     "use": 3,
+     "test": 4
+    },
+    "4": {
+     "use": 31,
+     "test": 31
+    }
+   }
+  },
+  {
+   "sample_id": "conv-48",
+   "questions": [
+    {
+     "index": 0,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 1,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 2,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 3,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 4,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 5,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 6,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 7,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 8,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 9,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 10,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 11,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 12,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 13,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 14,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 15,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 16,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 17,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 18,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 19,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 20,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 21,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 22,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 23,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 24,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 25,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 26,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 27,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 28,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 29,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 30,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 31,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 32,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 33,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 34,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 35,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 36,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 37,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 38,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 39,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 40,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 41,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 42,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 43,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 44,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 45,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 46,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 47,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 48,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 49,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 50,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 51,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 52,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 53,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 54,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 55,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 56,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 57,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 58,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 59,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 60,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 61,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 62,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 63,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 64,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 65,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 66,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 67,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 68,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 69,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 70,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 71,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 72,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 73,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 74,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 75,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 76,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 77,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 78,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 79,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 80,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 81,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 82,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 83,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 84,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 85,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 86,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 87,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 88,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 89,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 90,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 91,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 92,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 93,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 94,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 95,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 96,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 97,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 98,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 99,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 100,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 101,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 102,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 103,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 104,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 105,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 106,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 107,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 108,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 109,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 110,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 111,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 112,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 113,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 114,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 115,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 116,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 117,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 118,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 119,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 120,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 121,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 122,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 123,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 124,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 125,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 126,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 127,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 128,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 129,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 130,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 131,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 132,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 133,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 134,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 135,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 136,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 137,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 138,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 139,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 140,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 141,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 142,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 143,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 144,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 145,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 146,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 147,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 148,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 149,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 150,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 151,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 152,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 153,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 154,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 155,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 156,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 157,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 158,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 159,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 160,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 161,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 162,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 163,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 164,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 165,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 166,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 167,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 168,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 169,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 170,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 171,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 172,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 173,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 174,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 175,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 176,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 177,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 178,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 179,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 180,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 181,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 182,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 183,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 184,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 185,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 186,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 187,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 188,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 189,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 190,
+     "category": 4,
+     "half": "use"
+    }
+   ],
+   "moved_duplicates": 9,
+   "use": 94,
+   "test": 97,
+   "by_category": {
+    "1": {
+     "use": 10,
+     "test": 11
+    },
+    "2": {
+     "use": 21,
+     "test": 21
+    },
+    "3": {
+     "use": 5,
+     "test": 5
+    },
+    "4": {
+     "use": 58,
+     "test": 60
+    }
+   }
+  },
+  {
+   "sample_id": "conv-50",
+   "questions": [
+    {
+     "index": 0,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 1,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 2,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 3,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 4,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 5,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 6,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 7,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 8,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 9,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 10,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 11,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 12,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 13,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 14,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 15,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 16,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 17,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 18,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 19,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 20,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 21,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 22,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 23,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 24,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 25,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 26,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 27,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 28,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 29,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 30,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 31,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 32,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 33,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 34,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 35,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 36,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 37,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 38,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 39,
+     "category": 3,
+     "half": "test"
+    },
+    {
+     "index": 40,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 41,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 42,
+     "category": 3,
+     "half": "use"
+    },
+    {
+     "index": 43,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 44,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 45,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 46,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 47,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 48,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 49,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 50,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 51,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 52,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 53,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 54,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 55,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 56,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 57,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 58,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 59,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 60,
+     "category": 1,
+     "half": "test"
+    },
+    {
+     "index": 61,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 62,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 63,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 64,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 65,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 66,
+     "category": 1,
+     "half": "use"
+    },
+    {
+     "index": 67,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 68,
+     "category": 2,
+     "half": "use"
+    },
+    {
+     "index": 69,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 70,
+     "category": 2,
+     "half": "test"
+    },
+    {
+     "index": 71,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 72,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 73,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 74,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 75,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 76,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 77,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 78,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 79,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 80,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 81,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 82,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 83,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 84,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 85,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 86,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 87,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 88,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 89,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 90,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 91,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 92,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 93,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 94,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 95,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 96,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 97,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 98,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 99,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 100,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 101,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 102,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 103,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 104,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 105,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 106,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 107,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 108,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 109,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 110,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 111,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 112,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 113,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 114,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 115,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 116,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 117,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 118,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 119,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 120,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 121,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 122,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 123,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 124,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 125,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 126,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 127,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 128,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 129,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 130,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 131,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 132,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 133,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 134,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 135,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 136,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 137,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 138,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 139,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 140,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 141,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 142,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 143,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 144,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 145,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 146,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 147,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 148,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 149,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 150,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 151,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 152,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 153,
+     "category": 4,
+     "half": "use"
+    },
+    {
+     "index": 154,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 155,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 156,
+     "category": 4,
+     "half": "test"
+    },
+    {
+     "index": 157,
+     "category": 4,
+     "half": "use"
+    }
+   ],
+   "moved_duplicates": 0,
+   "use": 78,
+   "test": 80,
+   "by_category": {
+    "1": {
+     "use": 16,
+     "test": 16
+    },
+    "2": {
+     "use": 16,
+     "test": 16
+    },
+    "3": {
+     "use": 3,
+     "test": 4
+    },
+    "4": {
+     "use": 43,
+     "test": 44
+    }
+   }
+  }
+ ]
+}
