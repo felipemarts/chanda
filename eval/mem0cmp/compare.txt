@@ -1,0 +1,21 @@
+Battery 60 questions (eval/sample.json); D2 = selection of decision 0141 (build of 2026-11-16, config hash fb55961138acd36b)
+A no memory        7/60 = 11.7% [5.8, 22.2]
+B plain RAG        49/60 = 81.7% [70.1, 89.4]
+C Mem0             53/60 = 88.3% [77.8, 94.2]
+D old selection    47/60 = 78.3% [66.4, 86.9]
+E old sleep        46/60 = 76.7% [64.6, 85.6]
+D2 new selection   48/60 = 80.0% [68.2, 88.2]
+D2 vs C Mem0: D2 only 1, other only 6, p = 0.125
+D2 vs B plain RAG: D2 only 2, other only 3, p = 1.000
+D2 vs D old selection: D2 only 1, other only 0, p = 1.000
+by type: n, D2, Mem0
+  knowledge-update [8, 8, 8]
+  knowledge-update (abs) [1, 1, 1]
+  multi-session [13, 8, 9]
+  multi-session (abs) [3, 2, 2]
+  single-session-assistant [7, 7, 7]
+  single-session-preference [4, 4, 4]
+  single-session-user [7, 7, 7]
+  single-session-user (abs) [1, 1, 1]
+  temporal-reasoning [15, 9, 13]
+  temporal-reasoning (abs) [1, 1, 1]

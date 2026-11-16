@@ -1,0 +1,53 @@
+{
+  "cap_usd": 0.5,
+  "spent_usd": 0.031301784000000006,
+  "updated_at": "2026-11-16T04:47:02.582679Z",
+  "price_source": "https://api-docs.deepseek.com/quick_start/pricing (read 2026-11-14); USD per 1M tokens; peak = 01:00-04:00 and 06:00-10:00 UTC Mon-Fri (Chinese public holidays are off-peak upstream but treated as peak here)",
+  "total": {
+    "calls": 120,
+    "errors": 0,
+    "refused": 0,
+    "rejected": 0,
+    "prompt_tokens": 154196,
+    "cache_hit_tokens": 128,
+    "cache_miss_tokens": 154068,
+    "completion_tokens": 13652,
+    "reasoning_tokens": 0,
+    "cost_usd": 0.031301784000000006,
+    "unverified_usd": 0,
+    "replayed": 0,
+    "saved_usd": 0
+  },
+  "by_tag": {
+    "D2-60-judge": {
+      "calls": 60,
+      "errors": 0,
+      "refused": 0,
+      "rejected": 0,
+      "prompt_tokens": 22543,
+      "cache_hit_tokens": 128,
+      "cache_miss_tokens": 22415,
+      "completion_tokens": 60,
+      "reasoning_tokens": 0,
+      "cost_usd": 0.003398633999999999,
+      "unverified_usd": 0,
+      "replayed": 0,
+      "saved_usd": 0
+    },
+    "D2-60-reader": {
+      "calls": 60,
+      "errors": 0,
+      "refused": 0,
+      "rejected": 0,
+      "prompt_tokens": 131653,
+      "cache_hit_tokens": 0,
+      "cache_miss_tokens": 131653,
+      "completion_tokens": 13592,
+      "reasoning_tokens": 0,
+      "cost_usd": 0.027903149999999995,
+      "unverified_usd": 0,
+      "replayed": 0,
+      "saved_usd": 0
+    }
+  }
+}
