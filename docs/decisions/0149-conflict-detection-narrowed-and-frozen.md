@@ -72,3 +72,10 @@ sleep.conflicts.max_pairs=40   # a cost guard; the development maximum was 33 pa
 
 `max_per_record` keeps its default of 3. The development spend was US$0.30
 of the study's US$2 cap.
+
+## Outcome (`eval/conflicts/RESULTS.md`)
+
+On the 107 test questions, hidden evidence was 0 and accuracy did not
+drop (89 → 88, p = 1.0). Outdated information delivered fell only from 30
+to 29 of 31 (p = 1.0), so the pre-registered claim was not established.
+`sleep.conflicts` stays off by default, and no other variant is built.
