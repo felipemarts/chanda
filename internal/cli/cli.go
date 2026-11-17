@@ -10,6 +10,8 @@
 //	              [--value v] [--from t] [--to t] [--query q] [--dry-run]
 //	chanda gate list|approve <id>|retire <id>|add --question q [--answer a]... [--as-of d]
 //	chanda ranking on|off
+//	chanda init   [--config chanda.yaml] [--force]
+//	chanda config [show] | set <name|dotted.key> <value>  [--config f]
 //	chanda version
 //
 // Commands other than serve and eval print the result envelope as JSON on
@@ -88,6 +90,8 @@ commands:
   eval     run the evaluation report
   forget   delete in cascade and verify
   gate     review the gate set (list, approve, retire, add)
+  init     write a commented chanda.yaml with the main switches
+  config   show the main switches, or set one: config set agentic-search off
   ranking  switch learned ranking on or off
   keys     learned query keys: enable, disable, reset, rebuild, stats
   conflicts  conflict resolution: list, revert, reset, scan, stats
@@ -119,6 +123,10 @@ func (cl CLI) Run(ctx context.Context, args []string, stdout, stderr io.Writer) 
 		return cl.cmdForget(ctx, rest, stdout, stderr)
 	case "gate":
 		return cl.cmdGate(ctx, rest, stdout, stderr)
+	case "init":
+		return cl.cmdInit(rest, stdout, stderr)
+	case "config":
+		return cl.cmdConfig(rest, stdout, stderr)
 	case "ranking":
 		return cl.cmdRanking(ctx, rest, stdout, stderr)
 	case "keys":

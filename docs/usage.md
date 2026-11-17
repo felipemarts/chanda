@@ -39,6 +39,20 @@ Then use `bin/chanda-hugot` wherever this guide says `chanda`, with the
 
 ## 2. Configure
 
+The quickest way is to let Chanda write the file and switch features from the
+terminal (decision 0154):
+
+```sh
+chanda init                               # commented chanda.yaml, equal to the defaults
+chanda config                             # what is on: agentic-search, sleep, learning, agent-labels, conflicts
+chanda config set agentic-search off      # or sleep, learning, agent-labels, conflicts: on|off
+chanda config set llm.endpoint http://localhost:11434/v1   # any dotted key
+chanda config set mcp.write_namespaces "[default]"
+```
+
+`config set` keeps the file's comments and refuses a value that does not
+load. Restart `serve` afterwards.
+
 Every key is optional; a missing file means the defaults
 (`internal/config/config.go` lists every key). A typical `chanda.yaml`:
 
