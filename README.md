@@ -1,4 +1,11 @@
+<img src="docs/assets/logo.png" alt="Chanda" width="96" align="right">
+
 # Chanda: local memory for AI agents
+
+[![release](https://img.shields.io/github/v/release/felipemarts/chanda)](https://github.com/felipemarts/chanda/releases)
+[![ci](https://github.com/felipemarts/chanda/actions/workflows/ci.yml/badge.svg)](https://github.com/felipemarts/chanda/actions/workflows/ci.yml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/felipemarts/chanda.svg)](https://pkg.go.dev/github.com/felipemarts/chanda)
+[![license](https://img.shields.io/github/license/felipemarts/chanda)](LICENSE)
 
 **Agent memory** · MCP server · Hermes Agent plugin · RAG
 
@@ -170,6 +177,19 @@ Third-party data is not redistributed. LongMemEval is fetched by `lme
 fetch`. LoCoMo (snap-research/locomo, CC BY-NC 4.0) is downloaded by hand
 (`eval/locomo/SOURCE.md`) and used here for research only.
 
+## Install
+
+| How | |
+| --- | --- |
+| Prebuilt binary | Download `chanda-<version>-<os>-<arch>` from [Releases](https://github.com/felipemarts/chanda/releases) (Linux, macOS, Windows; amd64 and arm64) and check it against `SHA256SUMS`. |
+| Go | `CGO_ENABLED=0 go install github.com/felipemarts/chanda/cmd/chanda@latest` |
+| MCP bundle | Open `chanda-mcp-<os>-<arch>.mcpb` from [Releases](https://github.com/felipemarts/chanda/releases) in a client that installs MCP bundles (Claude Desktop, for one). It asks for the database file (default `~/.chanda/chanda.db`) and, optionally, a `chanda.yaml`. |
+| MCP Registry | Listed as [`io.github.felipemarts/chanda`](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.felipemarts/chanda). |
+| Hermes Agent | `hermes plugins install felipemarts/chanda/adapters/hermes/chanda_hermes`, then `hermes config set memory.provider chanda`. See [adapters/hermes](adapters/hermes/). |
+
+Without a configuration file, `chanda serve --db ~/.chanda/chanda.db` runs
+with the defaults and keeps the memory in that file.
+
 ## Build
 
 Go 1.26, no cgo:
@@ -198,6 +218,8 @@ report in `eval/reports/`. See [docs/usage.md](docs/usage.md) for every command.
 ### Claude Code
 
 ```sh
+claude mcp add chanda -- chanda serve --db ~/.chanda/chanda.db
+# with a configuration file:
 claude mcp add chanda -- /usr/local/bin/chanda serve --config /home/me/.config/chanda/chanda.yaml
 ```
 

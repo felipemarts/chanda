@@ -18,32 +18,35 @@ Hermes at a time.
 
 ## Install
 
-1. Install the `chanda` binary and check it: `chanda version`.
+1. Install the `chanda` binary and check it: `chanda version`. Either
+   download a prebuilt binary from
+   [Releases](https://github.com/felipemarts/chanda/releases), or:
 
    ```sh
-   CGO_ENABLED=0 go install github.com/felipemarts/chanda/cmd/chanda@latest
-   # or, from a clone: go build -o ~/.local/bin/chanda ./cmd/chanda
+   CGO_ENABLED=0 go install github.com/felipemarts/chanda/cmd/chanda@v0.1.0
    ```
 
 2. Install the plugin, either way:
 
-   - **Directory plugin** (recommended by Hermes for user installs): copy the
-     package directory as `chanda` into the profile's plugins folder.
+   - **From Git** (recommended): Hermes clones only the plugin folder and
+     prepares its Python dependency (`mcp>=2.3.0,<3`; Hermes already pins
+     `mcp==2.3.0`). It asks whether to make Chanda the memory provider now.
+
+     ```sh
+     hermes plugins install felipemarts/chanda/adapters/hermes/chanda_hermes
+     ```
+
+   - **Directory plugin**: copy the package directory as `chanda` into the
+     profile's plugins folder.
 
      ```sh
      cp -R adapters/hermes/chanda_hermes "$HERMES_HOME/plugins/chanda"   # HERMES_HOME defaults to ~/.hermes
      ```
 
-     `plugin.yaml` declares the Python dependency (`mcp>=2.3.0,<3`; Hermes
-     already pins `mcp==2.3.0`), which Hermes prepares on activation.
-
-   - **Package** (owner-managed Hermes environments): install into the Python
-     environment Hermes runs in; the entry point is
-     `[project.entry-points."hermes_agent.memory_providers"] chanda = "chanda_hermes:register"`.
-
-     ```sh
-     pip install ./adapters/hermes
-     ```
+   Owner-managed builds (Nix and the like) can instead use the entry point
+   `[project.entry-points."hermes_agent.memory_providers"] chanda = "chanda_hermes:register"`
+   in `pyproject.toml`; Hermes asks not to pip install providers into the
+   environment it manages.
 
 3. Activate it: `hermes config set memory.provider chanda` (or
    `hermes memory setup`, which prompts for `command`, `config` and

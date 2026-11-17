@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"regexp"
+	"runtime"
 	"slices"
 	"strings"
 	"sync"
@@ -212,6 +213,9 @@ func buildBinary(t *testing.T) string {
 		t.Skip("go toolchain not in PATH")
 	}
 	bin := filepath.Join(t.TempDir(), "chanda")
+	if runtime.GOOS == "windows" {
+		bin += ".exe"
+	}
 	cmd := exec.Command(gobin, "build", "-o", bin, "../../cmd/chanda")
 	cmd.Env = append(os.Environ(), "CGO_ENABLED=0")
 	if out, err := cmd.CombinedOutput(); err != nil {
@@ -279,6 +283,35 @@ func TestServeStdioBinary(t *testing.T) {
 				t.Fatalf("search after remember: %+v", env.Data)
 			}
 		})
+	}
+}
+
+// serve --db with an empty --config, as an MCP bundle starts it: the database
+// lands at the given path, in a folder created for it (decision 0150).
+func TestServeDBFlag(t *testing.T) {
+	bin := buildBinary(t)
+	dbPath := filepath.Join(t.TempDir(), "new", "folder", "chanda.db")
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	var stderr bytes.Buffer
+	cmd := exec.Command(bin, "serve", "--config", "", "--db", dbPath, "--profiles", "read,standard")
+	cmd.Dir = t.TempDir()
+	cmd.Stderr = &stderr
+	cs, err := sdk.NewClient(&sdk.Implementation{Name: "test", Version: "v0"}, nil).
+		Connect(ctx, &sdk.CommandTransport{Command: cmd}, nil)
+	if err != nil {
+		t.Fatalf("connect: %v\nstderr: %s", err, stderr.String())
+	}
+	res, err := cs.CallTool(ctx, &sdk.CallToolParams{Name: chanda.ToolRemember, Arguments: map[string]any{"content": "Deploys happen on Tuesdays."}})
+	if err != nil || res.IsError {
+		t.Fatalf("remember: %v %+v", err, res)
+	}
+	cs.Close()
+	if _, err := os.Stat(dbPath); err != nil {
+		t.Fatalf("database not at --db: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(cmd.Dir, "chanda.db")); !os.IsNotExist(err) {
+		t.Fatalf("a chanda.db was created in the working directory: %v", err)
 	}
 }
 

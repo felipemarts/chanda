@@ -1,9 +1,17 @@
 name: chanda
 version: 0.1.0
-description: "Chanda: local long-term memory over MCP. Pre-context on the first turn, memory tools, session log and outcome."
+manifest_version: 2
+description: "Chanda: local long-term memory over MCP. Pre-context on the first turn, provider tools chanda_search, chanda_get and chanda_timeline, session log and outcome."
+author: Felipe Martins
+license: Apache-2.0
+homepage: https://github.com/felipemarts/chanda
+tags: [memory, mcp, local, offline]
+requires_hermes: ">=0.23.1"
+provides_hooks:
+  - on_session_end
 external_dependencies:
   - name: chanda
-    install: "CGO_ENABLED=0 go install github.com/felipemarts/chanda/cmd/chanda@latest"
+    install: "CGO_ENABLED=0 go install github.com/felipemarts/chanda/cmd/chanda@v0.1.0"
     check: "chanda version"
 python_dependencies:
   - "mcp>=2.3.0,<3"

@@ -1,0 +1,63 @@
+{
+  "manifest_version": "0.3",
+  "name": "chanda",
+  "display_name": "Chanda",
+  "version": "0.0.0",
+  "description": "Local long-term memory for AI agents: hybrid search, temporal facts, verifiable forgetting. No LLM to build it.",
+  "long_description": "Chanda stores what an agent learns and what a company documents in one SQLite file, and returns the right excerpt at the right moment: a short pre-context before the first turn and ranked search during the task. Writing costs a hash, an embedding and a few rules, with no LLM call. Facts carry a validity period and are superseded, never overwritten; every record keeps its origin and trust zone; forget deletes in cascade and verifies the content is gone. This bundle runs the read and standard tool profiles over stdio, fully offline.",
+  "author": {
+    "name": "Felipe Martins",
+    "url": "https://github.com/felipemarts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/felipemarts/chanda"
+  },
+  "homepage": "https://github.com/felipemarts/chanda",
+  "documentation": "https://github.com/felipemarts/chanda/blob/main/docs/usage.md",
+  "support": "https://github.com/felipemarts/chanda/issues",
+  "icon": "icon.png",
+  "license": "Apache-2.0",
+  "keywords": ["memory", "agent-memory", "long-term-memory", "rag", "local", "offline", "sqlite", "knowledge-base"],
+  "server": {
+    "type": "binary",
+    "entry_point": "server/chanda",
+    "mcp_config": {
+      "command": "${__dirname}/server/chanda",
+      "args": ["serve", "--config", "${user_config.config_path}", "--db", "${user_config.db_path}", "--profiles", "read,standard"]
+    }
+  },
+  "user_config": {
+    "db_path": {
+      "type": "string",
+      "title": "Database file",
+      "description": "SQLite file that holds the memory. Its folder is created if missing.",
+      "default": "${HOME}/.chanda/chanda.db",
+      "required": true
+    },
+    "config_path": {
+      "type": "file",
+      "title": "chanda.yaml (optional)",
+      "description": "Optional configuration file (embedder, ingest folders, thresholds). Leave empty for the defaults.",
+      "required": false
+    }
+  },
+  "tools": [
+    {"name": "context", "description": "Short, filtered pre-context for a request, or nothing when no memory is relevant"},
+    {"name": "search", "description": "Ranked hybrid search (keyword and vector) over the memory"},
+    {"name": "get", "description": "One record by id, with its origins"},
+    {"name": "timeline", "description": "History of a subject and attribute, from the oldest fact to the current one"},
+    {"name": "explain", "description": "Scores at each ranking stage for a query and a record"},
+    {"name": "stats", "description": "Counts, size, last sleep and ranking state"},
+    {"name": "remember", "description": "Write free text to memory"},
+    {"name": "assert_fact", "description": "Write a structured fact with a validity period"},
+    {"name": "ingest", "description": "Ingest a document or folder from the configured roots"},
+    {"name": "log_session", "description": "Write the turns of a session"},
+    {"name": "outcome", "description": "Report whether an answer worked and which records it used"},
+    {"name": "flag", "description": "Mark a record as wrong or outdated"},
+    {"name": "flush", "description": "Wait for the index to catch up with writes"}
+  ],
+  "compatibility": {
+    "platforms": ["linux"]
+  }
+}

@@ -1,0 +1,52 @@
+name: release
+# On a version tag: static binaries, one MCP bundle per platform, a GitHub
+# Release, and the MCP Registry entry (decision 0150).
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write   # create the release
+  id-token: write   # MCP Registry login through GitHub OIDC
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      CGO_ENABLED: "0"
+      MCP_PUBLISHER: v1.8.9
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: make test
+      - run: make release VERSION=${GITHUB_REF_NAME}
+      - run: python3 scripts/mcpb.py ${GITHUB_REF_NAME} dist
+      - name: GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/chanda-* dist/SHA256SUMS dist/server.json \
+            --title "$GITHUB_REF_NAME" --generate-notes --verify-tag
+      - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+      - name: Publish to the MCP Registry
+        run: |
+          set -euo pipefail
+          base=https://github.com/modelcontextprotocol/registry/releases/download/$MCP_PUBLISHER
+          curl -fsSL -o mcp-publisher.tar.gz "$base/mcp-publisher_linux_amd64.tar.gz"
+          curl -fsSL -o mcp-publisher.tar.gz.sigstore.json "$base/mcp-publisher_linux_amd64.tar.gz.sigstore.json"
+          cosign verify-blob --bundle mcp-publisher.tar.gz.sigstore.json \
+            --certificate-identity "https://github.com/modelcontextprotocol/registry/.github/workflows/release.yml@refs/tags/$MCP_PUBLISHER" \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+            mcp-publisher.tar.gz
+          tar xzf mcp-publisher.tar.gz mcp-publisher
+          ./mcp-publisher validate dist/server.json
+          ./mcp-publisher login github-oidc
+          cp dist/server.json server.json
+          ./mcp-publisher publish

@@ -26,6 +26,8 @@ import (
 	"io"
 	"log/slog"
 	"net"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -210,10 +212,11 @@ func emit(stdout, stderr io.Writer, out any, err error) int {
 
 func (cl CLI) cmdServe(ctx context.Context, args []string, stderr io.Writer) int {
 	var c common
-	var httpAddr, profiles string
+	var httpAddr, profiles, dbPath string
 	fs := newFlags("serve", stderr, &c)
 	fs.StringVar(&httpAddr, "http", "", "serve Streamable HTTP on this address instead of stdio (overrides mcp.http_addr)")
 	fs.StringVar(&profiles, "profiles", "", "comma-separated tool profiles: read, standard, admin (overrides mcp.profiles)")
+	fs.StringVar(&dbPath, "db", "", "database file, its folder created if missing (overrides db_path)")
 	if code := parse(fs, args); code >= 0 {
 		return code
 	}
@@ -232,6 +235,15 @@ func (cl CLI) cmdServe(ctx context.Context, args []string, stderr io.Writer) int
 	}
 	if profiles != "" {
 		cfg.MCP.Profiles = splitList(profiles)
+	}
+	// An MCP bundle has no working directory of its own, so it names the
+	// database explicitly (decision 0150).
+	if dbPath != "" {
+		if err := os.MkdirAll(filepath.Dir(dbPath), 0o700); err != nil {
+			logger.Error("create database folder", "err", err)
+			return 2
+		}
+		cfg.DBPath = dbPath
 	}
 	api, closeAPI, err := cl.NewAPI(cfg)
 	switch {
