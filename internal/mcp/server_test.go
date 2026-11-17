@@ -320,6 +320,68 @@ func TestPromoteRequiresHumanActor(t *testing.T) {
 	}
 }
 
+// Decision 0152: read-only tools may name only mcp.read_namespaces, every
+// other tool only mcp.write_namespaces; an empty list allows any namespace.
+func TestNamespacePermissions(t *testing.T) {
+	cfg := testConfig("read", "standard", "admin")
+	cfg.MCP.ReadNamespaces = []string{"acme", "shared"}
+	cfg.MCP.WriteNamespaces = []string{"acme"}
+	if err := cfg.Validate(); err != nil {
+		t.Fatal(err)
+	}
+	tests := []struct {
+		tool string
+		args map[string]any
+		ok   bool
+	}{
+		{"search", map[string]any{"query": "q"}, true}, // the default namespace
+		{"search", map[string]any{"query": "q", "namespace": "shared"}, true},
+		{"search", map[string]any{"query": "q", "namespace": "other"}, false},
+		{"context", map[string]any{"query": "q", "namespace": " other "}, false},
+		{"verify", map[string]any{"namespace": "shared"}, true}, // admin but read-only
+		{"remember", map[string]any{"content": "x"}, true},
+		{"remember", map[string]any{"content": "x", "namespace": "acme"}, true},
+		{"remember", map[string]any{"content": "x", "namespace": "shared"}, false},
+		{"forget", map[string]any{"namespace": "shared", "scope": map[string]any{"kind": "record", "value": "evt_1"}}, false},
+	}
+	for _, tc := range tests {
+		api := &fakeAPI{}
+		_, cs := newTestServer(t, api, cfg)
+		env, _ := callEnv(t, cs, tc.tool, tc.args)
+		if tc.ok {
+			if !env.OK || api.count() != 1 {
+				t.Errorf("%s %v: %+v", tc.tool, tc.args, env.Error)
+			}
+			continue
+		}
+		if env.OK || env.Error.Code != chanda.CodePermissionDenied || api.count() != 0 {
+			t.Errorf("%s %v: want permission_denied before the API, got %+v (API calls %d)", tc.tool, tc.args, env.Error, api.count())
+		}
+	}
+
+	open := testConfig("read", "standard")
+	_, cs := newTestServer(t, &fakeAPI{}, open)
+	if env, _ := callEnv(t, cs, "remember", map[string]any{"content": "x", "namespace": "anything"}); !env.OK {
+		t.Fatalf("empty lists must allow any namespace: %+v", env.Error)
+	}
+	star := testConfig("read")
+	star.MCP.ReadNamespaces = []string{"*"}
+	_, cs = newTestServer(t, &fakeAPI{}, star)
+	if env, _ := callEnv(t, cs, "search", map[string]any{"query": "q", "namespace": "anything"}); !env.OK {
+		t.Fatalf(`"*" must allow any namespace: %+v`, env.Error)
+	}
+
+	bad := testConfig("read")
+	bad.MCP.WriteNamespaces = []string{"other"}
+	if bad.Validate() == nil {
+		t.Fatal("a list without the default namespace must be refused")
+	}
+	bad.MCP.WriteNamespaces = []string{"acme", " "}
+	if bad.Validate() == nil {
+		t.Fatal("a blank entry must be refused")
+	}
+}
+
 func TestDefaultActorName(t *testing.T) {
 	cfg := testConfig("read")
 	cfg.MCP.Actor = ""

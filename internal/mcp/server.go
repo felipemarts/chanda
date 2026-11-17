@@ -57,6 +57,7 @@ type Server struct {
 	api       chanda.API
 	namespace string
 	actor     chanda.Actor
+	mcp       config.MCPConfig // namespace permissions (decision 0152)
 	log       *slog.Logger
 	tools     []string
 	token     string // bearer token for Streamable HTTP; empty = no auth (loopback only)
@@ -91,6 +92,7 @@ func New(api chanda.API, cfg *config.Config, opts Options) (*Server, error) {
 	s := &Server{
 		api:       api,
 		namespace: cfg.Namespace,
+		mcp:       cfg.MCP,
 		actor:     actor,
 		log:       opts.Logger,
 		token:     token,
@@ -298,7 +300,7 @@ func bind[In, Out any](call func(chanda.API, context.Context, In) (Out, error)) 
 			},
 		}
 		s.sdk.AddTool(tool, func(ctx context.Context, req *sdk.CallToolRequest) (*sdk.CallToolResult, error) {
-			env := invoke(ctx, s, sp.Name, resolved, req.Params.Arguments, call)
+			env := invoke(ctx, s, sp, resolved, req.Params.Arguments, call)
 			return toResult(env), nil
 		})
 		return nil
@@ -306,8 +308,9 @@ func bind[In, Out any](call func(chanda.API, context.Context, In) (Out, error)) 
 }
 
 // invoke runs one call and always returns an envelope.
-func invoke[In, Out any](ctx context.Context, s *Server, tool string, schema *jsonschema.Resolved,
+func invoke[In, Out any](ctx context.Context, s *Server, sp ToolSpec, schema *jsonschema.Resolved,
 	raw json.RawMessage, call func(chanda.API, context.Context, In) (Out, error)) (env chanda.Envelope) {
+	tool := sp.Name
 	defer func() {
 		if r := recover(); r != nil {
 			s.log.Error("tool panicked", "tool", tool, "panic", fmt.Sprint(r))
@@ -319,6 +322,9 @@ func invoke[In, Out any](ctx context.Context, s *Server, tool string, schema *js
 		return chanda.NewEnvelope(nil, err)
 	}
 	setDefaultNamespace(&in, s.namespace)
+	if err := s.checkNamespace(sp, &in); err != nil {
+		return chanda.NewEnvelope(nil, err)
+	}
 	if tool == chanda.ToolPromote && !s.actor.Human {
 		return chanda.NewEnvelope(nil, chanda.Errf(chanda.CodePermissionDenied,
 			"promote requires a human actor; this server runs as %q (set mcp.human_actor only for a human-operated client)", s.actor.Name))
@@ -348,6 +354,26 @@ func decode[In any](schema *jsonschema.Resolved, raw json.RawMessage) (In, error
 		return in, chanda.Errf(chanda.CodeInvalidArgument, "invalid arguments: %v", err)
 	}
 	return in, nil
+}
+
+// checkNamespace refuses a call whose namespace this channel may not use
+// (decision 0152): mcp.read_namespaces for read-only tools,
+// mcp.write_namespaces for every other tool.
+func (s *Server) checkNamespace(sp ToolSpec, in any) error {
+	f := reflect.ValueOf(in).Elem().FieldByName("Namespace")
+	if !f.IsValid() || f.Kind() != reflect.String {
+		return nil
+	}
+	ns := strings.TrimSpace(f.String())
+	key, ok := "mcp.write_namespaces", s.mcp.CanWrite(ns)
+	if sp.ReadOnly {
+		key, ok = "mcp.read_namespaces", s.mcp.CanRead(ns)
+	}
+	if ok {
+		return nil
+	}
+	return chanda.Errf(chanda.CodePermissionDenied, "%s: namespace %q is not in %s of this server (actor %q)",
+		sp.Name, ns, key, s.actor.Name)
 }
 
 // setDefaultNamespace fills an empty Namespace field (every input has one).

@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"slices"
 	"strings"
 
 	"gopkg.in/yaml.v3"
@@ -627,6 +628,22 @@ type MCPConfig struct {
 	// the Streamable HTTP transport requires (decision 0100). Unset or
 	// empty: no authentication, and HTTP serves on loopback addresses only.
 	HTTPTokenEnv string `yaml:"http_token_env"`
+	// ReadNamespaces and WriteNamespaces are the namespaces this channel's
+	// read-only tools and other tools may name (decision 0152). Empty means
+	// any namespace; "*" in a list too. A list must hold the default
+	// namespace, so a call that omits it is allowed.
+	ReadNamespaces  []string `yaml:"read_namespaces,omitempty"`
+	WriteNamespaces []string `yaml:"write_namespaces,omitempty"`
+}
+
+// CanRead reports whether a read-only tool of this channel may use ns.
+func (m MCPConfig) CanRead(ns string) bool { return nsAllowed(m.ReadNamespaces, ns) }
+
+// CanWrite reports whether a tool that changes memory may use ns.
+func (m MCPConfig) CanWrite(ns string) bool { return nsAllowed(m.WriteNamespaces, ns) }
+
+func nsAllowed(list []string, ns string) bool {
+	return len(list) == 0 || slices.Contains(list, "*") || slices.Contains(list, ns)
 }
 
 type ForgetConfig struct {
@@ -771,6 +788,17 @@ func (c *Config) Validate() error {
 		}
 	default:
 		return fmt.Errorf("mcp.max_zone must be external, internal or user, not %q", c.MCP.MaxZone)
+	}
+	for _, l := range []struct {
+		key  string
+		list []string
+	}{{"mcp.read_namespaces", c.MCP.ReadNamespaces}, {"mcp.write_namespaces", c.MCP.WriteNamespaces}} {
+		if slices.ContainsFunc(l.list, func(s string) bool { return strings.TrimSpace(s) != s || s == "" }) {
+			return fmt.Errorf("%s: empty or padded entry", l.key)
+		}
+		if !nsAllowed(l.list, c.Namespace) {
+			return fmt.Errorf("%s must include the default namespace %q (or \"*\")", l.key, c.Namespace)
+		}
 	}
 	return nil
 }

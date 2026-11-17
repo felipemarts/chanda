@@ -50,6 +50,9 @@ mcp:
   profiles: [read, standard]   # add admin only for a client a person drives
   actor: agent
   max_zone: internal           # highest trust zone written through MCP
+  # Namespaces this agent may use (decision 0152); empty = any, "*" = any.
+  # read_namespaces: [default, company]   # context, search, get, timeline, explain, stats, verify
+  # write_namespaces: [default]           # every other tool
 
 write:
   ingest_roots: [/home/me/company-docs]   # folders the MCP ingest tool may read
