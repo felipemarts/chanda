@@ -98,6 +98,9 @@ func (r *Reader) Get(ctx context.Context, ns, id string, expandNeighbors bool) (
 	if out.Origin.SourceURIs, err = r.uris(ctx, "sources", ns, sortedKeys(srcs)); err != nil {
 		return GetResult{}, err
 	}
+	if out.Origin.SourceLabel, err = r.sourceLabel(ctx, ns, sortedKeys(srcs), out.Origin.SourceURIs); err != nil {
+		return GetResult{}, err
+	}
 	if out.Origin.DocURIs, err = r.uris(ctx, "documents", ns, out.Origin.DocIDs); err != nil {
 		return GetResult{}, err
 	}

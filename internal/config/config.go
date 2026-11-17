@@ -7,10 +7,12 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"maps"
 	"math"
 	"os"
 	"slices"
 	"strings"
+	"unicode"
 
 	"gopkg.in/yaml.v3"
 )
@@ -30,6 +32,52 @@ type Config struct {
 	MCP     MCPConfig     `yaml:"mcp"`
 	Forget  ForgetConfig  `yaml:"forget"`
 	Store   StoreConfig   `yaml:"store"`
+	Sources SourcesConfig `yaml:"sources,omitempty"` // decision 0153
+}
+
+// MaxSourceLabelRunes caps a source label (decision 0153).
+const MaxSourceLabelRunes = 60
+
+// SourcesConfig names sources (decision 0153). A label is shown next to a
+// source in the context block and in origins; it never changes the zone.
+type SourcesConfig struct {
+	// Labels maps a source URI prefix to its label; the longest matching
+	// prefix wins, and a configured label wins over an agent's.
+	Labels map[string]string `yaml:"labels,omitempty"`
+	// AgentLabels: nil means the default, on: a caller may name its source
+	// with source.label. false keeps that to human actors.
+	AgentLabels *bool `yaml:"agent_labels,omitempty"`
+}
+
+// AgentLabelsOn reports whether sources.agent_labels is on (the default).
+func (s SourcesConfig) AgentLabelsOn() bool { return s.AgentLabels == nil || *s.AgentLabels }
+
+// CleanLabel is a source label as stored and shown: one line, runs of
+// spaces collapsed, no characters that could break the label line of the
+// context block ([ ] | < >) and at most MaxSourceLabelRunes characters.
+func CleanLabel(s string) string {
+	s = strings.Map(func(r rune) rune {
+		if strings.ContainsRune("[]|<>", r) || unicode.IsControl(r) {
+			return ' '
+		}
+		return r
+	}, s)
+	s = strings.Join(strings.Fields(s), " ")
+	if r := []rune(s); len(r) > MaxSourceLabelRunes {
+		s = strings.TrimSpace(string(r[:MaxSourceLabelRunes]))
+	}
+	return s
+}
+
+// Label returns the configured label of a source URI, or "".
+func (s SourcesConfig) Label(uri string) string {
+	best, label := -1, ""
+	for p, l := range s.Labels {
+		if strings.HasPrefix(uri, p) && len(p) > best {
+			best, label = len(p), l
+		}
+	}
+	return label
 }
 
 // StoreConfig tunes the SQLite connection (decision 0100). Neither value
@@ -760,6 +808,11 @@ func (c *Config) Validate() error {
 	if c.Read.AgenticTimeoutMS < 0 {
 		return fmt.Errorf("read.agentic_timeout_ms must be >= 0")
 	}
+	for _, p := range slices.Sorted(maps.Keys(c.Sources.Labels)) {
+		if l := c.Sources.Labels[p]; p == "" || CleanLabel(l) != l || l == "" {
+			return fmt.Errorf("sources.labels[%q]: the prefix must be set and the label one line of at most %d characters, without [ ] | < >", p, MaxSourceLabelRunes)
+		}
+	}
 	if err := c.Sleep.validateGuided(); err != nil {
 		return err
 	}
@@ -862,6 +915,9 @@ func (c *Config) Hash() string {
 	}
 	if cp.Read.Agentic() {
 		cp.Read.AgenticSearch = nil // the default, spelled out
+	}
+	if cp.Sources.AgentLabelsOn() {
+		cp.Sources.AgentLabels = nil
 	}
 	b, _ := yaml.Marshal(&cp)
 	h := sha256.Sum256(b)

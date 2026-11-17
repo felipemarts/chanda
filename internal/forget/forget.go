@@ -217,6 +217,7 @@ func (p *plan) delete(ctx context.Context, tx *sql.Tx, e *env.Env, ns string, c 
 		{"document_chunks", `DELETE FROM document_chunks WHERE event_id IN (%s) OR doc_id IN (%s)`, append(append([]string{}, r.Events...), r.Documents...)},
 		{"events", `DELETE FROM events WHERE id IN (%s)`, r.Events},
 		{"documents", `DELETE FROM documents WHERE id IN (%s)`, r.Documents},
+		{"source_labels", `DELETE FROM source_labels WHERE source_id IN (%s)`, r.Sources}, // before their sources (foreign key)
 		{"sources", `DELETE FROM sources WHERE id IN (%s)`, r.Sources},
 		{"entity_aliases", `DELETE FROM entity_aliases WHERE entity_id IN (%s)`, r.Entities},
 		{"entity_merge_proposals", `DELETE FROM entity_merge_proposals WHERE entity_a IN (%s) OR entity_b IN (%s)`, r.Entities},

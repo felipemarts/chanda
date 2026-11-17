@@ -136,10 +136,11 @@ type Candidate struct {
 
 // Origin points an item back to the raw log.
 type Origin struct {
-	EventIDs   []string `json:"event_ids,omitempty"`
-	SourceURIs []string `json:"source_uris,omitempty"`
-	DocIDs     []string `json:"doc_ids,omitempty"`
-	DocURIs    []string `json:"doc_uris,omitempty"`
+	EventIDs    []string `json:"event_ids,omitempty"`
+	SourceURIs  []string `json:"source_uris,omitempty"`
+	SourceLabel string   `json:"source_label,omitempty"` // label of SourceURIs[0] (decision 0153)
+	DocIDs      []string `json:"doc_ids,omitempty"`
+	DocURIs     []string `json:"doc_uris,omitempty"`
 }
 
 // Item is one delivered record.

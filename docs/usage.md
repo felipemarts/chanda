@@ -60,6 +60,15 @@ write:
     - {name: header, kind: header}        # "Key: value" lines under a heading
     - {name: tables, kind: kv_table}      # two-column Markdown tables
 
+# Readable names for sources, shown as "origin: ..." in the context block
+# (decision 0153). Agents may also name a source with source.label when they
+# write; a configured prefix wins. A label never changes the trust zone.
+# sources:
+#   labels:
+#     "https://wiki.acme.example/": "Wiki interna"
+#     "/home/me/company-docs": "Manual da empresa"
+#   agent_labels: true            # false: only a human actor (CLI) names sources
+
 facts:
   single_predicates: [job_title, address, current_price, owner, email, phone, status, manager]
 

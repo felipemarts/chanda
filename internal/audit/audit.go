@@ -71,6 +71,9 @@ const (
 	ActConflictsReset  = "conflicts_reset"  // the conflict queue and its verdicts deleted
 	ActConflictsScan   = "conflicts_scan"   // offline detection that wrote the queue
 
+	// Source labels (decision 0153).
+	ActSourceLabel = "source_label" // a caller named a source (target the source id)
+
 	// Sleep (internal/sleep) and the gate set.
 	ActMergePropose    = "merge_propose"    // entity merge proposal created (phase 1)
 	ActMergeVerdict    = "merge_verdict"    // merge proposal rejected by a phase-2 verdict
@@ -97,7 +100,7 @@ func Actions() []string {
 		ActKeysCreate, ActKeysRebuild, ActKeysReset, ActKeysToggle, ActMergePropose, ActMergeVerdict,
 		ActMigrate, ActNearDup, ActOutcome, ActPageUpdate, ActPredicate, ActPromote, ActQuarantine,
 		ActRankAdjust, ActRankPromote, ActRankReset, ActRankToggle, ActRetire, ActRetrieve, ActSleepEnd, ActSleepRecover,
-		ActSleepRevert, ActSleepStart, ActSourceCreate, ActStaleSource, ActSupersede, ActWrite,
+		ActSleepRevert, ActSleepStart, ActSourceCreate, ActSourceLabel, ActStaleSource, ActSupersede, ActWrite,
 	}
 }
 

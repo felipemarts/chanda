@@ -677,6 +677,9 @@ func (r *Reader) resolveOrigin(ctx context.Context, ns string, rec *record) (Ori
 	if o.SourceURIs, err = r.uris(ctx, "sources", ns, srcs); err != nil {
 		return Origin{}, nil, "", err
 	}
+	if o.SourceLabel, err = r.sourceLabel(ctx, ns, srcs, o.SourceURIs); err != nil {
+		return Origin{}, nil, "", err
+	}
 	if o.DocURIs, err = r.uris(ctx, "documents", ns, o.DocIDs); err != nil {
 		return Origin{}, nil, "", err
 	}
@@ -697,6 +700,29 @@ func (r *Reader) uris(ctx context.Context, table, ns string, ids []string) ([]st
 		args = append(args, id)
 	}
 	return r.queryStrings(ctx, `SELECT DISTINCT uri FROM `+table+` WHERE +namespace = ? AND id IN (`+placeholders(len(ids))+`) ORDER BY uri`, args...)
+}
+
+// sourceLabel is the label of uris[0], the first source uri of an origin
+// (decision 0153): the configured sources.labels prefix first, else the
+// latest label a caller gave one of the sources srcIDs with that uri.
+func (r *Reader) sourceLabel(ctx context.Context, ns string, srcIDs, uris []string) (string, error) {
+	if len(uris) == 0 {
+		return "", nil
+	}
+	if l := r.e.Cfg.Sources.Label(uris[0]); l != "" {
+		return l, nil
+	}
+	args := []any{ns, uris[0]}
+	for _, id := range srcIDs {
+		args = append(args, id)
+	}
+	ls, err := r.queryStrings(ctx, `SELECT l.label FROM source_labels l JOIN sources s ON s.id = l.source_id
+		WHERE s.namespace = ? AND s.uri = ? AND s.id IN (`+placeholders(len(srcIDs))+`)
+		ORDER BY l.updated_at DESC, l.source_id LIMIT 1`, args...)
+	if err != nil || len(ls) == 0 {
+		return "", err
+	}
+	return ls[0], nil
 }
 
 // contextOrder: current facts, then consolidated pages, then raw excerpts;

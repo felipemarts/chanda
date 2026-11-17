@@ -30,7 +30,8 @@ func sanitize(s string) string { return tagRe.ReplaceAllString(s, "&lt;$1") }
 // validity; raw excerpts their date (valid_from, "date:") or, without one,
 // when Chanda recorded them ("recorded:"); pages when they were last updated
 // ("updated:"). A session turn shows who spoke ("role: user") when
-// read.context_show_role set its role (decision 0137).
+// read.context_show_role set its role (decision 0137). A labelled source
+// shows its label ("origin: Wiki", decision 0153).
 func label(it Item) string {
 	var b strings.Builder
 	b.WriteString("[")
@@ -66,6 +67,9 @@ func label(it Item) string {
 	}
 	if it.Type == core.RecPage && it.Kind != "" {
 		b.WriteString(" | " + it.Kind)
+	}
+	if it.Origin.SourceLabel != "" {
+		b.WriteString(" | origin: " + sanitize(it.Origin.SourceLabel))
 	}
 	if len(it.Origin.DocURIs) > 0 {
 		b.WriteString(" | doc: " + sanitize(it.Origin.DocURIs[0]))

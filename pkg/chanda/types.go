@@ -150,9 +150,10 @@ type MetaCarrier interface{ EnvelopeMeta() Meta }
 
 // Origin says where a record came from (principle 4).
 type Origin struct {
-	SourceURI string   `json:"source_uri,omitempty" jsonschema:"URI of the source (file, session, tool or user channel)"`
-	DocURI    string   `json:"doc_uri,omitempty" jsonschema:"URI of the document, for document chunks and facts derived from them"`
-	EventIDs  []string `json:"event_ids" jsonschema:"raw events this record derives from, sorted"`
+	SourceURI   string   `json:"source_uri,omitempty" jsonschema:"URI of the source (file, session, tool or user channel)"`
+	SourceLabel string   `json:"source_label,omitempty" jsonschema:"human-readable name of the source, when one was given; never a trust signal"`
+	DocURI      string   `json:"doc_uri,omitempty" jsonschema:"URI of the document, for document chunks and facts derived from them"`
+	EventIDs    []string `json:"event_ids" jsonschema:"raw events this record derives from, sorted"`
 }
 
 // Item is one record as delivered by context, search and get.
@@ -175,8 +176,9 @@ type Item struct {
 
 // SourceRef names the input channel and source of written content.
 type SourceRef struct {
-	Kind SourceKind `json:"kind,omitempty" jsonschema:"input channel: user_statement, document, session, tool or web; it fixes the trust zone"`
-	URI  string     `json:"uri,omitempty" jsonschema:"stable identifier of the source (file path, URL, session or tool name)"`
+	Kind  SourceKind `json:"kind,omitempty" jsonschema:"input channel: user_statement, document, session, tool or web; it fixes the trust zone"`
+	URI   string     `json:"uri,omitempty" jsonschema:"stable identifier of the source (file path, URL, session or tool name)"`
+	Label string     `json:"label,omitempty" jsonschema:"optional short human-readable name of the source (at most 60 characters), shown next to it in context; it never changes the trust zone"`
 }
 
 // Write actions reported in WriteResult.Action.

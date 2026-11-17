@@ -56,7 +56,7 @@ func item(it read.Item) chanda.Item {
 	}
 	out := chanda.Item{
 		ID: it.ID, Type: it.Type, Text: text, ValidFrom: it.ValidFrom, ValidTo: it.ValidTo, Status: it.Status,
-		Origin: chanda.Origin{SourceURI: first(it.Origin.SourceURIs), DocURI: first(it.Origin.DocURIs), EventIDs: strs(it.Origin.EventIDs)},
+		Origin: chanda.Origin{SourceURI: first(it.Origin.SourceURIs), SourceLabel: it.Origin.SourceLabel, DocURI: first(it.Origin.DocURIs), EventIDs: strs(it.Origin.EventIDs)},
 		Zone:   it.Zone, Flags: it.Flags, SupersededBy: it.SupersededBy,
 	}
 	if it.Scores.Final != nil {
@@ -129,7 +129,7 @@ func recordItem(r read.Record, o read.Origin) chanda.Item {
 	}
 	return chanda.Item{
 		ID: r.ID, Type: r.Type, Text: text, ValidFrom: r.ValidFrom, ValidTo: r.ValidTo, Status: r.Status,
-		Origin: chanda.Origin{SourceURI: first(o.SourceURIs), DocURI: first(o.DocURIs), EventIDs: strs(o.EventIDs)},
+		Origin: chanda.Origin{SourceURI: first(o.SourceURIs), SourceLabel: o.SourceLabel, DocURI: first(o.DocURIs), EventIDs: strs(o.EventIDs)},
 		Zone:   r.Zone, Flags: r.Flags,
 	}
 }

@@ -45,6 +45,8 @@ func (a *App) Remember(ctx context.Context, in chanda.RememberInput) (chanda.Rem
 	if err != nil {
 		return out, coded(err)
 	}
+	a.labelSource(ctx, c, in.Source.Label, sourceOfEvent, c.ns, r.ID)
+	out.Meta = c.meta(r.AuditID)
 	out.WriteResult = chanda.WriteResult{ID: r.ID, Action: r.Action, Reason: r.Reason, Flags: flagsOrEmpty(r.Flags)}
 	if r.Action == write.ActionCreated {
 		if orig, err := a.duplicateOf(ctx, r.ID); err != nil {
@@ -147,6 +149,8 @@ func (a *App) AssertFact(ctx context.Context, in chanda.AssertFactInput) (chanda
 	if err != nil {
 		return out, coded(err)
 	}
+	a.labelSource(ctx, c, in.Source.Label, sourceOfEvent, c.ns, r.ID)
+	out.Meta = c.meta(max(r.AuditID, fr.AuditID))
 	out.WriteResult = chanda.WriteResult{
 		ID: fr.FactID, Action: factActions[fr.Action], Reason: fr.Reason, Flags: flagsOrEmpty(r.Flags), Related: fr.Closed,
 	}
@@ -210,6 +214,9 @@ func (a *App) Ingest(ctx context.Context, in chanda.IngestInput) (chanda.IngestO
 		}
 	}
 	sort.SliceStable(out.Documents, func(i, j int) bool { return out.Documents[i].URI < out.Documents[j].URI })
+	if err == nil {
+		a.labelSource(ctx, c, in.Source.Label, sourceByURI, c.ns, string(kind), r.SourceURI)
+	}
 	out.Meta = c.meta(auditID)
 	return out, coded(err)
 }
