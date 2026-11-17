@@ -43,7 +43,7 @@ Open-source projects already cover local search, temporal validity and deduplica
 These rules apply to all code. A change that breaks any of them must be rejected, even if it improves a metric.
 
 1. **The raw log is the source of truth.** Events and documents are stored as they arrived and are never edited. All derived memory must be rebuildable from it.
-2. **No LLM on the read path.** A query uses only indexes, rules and small models on CPU.
+2. **No LLM on the read path.** A query uses only indexes, rules and small models on CPU. *Exception, decision 0151: with an LLM configured, agentic search (on by default, `read.agentic_search`) asks it for search terms before the read. Without `llm.endpoint` the rule holds as written.*
 3. **No LLM on the synchronous write path.** Writing costs a hash, an embedding and rules. LLM extraction only happens during sleep.
 4. **Every derived record points to its origin.** Facts, vectors, summaries and consolidated pages carry pointers to the events that produced them.
 5. **Origin is fixed at write time and never rises on its own.** The trust zone of a derived record is the lowest among those of its origins.

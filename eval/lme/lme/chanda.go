@@ -52,7 +52,10 @@ type ChandaServer struct {
 // model id); read.context_max_tokens = the battery budget (default ceiling
 // 1,500 would refuse 2,000); sleep.scheduler off (condition D is "without
 // sleep"; E runs sleep explicitly through sleep_run); snapshot_dir inside the
-// question's directory.
+// question's directory; read.agentic_search off (decision 0151: the studies
+// measure the deterministic read path, and condition E's LLM endpoint would
+// otherwise expand every query; "-chanda-set read.agentic_search=true"
+// measures it).
 func (o ChandaOptions) ConfigYAML(dir string, modelID string, dim int) string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "db_path: %q\nnamespace: lme\n", filepath.Join(dir, "chanda.db"))
@@ -60,7 +63,7 @@ func (o ChandaOptions) ConfigYAML(dir string, modelID string, dim int) string {
 	if o.Embed.Kind == "e5" && o.Embed.E5Dir != "" {
 		fmt.Fprintf(&b, "  model_path: %q\n", o.Embed.E5Dir)
 	}
-	fmt.Fprintf(&b, "read:\n  context_max_tokens: %d\n", max(o.Budget, 1500))
+	fmt.Fprintf(&b, "read:\n  context_max_tokens: %d\n  agentic_search: false\n", max(o.Budget, 1500))
 	fmt.Fprintf(&b, "sleep:\n  scheduler: false\n  snapshot_dir: %q\n", filepath.Join(dir, "snapshots"))
 	profiles := "[read, standard]"
 	if o.Admin {

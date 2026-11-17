@@ -201,7 +201,26 @@ type ReadConfig struct {
 	// LearnedKeysTopK: keys taken from each of the two key searches.
 	// 0 = DefaultLearnedKeysTopK.
 	LearnedKeysTopK int `yaml:"learned_keys_top_k,omitempty"`
+
+	// Agentic search (decision 0151), both modes. With an LLM configured
+	// (llm.endpoint), context and search first ask it for the search terms
+	// of the query and search the query plus those terms; without one, or
+	// when the call fails, the read is the deterministic one.
+	//
+	// AgenticSearch: nil means the default, on; false turns it off.
+	AgenticSearch *bool `yaml:"agentic_search,omitempty"`
+	// AgenticTimeoutMS bounds the LLM call. 0 = DefaultAgenticTimeoutMS.
+	AgenticTimeoutMS int `yaml:"agentic_timeout_ms,omitempty"`
 }
+
+// DefaultAgenticTimeoutMS is read.agentic_timeout_ms when it is 0.
+const DefaultAgenticTimeoutMS = 4000
+
+// Agentic reports whether read.agentic_search is on (the default).
+func (r ReadConfig) Agentic() bool { return r.AgenticSearch == nil || *r.AgenticSearch }
+
+// AgenticTimeout is the effective read.agentic_timeout_ms.
+func (r ReadConfig) AgenticTimeout() int { return orInt(r.AgenticTimeoutMS, DefaultAgenticTimeoutMS) }
 
 // Defaults of the learned-keys read knobs when they are 0 (decision 0145).
 const (
@@ -721,6 +740,9 @@ func (c *Config) Validate() error {
 	if err := c.Read.validateContext(); err != nil {
 		return err
 	}
+	if c.Read.AgenticTimeoutMS < 0 {
+		return fmt.Errorf("read.agentic_timeout_ms must be >= 0")
+	}
 	if err := c.Sleep.validateGuided(); err != nil {
 		return err
 	}
@@ -809,6 +831,9 @@ func (c *Config) Hash() string {
 	}
 	if cp.Sleep.Guided.Digest == DigestExtractive {
 		cp.Sleep.Guided.Digest = ""
+	}
+	if cp.Read.Agentic() {
+		cp.Read.AgenticSearch = nil // the default, spelled out
 	}
 	b, _ := yaml.Marshal(&cp)
 	h := sha256.Sum256(b)

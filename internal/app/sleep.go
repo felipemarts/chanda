@@ -3,11 +3,9 @@ package app
 import (
 	"context"
 	"database/sql"
-	"os"
 
 	"github.com/felipemarts/chanda/internal/core"
 	"github.com/felipemarts/chanda/internal/facts"
-	"github.com/felipemarts/chanda/internal/llm"
 	"github.com/felipemarts/chanda/internal/prov"
 	"github.com/felipemarts/chanda/internal/rank"
 	"github.com/felipemarts/chanda/internal/sleep"
@@ -15,21 +13,13 @@ import (
 	"github.com/felipemarts/chanda/pkg/chanda"
 )
 
-// newSleeper wires sleep (decision 0092): the LLM from Options or config,
+// newSleeper wires sleep (decision 0092): the App's LLM (Options or config),
 // facts through the write path's assert, the provenance checker, the
 // embedding indexer, utility recompute, the gate set, entity vectors and,
 // unless learning is off, training and promotion of the ranker.
 func (a *App) newSleeper() (*sleep.Sleeper, error) {
-	provider := a.opt.LLM
-	if provider == nil {
-		p, err := llm.FromConfig(a.e.Cfg.LLM, os.Getenv)
-		if err != nil {
-			return nil, core.Wrap(core.CodeInvalidArgument, err, "llm")
-		}
-		provider = p
-	}
 	d := sleep.Deps{
-		LLM: provider, Integrity: integrity{}, Embeddings: embeddings{a}, Utility: utility{a.ranker},
+		LLM: a.llm, Integrity: integrity{}, Embeddings: embeddings{a}, Utility: utility{a.ranker},
 		Evaluator: gateEvaluator{a}, Logf: a.opt.Logf,
 	}
 	if !a.opt.DisableFacts {

@@ -91,7 +91,14 @@ a token budget. The output is one context block that labels each excerpt
 with its source, date and trust zone. Agents call `context` before the first
 turn and `search`, `get`, `timeline` and `explain` during the task.
 
-An LLM is optional and only used offline, in **sleep**. Its deterministic
+With an LLM configured, **agentic search** is on by default (decision 0151).
+Before `context` and `search`, the LLM turns the query into search terms
+(names, dates, the topic, synonyms), and the read runs on the query plus
+those terms. If the call fails, the read uses the query as given. Set
+`read.agentic_search: false` to keep reads deterministic. Without an LLM,
+reads never call one.
+
+The LLM's other use is offline, in **sleep**. Its deterministic
 maintenance phase always runs: integrity checks, pending embeddings,
 utility updates and entity-merge proposals. With a provider configured, an LLM phase can
 also consolidate facts and pages. The phase is gated: it is measured and

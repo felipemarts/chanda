@@ -84,7 +84,7 @@ func (a *App) Context(ctx context.Context, in chanda.ContextInput) (chanda.Conte
 		c.notice("budget_capped: budget_tokens lowered to the ceiling read.context_max_tokens")
 	}
 	r, err := a.reader.Context(ctx, read.ContextInput{
-		Namespace: c.ns, Query: in.Query, BudgetTokens: in.BudgetTokens, AsOf: asOf, SessionID: in.SessionID, Actor: c.actor.Name,
+		Namespace: c.ns, Query: a.agenticQuery(ctx, c, in.Query), BudgetTokens: in.BudgetTokens, AsOf: asOf, SessionID: in.SessionID, Actor: c.actor.Name,
 	})
 	for _, n := range r.Notices {
 		c.notice(n)
@@ -108,7 +108,7 @@ func (a *App) Search(ctx context.Context, in chanda.SearchInput) (chanda.SearchO
 		c.notice("source_uri_filter_ignored: filtering by source is not supported yet")
 	}
 	r, err := a.reader.Search(ctx, read.SearchInput{
-		Namespace: c.ns, Query: in.Query, Types: in.Filters.Types, Zones: in.Filters.Zones, AsOf: asOf,
+		Namespace: c.ns, Query: a.agenticQuery(ctx, c, in.Query), Types: in.Filters.Types, Zones: in.Filters.Zones, AsOf: asOf,
 		Limit: in.Limit, IncludeHistory: in.IncludeHistory, SessionID: in.SessionID, Actor: c.actor.Name,
 	})
 	for _, n := range r.Notices {

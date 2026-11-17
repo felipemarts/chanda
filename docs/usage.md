@@ -78,9 +78,15 @@ embed:
   # dim: 384
   # reranker_model_path: /home/me/.local/share/chanda/models/mmarco
 
-llm:                            # optional; without it sleep runs phase 1 only
+llm:                            # optional; without it sleep runs phase 1 only and reads never call an LLM
   # endpoint: http://localhost:11434/v1
   # model: qwen2.5:7b
+
+# With llm.endpoint set, agentic search is on (decision 0151): context and
+# search ask the LLM for search terms first. Turn it off for deterministic reads:
+# read:
+#   agentic_search: false
+#   agentic_timeout_ms: 4000    # upper bound on the call; on timeout the query is searched as given
 
 sleep:
   # mode: uniform                 # or guided (decision 0142): phase 2 digests only what retrieval keeps returning

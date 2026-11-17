@@ -22,6 +22,7 @@ import (
 	"github.com/felipemarts/chanda/internal/embed"
 	"github.com/felipemarts/chanda/internal/env"
 	"github.com/felipemarts/chanda/internal/facts"
+	"github.com/felipemarts/chanda/internal/llm"
 	"github.com/felipemarts/chanda/internal/rank"
 	"github.com/felipemarts/chanda/internal/read"
 	"github.com/felipemarts/chanda/internal/sleep"
@@ -46,8 +47,9 @@ type App struct {
 	indexer *embed.Indexer
 	reader  *read.Reader
 	ranker  *rank.Ranker
-	sleeper *sleep.Sleeper // nil with Options.DisableSleep
-	roots   []string       // resolved write.ingest_roots
+	sleeper *sleep.Sleeper   // nil with Options.DisableSleep
+	llm     core.LLMProvider // sleep phase 2 and agentic search; nil without llm.endpoint
+	roots   []string         // resolved write.ingest_roots
 	opt     Options
 
 	mu     sync.Mutex
@@ -85,8 +87,8 @@ type Options struct {
 	// Reranker is the cross-encoder of read step 6 (nil: no rerank). It is
 	// used only when read.rerank_enabled is true.
 	Reranker core.Reranker
-	// LLM replaces the provider built from cfg.LLM for sleep phase 2 (nil:
-	// llm.FromConfig; tests pass an llm.Fake).
+	// LLM replaces the provider built from cfg.LLM for sleep phase 2 and
+	// agentic search (nil: llm.FromConfig; tests pass an llm.Fake).
 	LLM core.LLMProvider
 	// Logf receives background errors (sleep scheduler); nil discards them.
 	Logf func(format string, args ...any)
@@ -137,7 +139,14 @@ func NewWith(e *env.Env, o Options) (*App, error) {
 			return nil, err
 		}
 	}
-	a := &App{e: e, facts: facts.New(e), guard: dedup.New(e), emb: emb, ranker: rank.New(e), opt: o}
+	a := &App{e: e, facts: facts.New(e), guard: dedup.New(e), emb: emb, ranker: rank.New(e), opt: o, llm: o.LLM}
+	if a.llm == nil {
+		p, err := llm.FromConfig(cfg.LLM, os.Getenv)
+		if err != nil {
+			return nil, core.Wrap(core.CodeInvalidArgument, err, "llm")
+		}
+		a.llm = p
+	}
 	for _, r := range cfg.Write.IngestRoots {
 		rr, err := resolvePath(r)
 		if err != nil {
